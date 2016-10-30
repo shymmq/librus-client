@@ -1,26 +1,43 @@
 package pl.librus.client;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.jdeferred.DoneCallback;
+import org.joda.time.LocalDate;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private final String TAG = "librus-client-log";
 
+    private Toolbar toolbar;
+    private Timetable timetable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("logged_in", false)) {
+            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(i);
+            finish();
+        }
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -29,8 +46,22 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        APIClient client = new APIClient(this);
+        client.getTimetable(LocalDate.now().plusDays(1)).done(new DoneCallback<Timetable>() {
+            @Override
+            public void onDone(Timetable result) {
+                Log.d(TAG, "Timetable" + result.getTimetable().toString());
+                timetable = result;
+            }
+        }).then(new DoneCallback<Timetable>() {
+            @Override
+            public void onDone(Timetable result) {
+                onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
+            }
+        });
     }
 
     @Override
@@ -65,31 +96,41 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
+        Log.d(TAG, "onNavigationItemSelected: Item: " + item.getTitle());
         switch (item.getItemId()) {
             case R.id.nav_timetable:
-                setFragment(new TimetableFragment(), null);
+                Log.d(TAG, "onNavigationItemSelected: timetable: " + timetable);
+                setFragment(TimetableFragment.newInstance(timetable));
+                break;
             case R.id.nav_grades:
-
+                setFragment(new PlaceholderFragment());
+                break;
             case R.id.nav_annoucements:
-
+                setFragment(new PlaceholderFragment());
+                break;
             case R.id.nav_messages:
-
+                setFragment(new PlaceholderFragment());
+                break;
             case R.id.nav_attendances:
-
+                setFragment(new PlaceholderFragment());
+                break;
             case R.id.nav_calendar:
+                setFragment(new PlaceholderFragment());
+                break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    void setFragment(Fragment fragment, Bundle args) {
-        fragment.setArguments(args);
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.content_main, fragment).commit();
+    void setFragment(Fragment fragment) {
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        transaction.replace(R.id.content_main, fragment);
+        transaction.commit();
     }
 }

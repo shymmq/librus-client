@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/background"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_width="72dp"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/lessonNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="sans-serif"
+            android:text="@string/placeholder_lesson_number"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="38sp" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Space
+            android:id="@+id/space"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/lessonTeacher"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/space"
+            android:gravity="center_vertical"
+            android:text="@string/placeholder_teacher_name"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <TextView
+            android:id="@+id/lessonSubject"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp"
+            android:layout_alignBottom="@+id/space"
+            android:layout_alignParentStart="true"
+            android:gravity="center_vertical"
+            android:text="@string/placeholder_subject"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="16sp" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/badge"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp"
+            android:layout_above="@+id/space"
+            android:layout_alignParentEnd="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:visibility="visible"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardElevation="0dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/badgeIcon"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:contentDescription="@string/app_name"
+                    android:padding="2dp"
+                    android:tint="#555"
+                    app:srcCompat="@drawable/ic_swap_horiz_black_24dp" />
+
+                <TextView
+                    android:id="@+id/badgeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="22dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_toEndOf="@+id/badgeIcon"
+                    android:gravity="center"
+                    android:paddingEnd="4dp"
+                    android:paddingStart="4dp"
+                    android:text="@string/placeholder_badge_text" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+        <TextView
+            android:id="@+id/lessonEmpty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="@string/lesson_empty"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textStyle="normal|italic"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+</LinearLayout>

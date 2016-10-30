@@ -5,4 +5,30 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="timetable_empty_page">Brak lekcji.\n\n¯\\_(ツ)_/¯</string>
+    <string name="lesson_empty">Okienko</string>
+    <string name="placeholder_lesson_number">3.</string>
+    <string name="placeholder_teacher_name">Andrzej Długoszek</string>
+    <string name="placeholder_subject">Wychowanie fizyczne</string>
+    <string name="placeholder_badge_text">badgeText</string>
+    <string name="details_teacher_title">Nauczyciel</string>
+    <string name="details_teacher_placeholder"><![CDATA[ktośtam jakiśtam ->]]></string>
+    <string name="details_subject_title">Przedmiot</string>
+    <string name="details_org_subject_placeholder"><![CDATA[Fizyka ->]]></string>
+    <string name="details_subject_placeholder">Matematyka</string>
+    <string name="details_date_title">Data</string>
+    <string name="details_date_placeholder">23 października 2016</string>
+    <string name="details_time_title">Godzina</string>
+    <string name="details_time_placeholder">8:45 - 9:40</string>
+    <string name="details_end_time_placeholder">- 9:40</string>
+    <string name="details_lesson_number_placeholder">2. lekcja</string>
+    <string name="details_event_count_title">1 wydarzenie :</string>
+    <string name="details_event_category_title">Kategoria</string>
+    <string name="details_event_category_placeholder">klasówka</string>
+    <string name="details_event_description_title">Opis</string>
+    <string name="details_event_description_placeholder">Przykładowy opis</string>
+    <string name="details_start_time_placeholder">8:45</string>
+    <string name="username">Nazwa użytkownika</string>
+    <string name="password">Hasło</string>
+    <string name="log_in">Zaloguj się</string>
 </resources>
