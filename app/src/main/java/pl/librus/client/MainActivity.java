@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //TODO load and display data from cache here
+
         APIClient client = new APIClient(this);
         client.getTimetable(LocalDate.now().plusDays(1)).done(new DoneCallback<Timetable>() {
             @Override

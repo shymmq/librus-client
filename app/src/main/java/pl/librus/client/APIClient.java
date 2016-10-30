@@ -15,6 +15,7 @@ import com.squareup.okhttp.Response;
 import org.jdeferred.Deferred;
 import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.impl.DeferredObject;
@@ -106,7 +107,7 @@ class APIClient {
     private Promise<JSONObject, Integer, Integer> APIRequest(final String endpoint) {
         final Deferred<JSONObject, Integer, Integer> deferred = new DeferredObject<>();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        Request request = new Request.Builder().addHeader("Authorization", "Bearer " + preferences.getString("access_token", ""))
+        final Request request = new Request.Builder().addHeader("Authorization", "Bearer " + preferences.getString("access_token", ""))
                 .url(BASE_URL + endpoint)
                 .build();
 
@@ -125,6 +126,31 @@ class APIClient {
                         e.printStackTrace();
                     }
                 } else {
+                    refreshAccess().then(new DoneCallback<String>() {
+                        @Override
+                        public void onDone(String result) {
+                            //refresh successful
+                            APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
+                                @Override
+                                public void onDone(JSONObject result) {
+                                    //second attempt successful
+                                    deferred.resolve(result);
+                                }
+                            }).fail(new FailCallback<Integer>() {
+                                @Override
+                                public void onFail(Integer result) {
+                                    //second attempt failed
+                                    deferred.reject(result);
+                                }
+                            });
+                        }
+                    }).fail(new FailCallback<Integer>() {
+                        @Override
+                        public void onFail(Integer result) {
+                            //refresh failed
+                            deferred.reject(result);
+                        }
+                    });
                     deferred.reject(response.code());
                 }
             }
@@ -133,44 +159,48 @@ class APIClient {
     }
 
 
-//    private void refreshAccess(final Consumer onSuccess) {
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-//
-//        if (prefs.getBoolean("logged_in", false)) {
-//            throw new Error();
-//        } else {
-//            Request request = new Request.Builder()
-//                    .url(AUTH_URL)
-//                    .header("Authorization", "Basic " + auth_token)
-//                    .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), "refresh_token=" + refresh_token + "&grant_type=refresh_token&librus_long_term_token=1"))
-//                    .build();
-//
-//            client.newCall(request).enqueue(new Callback() {
-//                @Override
-//                public void onFailure(Request request, IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                @Override
-//                public void onResponse(Response response) throws IOException {
-//                    if (!response.isSuccessful())
-//                        try {
-//                            JSONObject responseJSON = new JSONObject(response.body().string());
-//
-//                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-//
-//                            editor.putString("refresh_token", responseJSON.getString("refresh_token"));
-//                            editor.putString("access_token", responseJSON.getString("access_token"));
-//                            editor.putLong("valid_until", System.currentTimeMillis() + responseJSON.getLong("expires_in"));
-//                            editor.commit();
-//                            onSuccess.run(access_token);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                }
-//            });
-//        }
-//    }
+    private Promise<String, Integer, String> refreshAccess() {
+        final Deferred<String, Integer, String> deferred = new DeferredObject<>();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        if (prefs.getBoolean("logged_in", false)) {
+            throw new Error();
+        }
+
+        final Request request = new Request.Builder()
+                .url(AUTH_URL)
+                .header("Authorization", "Basic " + auth_token)
+                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), "refresh_token=" + prefs.getString("refresh_token", null) + "&grant_type=refresh_token&librus_long_term_token=1"))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    deferred.reject(response.code());
+                } else {
+                    try {
+                        JSONObject responseJSON = new JSONObject(response.body().string());
+
+                        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+
+                        editor.putString("refresh_token", responseJSON.getString("refresh_token"));
+                        editor.putString("access_token", responseJSON.getString("access_token"));
+                        editor.commit();
+                        deferred.resolve(access_token);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        return deferred.promise();
+    }
 
     private Promise<Map<String, String>, Integer, Integer> getEventCategories() {
 
@@ -242,14 +272,16 @@ class APIClient {
     }
 
     Promise<Timetable, String, String> getTimetable(final LocalDate... weeks) {
-//get current week start date
+
         final Deferred<Timetable, String, String> deferred = new DeferredObject<>();
+
         Promise promises[] = new Promise[weeks.length];
+
         for (int i = 0; i < weeks.length; i++) {
             LocalDate weekStart = weeks[i];
             promises[i] = (APIRequest("/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd")));
-//            log("Requested timetable for " + weekStart.toString("yyyy-MM-dd"));
         }
+
         DeferredManager dm = new AndroidDeferredManager();
         dm.when(promises).done(new DoneCallback<MultipleResults>() {
             @Override
@@ -275,6 +307,7 @@ class APIClient {
             }
 
         });
+
         return deferred.promise();
     }
 
