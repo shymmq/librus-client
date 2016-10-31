@@ -17,12 +17,13 @@ class TimetableUtils {
         }
     }
 
-    private static LocalDate getWeekStart() {
-        return LocalDate.now().plusDays(2).withDayOfWeek(DateTimeConstants.MONDAY);
+    static LocalDate getWeekStart() {
+        return LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
     }
 
     static int getDayCount() {
-        return Days.daysBetween(getStartDate(), getWeekStart().plusWeeks(2)).getDays() - 4;
+//        return Days.daysBetween(getStartDate(), getWeekStart().plusWeeks(2)).getDays() - 4;
+        return 10;
     }
 
     static String getTabTitle(int index, boolean displayDates, boolean useRelativeTabNames) {

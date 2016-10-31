@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 
 public class TimetableFragment extends Fragment {
     private final String TAG = "librus-client-log";
-    Timetable timetable;
 
     public static TimetableFragment newInstance(Timetable timetable) {
 
@@ -30,7 +29,7 @@ public class TimetableFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_timetable, container, false);
         ViewPager viewPager = (ViewPager) root.findViewById(R.id.container);
         TabLayout tabLayout = (TabLayout) root.findViewById(R.id.tabs);
-        timetable = (Timetable) getArguments().getSerializable("data");
+        Timetable timetable = (Timetable) getArguments().getSerializable("data");
         assert timetable != null;
         Log.d(TAG, "onCreateView: timetable: " + timetable.getTimetable().toString());
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), timetable);
@@ -47,8 +46,11 @@ public class TimetableFragment extends Fragment {
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+        private final Timetable timetable;
+
         SectionsPagerAdapter(FragmentManager fm, Timetable timetable) {
             super(fm);
+            this.timetable = timetable;
         }
 
         @Override
@@ -58,7 +60,7 @@ public class TimetableFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return timetable.getTimetable().size();
+            return 10;
         }
 
         @Override

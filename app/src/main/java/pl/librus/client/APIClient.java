@@ -38,10 +38,6 @@ class APIClient {
     private final String AUTH_URL = "https://api.librus.pl/OAuth/Token";
     private final String TAG = "librus-client-log";
     private final String auth_token = "MzU6NjM2YWI0MThjY2JlODgyYjE5YTMzZjU3N2U5NGNiNGY=";
-    LibrusState state;
-    private String access_token = null;
-    private String refresh_token = null;
-    private long valid_until = 0;
     private Context context;
     private OkHttpClient client = new OkHttpClient();
     private boolean debug = true;
@@ -107,9 +103,14 @@ class APIClient {
     private Promise<JSONObject, Integer, Integer> APIRequest(final String endpoint) {
         final Deferred<JSONObject, Integer, Integer> deferred = new DeferredObject<>();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        final Request request = new Request.Builder().addHeader("Authorization", "Bearer " + preferences.getString("access_token", ""))
+        final String access_token = preferences.getString("access_token", "");
+        final Request request = new Request.Builder().addHeader("Authorization", "Bearer " + access_token)
                 .url(BASE_URL + endpoint)
                 .build();
+
+        log("Performing APIRequest\n" +
+                "Endpoint: " + endpoint + "\n" +
+                "Access_token: " + access_token);
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -118,7 +119,7 @@ class APIClient {
             }
 
             @Override
-            public void onResponse(Response response) throws IOException {
+            public void onResponse(final Response response) throws IOException {
                 if (response.isSuccessful()) {
                     try {
                         deferred.resolve(new JSONObject(response.body().string()));
@@ -126,32 +127,47 @@ class APIClient {
                         e.printStackTrace();
                     }
                 } else {
+                    log("API Request failed\n" +
+                            "Access_token: " + access_token + "\n" +
+                            "Response code: " + response.code() + " " + response.message());
                     refreshAccess().then(new DoneCallback<String>() {
                         @Override
                         public void onDone(String result) {
+
                             //refresh successful
+                            log("Refresh successful");
+
                             APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
                                 @Override
                                 public void onDone(JSONObject result) {
+
                                     //second attempt successful
+                                    log("Second attempt successful");
+
                                     deferred.resolve(result);
                                 }
                             }).fail(new FailCallback<Integer>() {
                                 @Override
                                 public void onFail(Integer result) {
+
                                     //second attempt failed
+                                    log("Second attempt failed. Code " + result);
+
                                     deferred.reject(result);
                                 }
                             });
                         }
-                    }).fail(new FailCallback<Integer>() {
+                    }).fail(new FailCallback<Response>() {
                         @Override
-                        public void onFail(Integer result) {
+                        public void onFail(Response result) {
+
                             //refresh failed
-                            deferred.reject(result);
+                            log("Refresh failed \n" +
+                                    "Response code: " + result + " " + response.message());
+
+                            deferred.reject(result.code());
                         }
                     });
-                    deferred.reject(response.code());
                 }
             }
         });
@@ -159,18 +175,22 @@ class APIClient {
     }
 
 
-    private Promise<String, Integer, String> refreshAccess() {
-        final Deferred<String, Integer, String> deferred = new DeferredObject<>();
+    private Promise<String, Response, String> refreshAccess() {
+        final Deferred<String, Response, String> deferred = new DeferredObject<>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
-        if (prefs.getBoolean("logged_in", false)) {
-            throw new Error();
+        if (!prefs.getBoolean("logged_in", false)) {
+            throw new Error("Client not logged in. Call APIClient.login() first.");
         }
+
+        String refresh_token = prefs.getString("refresh_token", null);
+
+        log("Refreshing... \n" +
+                "Refresh token: " + refresh_token);
 
         final Request request = new Request.Builder()
                 .url(AUTH_URL)
                 .header("Authorization", "Basic " + auth_token)
-                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), "refresh_token=" + prefs.getString("refresh_token", null) + "&grant_type=refresh_token&librus_long_term_token=1"))
+                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), "&grant_type=refresh_token&refresh_token=" + refresh_token))
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -182,19 +202,24 @@ class APIClient {
             @Override
             public void onResponse(Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    deferred.reject(response.code());
+                    deferred.reject(response);
                 } else {
                     try {
                         JSONObject responseJSON = new JSONObject(response.body().string());
 
                         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
-                        editor.putString("refresh_token", responseJSON.getString("refresh_token"));
-                        editor.putString("access_token", responseJSON.getString("access_token"));
+                        String refresh_token_new = responseJSON.getString("refresh_token");
+                        String access_token = responseJSON.getString("access_token");
+
+                        editor.putString("refresh_token", refresh_token_new);
+                        editor.putString("access_token", access_token);
+
                         editor.commit();
                         deferred.resolve(access_token);
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        deferred.reject(response);
                     }
                 }
             }

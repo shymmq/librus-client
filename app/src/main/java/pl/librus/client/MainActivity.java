@@ -1,6 +1,7 @@
 package pl.librus.client;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -17,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.jdeferred.DoneCallback;
-import org.joda.time.LocalDate;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -29,41 +29,43 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("logged_in", false)) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean logged_in = prefs.getBoolean("logged_in", false);
+        if (!logged_in) {
             Intent i = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(i);
             finish();
+        } else {
+            setContentView(R.layout.activity_main);
+
+            toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
+
+            final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+
+            //TODO load and display data from cache here
+
+            APIClient client = new APIClient(this);
+            client.getTimetable(TimetableUtils.getWeekStart()).done(new DoneCallback<Timetable>() {
+                @Override
+                public void onDone(Timetable result) {
+                    Log.d(TAG, "Timetable" + result.getTimetable().toString());
+                    timetable = result;
+                }
+            }).then(new DoneCallback<Timetable>() {
+                @Override
+                public void onDone(Timetable result) {
+                    onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
+                }
+            });
         }
-        setContentView(R.layout.activity_main);
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        //TODO load and display data from cache here
-
-        APIClient client = new APIClient(this);
-        client.getTimetable(LocalDate.now().plusDays(1)).done(new DoneCallback<Timetable>() {
-            @Override
-            public void onDone(Timetable result) {
-                Log.d(TAG, "Timetable" + result.getTimetable().toString());
-                timetable = result;
-            }
-        }).then(new DoneCallback<Timetable>() {
-            @Override
-            public void onDone(Timetable result) {
-                onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
-            }
-        });
     }
 
     @Override
@@ -104,23 +106,45 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onNavigationItemSelected: Item: " + item.getTitle());
         switch (item.getItemId()) {
             case R.id.nav_timetable:
+
                 Log.d(TAG, "onNavigationItemSelected: timetable: " + timetable);
+                toolbar.setTitle("Plan lekcji");
                 setFragment(TimetableFragment.newInstance(timetable));
+
                 break;
+
             case R.id.nav_grades:
+
                 setFragment(new PlaceholderFragment());
+                toolbar.setTitle("Oceny");
+
                 break;
+
+            case R.id.nav_calendar:
+
+                setFragment(new PlaceholderFragment());
+                toolbar.setTitle("Terminarz");
+
+                break;
+
             case R.id.nav_annoucements:
                 setFragment(new PlaceholderFragment());
+                toolbar.setTitle("Ogłoszenia");
+
                 break;
+
             case R.id.nav_messages:
+
                 setFragment(new PlaceholderFragment());
+                toolbar.setTitle("Wiadomości");
+
                 break;
+
             case R.id.nav_attendances:
+
                 setFragment(new PlaceholderFragment());
-                break;
-            case R.id.nav_calendar:
-                setFragment(new PlaceholderFragment());
+                toolbar.setTitle("Nieobecności");
+
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

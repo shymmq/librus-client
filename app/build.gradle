@@ -35,4 +35,5 @@ dependencies {
     compile 'com.afollestad.material-dialogs:core:0.9.0.2'
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
+    compile 'de.hdodenhof:circleimageview:2.1.0'
 }
