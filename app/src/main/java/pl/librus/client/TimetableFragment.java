@@ -36,11 +36,8 @@ public class TimetableFragment extends Fragment {
         viewPager.setAdapter(sectionsPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
 
-        viewPager.setCurrentItem(0, true);
+        viewPager.setCurrentItem(TimetableUtils.getStartTab(), true);
 
-//        log("Tab count : " + TimetableUtils.getDayCount());
-//        log("Start date : " + TimetableUtils.getStartDate());
-//        log("Week start : " + TimetableUtils.getWeekStart());
         return root;
     }
 
@@ -60,7 +57,7 @@ public class TimetableFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return 10;
+            return TimetableUtils.getDayCount();
         }
 
         @Override

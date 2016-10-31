@@ -8,12 +8,12 @@ import java.util.Locale;
 
 class TimetableUtils {
 
-    private static LocalDate getStartDate() {
+    static int getStartTab() {
         int weekday = LocalDate.now().getDayOfWeek();
-        if (weekday == DateTimeConstants.SATURDAY || weekday == DateTimeConstants.SUNDAY) {
-            return LocalDate.now().plusWeeks(1).withDayOfWeek(DateTimeConstants.MONDAY);
+        if (weekday >= DateTimeConstants.SATURDAY) {
+            return weekday - 1 + 5;
         } else {
-            return LocalDate.now();
+            return weekday - 1;
         }
     }
 
@@ -31,12 +31,11 @@ class TimetableUtils {
     }
 
     static LocalDate getTabDate(int index) {
-        LocalDate startDate = getStartDate();
-        int weekDay = startDate.getDayOfWeek();
-        if (weekDay + index > DateTimeConstants.FRIDAY) {
-            index += 2;
+        LocalDate weekStart = getWeekStart();
+        if (index >= 5) {
+            return weekStart.plusDays(index + 2);
         }
-        return startDate.plusDays(index);
+        return weekStart.plusDays(index);
     }
 
     private static String getTitle(LocalDate date, boolean displayDates, boolean useRelativeTabNames) {
@@ -52,9 +51,9 @@ class TimetableUtils {
             }
         }
 
-        boolean sameWeek = date.withDayOfWeek(1).getDayOfYear() == getStartDate().withDayOfWeek(1).getDayOfYear();
+        //TODO "Display dates" preference support
 
-        if (sameWeek || !displayDates) {
+        if (!displayDates) {
             return date.dayOfWeek().getAsText(new Locale("pl"));
         } else {
             return date.toString("d MMM.", new Locale("pl"));
