@@ -18,12 +18,16 @@ import android.view.MenuItem;
 
 import org.jdeferred.DoneCallback;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private final String TAG = "librus-client-log";
 
     private Toolbar toolbar;
     private Timetable timetable;
+    private List<Announcement> announcementList = new ArrayList<Announcement>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,19 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onDone(Timetable result) {
                     onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
+                }
+            });
+
+            client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
+                @Override
+                public void onDone(List<Announcement> result) {
+                    Log.d(TAG, "Announcement count: " + result.size());
+                    announcementList = (ArrayList<Announcement>) result;
+                }
+            }).then(new DoneCallback<List<Announcement>>() {
+                @Override
+                public void onDone(List<Announcement> result) {
+                    onNavigationItemSelected(navigationView.getMenu().getItem(3).setChecked(true));
                 }
             });
         }
@@ -105,7 +122,7 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case R.id.nav_annoucements:
-                setFragment(new PlaceholderFragment());
+                setFragment(AnnouncementsFragment.newInstance((ArrayList<Announcement>) announcementList));
                 toolbar.setTitle("Ogłoszenia");
 
                 break;

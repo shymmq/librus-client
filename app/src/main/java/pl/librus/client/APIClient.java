@@ -174,7 +174,6 @@ class APIClient {
         return deferred.promise();
     }
 
-
     private Promise<String, Response, String> refreshAccess() {
         final Deferred<String, Response, String> deferred = new DeferredObject<>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -227,6 +226,7 @@ class APIClient {
         return deferred.promise();
     }
 
+
     private Promise<Map<String, String>, Integer, Integer> getEventCategories() {
 
         final Deferred<Map<String, String>, Integer, Integer> deferred = new DeferredObject<>();
@@ -265,7 +265,6 @@ class APIClient {
             @Override
             public void onDone(MultipleResults result) {
                 try {
-
                     JSONObject events = (JSONObject) result.get(0).getResult();
                     @SuppressWarnings("unchecked")
                     Map<String, String> categories = (Map<String, String>) result.get(1).getResult();
@@ -292,8 +291,75 @@ class APIClient {
         return deferred.promise();
 
         //tasks finished
+    }
 
 
+
+    public Promise<Map<String, String>, Integer, Integer> getTeachers() {
+        final Deferred<Map<String, String>, Integer, Integer> deferred = new DeferredObject<>();
+
+        APIRequest("/Users").then(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    Map<String, String> res = new HashMap<>();
+                    JSONArray rawTeachers = result.getJSONArray("Users");
+                    for (int i = 0; i < rawTeachers.length(); i++) {
+                        JSONObject teacher = rawTeachers.getJSONObject(i);
+                        res.put(teacher.getString("Id"), teacher.getString("FirstName") + " " + teacher.getString("LastName"));
+                    }
+                    deferred.resolve(res);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return  deferred.promise();
+    }
+
+    public Promise<JSONObject, Integer, Integer> getAnnouncementEntries() {
+        return APIRequest("/SchoolNotices");
+    }
+
+    public Promise<List<Announcement>, Integer, Integer> getAnnouncements() {
+
+        final Deferred<List<Announcement>, Integer, Integer> deferred = new DeferredObject<>();
+
+        //start asynchronous tasks
+        DeferredManager dm = new AndroidDeferredManager();
+        dm.when(getTeachers(), getAnnouncementEntries()).done(new DoneCallback<MultipleResults>() {
+            @Override
+            public void onDone(MultipleResults result) {
+                try {
+                    JSONObject announcements = (JSONObject) result.get(1).getResult();
+                    @SuppressWarnings("unchecked")
+                    Map<String, String> authors = (Map<String, String>) result.get(0).getResult();
+                    JSONArray announcementArray = announcements.getJSONArray("SchoolNotices");
+                    List<Announcement> res = new ArrayList<>();
+
+                    for (int announcementIndex = 0; announcementIndex < announcementArray.length(); announcementIndex++) {
+                        JSONObject rawAnnouncement = announcementArray.getJSONObject(announcementIndex);
+
+                        Integer id = rawAnnouncement.getInt("Id");
+                        LocalDate startDate = LocalDate.parse(rawAnnouncement.getString("StartDate"));
+                        LocalDate endDate = LocalDate.parse(rawAnnouncement.getString("EndDate"));
+                        String subject = rawAnnouncement.getString("Subject");
+                        String content = rawAnnouncement.getString("Content");
+                        String author = authors.get(String.valueOf(rawAnnouncement.getJSONObject("AddedBy").getInt("Id")));
+                        Teacher teacher = new Teacher(rawAnnouncement.getJSONObject("AddedBy").getInt("Id"), rawAnnouncement.getJSONObject("AddedBy").getString("FirstName"), rawAnnouncement.getJSONObject("AddedBy").getString("LastName"));
+                        res.add(new Announcement(id, startDate, endDate, subject, content));
+                    }
+                    log("Resolved announcements:    " + res.toString());
+                    deferred.resolve(res);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return  deferred.promise();
+
+        //tasks finished
     }
 
     Promise<Timetable, String, String> getTimetable(final LocalDate... weeks) {
