@@ -4,30 +4,31 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-import org.jdeferred.DoneCallback;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.jdeferred.android.AndroidDoneCallback;
+import org.jdeferred.android.AndroidExecutionScope;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
     private final String TAG = "librus-client-log";
-
+    TimetableFragment timetableFragment;
+    AnnouncementsFragment announcementsFragment;
     private Toolbar toolbar;
-    private Timetable timetable;
-    private List<Announcement> announcementList = new ArrayList<Announcement>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,113 +45,118 @@ public class MainActivity extends AppCompatActivity
             toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
 
-            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-            drawer.addDrawerListener(toggle);
-            toggle.syncState();
-
-            final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            navigationView.setNavigationItemSelectedListener(this);
+//            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+//                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//            drawer.addDrawerListener(toggle);
+//            toggle.syncState();
+//
+//            final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+//            navigationView.setNavigationItemSelectedListener(this);
 
             //TODO load and display data from cache here
-
-            APIClient client = new APIClient(this);
-            client.getTimetable(TimetableUtils.getWeekStart(), TimetableUtils.getWeekStart().plusWeeks(1)).done(new DoneCallback<Timetable>() {
+            LibrusCache.update(getApplicationContext()).done(new AndroidDoneCallback<LibrusCache>() {
                 @Override
-                public void onDone(Timetable result) {
+                public AndroidExecutionScope getExecutionScope() {
+                    return null;
+                }
+
+                @Override
+                public void onDone(LibrusCache result) {
                     Log.d(TAG, "Timetable" + result.getTimetable().toString());
-                    timetable = result;
-                }
-            }).then(new DoneCallback<Timetable>() {
-                @Override
-                public void onDone(Timetable result) {
-                    onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
+                    Toast.makeText(getApplicationContext(), "Pobrano", Toast.LENGTH_SHORT).show();
+                    timetableFragment = TimetableFragment.newInstance(result.getTimetable());
+                    announcementsFragment = AnnouncementsFragment.newInstance(result.getAnnouncements());
                 }
             });
-
-            client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
-                @Override
-                public void onDone(List<Announcement> result) {
-                    Log.d(TAG, "Announcement count: " + result.size());
-                    announcementList = (ArrayList<Announcement>) result;
-                }
-            }).then(new DoneCallback<List<Announcement>>() {
-                @Override
-                public void onDone(List<Announcement> result) {
-                    onNavigationItemSelected(navigationView.getMenu().getItem(3).setChecked(true));
-                }
-            });
+            AccountHeader header = new AccountHeaderBuilder()
+                    .withActivity(this)
+                    .withSelectionListEnabledForSingleProfile(true)
+                    .withHeaderBackground(R.drawable.background_nav)
+                    .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
+                    .addProfiles(
+                            new ProfileDrawerItem().withName("Szymon Wysocki").withEmail("szymek.wysocki@gmail.com").withIcon(R.drawable.jeb)
+                    )
+                    .build();
+            final Drawer drawer = new DrawerBuilder()
+                    .withActivity(this)
+                    .withToolbar(toolbar)
+                    .withAccountHeader(header)
+                    .addDrawerItems(
+                            new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                    .withIdentifier(0)
+                                    .withName("Plan lekcji")
+                                    .withIcon(R.drawable.ic_event_note_black_48dp),
+                            new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                    .withIdentifier(1)
+                                    .withName("Oceny")
+                                    .withIcon(R.drawable.ic_event_black_48dp),
+                            new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                    .withIdentifier(2)
+                                    .withName("Terminarz")
+                                    .withIcon(R.drawable.ic_date_range_black_48dp),
+                            new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                    .withIdentifier(3)
+                                    .withName("Ogłoszenia")
+                                    .withIcon(R.drawable.ic_announcement_black_48dp),
+                            new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                    .withIdentifier(4)
+                                    .withName("Wiadomości")
+                                    .withIcon(R.drawable.ic_message_black_48dp),
+                            new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                    .withIdentifier(5)
+                                    .withName("Nieobecności")
+                                    .withIcon(R.drawable.ic_person_outline_black_48dp))
+                    .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true)
+                            .withIdentifier(6)
+                            .withName("Ustawienia")
+                            .withIcon(R.drawable.ic_settings_black_48dp))
+                    .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                        @Override
+                        public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                            return selectItem(drawerItem);
+                        }
+                    })
+                    .withDelayOnDrawerClose(50)
+                    .build();
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        Log.d(TAG, "onNavigationItemSelected: Item: " + item.getTitle());
-        switch (item.getItemId()) {
-            case R.id.nav_timetable:
-
-                Log.d(TAG, "onNavigationItemSelected: timetable: " + timetable);
+    boolean selectItem(IDrawerItem item) {
+        Fragment fragment = null;
+        toolbar.setTitle("");
+        switch ((int) item.getIdentifier()) {
+            case 0:
+                fragment = timetableFragment;
                 toolbar.setTitle("Plan lekcji");
-                setFragment(TimetableFragment.newInstance(timetable));
-
                 break;
-
-            case R.id.nav_grades:
-
-                setFragment(new PlaceholderFragment());
-                toolbar.setTitle("Oceny");
-
+            case 1:
+                fragment = new PlaceholderFragment();
                 break;
-
-            case R.id.nav_calendar:
-
-                setFragment(new PlaceholderFragment());
-                toolbar.setTitle("Terminarz");
-
+            case 2:
+                fragment = new PlaceholderFragment();
                 break;
-
-            case R.id.nav_annoucements:
-                setFragment(AnnouncementsFragment.newInstance((ArrayList<Announcement>) announcementList));
+            case 3:
+                fragment = announcementsFragment;
                 toolbar.setTitle("Ogłoszenia");
-
                 break;
-
-            case R.id.nav_messages:
-
-                setFragment(new PlaceholderFragment());
-                toolbar.setTitle("Wiadomości");
-
+            case 4:
+                fragment = new PlaceholderFragment();
                 break;
-
-            case R.id.nav_attendances:
-
-                setFragment(new PlaceholderFragment());
-                toolbar.setTitle("Nieobecności");
-
+            case 5:
+                fragment = new PlaceholderFragment();
+                break;
+            case 6:
+                fragment = new PlaceholderFragment();
                 break;
         }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    void setFragment(Fragment fragment) {
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
+//        transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
+//        Log.d(TAG, "updateFragment: \n" +
+//                "fragment " + fragment + "\n" +
+//                "transaction " + transaction);
         transaction.replace(R.id.content_main, fragment);
         transaction.commit();
+        return false;
     }
 }

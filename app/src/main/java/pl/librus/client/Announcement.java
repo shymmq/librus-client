@@ -1,11 +1,8 @@
 package pl.librus.client;
 
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import java.io.Serializable;
 
@@ -13,7 +10,7 @@ import java.io.Serializable;
  * Created by Adam on 2016-10-31.
  */
 
-public class Announcement implements Serializable {
+class Announcement implements Serializable {
     private Integer id;
     private LocalDate startDate, endDate;
     private String subject, content;
@@ -29,10 +26,11 @@ public class Announcement implements Serializable {
 
     Announcement(JSONObject data) throws JSONException {
         this.id = data.getInt("Id");
-        this.startDate = LocalDate.parse(data.getString("startDate"));
-        this.endDate = LocalDate.parse(data.getString("endDate"));
+        this.startDate = LocalDate.parse(data.getString("StartDate"));
+        this.endDate = LocalDate.parse(data.getString("EndDate"));
         this.subject = data.getString("Subject");
         this.content = data.getString("Content");
+        this.teacher = new Teacher(data.getJSONObject("AddedBy").getInt("Id"), "//TODO", "Dodać imię i nazwisko");
     }
 
     public Integer getId() {

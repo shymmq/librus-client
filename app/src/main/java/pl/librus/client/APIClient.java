@@ -1,5 +1,6 @@
 package pl.librus.client;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -34,13 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 class APIClient {
-    private final String BASE_URL = "https://api.librus.pl/2.0";
-    private final String AUTH_URL = "https://api.librus.pl/OAuth/Token";
-    private final String TAG = "librus-client-log";
-    private final String auth_token = "MzU6NjM2YWI0MThjY2JlODgyYjE5YTMzZjU3N2U5NGNiNGY=";
     private Context context;
     private OkHttpClient client = new OkHttpClient();
-    private boolean debug = true;
 
     APIClient(Context _context) {
         context = _context;
@@ -64,6 +60,7 @@ class APIClient {
                 e.printStackTrace();
             }
 
+            @SuppressLint("CommitPrefEdits")
             @Override
             public void onResponse(Response response) throws IOException {
                 if (response.isSuccessful()) {
@@ -95,15 +92,19 @@ class APIClient {
     }
 
     private void log(String text) {
-        if (debug) {
+        String TAG = "librus-client-log";
+        if (text.length() > 4000) {
+            Log.d(TAG, text.substring(0, 4000));
+            log(text.substring(4000));
+        } else
             Log.d(TAG, text);
-        }
     }
 
     private Promise<JSONObject, Integer, Integer> APIRequest(final String endpoint) {
         final Deferred<JSONObject, Integer, Integer> deferred = new DeferredObject<>();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         final String access_token = preferences.getString("access_token", "");
+        String BASE_URL = "https://api.librus.pl/2.0";
         final Request request = new Request.Builder().addHeader("Authorization", "Bearer " + access_token)
                 .url(BASE_URL + endpoint)
                 .build();
@@ -186,6 +187,8 @@ class APIClient {
         log("Refreshing... \n" +
                 "Refresh token: " + refresh_token);
 
+        String AUTH_URL = "https://api.librus.pl/OAuth/Token";
+        String auth_token = "MzU6NjM2YWI0MThjY2JlODgyYjE5YTMzZjU3N2U5NGNiNGY=";
         final Request request = new Request.Builder()
                 .url(AUTH_URL)
                 .header("Authorization", "Basic " + auth_token)
@@ -225,7 +228,6 @@ class APIClient {
         });
         return deferred.promise();
     }
-
 
     private Promise<Map<String, String>, Integer, Integer> getEventCategories() {
 
@@ -293,9 +295,7 @@ class APIClient {
         //tasks finished
     }
 
-
-
-    public Promise<Map<String, String>, Integer, Integer> getTeachers() {
+    private Promise<Map<String, String>, Integer, Integer> getTeachers() {
         final Deferred<Map<String, String>, Integer, Integer> deferred = new DeferredObject<>();
 
         APIRequest("/Users").then(new DoneCallback<JSONObject>() {
@@ -315,14 +315,14 @@ class APIClient {
             }
         });
 
-        return  deferred.promise();
+        return deferred.promise();
     }
 
-    public Promise<JSONObject, Integer, Integer> getAnnouncementEntries() {
+    private Promise<JSONObject, Integer, Integer> getAnnouncementEntries() {
         return APIRequest("/SchoolNotices");
     }
 
-    public Promise<List<Announcement>, Integer, Integer> getAnnouncements() {
+    Promise<List<Announcement>, Integer, Integer> getAnnouncements() {
 
         final Deferred<List<Announcement>, Integer, Integer> deferred = new DeferredObject<>();
 
@@ -341,14 +341,14 @@ class APIClient {
                     for (int announcementIndex = 0; announcementIndex < announcementArray.length(); announcementIndex++) {
                         JSONObject rawAnnouncement = announcementArray.getJSONObject(announcementIndex);
 
-                        Integer id = rawAnnouncement.getInt("Id");
-                        LocalDate startDate = LocalDate.parse(rawAnnouncement.getString("StartDate"));
-                        LocalDate endDate = LocalDate.parse(rawAnnouncement.getString("EndDate"));
-                        String subject = rawAnnouncement.getString("Subject");
-                        String content = rawAnnouncement.getString("Content");
-                        String author = authors.get(String.valueOf(rawAnnouncement.getJSONObject("AddedBy").getInt("Id")));
-                        Teacher teacher = new Teacher(rawAnnouncement.getJSONObject("AddedBy").getInt("Id"), rawAnnouncement.getJSONObject("AddedBy").getString("FirstName"), rawAnnouncement.getJSONObject("AddedBy").getString("LastName"));
-                        res.add(new Announcement(id, startDate, endDate, subject, content));
+//                        Integer id = rawAnnouncement.getInt("Id");
+//                        LocalDate startDate = LocalDate.parse(rawAnnouncement.getString("StartDate"));
+//                        LocalDate endDate = LocalDate.parse(rawAnnouncement.getString("EndDate"));
+//                        String subject = rawAnnouncement.getString("Subject");
+//                        String content = rawAnnouncement.getString("Content");
+//                        String author = authors.get(String.valueOf(rawAnnouncement.getJSONObject("AddedBy").getInt("Id")));
+//                        Teacher teacher = new Teacher(rawAnnouncement.getJSONObject("AddedBy").getInt("Id"), rawAnnouncement.getJSONObject("AddedBy").getString("FirstName"), rawAnnouncement.getJSONObject("AddedBy").getString("LastName"));
+                        res.add(new Announcement(rawAnnouncement));
                     }
                     log("Resolved announcements:    " + res.toString());
                     deferred.resolve(res);
@@ -357,9 +357,29 @@ class APIClient {
                 }
             }
         });
-        return  deferred.promise();
+        return deferred.promise();
 
         //tasks finished
+    }
+
+    Promise<LibrusAccount, Object, Object> getAccount() {
+        final Deferred<LibrusAccount, Object, Object> deferred = new DeferredObject<>();
+        APIRequest("/Me").done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    deferred.resolve(new LibrusAccount(result));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).fail(new FailCallback<Integer>() {
+            @Override
+            public void onFail(Integer result) {
+                deferred.reject(result);
+            }
+        });
+        return deferred.promise();
     }
 
     Promise<Timetable, String, String> getTimetable(final LocalDate... weeks) {

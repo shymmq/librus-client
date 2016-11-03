@@ -2,18 +2,14 @@ package pl.librus.client;
 
 
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,19 +21,18 @@ public class AnnouncementsFragment extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    public static AnnouncementsFragment newInstance(ArrayList<Announcement> announcementList) {
-
-        Bundle args = new Bundle();
-        args.putSerializable("data", announcementList);
-        AnnouncementsFragment fragment = new AnnouncementsFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     public AnnouncementsFragment() {
         // Required empty public constructor
     }
 
+    public static AnnouncementsFragment newInstance(List<Announcement> announcementList) {
+
+        Bundle args = new Bundle();
+        args.putSerializable("data", (Serializable) announcementList);
+        AnnouncementsFragment fragment = new AnnouncementsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
