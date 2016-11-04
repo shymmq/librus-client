@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="88dp"
+    android:padding="0dp">
+
+    <TextView
+        android:id="@+id/three_line_list_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_toStartOf="@+id/three_line_list_item_date"
+        android:ellipsize="marquee"
+        android:maxLines="1"
+        android:text="@string/announcement"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/md_divider_black" />
+
+    <TextView
+        android:id="@+id/three_line_list_item_first"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/three_line_list_item_title"
+        android:layout_marginLeft="16dp"
+        android:elegantTextHeight="false"
+        android:ellipsize="end"
+        android:minLines="1"
+        android:text="@string/placeholder_teacher_name"
+        android:textColor="?android:attr/textColorPrimary" />
+
+    <TextView
+        android:id="@+id/three_line_list_item_second"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/three_line_list_item_first"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/placeholder_announcement" />
+
+    <TextView
+        android:id="@+id/three_line_list_item_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/three_line_list_item_first"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/placeholder_date"
+        android:textSize="14sp" />
+</RelativeLayout>

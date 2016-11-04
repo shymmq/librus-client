@@ -341,14 +341,17 @@ class APIClient {
                     for (int announcementIndex = 0; announcementIndex < announcementArray.length(); announcementIndex++) {
                         JSONObject rawAnnouncement = announcementArray.getJSONObject(announcementIndex);
 
-//                        Integer id = rawAnnouncement.getInt("Id");
-//                        LocalDate startDate = LocalDate.parse(rawAnnouncement.getString("StartDate"));
-//                        LocalDate endDate = LocalDate.parse(rawAnnouncement.getString("EndDate"));
-//                        String subject = rawAnnouncement.getString("Subject");
-//                        String content = rawAnnouncement.getString("Content");
-//                        String author = authors.get(String.valueOf(rawAnnouncement.getJSONObject("AddedBy").getInt("Id")));
-//                        Teacher teacher = new Teacher(rawAnnouncement.getJSONObject("AddedBy").getInt("Id"), rawAnnouncement.getJSONObject("AddedBy").getString("FirstName"), rawAnnouncement.getJSONObject("AddedBy").getString("LastName"));
-                        res.add(new Announcement(rawAnnouncement));
+                        Integer id = rawAnnouncement.getInt("Id");
+                        LocalDate startDate = LocalDate.parse(rawAnnouncement.getString("StartDate"));
+                        LocalDate endDate = LocalDate.parse(rawAnnouncement.getString("EndDate"));
+                        String subject = rawAnnouncement.getString("Subject");
+                        String content = rawAnnouncement.getString("Content");
+                        JSONObject addedBy = rawAnnouncement.getJSONObject("AddedBy");
+                        String authorId = addedBy.getString("Id");
+                        String author = authors.get(authorId);
+                        Teacher teacher = new Teacher(author);
+                        res.add(new Announcement(id, startDate, endDate, subject, teacher, content));
+//                        res.add(new Announcement(rawAnnouncement));
                     }
                     log("Resolved announcements:    " + res.toString());
                     deferred.resolve(res);

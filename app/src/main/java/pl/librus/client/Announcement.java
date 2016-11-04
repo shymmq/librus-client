@@ -1,8 +1,6 @@
 package pl.librus.client;
 
 import org.joda.time.LocalDate;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.Serializable;
 
@@ -16,22 +14,22 @@ class Announcement implements Serializable {
     private String subject, content;
     private Teacher teacher;
 
-    public Announcement(int id, LocalDate startDate, LocalDate endDate, String subject, String content) {
+    public Announcement(int id, LocalDate startDate, LocalDate endDate, String subject, Teacher teacher, String content) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
         this.subject = subject;
+        this.teacher = teacher;
         this.content = content;
     }
 
-    Announcement(JSONObject data) throws JSONException {
-        this.id = data.getInt("Id");
-        this.startDate = LocalDate.parse(data.getString("StartDate"));
-        this.endDate = LocalDate.parse(data.getString("EndDate"));
-        this.subject = data.getString("Subject");
-        this.content = data.getString("Content");
-        this.teacher = new Teacher(data.getJSONObject("AddedBy").getString("Id"), "//TODO", "Dodać imię i nazwisko");
-    }
+//    Announcement(JSONObject data) throws JSONException {
+//        this.id = data.getInt("Id");
+//        this.startDate = LocalDate.parse(data.getString("StartDate"));
+//        this.endDate = LocalDate.parse(data.getString("EndDate"));
+//        this.subject = data.getString("Subject");
+//        this.content = data.getString("Content");
+//    }
 
     public Integer getId() {
         return id;
@@ -45,11 +43,15 @@ class Announcement implements Serializable {
         return endDate;
     }
 
-    String getSubject() {
+    public Teacher getTeacher() {
+        return teacher;
+    }
+
+    public String getSubject() {
         return subject;
     }
 
-    String getContent() {
+    public String getContent() {
         return content;
     }
 }

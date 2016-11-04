@@ -39,4 +39,5 @@
     <string name="placeholder_announcement">Darmowe audiobooki w bibliotece Wolne Lektury Fundacja Nowoczesna Polska zaprasza do korzystania z darmowych audiobooków opublikowanych w bibliotece internetowej WolneLektury.pl Z audioteki można korzystać bezpłatnie i bez ograniczeń. Wszystkie nagrania udostępnione zostały na wolnej licencji Creative Commons. Audiobooki dostępne są w trzech formatach: MP3, Ogg Vorbis oraz DAISY (dostosowany do potrzeb osób słabowidzących, niewidomych i wszystkich mających poważne trudności z czytaniem). Wszystkie nagrania znajdują się na stronie internetowej projektu: https://wolnelektury.pl/katalog/audiobooki/</string>
     <string name="great">Świetnie!</string>
     <string name="aha">AHA</string>
+    <string name="placeholder_date">4 lis.</string>
 </resources>

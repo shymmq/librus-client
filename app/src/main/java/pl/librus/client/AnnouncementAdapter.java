@@ -12,8 +12,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 /**
  * Created by Adam on 2016-11-01.
  */
@@ -28,7 +26,7 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
     @Override
     public AnnouncementAdapter.AnnouncementViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_announcement_item_alt, parent, false);
+                .inflate(R.layout.three_line_list_item, parent, false);
         return new AnnouncementViewHolder(v);
     }
 
@@ -36,26 +34,31 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
     @Override
     public void onBindViewHolder(AnnouncementViewHolder holder, int position) {
         holder.announcementSubject.setText(announcementList.get(position).getSubject());
+        holder.announcementTeacherName.setText(announcementList.get(position).getTeacher().getName());
         holder.announcementContent.setText(announcementList.get(position).getContent());
+        holder.announcementDate.setText(announcementList.get(position).getStartDate().toString("d MMM."));
     }
 
     @Override
     public int getItemCount() {
-        return 5;
+        return announcementList.size();
     }
 
     static class AnnouncementViewHolder extends RecyclerView.ViewHolder {
         public LinearLayout background;
-        CircleImageView announcementTeacherPicture;
-        TextView announcementTeacherName, announcementSubject, announcementContent;
+        TextView announcementTeacherName, announcementSubject, announcementContent, announcementDate;
 
         AnnouncementViewHolder(View root) {
             super(root);
-            announcementTeacherPicture = (CircleImageView) root.findViewById(R.id.picture_announcement_item);
-            announcementTeacherName = (TextView) root.findViewById(R.id.announcementTeacherName);
-            announcementSubject = (TextView) root.findViewById(R.id.announcementSubject);
-            announcementContent = (TextView) root.findViewById(R.id.announcementContentShort);
-            background = (LinearLayout) root.findViewById(R.id.background);
+//            announcementTeacherPicture = (CircleImageView) root.findViewById(R.id.picture_announcement_item);
+//            announcementTeacherName = (TextView) root.findViewById(R.id.announcementTeacherName);
+//            announcementSubject = (TextView) root.findViewById(R.id.announcementSubject);
+//            announcementContent = (TextView) root.findViewById(R.id.announcementContentShort);
+//            background = (LinearLayout) root.findViewById(R.id.background);
+            announcementSubject = (TextView) root.findViewById(R.id.three_line_list_item_title);
+            announcementTeacherName = (TextView) root.findViewById(R.id.three_line_list_item_first);
+            announcementContent = (TextView) root.findViewById(R.id.three_line_list_item_second);
+            announcementDate = (TextView) root.findViewById(R.id.three_line_list_item_date);
         }
     }
 }

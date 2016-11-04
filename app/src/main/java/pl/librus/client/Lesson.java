@@ -42,7 +42,7 @@ class Lesson implements Serializable {
             if (substitution) {
                 try {
                     String orgTeacherId = data.getJSONObject("OrgTeacher").getString("Id");
-                    this.orgTeacher = new Teacher(orgTeacherId, orgTeacherId, "");
+                    this.orgTeacher = new Teacher(orgTeacherId);
                     this.orgSubject = new Subject(data.getJSONObject("OrgSubject").getString("Id"));
                 } catch (JSONException e) {
                     Log.d(TAG, "JSONException : " + date.toString() + " " + "Lesson " + lessonNumber + " " + subject.getName());
