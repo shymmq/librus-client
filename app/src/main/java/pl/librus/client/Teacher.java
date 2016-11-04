@@ -6,22 +6,21 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 class Teacher implements Serializable {
-    private Integer id;
-    private String firstName, lastName;
+    private String id, firstName, lastName;
 
-    public Teacher(Integer id, String firstName, String lastName) {
+    Teacher(String id, String firstName, String lastName) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
     Teacher(JSONObject data) throws JSONException {
-        this.id = data.getInt("Id");
+        this.id = data.getString("Id");
         this.firstName = data.getString("FirstName");
         this.lastName = data.getString("LastName");
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 

@@ -1,8 +1,6 @@
 package pl.librus.client;
 
 import android.annotation.SuppressLint;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
@@ -12,17 +10,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.HashMap;
 
-class SchoolDay implements Parcelable, Serializable {
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public SchoolDay createFromParcel(Parcel in) {
-            return new SchoolDay(in);
-        }
-
-        @Override
-        public SchoolDay[] newArray(int size) {
-            return new SchoolDay[size];
-        }
-    };
+class SchoolDay implements Serializable {
 
     private LocalDate date = LocalDate.now();
     private boolean empty = true;
@@ -52,15 +40,6 @@ class SchoolDay implements Parcelable, Serializable {
             }
         }
         cleanUp();
-    }
-
-    private SchoolDay(Parcel in) {
-        in.readMap(this.lessons, null);
-        this.date = LocalDate.parse(in.readString());
-    }
-
-    public SchoolDay() {
-
     }
 
     private void cleanUp() {
@@ -106,21 +85,6 @@ class SchoolDay implements Parcelable, Serializable {
 
     int size() {
         return lessons.size();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        try {
-            dest.writeMap(this.lessons);
-            dest.writeString(this.date.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 }

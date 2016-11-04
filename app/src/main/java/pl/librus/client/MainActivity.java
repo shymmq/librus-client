@@ -2,6 +2,7 @@ package pl.librus.client;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -149,6 +150,13 @@ public class MainActivity extends AppCompatActivity {
             case 6:
                 fragment = new PlaceholderFragment();
                 break;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (fragment instanceof TimetableFragment) {
+                toolbar.setElevation(0);
+            } else {
+                toolbar.setElevation(4);
+            }
         }
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 //        transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);

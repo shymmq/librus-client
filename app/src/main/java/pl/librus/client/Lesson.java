@@ -1,5 +1,7 @@
 package pl.librus.client;
 
+import android.util.Log;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
@@ -10,7 +12,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 
 
-public class Lesson implements Serializable {
+class Lesson implements Serializable {
 
 
     private final String TAG = "schedule:log";
@@ -38,8 +40,13 @@ public class Lesson implements Serializable {
             this.date = date;
             this.substitution = data.getBoolean("IsSubstitutionClass");
             if (substitution) {
-                this.orgTeacher = new Teacher(data.getJSONObject("orgTeacher"));
-                this.orgSubject = new Subject(data.getJSONObject("orgSubject"));
+                try {
+                    String orgTeacherId = data.getJSONObject("OrgTeacher").getString("Id");
+                    this.orgTeacher = new Teacher(orgTeacherId, orgTeacherId, "");
+                    this.orgSubject = new Subject(data.getJSONObject("OrgSubject").getString("Id"));
+                } catch (JSONException e) {
+                    Log.d(TAG, "JSONException : " + date.toString() + " " + "Lesson " + lessonNumber + " " + subject.getName());
+                }
             }
         }
 

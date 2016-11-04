@@ -30,7 +30,7 @@ class Announcement implements Serializable {
         this.endDate = LocalDate.parse(data.getString("EndDate"));
         this.subject = data.getString("Subject");
         this.content = data.getString("Content");
-        this.teacher = new Teacher(data.getJSONObject("AddedBy").getInt("Id"), "//TODO", "Dodać imię i nazwisko");
+        this.teacher = new Teacher(data.getJSONObject("AddedBy").getString("Id"), "//TODO", "Dodać imię i nazwisko");
     }
 
     public Integer getId() {
@@ -45,11 +45,11 @@ class Announcement implements Serializable {
         return endDate;
     }
 
-    public String getSubject() {
+    String getSubject() {
         return subject;
     }
 
-    public String getContent() {
+    String getContent() {
         return content;
     }
 }

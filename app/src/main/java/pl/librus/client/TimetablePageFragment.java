@@ -18,7 +18,7 @@ public class TimetablePageFragment extends Fragment {
     public static TimetablePageFragment newInstance(SchoolDay data) {
         TimetablePageFragment fragment = new TimetablePageFragment();
         Bundle args = new Bundle();
-        args.putParcelable("data", data);
+        args.putSerializable("data", data);
         fragment.setArguments(args);
         return fragment;
     }
@@ -26,7 +26,7 @@ public class TimetablePageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        SchoolDay schoolDay = getArguments().getParcelable("data");
+        SchoolDay schoolDay = (SchoolDay) getArguments().getSerializable("data");
 
         if (schoolDay == null) {
             Log.d(TAG, "onCreateView: schoolday == null");

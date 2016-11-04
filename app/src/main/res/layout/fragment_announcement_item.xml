@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/background_announcement"
     android:layout_width="match_parent"
-    android:layout_height="86dp"
+    android:layout_height="88dp"
     android:orientation="horizontal">
 
     <RelativeLayout
@@ -28,7 +26,7 @@
             android:layout_height="64dp"
             android:gravity="center"
             android:text="AŻ"
-            android:textSize="30dp"/>
+            android:textSize="30sp" />
 
     </RelativeLayout>
 
@@ -43,11 +41,11 @@
             android:layout_width="wrap_content"
             android:layout_height="22dp"
             android:layout_alignParentStart="true"
+            android:layout_marginTop="8dp"
             android:gravity="top"
-            android:text="Ogłoszenie"
+            android:text="@string/announcement"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="16dp"
-            android:layout_marginTop="8dp"/>
+            android:textSize="16sp" />
 
         <Space
             android:id="@+id/space"
@@ -62,10 +60,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/space"
-            android:text="Uczniowie Adam Żbikowski i Szymon Wysocki napisali własną aplikację mobilną!"
-            android:textColor="?android:attr/textColorSecondary"
+            android:maxLines="3"
             android:minLines="1"
-            android:maxLines="3"/>
+            android:text="Uczniowie Adam Żbikowski i Szymon Wysocki napisali własną aplikację mobilną!"
+            android:textColor="?android:attr/textColorSecondary" />
 
     </RelativeLayout>
 </LinearLayout>

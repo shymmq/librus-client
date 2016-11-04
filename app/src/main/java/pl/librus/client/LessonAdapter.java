@@ -103,19 +103,19 @@ class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder>
                 LocalTime timeNow = LocalTime.now();
                 final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-                if (timeNow.isAfter(lesson.getEndTime()) && prefs.getBoolean("greyOutFinishedLessons", false)) {
+                if (timeNow.isAfter(lesson.getEndTime()) && prefs.getBoolean("greyOutFinishedLessons", true)) {
 
                     //lesson finished
 
                     holder.background.setAlpha(0.5f);
 
-                } else if (prevLesson != null && prefs.getBoolean("currentLessonBold", false) && timeNow.isAfter(prevLesson.getEndTime()) && timeNow.isBefore(lesson.getEndTime())) {
+                } else if (prevLesson != null && prefs.getBoolean("currentLessonBold", true) && timeNow.isAfter(prevLesson.getEndTime()) && timeNow.isBefore(lesson.getEndTime())) {
 
                     //current lesson
 
                     holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
 
-                } else if (prefs.getBoolean("currentLessonBold", false) && timeNow.isBefore(lesson.getEndTime()) && lesson.getLessonNumber() == 1) {
+                } else if (prefs.getBoolean("currentLessonBold", true) && timeNow.isBefore(lesson.getEndTime()) && lesson.getLessonNumber() == 1) {
 
                     //first lesson
 
