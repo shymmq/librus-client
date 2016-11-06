@@ -42,10 +42,10 @@ class LibrusCache implements Serializable {
 
     static Promise<LibrusCache, Promise<LibrusCache, Object, Object>, Object> load(final Context context) {
         final Deferred<LibrusCache, Promise<LibrusCache, Object, Object>, Object> deferred = new DeferredObject<>();
+
         AsyncManager.runBackgroundTask(new TaskRunnable<Object, LibrusCache, Object>() {
             @Override
             public LibrusCache doLongOperation(Object o) throws InterruptedException {
-                deferred.reject(LibrusCache.update(context));
                 try {
                     FileInputStream fis = context.openFileInput("librus_cache");
                     ObjectInputStream is = new ObjectInputStream(fis);
@@ -74,7 +74,7 @@ class LibrusCache implements Serializable {
         return deferred.promise();
     }
 
-    static Promise<LibrusCache, Object, Object> update(Context context) {
+    private static Promise<LibrusCache, Object, Object> update(Context context) {
         Log.d(TAG, "update: Starting update");
         final Deferred<LibrusCache, Object, Object> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();

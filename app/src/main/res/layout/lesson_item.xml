@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="72dp"
+    android:background="?attr/selectableItemBackground"
     android:orientation="horizontal">
 
     <RelativeLayout
@@ -20,8 +20,7 @@
             android:fontFamily="sans-serif"
             android:text="@string/placeholder_lesson_number"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="38sp"
-            tools:text="@string/app_name" />
+            android:textSize="38sp" />
 
     </RelativeLayout>
 

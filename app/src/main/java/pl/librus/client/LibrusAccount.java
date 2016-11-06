@@ -24,6 +24,10 @@ class LibrusAccount implements Serializable {
         this.email = accountJSON.getString("Email");
     }
 
+    String getName() {
+        return firstName + " " + lastName;
+    }
+
     public String getId() {
         return id;
     }
@@ -44,7 +48,7 @@ class LibrusAccount implements Serializable {
         return login;
     }
 
-    public String getEmail() {
+    String getEmail() {
         return email;
     }
 }

@@ -9,10 +9,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -22,6 +20,8 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import org.jdeferred.FailCallback;
+import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
 
@@ -32,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean logged_in = prefs.getBoolean("logged_in", false);
@@ -41,22 +42,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            setContentView(R.layout.activity_main);
-
-            toolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-
-//            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//            drawer.addDrawerListener(toggle);
-//            toggle.syncState();
-//
-//            final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-//            navigationView.setNavigationItemSelectedListener(this);
-
-            //TODO load and display data from cache here
-            LibrusCache.update(getApplicationContext()).done(new AndroidDoneCallback<LibrusCache>() {
+            LibrusCache.load(this).done(new AndroidDoneCallback<LibrusCache>() {
                 @Override
                 public AndroidExecutionScope getExecutionScope() {
                     return null;
@@ -64,63 +50,88 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onDone(LibrusCache result) {
-                    Log.d(TAG, "Timetable" + result.getTimetable().toString());
-                    Toast.makeText(getApplicationContext(), "Pobrano", Toast.LENGTH_SHORT).show();
-                    timetableFragment = TimetableFragment.newInstance(result.getTimetable());
-                    announcementsFragment = AnnouncementsFragment.newInstance(result.getAnnouncements());
+                    display(result);
+                }
+            }).fail(new FailCallback<Promise<LibrusCache, Object, Object>>() {
+                @Override
+                public void onFail(Promise<LibrusCache, Object, Object> result) {
+                    result.done(new AndroidDoneCallback<LibrusCache>() {
+                        @Override
+                        public AndroidExecutionScope getExecutionScope() {
+                            return null;
+                        }
+
+                        @Override
+                        public void onDone(LibrusCache result) {
+                            display(result);
+                        }
+                    });
                 }
             });
-            AccountHeader header = new AccountHeaderBuilder()
-                    .withActivity(this)
-                    .withSelectionListEnabledForSingleProfile(true)
-                    .withHeaderBackground(R.drawable.background_nav)
-                    .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
-                    .addProfiles(
-                            new ProfileDrawerItem().withName("Szymon Wysocki").withEmail("szymek.wysocki@gmail.com").withIcon(R.drawable.jeb)
-                    )
-                    .build();
-            final Drawer drawer = new DrawerBuilder()
-                    .withActivity(this)
-                    .withToolbar(toolbar)
-                    .withAccountHeader(header)
-                    .addDrawerItems(
-                            new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                    .withIdentifier(0)
-                                    .withName("Plan lekcji")
-                                    .withIcon(R.drawable.ic_event_note_black_48dp),
-                            new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                    .withIdentifier(1)
-                                    .withName("Oceny")
-                                    .withIcon(R.drawable.ic_event_black_48dp),
-                            new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                    .withIdentifier(2)
-                                    .withName("Terminarz")
-                                    .withIcon(R.drawable.ic_date_range_black_48dp),
-                            new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                    .withIdentifier(3)
-                                    .withName("Ogłoszenia")
-                                    .withIcon(R.drawable.ic_announcement_black_48dp),
-                            new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                    .withIdentifier(4)
-                                    .withName("Wiadomości")
-                                    .withIcon(R.drawable.ic_message_black_48dp),
-                            new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                    .withIdentifier(5)
-                                    .withName("Nieobecności")
-                                    .withIcon(R.drawable.ic_person_outline_black_48dp))
-                    .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true)
-                            .withIdentifier(6)
-                            .withName("Ustawienia")
-                            .withIcon(R.drawable.ic_settings_black_48dp))
-                    .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                        @Override
-                        public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                            return selectItem(drawerItem);
-                        }
-                    })
-                    .withDelayOnDrawerClose(50)
-                    .build();
         }
+    }
+
+    private void display(LibrusCache result) {
+        timetableFragment = TimetableFragment.newInstance(result.getTimetable());
+        announcementsFragment = AnnouncementsFragment.newInstance(result.getAnnouncements());
+        LibrusAccount account = result.getAccount();
+        ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
+
+        AccountHeader header = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withSelectionListEnabledForSingleProfile(true)
+                .withHeaderBackground(R.drawable.background_nav)
+                .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
+                .addProfiles(profile)
+                .build();
+
+        final DrawerBuilder drawer = new DrawerBuilder()
+                .withActivity(this)
+                .withAccountHeader(header)
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                .withIdentifier(0)
+                                .withName("Plan lekcji")
+                                .withIcon(R.drawable.ic_event_note_black_48dp),
+                        new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                .withIdentifier(1)
+                                .withName("Oceny")
+                                .withIcon(R.drawable.ic_event_black_48dp),
+                        new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                .withIdentifier(2)
+                                .withName("Terminarz")
+                                .withIcon(R.drawable.ic_date_range_black_48dp),
+                        new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                .withIdentifier(3)
+                                .withName("Ogłoszenia")
+                                .withIcon(R.drawable.ic_announcement_black_48dp),
+                        new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                .withIdentifier(4)
+                                .withName("Wiadomości")
+                                .withIcon(R.drawable.ic_message_black_48dp),
+                        new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                .withIdentifier(5)
+                                .withName("Nieobecności")
+                                .withIcon(R.drawable.ic_person_outline_black_48dp))
+                .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true)
+                        .withIdentifier(6)
+                        .withName("Ustawienia")
+                        .withIcon(R.drawable.ic_settings_black_48dp))
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        return selectItem(drawerItem);
+                    }
+                })
+                .withDelayOnDrawerClose(50);
+
+        setContentView(R.layout.activity_main);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        drawer.withToolbar(toolbar)
+                .build()
+                .setSelection(0);
+
     }
 
     boolean selectItem(IDrawerItem item) {
@@ -158,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setElevation(4);
             }
         }
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 //        transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
 //        Log.d(TAG, "updateFragment: \n" +
