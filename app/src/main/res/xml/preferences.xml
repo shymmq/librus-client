@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Ogólne">
+
+        <SwitchPreference
+            android:defaultValue="1"
+            android:key="greyOutFinishedLessons"
+            android:summaryOff="Zakończone lekcje nie będą przyciemnione."
+            android:summaryOn="Zakończone lekcje będą przyciemnione."
+            android:title="Wyszarzaj zakończone lekcje" />
+        <SwitchPreference
+            android:defaultValue="1"
+            android:key="currentLessonBold"
+            android:title="Pogrubiaj bieżącą lekcję" />
+
+        <SwitchPreference
+            android:defaultValue="1"
+            android:key="useRelativeTabNames"
+            android:summaryOff="Relatywne nazwy zakładek nie będą używane."
+            android:summaryOn="Relatywne nazwy zakładek będą używane."
+            android:title="Wczoraj, dzisiaj i jutro" />
+        <SwitchPreference
+            android:defaultValue="1"
+            android:key="displayDates"
+            android:summaryOff="Poniedziałek, Wtorek, Środa itd."
+            android:summaryOn="24 Paź., 25 Paź., 26 Paź. itd."
+            android:title="Daty zamiast dni tygodnia" />
+        <EditTextPreference
+            android:id="@+id/edit_lastSync"
+            android:enabled="false"
+            android:key="lastSynchronization"
+            android:title="Ostatnia synchronizacja: " />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Zaawansowane">
+        <SwitchPreference
+            android:defaultValue="1"
+            android:key="showDividers"
+            android:summaryOff="Dividery nie będą widoczne."
+            android:summaryOn="Dividery będą widoczne."
+            android:title="Pokaż granice tabeli" />
+        <ListPreference
+            android:entries="@array/entries"
+            android:entryValues="@array/values"
+            android:key="updateFrequency"
+            android:title="Częstotliwość synchronizacji" />
+        <SwitchPreference
+            android:defaultValue="0"
+            android:key="showNotifications"
+            android:summaryOff="Powiadomienia nie będą pokazywane."
+            android:summaryOn="Powiadomienia będą pokazywane."
+            android:title="Pokaż powiadomienia" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -4,6 +4,7 @@
     package="pl.librus.client">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
@@ -25,6 +26,7 @@
             android:name=".LoginActivity"
             android:label="Zaloguj się"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>
