@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entries">
+        <item>Ręcznie</item>
+        <item>Pół godziny</item>
+        <item>1 godzina</item>
+        <item>3 godziny</item>
+        <item>6 godzin</item>
+        <item>1 dzień</item>
+
+    </string-array>
+    <string-array name="values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+</resources>

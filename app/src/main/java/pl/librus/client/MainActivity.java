@@ -136,30 +136,43 @@ public class MainActivity extends AppCompatActivity {
 
     boolean selectItem(IDrawerItem item) {
         Fragment fragment = null;
+        boolean changeFragment = true;
         toolbar.setTitle("");
         switch ((int) item.getIdentifier()) {
             case 0:
                 fragment = timetableFragment;
+                changeFragment = true;
                 toolbar.setTitle("Plan lekcji");
                 break;
             case 1:
                 fragment = new PlaceholderFragment();
+                changeFragment = true;
+                toolbar.setTitle("Oceny");
                 break;
             case 2:
                 fragment = new PlaceholderFragment();
+                changeFragment = true;
+                toolbar.setTitle("Terminarz");
                 break;
             case 3:
                 fragment = announcementsFragment;
+                changeFragment = true;
                 toolbar.setTitle("Ogłoszenia");
                 break;
             case 4:
                 fragment = new PlaceholderFragment();
+                changeFragment = true;
+                toolbar.setTitle("Wiadomości");
                 break;
             case 5:
                 fragment = new PlaceholderFragment();
+                changeFragment = true;
+                toolbar.setTitle("Nieobecności");
                 break;
             case 6:
                 fragment = new PlaceholderFragment();
+                changeFragment = false;
+                toolbar.setTitle("Ustawienia");
                 break;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -169,14 +182,18 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setElevation(4);
             }
         }
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (changeFragment) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 //        transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
 //        Log.d(TAG, "updateFragment: \n" +
 //                "fragment " + fragment + "\n" +
 //                "transaction " + transaction);
-        transaction.replace(R.id.content_main, fragment);
-        transaction.commit();
+            transaction.replace(R.id.content_main, fragment);
+            transaction.commit();
+        } else {
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(i);
+        }
         return false;
     }
 }
