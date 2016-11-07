@@ -6,6 +6,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Explode;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,10 +49,15 @@ public class AnnouncementsFragment extends Fragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 AnnouncementDetailsFragment fragment = AnnouncementDetailsFragment.newInstance(announcementList.get(position));
-//                Transition transition =
-//                fragment.setSharedElementEnterTransition(new ChangeBounds());
-//                fragment.setSharedElementReturnTransition(new ChangeBounds());
+                Transition changeBounds = TransitionInflater.from(getContext()).inflateTransition(R.transition.change_bounds);
+                fragment.setSharedElementEnterTransition(changeBounds);
+                fragment.setSharedElementReturnTransition(changeBounds);
+                fragment.setEnterTransition(new Explode());
+                setSharedElementEnterTransition(changeBounds);
+                setSharedElementReturnTransition(changeBounds);
+                setExitTransition(new Explode());
                 fragmentTransaction.addSharedElement(root.findViewById(R.id.three_line_list_item_title), "three_line_list_element_title");
+                fragmentTransaction.addSharedElement(root.findViewById(R.id.three_line_list_item_background), "three_line_list_element_background");
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.hide(AnnouncementsFragment.this);
                 fragmentTransaction.add(((ViewGroup) getView().getParent()).getId(), fragment);

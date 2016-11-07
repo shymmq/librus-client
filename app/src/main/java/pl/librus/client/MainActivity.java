@@ -16,6 +16,7 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
@@ -84,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
                 .addProfiles(profile)
                 .build();
-
+        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIdentifier(666)
+                .withName("Szczęśliwy numerek: 27").withIcon(R.drawable.ic_menu_slideshow);
         final DrawerBuilder drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withAccountHeader(header)
@@ -112,7 +114,9 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(5)
                                 .withName("Nieobecności")
-                                .withIcon(R.drawable.ic_person_outline_black_48dp))
+                                .withIcon(R.drawable.ic_person_outline_black_48dp),
+                        new DividerDrawerItem(),
+                        lucky)
                 .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true)
                         .withIdentifier(6)
                         .withName("Ustawienia")
