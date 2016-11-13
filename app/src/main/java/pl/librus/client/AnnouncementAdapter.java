@@ -34,10 +34,12 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBindViewHolder(final AnnouncementViewHolder holder, int position) {
-        holder.announcementSubject.setText(announcementList.get(position).getSubject());
-        holder.announcementTeacherName.setText(announcementList.get(position).getTeacher().getName());
-        holder.announcementContent.setText(announcementList.get(position).getContent());
-        holder.announcementDate.setText(announcementList.get(position).getStartDate().toString("d MMM."));
+        Announcement announcement = announcementList.get(position);
+        holder.announcementSubject.setText(announcement.getSubject());
+        holder.announcementSubject.setTransitionName("announcement_title_" + announcement.getId());
+        holder.announcementTeacherName.setText(announcement.getTeacher().getName());
+        holder.announcementContent.setText(announcement.getContent());
+        holder.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
     }
 
     @Override

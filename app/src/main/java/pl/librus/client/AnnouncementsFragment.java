@@ -6,12 +6,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Explode;
+import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,21 +47,35 @@ public class AnnouncementsFragment extends Fragment {
         mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(getContext(), mRecyclerView, new RecyclerViewItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+
+                Announcement announcement = announcementList.get(position);
+
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                AnnouncementDetailsFragment fragment = AnnouncementDetailsFragment.newInstance(announcementList.get(position));
+                AnnouncementDetailsFragment fragment = AnnouncementDetailsFragment.newInstance(announcement);
+
                 Transition changeBounds = TransitionInflater.from(getContext()).inflateTransition(R.transition.change_bounds);
                 fragment.setSharedElementEnterTransition(changeBounds);
                 fragment.setSharedElementReturnTransition(changeBounds);
-                fragment.setEnterTransition(new Explode());
                 setSharedElementEnterTransition(changeBounds);
                 setSharedElementReturnTransition(changeBounds);
-                setExitTransition(new Explode());
-                fragmentTransaction.addSharedElement(root.findViewById(R.id.three_line_list_item_title), "three_line_list_element_title");
-                fragmentTransaction.addSharedElement(root.findViewById(R.id.three_line_list_item_background), "three_line_list_element_background");
+
+                Transition transition = new Fade();
+                fragment.setEnterTransition(transition);
+                fragment.setExitTransition(transition);
+                fragment.setReenterTransition(transition);
+                fragment.setReturnTransition(transition);
+
+                setEnterTransition(transition);
+                setExitTransition(transition);
+                setReenterTransition(transition);
+                setReturnTransition(transition);
+
+                TextView title = (TextView) view.findViewById(R.id.three_line_list_item_title);
+                fragmentTransaction.addSharedElement(title, title.getTransitionName());
+//                fragmentTransaction.addSharedElement(root.findViewById(R.id.three_line_list_item_background), "three_line_list_element_background");
                 fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.hide(AnnouncementsFragment.this);
-                fragmentTransaction.add(((ViewGroup) getView().getParent()).getId(), fragment);
+                fragmentTransaction.replace(((ViewGroup) getView().getParent()).getId(), fragment);
                 fragmentTransaction.commit();
             }
         }));

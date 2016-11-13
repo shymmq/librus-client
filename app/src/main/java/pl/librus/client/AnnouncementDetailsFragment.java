@@ -49,6 +49,7 @@ public class AnnouncementDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_announcement_details, container, false);
         TextView title = (TextView) root.findViewById(R.id.fragment_announcement_details_title);
+        title.setTransitionName("announcement_title_" + announcement.getId());
         title.setText(announcement.getSubject());
         return root;
     }
