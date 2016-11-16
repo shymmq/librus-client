@@ -1,5 +1,6 @@
 package pl.librus.client;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -10,9 +11,15 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -26,6 +33,8 @@ import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "librus-client-log";
@@ -187,6 +196,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 666:
                 changeFragment = false;
+                String date = luckyNumber.getLuckyNumberDay().toString("EEEE, d MMMM yyyy", new Locale("pl"));
+                date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
+                Toast.makeText(this, date, Toast.LENGTH_SHORT).show();
                 break;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
