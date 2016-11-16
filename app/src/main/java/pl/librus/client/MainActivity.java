@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "librus-client-log";
     TimetableFragment timetableFragment;
     AnnouncementsFragment announcementsFragment;
+    LuckyNumber luckyNumber;
     private Toolbar toolbar;
 
     @Override
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
         timetableFragment = TimetableFragment.newInstance(result.getTimetable());
         announcementsFragment = AnnouncementsFragment.newInstance(result.getAnnouncements());
         LibrusAccount account = result.getAccount();
+        luckyNumber = result.getLuckyNumber();
+
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
 
         AccountHeader header = new AccountHeaderBuilder()
@@ -85,13 +89,15 @@ public class MainActivity extends AppCompatActivity {
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
                 .addProfiles(profile)
                 .build();
-        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIdentifier(666)
-                .withName("Szczęśliwy numerek: 27").withIcon(R.drawable.ic_menu_slideshow);
+        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
+                .withIdentifier(666)
+                .withName("Szczęśliwy numerek: " + luckyNumber.getLuckyNumber())
+                .withIcon(R.drawable.ic_lucky_number_black_excited);
         final DrawerBuilder drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withAccountHeader(header)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withIconTintingEnabled(true)
+                        new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                                 .withIdentifier(0)
                                 .withName("Plan lekcji")
                                 .withIcon(R.drawable.ic_event_note_black_48dp),
@@ -117,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                                 .withIcon(R.drawable.ic_person_outline_black_48dp),
                         new DividerDrawerItem(),
                         lucky)
-                .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true)
+                .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                         .withIdentifier(6)
                         .withName("Ustawienia")
                         .withIcon(R.drawable.ic_settings_black_48dp))
@@ -141,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     boolean selectItem(IDrawerItem item) {
         Fragment fragment = null;
         boolean changeFragment = true;
-        toolbar.setTitle("");
+        //toolbar.setTitle("");
         switch ((int) item.getIdentifier()) {
             case 0:
                 fragment = timetableFragment;
@@ -174,9 +180,14 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setTitle("Nieobecności");
                 break;
             case 6:
-                fragment = new PlaceholderFragment();
+                //fragment = new PlaceholderFragment();
                 changeFragment = false;
                 toolbar.setTitle("Ustawienia");
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(i);
+                break;
+            case 666:
+                changeFragment = false;
                 break;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -194,9 +205,6 @@ public class MainActivity extends AppCompatActivity {
 //                "transaction " + transaction);
             transaction.replace(R.id.content_main, fragment);
             transaction.commit();
-        } else {
-            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(i);
         }
         return false;
     }

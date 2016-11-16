@@ -385,6 +385,26 @@ class APIClient {
         return deferred.promise();
     }
 
+    Promise<LuckyNumber, Object, Object> getLuckyNumber() {
+        final Deferred<LuckyNumber, Object, Object> deferred = new DeferredObject<>();
+        APIRequest("/LuckyNumbers").done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    deferred.resolve(new LuckyNumber(result));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).fail(new FailCallback<Integer>() {
+            @Override
+            public void onFail(Integer result) {
+                deferred.reject(result);
+            }
+        });
+        return  deferred.promise();
+    }
+
     Promise<Timetable, String, String> getTimetable(final LocalDate... weeks) {
 
         final Deferred<Timetable, String, String> deferred = new DeferredObject<>();
