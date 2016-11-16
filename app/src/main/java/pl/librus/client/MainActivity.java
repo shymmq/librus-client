@@ -182,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
             case 6:
                 //fragment = new PlaceholderFragment();
                 changeFragment = false;
-                toolbar.setTitle("Ustawienia");
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
                 break;
