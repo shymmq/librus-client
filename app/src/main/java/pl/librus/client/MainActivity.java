@@ -1,18 +1,29 @@
 package pl.librus.client;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -29,6 +40,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDoneCallback;
@@ -42,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     AnnouncementsFragment announcementsFragment;
     LuckyNumber luckyNumber;
     private Toolbar toolbar;
+    ActionMenuView amv;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -101,12 +114,12 @@ public class MainActivity extends AppCompatActivity {
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withIdentifier(666)
                 .withName("Szczęśliwy numerek: " + luckyNumber.getLuckyNumber())
-                .withIcon(R.drawable.ic_lucky_number_black_excited);
+                .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
         final DrawerBuilder drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withAccountHeader(header)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
+                        new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(0)
                                 .withName("Plan lekcji")
                                 .withIcon(R.drawable.ic_event_note_black_48dp),
@@ -218,5 +231,40 @@ public class MainActivity extends AppCompatActivity {
             transaction.commit();
         }
         return false;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        for (int i =0; i < toolbar.getChildCount(); ++i) {
+            if(toolbar.getChildAt(i).getClass().getSimpleName().equals("ActionMenuView")) {
+                amv = (ActionMenuView) toolbar.getChildAt(i);
+                break;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_sync:
+                RotateAnimation r = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                r.setDuration(600);
+                RotateAnimation rotateAnimation = new RotateAnimation(30, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                rotateAnimation.setDuration(10000);
+                amv.getChildAt(amv.getChildCount() -1).startAnimation(r);
+                LibrusCache.update(getApplicationContext()).done(new DoneCallback<LibrusCache>() {
+                    @Override
+                    public void onDone(LibrusCache result) {
+                        display(result);
+                    }
+                });
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

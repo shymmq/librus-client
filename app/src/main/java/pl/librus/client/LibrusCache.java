@@ -75,7 +75,7 @@ class LibrusCache implements Serializable {
         return deferred.promise();
     }
 
-    private static Promise<LibrusCache, Object, Object> update(Context context) {
+    static Promise<LibrusCache, Object, Object> update(Context context) {
         Log.d(TAG, "update: Starting update");
         final Deferred<LibrusCache, Object, Object> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
