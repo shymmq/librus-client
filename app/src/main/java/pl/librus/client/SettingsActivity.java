@@ -6,6 +6,8 @@ import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.transition.Fade;
+import android.transition.Slide;
 
 /**
  * Created by Adam on 06.11.16
