@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">Dziennik</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="action_settings">Settings</string>
     <string name="timetable_empty_page">Brak lekcji.\n\n¯\\_(ツ)_/¯</string>
     <string name="lesson_empty">Okienko</string>
     <string name="placeholder_lesson_number">3.</string>
@@ -19,7 +15,6 @@
     <string name="details_date_title">Data</string>
     <string name="details_date_placeholder">23 października 2016</string>
     <string name="details_time_title">Godzina</string>
-    <string name="details_time_placeholder">8:45 – 9:40</string>
     <string name="details_end_time_placeholder">- 9:40</string>
     <string name="details_lesson_number_placeholder">2. lekcja</string>
     <string name="details_event_count_title">1 wydarzenie :</string>
@@ -33,11 +28,7 @@
     <string name="log_in">Zaloguj się</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="announcement">Ogłoszenie</string>
-    <string name="super_placeholder">super</string>
     <string name="placeholder_announcement">Darmowe audiobooki w bibliotece Wolne Lektury Fundacja Nowoczesna Polska zaprasza do korzystania z darmowych audiobooków opublikowanych w bibliotece internetowej WolneLektury.pl Z audioteki można korzystać bezpłatnie i bez ograniczeń. Wszystkie nagrania udostępnione zostały na wolnej licencji Creative Commons. Audiobooki dostępne są w trzech formatach: MP3, Ogg Vorbis oraz DAISY (dostosowany do potrzeb osób słabowidzących, niewidomych i wszystkich mających poważne trudności z czytaniem). Wszystkie nagrania znajdują się na stronie internetowej projektu: https://wolnelektury.pl/katalog/audiobooki/</string>
-    <string name="great">Świetnie!</string>
-    <string name="aha">AHA</string>
     <string name="placeholder_date">4 lis.</string>
 </resources>

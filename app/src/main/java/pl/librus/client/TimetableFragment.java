@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 
 public class TimetableFragment extends Fragment {
     private final String TAG = "librus-client-log";
-    private ViewPager viewPager;
+    private TabLayout tabLayout;
 
     public static TimetableFragment newInstance(Timetable timetable) {
 
@@ -27,27 +27,27 @@ public class TimetableFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_timetable, container, false);
-        viewPager = (ViewPager) root.findViewById(R.id.container);
+        tabLayout = (TabLayout) LayoutInflater.from(getContext()).inflate(R.layout.tabs, null);
+        AppBarLayout appBarLayout = ((MainActivity) getActivity()).getAppBarLayout();
+        ViewPager viewPager = (ViewPager) root.findViewById(R.id.container);
+
         Timetable timetable = (Timetable) getArguments().getSerializable("data");
+
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), timetable);
+
         viewPager.setAdapter(sectionsPagerAdapter);
         viewPager.setCurrentItem(TimetableUtils.getStartTab(), true);
+
+        tabLayout.setupWithViewPager(viewPager);
+        appBarLayout.addView(tabLayout);
+
         return root;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        TabLayout tabLayout = (TabLayout) LayoutInflater.from(getContext()).inflate(R.layout.tabs, null);
-        AppBarLayout appBarLayout = ((MainActivity) getActivity()).getAppBarLayout();
-        appBarLayout.addView(tabLayout, 1);
-        tabLayout.setupWithViewPager(viewPager);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        ((MainActivity) getActivity()).getAppBarLayout().removeViewAt(1);
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((MainActivity) getActivity()).getAppBarLayout().removeView(tabLayout);
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {

@@ -1,41 +1,35 @@
 package pl.librus.client;
 
-import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import org.jdeferred.DoneCallback;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
 
@@ -43,15 +37,13 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "librus-client-log";
+    LuckyNumber luckyNumber;
+    ActionMenuView amv;
+    AppBarLayout appBarLayout;
     private TimetableFragment timetableFragment;
     private AnnouncementsFragment announcementsFragment;
-    TimetableFragment timetableFragment;
-    AnnouncementsFragment announcementsFragment;
-    LuckyNumber luckyNumber;
-    private Toolbar toolbar;
     private Drawer drawer;
-    private AppBarLayout appBarLayout;
-    ActionMenuView amv;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -99,9 +91,6 @@ public class MainActivity extends AppCompatActivity {
                 .withIdentifier(666)
                 .withName("Szczęśliwy numerek: " + luckyNumber.getLuckyNumber())
                 .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
-        final DrawerBuilder drawer = new DrawerBuilder()
-//        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIdentifier(666)
-//                .withName("Szczęśliwy numerek: 27").withIcon(R.drawable.ic_menu_slideshow);
         final DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withAccountHeader(header)
@@ -154,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 .withActionBarDrawerToggleAnimated(true);
 
         setContentView(R.layout.activity_main);
+        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = drawerBuilder.withToolbar(toolbar)
@@ -162,82 +152,71 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    void changeFragment(Fragment fragment, String title) {
+
+        Log.d(TAG, "changeFragment: \n" +
+                "fragment " + fragment + "\n" +
+                "title: " + title);
+
+        toolbar.setTitle(title);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content_main, fragment);
+        transaction.commit();
+    }
+
     private boolean selectItem(IDrawerItem item) {
-        Fragment fragment = null;
-        boolean changeFragment = true;
-        //toolbar.setTitle("");
+
         switch ((int) item.getIdentifier()) {
             case 0:
-                fragment = timetableFragment;
-                changeFragment = true;
-                toolbar.setTitle("Plan lekcji");
+                changeFragment(timetableFragment, "Plan lekcji");
                 break;
             case 1:
-                fragment = new PlaceholderFragment();
-                changeFragment = true;
-                toolbar.setTitle("Oceny");
+                changeFragment(new PlaceholderFragment(), "Oceny");
                 break;
             case 2:
-                fragment = new PlaceholderFragment();
-                changeFragment = true;
-                toolbar.setTitle("Terminarz");
+                changeFragment(new PlaceholderFragment(), "Terminarz");
                 break;
             case 3:
-                fragment = announcementsFragment;
-                changeFragment = true;
-                toolbar.setTitle("Ogłoszenia");
+                changeFragment(announcementsFragment, "Ogłoszenia");
                 break;
             case 4:
-                fragment = new PlaceholderFragment();
-                changeFragment = true;
-                toolbar.setTitle("Wiadomości");
+                changeFragment(new PlaceholderFragment(), "Wiadomości");
                 break;
             case 5:
-                fragment = new PlaceholderFragment();
-                changeFragment = true;
-                toolbar.setTitle("Nieobecności");
+                changeFragment(new PlaceholderFragment(), "Nieobecności");
                 break;
             case 6:
-                //fragment = new PlaceholderFragment();
-                changeFragment = false;
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
                 break;
             case 666:
-                changeFragment = false;
                 String date = luckyNumber.getLuckyNumberDay().toString("EEEE, d MMMM yyyy", new Locale("pl"));
                 date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
                 Toast.makeText(this, date, Toast.LENGTH_SHORT).show();
                 break;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (fragment instanceof TimetableFragment) {
-                toolbar.setElevation(0);
-            } else {
-                toolbar.setElevation(4);
-            }
-        }
-        if (changeFragment) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
-//        Log.d(TAG, "updateFragment: \n" +
-//                "fragment " + fragment + "\n" +
-//                "transaction " + transaction);
-            transaction.replace(R.id.content_main, fragment);
-            transaction.commit();
-        } else {
-            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(i);
-        }
         return false;
+    }
+
+    public Drawer getDrawer() {
+        return drawer;
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
+
+    public AppBarLayout getAppBarLayout() {
+        return appBarLayout;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        for (int i =0; i < toolbar.getChildCount(); ++i) {
-            if(toolbar.getChildAt(i).getClass().getSimpleName().equals("ActionMenuView")) {
+        for (int i = 0; i < toolbar.getChildCount(); ++i) {
+            if (toolbar.getChildAt(i).getClass().getSimpleName().equals("ActionMenuView")) {
                 amv = (ActionMenuView) toolbar.getChildAt(i);
                 break;
             }
@@ -254,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                 r.setDuration(600);
                 RotateAnimation rotateAnimation = new RotateAnimation(30, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 rotateAnimation.setDuration(10000);
-                amv.getChildAt(amv.getChildCount() -1).startAnimation(r);
+                amv.getChildAt(amv.getChildCount() - 1).startAnimation(r);
                 LibrusCache.update(getApplicationContext()).done(new DoneCallback<LibrusCache>() {
                     @Override
                     public void onDone(LibrusCache result) {

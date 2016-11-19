@@ -78,6 +78,7 @@ public class AnnouncementsFragment extends Fragment {
                 setExitTransition(fade);
                 setReturnTransition(fade);
                 setReenterTransition(fade);
+                fragmentTransaction.addSharedElement(background, background.getTransitionName());
                 fragmentTransaction.replace(((ViewGroup) getView().getParent()).getId(), fragment);
                 fragmentTransaction.addToBackStack(null).commit();
             }
