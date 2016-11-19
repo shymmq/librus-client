@@ -34,6 +34,7 @@ class LibrusCache implements Serializable {
     private LibrusAccount account;
     private Timetable timetable;
     private List<Announcement> announcements;
+    private LuckyNumber luckyNumber;
 
     private LibrusCache(Context context) {
         this.context = context;
@@ -98,6 +99,12 @@ class LibrusCache implements Serializable {
                 cache.setAnnouncements(result);
             }
         }));
+        tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
+            @Override
+            public void onDone(LuckyNumber result) {
+                cache.setLuckyNumber(result);
+            }
+        }));
 
         DeferredManager dm = new AndroidDeferredManager();
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
@@ -156,5 +163,13 @@ class LibrusCache implements Serializable {
 
     private void setAccount(LibrusAccount account) {
         this.account = account;
+    }
+
+    public LuckyNumber getLuckyNumber() {
+        return luckyNumber;
+    }
+
+    private void setLuckyNumber(LuckyNumber luckyNumber) {
+        this.luckyNumber = luckyNumber;
     }
 }

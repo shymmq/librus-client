@@ -1,19 +1,33 @@
 package pl.librus.client;
 
+import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -25,13 +39,19 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "librus-client-log";
     private TimetableFragment timetableFragment;
     private AnnouncementsFragment announcementsFragment;
+    TimetableFragment timetableFragment;
+    AnnouncementsFragment announcementsFragment;
+    LuckyNumber luckyNumber;
     private Toolbar toolbar;
     private Drawer drawer;
     private AppBarLayout appBarLayout;
+    ActionMenuView amv;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -64,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
         timetableFragment = TimetableFragment.newInstance(result.getTimetable());
         announcementsFragment = AnnouncementsFragment.newInstance(result.getAnnouncements());
         LibrusAccount account = result.getAccount();
+        luckyNumber = result.getLuckyNumber();
+
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
 
         AccountHeader header = new AccountHeaderBuilder()
@@ -73,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
                 .addProfiles(profile)
                 .build();
+        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
+                .withIdentifier(666)
+                .withName("Szczęśliwy numerek: " + luckyNumber.getLuckyNumber())
+                .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
+        final DrawerBuilder drawer = new DrawerBuilder()
 //        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIdentifier(666)
 //                .withName("Szczęśliwy numerek: 27").withIcon(R.drawable.ic_menu_slideshow);
         final DrawerBuilder drawerBuilder = new DrawerBuilder()
@@ -102,8 +129,10 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(5)
                                 .withName("Nieobecności")
-                                .withIcon(R.drawable.ic_person_outline_black_48dp))
-                .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true)
+                                .withIcon(R.drawable.ic_person_outline_black_48dp),
+                        new DividerDrawerItem(),
+                        lucky)
+                .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                         .withIdentifier(6)
                         .withName("Ustawienia")
                         .withIcon(R.drawable.ic_settings_black_48dp))
@@ -126,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         setSupportActionBar(toolbar);
         drawer = drawerBuilder.withToolbar(toolbar)
                 .build();
@@ -137,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean selectItem(IDrawerItem item) {
         Fragment fragment = null;
         boolean changeFragment = true;
-        toolbar.setTitle("");
+        //toolbar.setTitle("");
         switch ((int) item.getIdentifier()) {
             case 0:
                 fragment = timetableFragment;
@@ -170,10 +198,24 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setTitle("Nieobecności");
                 break;
             case 6:
-                fragment = new PlaceholderFragment();
+                //fragment = new PlaceholderFragment();
                 changeFragment = false;
-                toolbar.setTitle("Ustawienia");
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(i);
                 break;
+            case 666:
+                changeFragment = false;
+                String date = luckyNumber.getLuckyNumberDay().toString("EEEE, d MMMM yyyy", new Locale("pl"));
+                date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
+                Toast.makeText(this, date, Toast.LENGTH_SHORT).show();
+                break;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (fragment instanceof TimetableFragment) {
+                toolbar.setElevation(0);
+            } else {
+                toolbar.setElevation(4);
+            }
         }
         if (changeFragment) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -191,26 +233,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        for (int i =0; i < toolbar.getChildCount(); ++i) {
+            if(toolbar.getChildAt(i).getClass().getSimpleName().equals("ActionMenuView")) {
+                amv = (ActionMenuView) toolbar.getChildAt(i);
+                break;
+            }
+        }
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_sync:
+                RotateAnimation r = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                r.setDuration(600);
+                RotateAnimation rotateAnimation = new RotateAnimation(30, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                rotateAnimation.setDuration(10000);
+                amv.getChildAt(amv.getChildCount() -1).startAnimation(r);
+                LibrusCache.update(getApplicationContext()).done(new DoneCallback<LibrusCache>() {
+                    @Override
+                    public void onDone(LibrusCache result) {
+                        display(result);
+                    }
+                });
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    public AppBarLayout getAppBarLayout() {
-        return appBarLayout;
-    }
-
-    public Toolbar getToolbar() {
-        return toolbar;
-    }
-
-    public Drawer getDrawer() {
-        return drawer;
     }
 }
