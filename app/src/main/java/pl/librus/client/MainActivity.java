@@ -23,12 +23,15 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.transition.Slide;
+import android.transition.Fade;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -235,14 +238,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
-        for (int i =0; i < toolbar.getChildCount(); ++i) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        for (int i =0; i < toolbar.getChildCount(); i++) {
             if(toolbar.getChildAt(i).getClass().getSimpleName().equals("ActionMenuView")) {
                 amv = (ActionMenuView) toolbar.getChildAt(i);
                 break;
             }
         }
+
         return true;
     }
 
@@ -252,9 +255,8 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_sync:
                 RotateAnimation r = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                r.setDuration(600);
-                RotateAnimation rotateAnimation = new RotateAnimation(30, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                rotateAnimation.setDuration(10000);
+                r.setDuration(400);
+                r.setRepeatCount(Animation.INFINITE);
                 amv.getChildAt(amv.getChildCount() -1).startAnimation(r);
                 LibrusCache.update(getApplicationContext()).done(new DoneCallback<LibrusCache>() {
                     @Override
