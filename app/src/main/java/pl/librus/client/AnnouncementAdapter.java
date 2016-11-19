@@ -36,7 +36,8 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
     public void onBindViewHolder(final AnnouncementViewHolder holder, int position) {
         Announcement announcement = announcementList.get(position);
         holder.announcementSubject.setText(announcement.getSubject());
-        holder.announcementSubject.setTransitionName("announcement_title_" + announcement.getId());
+//        holder.announcementSubject.setTransitionName("announcement_title_" + announcement.getId());
+        holder.background.setTransitionName("announcement_background_" + announcement.getId());
         holder.announcementTeacherName.setText(announcement.getTeacher().getName());
         holder.announcementContent.setText(announcement.getContent());
         holder.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
@@ -48,10 +49,13 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
     }
 
     static class AnnouncementViewHolder extends RecyclerView.ViewHolder {
+        public final RelativeLayout background;
+        final TextView announcementTeacherName;
+        final TextView announcementSubject;
+        final TextView announcementContent;
+        final TextView announcementDate;
+        final Context context;
         private final View root;
-        public RelativeLayout background;
-        TextView announcementTeacherName, announcementSubject, announcementContent, announcementDate;
-        Context context;
 
         AnnouncementViewHolder(View root) {
             super(root);
@@ -61,7 +65,7 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
 //            announcementTeacherName = (TextView) root.findViewById(R.id.announcementTeacherName);
 //            announcementSubject = (TextView) root.findViewById(R.id.announcementSubject);
 //            announcementContent = (TextView) root.findViewById(R.id.announcementContentShort);
-//            background = (RelativeLayout) root.findViewById(R.id.background);
+            background = (RelativeLayout) root.findViewById(R.id.three_line_list_item_background);
             announcementSubject = (TextView) root.findViewById(R.id.three_line_list_item_title);
             announcementTeacherName = (TextView) root.findViewById(R.id.three_line_list_item_first);
             announcementContent = (TextView) root.findViewById(R.id.three_line_list_item_second);

@@ -48,9 +48,16 @@ public class AnnouncementDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_announcement_details, container, false);
+        MainActivity activity = (MainActivity) getActivity();
+        activity.getDrawer().getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        activity.getDrawer().getActionBarDrawerToggle().syncState();
         TextView title = (TextView) root.findViewById(R.id.fragment_announcement_details_title);
-        title.setTransitionName("announcement_title_" + announcement.getId());
         title.setText(announcement.getSubject());
+        TextView content = (TextView) root.findViewById(R.id.fragment_announcement_details_content);
+        content.setText(announcement.getContent());
+        View background = root.findViewById(R.id.fragment_announcement_details);
+        background.setTransitionName("announcement_background_" + announcement.getId());
         return root;
     }
 

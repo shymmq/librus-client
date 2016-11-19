@@ -9,10 +9,12 @@ import java.io.Serializable;
  */
 
 class Announcement implements Serializable {
-    private Integer id;
-    private LocalDate startDate, endDate;
-    private String subject, content;
-    private Teacher teacher;
+    private final Integer id;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
+    private final String subject;
+    private final String content;
+    private final Teacher teacher;
 
     public Announcement(int id, LocalDate startDate, LocalDate endDate, String subject, Teacher teacher, String content) {
         this.id = id;

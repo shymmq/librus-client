@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 class APIClient {
-    private Context context;
-    private OkHttpClient client = new OkHttpClient();
+    private final Context context;
+    private final OkHttpClient client = new OkHttpClient();
 
     APIClient(Context _context) {
         context = _context;

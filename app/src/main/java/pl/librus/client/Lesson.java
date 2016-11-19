@@ -15,14 +15,13 @@ import java.text.ParseException;
 class Lesson implements Serializable {
 
 
-    private final String TAG = "schedule:log";
+    private final int lessonNumber;
     private Event event = null;
     private Subject subject;
     private Teacher teacher;
     private Subject orgSubject = null;
     private Teacher orgTeacher = null;
     private boolean substitution = false;
-    private int lessonNumber;
     private boolean isCanceled;
     private LocalDate date;
     private LocalTime startTime;
@@ -45,6 +44,7 @@ class Lesson implements Serializable {
                     this.orgTeacher = new Teacher(orgTeacherId);
                     this.orgSubject = new Subject(data.getJSONObject("OrgSubject").getString("Id"));
                 } catch (JSONException e) {
+                    String TAG = "schedule:log";
                     Log.d(TAG, "JSONException : " + date.toString() + " " + "Lesson " + lessonNumber + " " + subject.getName());
                 }
             }

@@ -19,7 +19,7 @@
     <string name="details_date_title">Data</string>
     <string name="details_date_placeholder">23 października 2016</string>
     <string name="details_time_title">Godzina</string>
-    <string name="details_time_placeholder">8:45 - 9:40</string>
+    <string name="details_time_placeholder">8:45 – 9:40</string>
     <string name="details_end_time_placeholder">- 9:40</string>
     <string name="details_lesson_number_placeholder">2. lekcja</string>
     <string name="details_event_count_title">1 wydarzenie :</string>

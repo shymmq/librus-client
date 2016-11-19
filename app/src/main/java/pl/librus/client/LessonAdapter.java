@@ -26,7 +26,7 @@ import java.util.Locale;
 
 class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder> {
 
-    private SchoolDay schoolDay;
+    private final SchoolDay schoolDay;
 
     LessonAdapter(SchoolDay schoolDay) {
         this.schoolDay = schoolDay;
@@ -182,15 +182,15 @@ class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder>
     }
 
     static class LessonViewHolder extends RecyclerView.ViewHolder {
-        public LinearLayout background;
-        TextView
-                lessonSubject,
-                lessonEmpty,
-                lessonTeacher,
-                lessonNumber,
-                badgeText;
-        CardView badge;
-        ImageView badgeIcon;
+        public final LinearLayout background;
+        final TextView
+                lessonSubject;
+        final TextView lessonEmpty;
+        final TextView lessonTeacher;
+        final TextView lessonNumber;
+        final TextView badgeText;
+        final CardView badge;
+        final ImageView badgeIcon;
 
         LessonViewHolder(View root) {
             super(root);

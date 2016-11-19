@@ -2,13 +2,15 @@ package pl.librus.client;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -16,21 +18,20 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "librus-client-log";
-    TimetableFragment timetableFragment;
-    AnnouncementsFragment announcementsFragment;
+    private TimetableFragment timetableFragment;
+    private AnnouncementsFragment announcementsFragment;
     private Toolbar toolbar;
+    private Drawer drawer;
+    private AppBarLayout appBarLayout;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -43,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            LibrusCache.load(this).done(new AndroidDoneCallback<LibrusCache>() {
+            final long startTime = System.nanoTime();
+            LibrusCache.update(this).done(new AndroidDoneCallback<LibrusCache>() {
                 @Override
                 public AndroidExecutionScope getExecutionScope() {
                     return null;
@@ -51,22 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onDone(LibrusCache result) {
+                    Log.d(TAG, "Loaded data from cache in " + (System.nanoTime() - startTime) / 1000000 + " ms");
                     display(result);
-                }
-            }).fail(new FailCallback<Promise<LibrusCache, Object, Object>>() {
-                @Override
-                public void onFail(Promise<LibrusCache, Object, Object> result) {
-                    result.done(new AndroidDoneCallback<LibrusCache>() {
-                        @Override
-                        public AndroidExecutionScope getExecutionScope() {
-                            return null;
-                        }
-
-                        @Override
-                        public void onDone(LibrusCache result) {
-                            display(result);
-                        }
-                    });
                 }
             });
         }
@@ -85,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
                 .addProfiles(profile)
                 .build();
-        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIdentifier(666)
-                .withName("Szczęśliwy numerek: 27").withIcon(R.drawable.ic_menu_slideshow);
-        final DrawerBuilder drawer = new DrawerBuilder()
+//        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIdentifier(666)
+//                .withName("Szczęśliwy numerek: 27").withIcon(R.drawable.ic_menu_slideshow);
+        final DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withAccountHeader(header)
                 .addDrawerItems(
@@ -114,9 +102,7 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(5)
                                 .withName("Nieobecności")
-                                .withIcon(R.drawable.ic_person_outline_black_48dp),
-                        new DividerDrawerItem(),
-                        lucky)
+                                .withIcon(R.drawable.ic_person_outline_black_48dp))
                 .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true)
                         .withIdentifier(6)
                         .withName("Ustawienia")
@@ -127,18 +113,28 @@ public class MainActivity extends AppCompatActivity {
                         return selectItem(drawerItem);
                     }
                 })
-                .withDelayOnDrawerClose(50);
+                .withDelayOnDrawerClose(50)
+                .withOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
+                    @Override
+                    public boolean onNavigationClickListener(View clickedView) {
+                        onBackPressed();
+                        return true;
+                    }
+                })
+                .withActionBarDrawerToggle(true)
+                .withActionBarDrawerToggleAnimated(true);
 
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         setSupportActionBar(toolbar);
-        drawer.withToolbar(toolbar)
-                .build()
-                .setSelection(0);
+        drawer = drawerBuilder.withToolbar(toolbar)
+                .build();
+        drawer.setSelection(0);
 
     }
 
-    boolean selectItem(IDrawerItem item) {
+    private boolean selectItem(IDrawerItem item) {
         Fragment fragment = null;
         boolean changeFragment = true;
         toolbar.setTitle("");
@@ -179,13 +175,6 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setTitle("Ustawienia");
                 break;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (fragment instanceof TimetableFragment) {
-                toolbar.setElevation(0);
-            } else {
-                toolbar.setElevation(4);
-            }
-        }
         if (changeFragment) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 //        transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
@@ -199,5 +188,29 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
         }
         return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public AppBarLayout getAppBarLayout() {
+        return appBarLayout;
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
+
+    public Drawer getDrawer() {
+        return drawer;
     }
 }

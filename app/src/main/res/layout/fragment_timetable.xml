@@ -7,19 +7,7 @@
     tools:context="pl.librus.client.MainActivity"
     tools:showIn="@layout/content_main">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?attr/colorPrimary"
-            app:tabGravity="center"
-            app:tabMode="scrollable" />
-    </android.support.design.widget.AppBarLayout>
+    <!--<include layout="@layout/tabs" />-->
 
     <android.support.v4.view.ViewPager
         android:id="@+id/container"

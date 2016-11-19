@@ -1,10 +1,12 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_announcement_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:alpha="1"
+    android:background="@color/md_light_background"
     android:clipChildren="false"
+    android:transitionGroup="true"
     tools:context="pl.librus.client.AnnouncementDetailsFragment">
 
     <TextView
@@ -15,11 +17,22 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_toStartOf="@+id/three_line_list_item_date"
         android:ellipsize="marquee"
         android:maxLines="1"
         android:text="@string/announcement"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="16sp"
-        android:transitionName="three_line_list_item_title" />
-</FrameLayout>
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/fragment_announcement_details_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignStart="@+id/fragment_announcement_details_title"
+        android:layout_below="@+id/fragment_announcement_details_title"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/library_AndroidIconics_libraryDescription" />
+
+
+</RelativeLayout>

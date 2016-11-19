@@ -28,8 +28,8 @@ import java.util.List;
 
 class LibrusCache implements Serializable {
     private static final String TAG = "librus-client-log";
-    private long timestamp;
-    transient private Context context;
+    private final long timestamp;
+    final transient private Context context;
     //put additional data types here
     private LibrusAccount account;
     private Timetable timetable;
@@ -74,7 +74,7 @@ class LibrusCache implements Serializable {
         return deferred.promise();
     }
 
-    private static Promise<LibrusCache, Object, Object> update(Context context) {
+    static Promise<LibrusCache, Object, Object> update(Context context) {
         Log.d(TAG, "update: Starting update");
         final Deferred<LibrusCache, Object, Object> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();

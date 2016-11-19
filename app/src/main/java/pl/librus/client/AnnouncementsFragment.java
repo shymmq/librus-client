@@ -12,6 +12,7 @@ import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.Serializable;
@@ -20,8 +21,8 @@ import java.util.List;
 
 public class AnnouncementsFragment extends Fragment {
     private final String TAG = "librus-client-log";
+    private final boolean debug = false;
     private List<Announcement> announcementList = new ArrayList<>();
-    private RecyclerView mRecyclerView;
 
     public AnnouncementsFragment() {
         // Required empty public constructor
@@ -39,7 +40,7 @@ public class AnnouncementsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_announcements, container, false);
         announcementList = (List<Announcement>) getArguments().getSerializable("data");
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
+        RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
         assert announcementList != null;
         mRecyclerView.setAdapter(new AnnouncementAdapter(announcementList));
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -53,32 +54,38 @@ public class AnnouncementsFragment extends Fragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 AnnouncementDetailsFragment fragment = AnnouncementDetailsFragment.newInstance(announcement);
-
-                Transition changeBounds = TransitionInflater.from(getContext()).inflateTransition(R.transition.change_bounds);
-                fragment.setSharedElementEnterTransition(changeBounds);
-                fragment.setSharedElementReturnTransition(changeBounds);
-                setSharedElementEnterTransition(changeBounds);
-                setSharedElementReturnTransition(changeBounds);
-
-                Transition transition = new Fade();
-                fragment.setEnterTransition(transition);
-                fragment.setExitTransition(transition);
-                fragment.setReenterTransition(transition);
-                fragment.setReturnTransition(transition);
-
-                setEnterTransition(transition);
-                setExitTransition(transition);
-                setReenterTransition(transition);
-                setReturnTransition(transition);
-
                 TextView title = (TextView) view.findViewById(R.id.three_line_list_item_title);
-                fragmentTransaction.addSharedElement(title, title.getTransitionName());
-//                fragmentTransaction.addSharedElement(root.findViewById(R.id.three_line_list_item_background), "three_line_list_element_background");
-                fragmentTransaction.addToBackStack(null);
+                RelativeLayout background = (RelativeLayout) view.findViewById(R.id.three_line_list_item_background);
+
+                Fade fade = new Fade();
+                Transition details_enter = TransitionInflater.from(getContext()).inflateTransition(R.transition.details_enter);
+                Transition details_exit = TransitionInflater.from(getContext()).inflateTransition(R.transition.details_exit);
+                if (debug) {
+                    details_enter.setDuration(3000);
+                    details_exit.setDuration(3000);
+                    fade.setDuration(3000);
+                }
+                fragment.setSharedElementEnterTransition(details_enter);
+                fragment.setSharedElementReturnTransition(details_exit);
+                setSharedElementEnterTransition(details_enter);
+                setSharedElementReturnTransition(details_exit);
+
+                fragment.setExitTransition(fade);
+                fragment.setEnterTransition(fade);
+                fragment.setReturnTransition(fade);
+                fragment.setReenterTransition(fade);
+                setEnterTransition(fade);
+                setExitTransition(fade);
+                setReturnTransition(fade);
+                setReenterTransition(fade);
                 fragmentTransaction.replace(((ViewGroup) getView().getParent()).getId(), fragment);
-                fragmentTransaction.commit();
+                fragmentTransaction.addToBackStack(null).commit();
             }
         }));
+        MainActivity activity = (MainActivity) getActivity();
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        activity.getDrawer().getActionBarDrawerToggle().setDrawerIndicatorEnabled(true);
+        activity.getDrawer().getActionBarDrawerToggle().syncState();
         return root;
     }
 

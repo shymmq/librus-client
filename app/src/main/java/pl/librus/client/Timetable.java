@@ -8,7 +8,7 @@ import java.util.Map;
 
 class Timetable implements Serializable {
     private final String TAG = "librus-client-log";
-    private Map<LocalDate, SchoolDay> timetable = new HashMap<>();
+    private final Map<LocalDate, SchoolDay> timetable = new HashMap<>();
 
 
     Timetable() {
