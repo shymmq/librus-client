@@ -1,10 +1,10 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import org.joda.time.LocalDate;
 
 import java.io.Serializable;
 
-class Event implements Serializable {
+public class Event implements Serializable {
 
     private String category;
     private String description;
@@ -18,7 +18,7 @@ class Event implements Serializable {
         this.lessonNumber = lessonNumber;
     }
 
-    String getCategory() {
+    public String getCategory() {
         return category;
     }
 
@@ -26,7 +26,7 @@ class Event implements Serializable {
         this.category = category;
     }
 
-    String getDescription() {
+    public String getDescription() {
         return description;
     }
 

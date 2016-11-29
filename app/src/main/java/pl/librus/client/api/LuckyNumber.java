@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import org.joda.time.LocalDate;
 import org.json.JSONException;

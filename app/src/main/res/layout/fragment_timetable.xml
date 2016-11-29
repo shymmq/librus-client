@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="pl.librus.client.MainActivity"
+    tools:context="pl.librus.client.ui.MainActivity"
     tools:showIn="@layout/content_main">
 
     <!--<include layout="@layout/tabs" />-->

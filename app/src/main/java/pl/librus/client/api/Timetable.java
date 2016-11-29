@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import org.joda.time.LocalDate;
 
@@ -6,12 +6,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-class Timetable implements Serializable {
+public class Timetable implements Serializable {
     private final String TAG = "librus-client-log";
     private final Map<LocalDate, SchoolDay> timetable = new HashMap<>();
 
 
-    Timetable() {
+    public Timetable() {
     }
 
 //    private void parseJSON(JSONObject data, JSONObject events) throws JSONException {
@@ -45,7 +45,7 @@ class Timetable implements Serializable {
 //        }
 //    }
 
-    void addSchoolDay(SchoolDay schoolDay) {
+    public void addSchoolDay(SchoolDay schoolDay) {
         timetable.put(schoolDay.getDate(), schoolDay);
     }
 
@@ -53,7 +53,7 @@ class Timetable implements Serializable {
         return timetable;
     }
 
-    SchoolDay getSchoolDay(LocalDate date) {
+    public SchoolDay getSchoolDay(LocalDate date) {
         return timetable.get(date);
     }
 }

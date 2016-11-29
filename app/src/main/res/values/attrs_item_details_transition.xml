@@ -16,7 +16,7 @@
 
 <resources>
 
-    <declare-styleable name="LiftOff">
+    <declare-styleable name="ItemDetailsTransition">
         <attr name="initialElevation" format="dimension" />
         <attr name="finalElevation" format="dimension" />
     </declare-styleable>

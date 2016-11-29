@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import android.util.Log;
 
@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 
 
-class Lesson implements Serializable {
+public class Lesson implements Serializable {
 
 
     private final int lessonNumber;
@@ -59,7 +59,7 @@ class Lesson implements Serializable {
     }
 
 
-    Event getEvent() {
+    public Event getEvent() {
         return event;
     }
 
@@ -67,43 +67,43 @@ class Lesson implements Serializable {
         this.event = event;
     }
 
-    Subject getOrgSubject() {
+    public Subject getOrgSubject() {
         return orgSubject;
     }
 
-    Teacher getOrgTeacher() {
+    public Teacher getOrgTeacher() {
         return orgTeacher;
     }
 
-    LocalDate getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    LocalTime getStartTime() {
+    public LocalTime getStartTime() {
         return startTime;
     }
 
-    LocalTime getEndTime() {
+    public LocalTime getEndTime() {
         return endTime;
     }
 
-    int getLessonNumber() {
+    public int getLessonNumber() {
         return lessonNumber;
     }
 
-    Subject getSubject() {
+    public Subject getSubject() {
         return subject;
     }
 
-    Teacher getTeacher() {
+    public Teacher getTeacher() {
         return teacher;
     }
 
-    boolean isSubstitution() {
+    public boolean isSubstitution() {
         return substitution;
     }
 
-    boolean isCanceled() {
+    public boolean isCanceled() {
         return isCanceled;
     }
 }

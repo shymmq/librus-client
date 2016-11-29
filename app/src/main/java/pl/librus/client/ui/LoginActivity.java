@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,9 @@ import org.jdeferred.AlwaysCallback;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
+
+import pl.librus.client.R;
+import pl.librus.client.api.APIClient;
 
 public class LoginActivity extends AppCompatActivity {
 

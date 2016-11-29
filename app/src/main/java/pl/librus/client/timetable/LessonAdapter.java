@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.timetable;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -24,11 +24,15 @@ import org.joda.time.LocalTime;
 
 import java.util.Locale;
 
-class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder> {
+import pl.librus.client.R;
+import pl.librus.client.api.Lesson;
+import pl.librus.client.api.SchoolDay;
+
+public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder> {
 
     private final SchoolDay schoolDay;
 
-    LessonAdapter(SchoolDay schoolDay) {
+    public LessonAdapter(SchoolDay schoolDay) {
         this.schoolDay = schoolDay;
 //        Log.d(TAG, "Data received in lesson adapter: " + schoolDay.getLessons().entrySet().toString());
     }
@@ -146,27 +150,28 @@ class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder>
                     startTime.setText(lesson.getStartTime().toString("HH:mm"));
                     endTime.setText(" - " + lesson.getEndTime().toString("HH:mm"));
                     lessonNumber.setText(lesson.getLessonNumber() + ". lekcja");
-
-                    if (lesson.getEvent() != null) {
-                        TextView eventName = (TextView) details.findViewById(R.id.details_event_name);
-                        TextView eventDescription = (TextView) details.findViewById(R.id.details_event_description);
-                        event.setVisibility(View.VISIBLE);
-                        eventName.setText(lesson.getEvent().getCategory());
-                        eventDescription.setText(lesson.getEvent().getDescription());
-                    } else {
-                        event.setVisibility(View.GONE);
-                    }
-                    if (lesson.isSubstitution()) {
-                        if (lesson.getTeacher() != lesson.getOrgTeacher()) {
-                            orgTeacher.setText(lesson.getOrgTeacher().getName() + " -> ");
+                    if (!lesson.isCanceled()) {
+                        if (lesson.getEvent() != null) {
+                            TextView eventName = (TextView) details.findViewById(R.id.details_event_name);
+                            TextView eventDescription = (TextView) details.findViewById(R.id.details_event_description);
+                            event.setVisibility(View.VISIBLE);
+                            eventName.setText(lesson.getEvent().getCategory());
+                            eventDescription.setText(lesson.getEvent().getDescription());
+                        } else {
+                            event.setVisibility(View.GONE);
                         }
-                        if (lesson.getSubject() != lesson.getOrgSubject()) {
-                            orgSubject.setText(lesson.getOrgSubject().getName() + " -> ");
-                            subject.setText(lesson.getSubject().getName());
+                        if (lesson.isSubstitution()) {
+                            if (lesson.getTeacher() != lesson.getOrgTeacher()) {
+                                orgTeacher.setText(lesson.getOrgTeacher().getName() + " -> ");
+                            }
+                            if (lesson.getSubject() != lesson.getOrgSubject()) {
+                                orgSubject.setText(lesson.getOrgSubject().getName() + " -> ");
+                                subject.setText(lesson.getSubject().getName());
+                            }
+                        } else {
+                            orgTeacher.setVisibility(View.GONE);
+                            subjectContainer.setVisibility(View.GONE);
                         }
-                    } else {
-                        orgTeacher.setVisibility(View.GONE);
-                        subjectContainer.setVisibility(View.GONE);
                     }
 
                     //TODO Ogarnianie odwołań

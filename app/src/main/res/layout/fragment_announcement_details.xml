@@ -7,32 +7,55 @@
     android:background="@color/md_light_background"
     android:clipChildren="false"
     android:transitionGroup="true"
-    tools:context="pl.librus.client.AnnouncementDetailsFragment">
+    tools:context="pl.librus.client.announcements.AnnouncementDetailsFragment">
 
-    <TextView
-        android:id="@+id/fragment_announcement_details_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:ellipsize="marquee"
-        android:maxLines="1"
-        android:text="@string/announcement"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="16sp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/fragment_announcement_details_content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignStart="@+id/fragment_announcement_details_title"
-        android:layout_below="@+id/fragment_announcement_details_title"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/library_AndroidIconics_libraryDescription" />
+        <LinearLayout
+            android:id="@+id/fragment_announcement_details_contents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
 
+            <TextView
+                android:id="@+id/fragment_announcement_details_top_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:paddingBottom="16dp"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:text="@android:string/VideoView_error_text_invalid_progressive_playback"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="20sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/md_divider_black" />
+
+            <include
+                android:id="@+id/fragment_announcement_details_info"
+                layout="@layout/two_line_list_item"
+                android:layout_width="match_parent"
+                android:layout_height="72dp" />
+
+
+            <TextView
+                android:id="@+id/fragment_announcement_details_bottom_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:tag="content"
+                android:text="@string/library_AndroidIconics_libraryDescription"
+                android:textColor="?android:attr/textColorPrimary" />
+
+
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

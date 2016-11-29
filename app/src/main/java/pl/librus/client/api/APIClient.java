@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -34,7 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-class APIClient {
+public class APIClient {
     private final Context context;
     private final OkHttpClient client = new OkHttpClient();
 
@@ -42,7 +42,7 @@ class APIClient {
         context = _context;
     }
 
-    static Promise<String, Integer, Integer> login(String username, String password, final Context c) {
+    public static Promise<String, Integer, Integer> login(String username, String password, final Context c) {
         final String AUTH_URL = "https://api.librus.pl/OAuth/Token";
         final String auth_token = "MzU6NjM2YWI0MThjY2JlODgyYjE5YTMzZjU3N2U5NGNiNGY=";
         OkHttpClient client = new OkHttpClient();
@@ -402,7 +402,7 @@ class APIClient {
                 deferred.reject(result);
             }
         });
-        return  deferred.promise();
+        return deferred.promise();
     }
 
     Promise<Timetable, String, String> getTimetable(final LocalDate... weeks) {
@@ -415,7 +415,6 @@ class APIClient {
             LocalDate weekStart = weeks[i];
             promises[i] = (APIRequest("/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd")));
         }
-
         DeferredManager dm = new AndroidDeferredManager();
         dm.when(promises).done(new DoneCallback<MultipleResults>() {
             @Override

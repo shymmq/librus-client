@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import android.annotation.SuppressLint;
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.HashMap;
 
-class SchoolDay implements Serializable {
+public class SchoolDay implements Serializable {
 
     private LocalDate date = LocalDate.now();
     private boolean empty = true;
@@ -59,7 +59,7 @@ class SchoolDay implements Serializable {
         empty = false;
     }
 
-    LocalDate getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
@@ -75,15 +75,15 @@ class SchoolDay implements Serializable {
         return lessons;
     }
 
-    Lesson getLesson(int i) {
+    public Lesson getLesson(int i) {
         return lessons.get(i);
     }
 
-    boolean isEmpty() {
+    public boolean isEmpty() {
         return empty;
     }
 
-    int size() {
+    public int size() {
         return lessons.size();
     }
 

@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.timetable;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +8,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import pl.librus.client.R;
+import pl.librus.client.api.SchoolDay;
 
 public class TimetablePageFragment extends Fragment {
     private final String TAG = "librus-client-log";

@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,6 +35,13 @@ import org.jdeferred.android.AndroidExecutionScope;
 
 import java.util.Locale;
 
+import pl.librus.client.R;
+import pl.librus.client.announcements.AnnouncementsFragment;
+import pl.librus.client.api.LibrusAccount;
+import pl.librus.client.api.LibrusCache;
+import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.timetable.TimetableFragment;
+
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "librus-client-log";
     LuckyNumber luckyNumber;
@@ -56,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            final long startTime = System.nanoTime();
             LibrusCache.update(this).done(new AndroidDoneCallback<LibrusCache>() {
                 @Override
                 public AndroidExecutionScope getExecutionScope() {
@@ -65,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onDone(LibrusCache result) {
-                    Log.d(TAG, "Loaded data from cache in " + (System.nanoTime() - startTime) / 1000000 + " ms");
                     display(result);
                 }
             });
@@ -148,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         drawer = drawerBuilder.withToolbar(toolbar)
                 .build();
-        drawer.setSelection(0);
+        drawer.setSelection(3);
 
     }
 

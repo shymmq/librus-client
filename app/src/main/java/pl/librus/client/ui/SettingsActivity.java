@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.ui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -6,8 +6,8 @@ import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.transition.Fade;
-import android.transition.Slide;
+
+import pl.librus.client.R;
 
 /**
  * Created by Adam on 06.11.16

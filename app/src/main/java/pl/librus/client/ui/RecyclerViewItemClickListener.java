@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.ui;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,11 +7,11 @@ import android.view.MotionEvent;
 import android.view.View;
 
 
-class RecyclerViewItemClickListener implements RecyclerView.OnItemTouchListener {
+public class RecyclerViewItemClickListener implements RecyclerView.OnItemTouchListener {
     private final GestureDetector mGestureDetector;
     private final OnItemClickListener mListener;
 
-    RecyclerViewItemClickListener(Context context, final RecyclerView recyclerView, OnItemClickListener listener) {
+    public RecyclerViewItemClickListener(Context context, final RecyclerView recyclerView, OnItemClickListener listener) {
         mListener = listener;
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -39,7 +39,7 @@ class RecyclerViewItemClickListener implements RecyclerView.OnItemTouchListener 
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
     }
 
-    interface OnItemClickListener {
+    public interface OnItemClickListener {
         void onItemClick(View view, int position);
     }
 }

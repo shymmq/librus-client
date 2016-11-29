@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.announcements;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,6 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.Locale;
+
+import pl.librus.client.R;
+import pl.librus.client.api.Announcement;
+import pl.librus.client.ui.MainActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -47,17 +53,26 @@ public class AnnouncementDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View root = inflater.inflate(R.layout.fragment_announcement_details, container, false);
+
         MainActivity activity = (MainActivity) getActivity();
         activity.getDrawer().getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        activity.getDrawer().getActionBarDrawerToggle().syncState();
-        TextView title = (TextView) root.findViewById(R.id.fragment_announcement_details_title);
-        title.setText(announcement.getSubject());
-        TextView content = (TextView) root.findViewById(R.id.fragment_announcement_details_content);
-        content.setText(announcement.getContent());
+
+        TextView title = (TextView) root.findViewById(R.id.fragment_announcement_details_top_panel);
+        TextView content = (TextView) root.findViewById(R.id.fragment_announcement_details_bottom_panel);
+        TextView author = (TextView) root.findViewById(R.id.two_line_list_item_title);
+        TextView date = (TextView) root.findViewById(R.id.two_line_list_item_content);
         View background = root.findViewById(R.id.fragment_announcement_details);
+        View info = root.findViewById(R.id.fragment_announcement_details_info);
+        title.setText(announcement.getSubject());
+        content.setText(announcement.getContent());
+        author.setText(announcement.getTeacher().getName());
+        date.setText(announcement.getStartDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
+
         background.setTransitionName("announcement_background_" + announcement.getId());
+        info.setTransitionName("announcement_info_" + announcement.getId());
         return root;
     }
 

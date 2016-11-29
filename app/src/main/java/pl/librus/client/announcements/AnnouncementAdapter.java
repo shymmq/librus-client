@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.announcements;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -12,6 +12,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import pl.librus.client.R;
+import pl.librus.client.api.Announcement;
 
 /**
  * Created by Adam on 2016-11-01. balbla
@@ -36,7 +39,6 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
     public void onBindViewHolder(final AnnouncementViewHolder holder, int position) {
         Announcement announcement = announcementList.get(position);
         holder.announcementSubject.setText(announcement.getSubject());
-//        holder.announcementSubject.setTransitionName("announcement_title_" + announcement.getId());
         holder.background.setTransitionName("announcement_background_" + announcement.getId());
         holder.announcementTeacherName.setText(announcement.getTeacher().getName());
         holder.announcementContent.setText(announcement.getContent());

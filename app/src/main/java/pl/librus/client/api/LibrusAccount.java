@@ -1,11 +1,11 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 
-class LibrusAccount implements Serializable {
+public class LibrusAccount implements Serializable {
     private String id,
             classId,
             firstName,
@@ -24,7 +24,7 @@ class LibrusAccount implements Serializable {
         this.email = accountJSON.getString("Email");
     }
 
-    String getName() {
+    public String getName() {
         return firstName + " " + lastName;
     }
 
@@ -48,7 +48,7 @@ class LibrusAccount implements Serializable {
         return login;
     }
 
-    String getEmail() {
+    public String getEmail() {
         return email;
     }
 }

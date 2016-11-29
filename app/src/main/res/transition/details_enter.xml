@@ -2,8 +2,9 @@
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <changeBounds android:interpolator="@android:interpolator/decelerate_cubic" />
+    <changeTransform />
     <transition
-        class="pl.librus.client.LiftOff"
+        class="pl.librus.client.announcements.ItemDetailsTransition"
         app:finalElevation="8dp"
         app:initialElevation="0dp" />
 </transitionSet>

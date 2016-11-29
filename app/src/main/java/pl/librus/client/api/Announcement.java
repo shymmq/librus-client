@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import org.joda.time.LocalDate;
 
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by Adam on 2016-10-31.
  */
 
-class Announcement implements Serializable {
+public class Announcement implements Serializable, Comparable<Announcement> {
     private final Integer id;
     private final LocalDate startDate;
     private final LocalDate endDate;
@@ -55,5 +55,10 @@ class Announcement implements Serializable {
 
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public int compareTo(Announcement announcement) {
+        return announcement.getStartDate().compareTo(startDate);
     }
 }

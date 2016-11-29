@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.timetable;
 
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -10,6 +10,10 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import pl.librus.client.R;
+import pl.librus.client.api.Timetable;
+import pl.librus.client.ui.MainActivity;
 
 public class TimetableFragment extends Fragment {
     private final String TAG = "librus-client-log";
@@ -71,7 +75,7 @@ public class TimetableFragment extends Fragment {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return TimetableUtils.getTabTitle(position, true, true);
+            return TimetableUtils.getTabTitle(position, false, true);
         }
     }
 }

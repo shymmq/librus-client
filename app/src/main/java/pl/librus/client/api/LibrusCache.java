@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.api;
 
 import android.content.Context;
 import android.util.Log;
@@ -26,7 +26,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class LibrusCache implements Serializable {
+import pl.librus.client.timetable.TimetableUtils;
+
+public class LibrusCache implements Serializable {
     private static final String TAG = "librus-client-log";
     private final long timestamp;
     final transient private Context context;
@@ -75,7 +77,7 @@ class LibrusCache implements Serializable {
         return deferred.promise();
     }
 
-    static Promise<LibrusCache, Object, Object> update(Context context) {
+    public static Promise<LibrusCache, Object, Object> update(Context context) {
         Log.d(TAG, "update: Starting update");
         final Deferred<LibrusCache, Object, Object> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
@@ -97,6 +99,12 @@ class LibrusCache implements Serializable {
             @Override
             public void onDone(List<Announcement> result) {
                 cache.setAnnouncements(result);
+            }
+        }));
+        tasks.add(client.getEvents().done(new DoneCallback<List<Event>>() {
+            @Override
+            public void onDone(List<Event> result) {
+                cache.setEvents(result);
             }
         }));
         tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
@@ -137,7 +145,7 @@ class LibrusCache implements Serializable {
         }
     }
 
-    List<Announcement> getAnnouncements() {
+    public List<Announcement> getAnnouncements() {
         return announcements;
     }
 
@@ -149,7 +157,7 @@ class LibrusCache implements Serializable {
         return timestamp;
     }
 
-    Timetable getTimetable() {
+    public Timetable getTimetable() {
         return timetable;
     }
 
@@ -171,5 +179,12 @@ class LibrusCache implements Serializable {
 
     private void setLuckyNumber(LuckyNumber luckyNumber) {
         this.luckyNumber = luckyNumber;
+    }
+
+    private void setEvents(List<Event> events) {
+        while (events.iterator().hasNext()) {
+            Event event = events.iterator().next();
+            timetable.getSchoolDay(event.getDate()).getLesson(event.getLessonNumber()).setEvent(event);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.announcements;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,7 +17,13 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import pl.librus.client.R;
+import pl.librus.client.api.Announcement;
+import pl.librus.client.ui.MainActivity;
+import pl.librus.client.ui.RecyclerViewItemClickListener;
 
 public class AnnouncementsFragment extends Fragment {
     private final String TAG = "librus-client-log";
@@ -30,6 +36,7 @@ public class AnnouncementsFragment extends Fragment {
 
     public static AnnouncementsFragment newInstance(List<Announcement> announcementList) {
         Bundle args = new Bundle();
+        Collections.sort(announcementList);
         args.putSerializable("data", (Serializable) announcementList);
         AnnouncementsFragment fragment = new AnnouncementsFragment();
         fragment.setArguments(args);
@@ -57,28 +64,35 @@ public class AnnouncementsFragment extends Fragment {
                 TextView title = (TextView) view.findViewById(R.id.three_line_list_item_title);
                 RelativeLayout background = (RelativeLayout) view.findViewById(R.id.three_line_list_item_background);
 
-                Fade fade = new Fade();
-                Transition details_enter = TransitionInflater.from(getContext()).inflateTransition(R.transition.details_enter);
-                Transition details_exit = TransitionInflater.from(getContext()).inflateTransition(R.transition.details_exit);
+                TransitionInflater transitionInflater = TransitionInflater.from(getContext());
+                Transition t = new Fade();
+                Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
+                Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
                 if (debug) {
                     details_enter.setDuration(3000);
                     details_exit.setDuration(3000);
-                    fade.setDuration(3000);
+                    t.setDuration(3000);
                 }
+
                 fragment.setSharedElementEnterTransition(details_enter);
                 fragment.setSharedElementReturnTransition(details_exit);
                 setSharedElementEnterTransition(details_enter);
                 setSharedElementReturnTransition(details_exit);
 
-                fragment.setExitTransition(fade);
-                fragment.setEnterTransition(fade);
-                fragment.setReturnTransition(fade);
-                fragment.setReenterTransition(fade);
-                setEnterTransition(fade);
-                setExitTransition(fade);
-                setReturnTransition(fade);
-                setReenterTransition(fade);
+                //TODO extend Fade to allow other starting/ending values
+
+                fragment.setExitTransition(t);
+                fragment.setEnterTransition(t);
+                fragment.setReturnTransition(t);
+                fragment.setReenterTransition(t);
+
+                setEnterTransition(t);
+                setExitTransition(t);
+                setReturnTransition(t);
+                setReenterTransition(t);
+
                 fragmentTransaction.addSharedElement(background, background.getTransitionName());
+
                 fragmentTransaction.replace(((ViewGroup) getView().getParent()).getId(), fragment);
                 fragmentTransaction.addToBackStack(null).commit();
             }

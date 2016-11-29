@@ -1,4 +1,4 @@
-package pl.librus.client;
+package pl.librus.client.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import pl.librus.client.R;
 
 public class PlaceholderFragment extends Fragment {
     public PlaceholderFragment() {
