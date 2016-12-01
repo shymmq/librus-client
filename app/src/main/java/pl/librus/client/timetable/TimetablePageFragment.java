@@ -43,7 +43,6 @@ public class TimetablePageFragment extends Fragment {
             recyclerView.setHasFixedSize(true);
             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-            Log.d(TAG, "onCreateView: Creating LessonAdapter for tab " + schoolDay.getDate().toString());
             RecyclerView.Adapter adapter = new LessonAdapter(schoolDay);
             recyclerView.setAdapter(adapter);
             return rootView;

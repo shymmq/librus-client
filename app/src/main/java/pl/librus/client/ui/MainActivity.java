@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -33,13 +34,17 @@ import org.jdeferred.DoneCallback;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
 
+import java.util.List;
 import java.util.Locale;
 
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
+import pl.librus.client.api.Event;
+import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusCache;
 import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.api.Timetable;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,10 +52,13 @@ public class MainActivity extends AppCompatActivity {
     LuckyNumber luckyNumber;
     ActionMenuView amv;
     AppBarLayout appBarLayout;
+    TabLayout tabLayout = null;
     private TimetableFragment timetableFragment;
     private AnnouncementsFragment announcementsFragment;
     private Drawer drawer;
     private Toolbar toolbar;
+    private Timetable timetable;
+    private List<Event> events;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -78,11 +86,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void display(LibrusCache result) {
-        timetableFragment = TimetableFragment.newInstance(result.getTimetable());
-        announcementsFragment = AnnouncementsFragment.newInstance(result.getAnnouncements());
         LibrusAccount account = result.getAccount();
         luckyNumber = result.getLuckyNumber();
+        timetable = result.getTimetable();
+        events = result.getEvents();
+        for (Event event : events) {
 
+            Lesson lesson = timetable.getLesson(event.getDate(), event.getLessonNumber());
+            if (lesson != null) {
+                lesson.setEvent(event);
+            }
+        }
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
 
         AccountHeader header = new AccountHeaderBuilder()
@@ -151,9 +165,13 @@ public class MainActivity extends AppCompatActivity {
         appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        drawer = drawerBuilder.withToolbar(toolbar)
-                .build();
-        drawer.setSelection(3);
+        drawer = drawerBuilder.withToolbar(toolbar).build();
+        timetableFragment = TimetableFragment.newInstance(result.getTimetable());
+        announcementsFragment = AnnouncementsFragment.newInstance(result.getAnnouncements());
+        drawer.setSelection(0);
+        if (appBarLayout.findViewById(tabLayout.getId()) == null) {
+            appBarLayout.addView(tabLayout);
+        }
 
     }
 
@@ -249,5 +267,17 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void addTabs(TabLayout tabLayout) {
+        if (this.appBarLayout != null) {
+            appBarLayout.addView(tabLayout);
+        }
+        this.tabLayout = tabLayout;
+    }
+
+    public void removeTabs(TabLayout tabLayout) {
+        appBarLayout.removeView(tabLayout);
+        this.tabLayout = null;
     }
 }

@@ -76,6 +76,7 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
 
                 holder.lessonSubject.setPaintFlags(holder.lessonSubject.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 holder.lessonTeacher.setPaintFlags(holder.lessonTeacher.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                holder.background.setAlpha(0.5f);
                 holder.badge.setVisibility(View.VISIBLE);
                 holder.badgeText.setText("odwołane");
                 holder.badgeIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_cancel_black_24dp, context.getTheme()));
@@ -113,44 +114,51 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
 
                     holder.background.setAlpha(0.5f);
 
-                } else if (prevLesson != null && prefs.getBoolean("currentLessonBold", true) && timeNow.isAfter(prevLesson.getEndTime()) && timeNow.isBefore(lesson.getEndTime())) {
-
-                    //current lesson
-
-                    holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
-
-                } else if (prefs.getBoolean("currentLessonBold", true) && timeNow.isBefore(lesson.getEndTime()) && lesson.getLessonNumber() == 1) {
-
-                    //first lesson
-
-                    holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
+                } else if (!lesson.isCanceled() && prefs.getBoolean("currentLessonBold", true)) {
+                    if (timeNow.isBefore(lesson.getEndTime())) {
+                        if (prevLesson == null || prevLesson.isCanceled() || lesson.getLessonNumber() == 1 || timeNow.isAfter(prevLesson.getEndTime())) {
+                            holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
+                        }
+                    }
                 }
+//                else if (prevLesson != null && prefs.getBoolean("currentLessonBold", true) && timeNow.isAfter(prevLesson.getEndTime()) && timeNow.isBefore(lesson.getEndTime()) && !lesson.isCanceled()) {
+//
+//                    //current lesson
+//
+//                    holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
+//
+//                } else if (prefs.getBoolean("currentLessonBold", true) && timeNow.isBefore(lesson.getEndTime()) && lesson.getLessonNumber() == 1 && !lesson.isCanceled()) {
+//
+//                    //first lesson
+//
+//                    holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
+//                }
             }
-            holder.background.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    MaterialDialog.Builder builder = new MaterialDialog.Builder(context).title(lesson.getSubject().getName()).positiveText("Zamknij");
+            if (!lesson.isCanceled()) {
+                holder.background.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        MaterialDialog.Builder builder = new MaterialDialog.Builder(context).title(lesson.getSubject().getName()).positiveText("Zamknij");
 
-                    LayoutInflater inflater = LayoutInflater.from(context);
-                    View details = inflater.inflate(R.layout.lesson_details, null);
+                        LayoutInflater inflater = LayoutInflater.from(context);
+                        View details = inflater.inflate(R.layout.lesson_details, null);
 
-                    TextView teacher = (TextView) details.findViewById(R.id.details_teacher);
-                    TextView orgTeacher = (TextView) details.findViewById(R.id.details_org_teacher);
-                    TextView orgSubject = (TextView) details.findViewById(R.id.details_org_subject);
-                    TextView subject = (TextView) details.findViewById(R.id.details_subject);
-                    RelativeLayout subjectContainer = (RelativeLayout) details.findViewById(R.id.details_subject_container);
-                    TextView date = (TextView) details.findViewById(R.id.details_date);
-                    TextView startTime = (TextView) details.findViewById(R.id.details_start_time);
-                    TextView endTime = (TextView) details.findViewById(R.id.details_end_time);
-                    TextView lessonNumber = (TextView) details.findViewById(R.id.details_lesson_number);
-                    LinearLayout event = (LinearLayout) details.findViewById(R.id.event);
+                        TextView teacher = (TextView) details.findViewById(R.id.details_teacher);
+                        TextView orgTeacher = (TextView) details.findViewById(R.id.details_org_teacher);
+                        TextView orgSubject = (TextView) details.findViewById(R.id.details_org_subject);
+                        TextView subject = (TextView) details.findViewById(R.id.details_subject);
+                        RelativeLayout subjectContainer = (RelativeLayout) details.findViewById(R.id.details_subject_container);
+                        TextView date = (TextView) details.findViewById(R.id.details_date);
+                        TextView startTime = (TextView) details.findViewById(R.id.details_start_time);
+                        TextView endTime = (TextView) details.findViewById(R.id.details_end_time);
+                        TextView lessonNumber = (TextView) details.findViewById(R.id.details_lesson_number);
+                        LinearLayout event = (LinearLayout) details.findViewById(R.id.event);
 
-                    teacher.setText(lesson.getTeacher().getName());
-                    date.setText(lesson.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
-                    startTime.setText(lesson.getStartTime().toString("HH:mm"));
-                    endTime.setText(" - " + lesson.getEndTime().toString("HH:mm"));
-                    lessonNumber.setText(lesson.getLessonNumber() + ". lekcja");
-                    if (!lesson.isCanceled()) {
+                        teacher.setText(lesson.getTeacher().getName());
+                        date.setText(lesson.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
+                        startTime.setText(lesson.getStartTime().toString("HH:mm"));
+                        endTime.setText(" - " + lesson.getEndTime().toString("HH:mm"));
+                        lessonNumber.setText(lesson.getLessonNumber() + ". lekcja");
                         if (lesson.getEvent() != null) {
                             TextView eventName = (TextView) details.findViewById(R.id.details_event_name);
                             TextView eventDescription = (TextView) details.findViewById(R.id.details_event_description);
@@ -172,12 +180,10 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                             orgTeacher.setVisibility(View.GONE);
                             subjectContainer.setVisibility(View.GONE);
                         }
+                        MaterialDialog dialog = builder.customView(details, true).show();
                     }
-
-                    //TODO Ogarnianie odwołań
-                    MaterialDialog dialog = builder.customView(details, true).show();
-                }
-            });
+                });
+            }
         }
     }
 

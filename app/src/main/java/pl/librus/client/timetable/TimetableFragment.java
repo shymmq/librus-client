@@ -1,7 +1,6 @@
 package pl.librus.client.timetable;
 
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -32,7 +31,7 @@ public class TimetableFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_timetable, container, false);
         tabLayout = (TabLayout) LayoutInflater.from(getContext()).inflate(R.layout.tabs, null);
-        AppBarLayout appBarLayout = ((MainActivity) getActivity()).getAppBarLayout();
+        MainActivity activity = (MainActivity) getActivity();
         ViewPager viewPager = (ViewPager) root.findViewById(R.id.container);
 
         Timetable timetable = (Timetable) getArguments().getSerializable("data");
@@ -40,18 +39,17 @@ public class TimetableFragment extends Fragment {
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), timetable);
 
         viewPager.setAdapter(sectionsPagerAdapter);
-        viewPager.setCurrentItem(TimetableUtils.getStartTab(), true);
+        viewPager.setCurrentItem(TimetableUtils.getDefaultTab(), true);
 
         tabLayout.setupWithViewPager(viewPager);
-        appBarLayout.addView(tabLayout);
-
+        activity.addTabs(tabLayout);
         return root;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ((MainActivity) getActivity()).getAppBarLayout().removeView(tabLayout);
+        ((MainActivity) getActivity()).removeTabs(tabLayout);
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {

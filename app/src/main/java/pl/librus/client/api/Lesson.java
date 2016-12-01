@@ -63,7 +63,7 @@ public class Lesson implements Serializable {
         return event;
     }
 
-    void setEvent(Event event) {
+    public void setEvent(Event event) {
         this.event = event;
     }
 

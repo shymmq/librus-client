@@ -37,6 +37,7 @@ public class LibrusCache implements Serializable {
     private Timetable timetable;
     private List<Announcement> announcements;
     private LuckyNumber luckyNumber;
+    private List<Event> events;
 
     private LibrusCache(Context context) {
         this.context = context;
@@ -181,10 +182,11 @@ public class LibrusCache implements Serializable {
         this.luckyNumber = luckyNumber;
     }
 
+    public List<Event> getEvents() {
+        return events;
+    }
+
     private void setEvents(List<Event> events) {
-        while (events.iterator().hasNext()) {
-            Event event = events.iterator().next();
-            timetable.getSchoolDay(event.getDate()).getLesson(event.getLessonNumber()).setEvent(event);
-        }
+        this.events = events;
     }
 }

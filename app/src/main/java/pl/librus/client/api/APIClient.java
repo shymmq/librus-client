@@ -443,28 +443,4 @@ public class APIClient {
 
         return deferred.promise();
     }
-
-//    void update(Runnable onSuccess) {
-//        final CountDownLatch latch = new CountDownLatch(2);
-//        Consumer countDown = new Consumer() {
-//            @Override
-//            public void run(Object result) {
-//                latch.countDown();
-//            }
-//        };
-//        getTimetable(countDown, TimetableUtils.getWeekStart(), TimetableUtils.getWeekStart().plusWeeks(1));
-////        getEvents(countDown);
-//        log("Waiting for all tasks to finish..");
-//        try {
-//            latch.await();
-//            log("Finished");
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-//        editor.putLong("lastUpdate", System.currentTimeMillis());
-//        editor.commit();
-//
-//        onSuccess.run();
-//    }
 }

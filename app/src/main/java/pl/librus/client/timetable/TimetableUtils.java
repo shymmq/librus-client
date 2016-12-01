@@ -9,17 +9,27 @@ import java.util.Locale;
 public class TimetableUtils {
 
     //returns default show tab index
-    public static int getStartTab() {
+    public static int getDefaultTab() {
         int weekday = LocalDate.now().getDayOfWeek();
         if (weekday >= DateTimeConstants.SATURDAY) {
-            return weekday - 1 + 5;
+            return getTabIndex(LocalDate.now().plusWeeks(1).withDayOfWeek(DateTimeConstants.MONDAY));
         } else {
-            return weekday - 1;
+            return getTabIndex(LocalDate.now());
+        }
+
+    }
+
+    static int getTabIndex(LocalDate date) {
+        LocalDate start = getWeekStart();
+        if (!date.isBefore(start) && !date.isAfter(start.plusWeeks(1))) {
+            return date.getDayOfWeek() - 1;
+        } else {
+            return date.getDayOfWeek() + 4;
         }
     }
 
-
     //returns first week for which to start downloading
+
     public static LocalDate getWeekStart() {
         return LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
     }
@@ -46,24 +56,22 @@ public class TimetableUtils {
     public static String getTitle(LocalDate date, boolean displayDates, boolean useRelativeTabNames) {
 
         int diff = Days.daysBetween(LocalDate.now(), date).getDays();
+        boolean sameWeek = (LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY).isEqual(date.withDayOfWeek(DateTimeConstants.MONDAY)));
+
         if (useRelativeTabNames) {
-            if (diff == -1) {
-                return "Wczoraj";
-            } else if (diff == 0) {
-                return "Dzisiaj";
-            } else if (diff == 1) {
-                return "Jutro";
+            switch (diff) {
+                case -1:
+                    return "Wczoraj";
+                case 0:
+                    return "Dzisiaj";
+                case 1:
+                    return "Jutro";
+                default:
+                    return !displayDates && sameWeek ? date.dayOfWeek().getAsText(new Locale("pl")) : date.toString("d MMM.", new Locale("pl"));
             }
-        }
-
-        //TODO "Display dates" preference support
-        boolean sameWeek = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY) == date.withDayOfWeek(DateTimeConstants.MONDAY);
-        if (!displayDates && sameWeek) {
-            return date.dayOfWeek().getAsText(new Locale("pl"));
         } else {
-            return date.toString("d MMM.", new Locale("pl"));
+            return !displayDates && sameWeek ? date.dayOfWeek().getAsText(new Locale("pl")) : date.toString("d MMM.", new Locale("pl"));
         }
-
     }
 }
 
