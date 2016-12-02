@@ -6,6 +6,7 @@
     android:layout_height="88dp"
     android:background="@color/md_light_background"
     android:clipChildren="false"
+    android:elevation="1dp"
     android:outlineProvider="bounds"
     android:padding="0dp"
     android:transitionGroup="true"

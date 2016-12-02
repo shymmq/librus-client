@@ -1,17 +1,22 @@
 package pl.librus.client.announcements;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
@@ -20,29 +25,95 @@ import pl.librus.client.api.Announcement;
  * Created by Adam on 2016-11-01. balbla
  */
 
-class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.AnnouncementViewHolder> {
+class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = "librus-client-log";
     private List<Announcement> announcementList = new ArrayList<>();
+    private ArrayList<ArrayList<Announcement>> sections = new ArrayList<ArrayList<Announcement>>();
+    private Map<Integer, String> titles = new ArrayMap<>();
+    private List<Object> positions = new ArrayList<>();
+
 
     AnnouncementAdapter(List<Announcement> announcementList) {
+        titles.put(0, "Dzisiaj");
+        titles.put(1, "Wczoraj");
+        titles.put(2, "Ten tydzień");
+        titles.put(3, "Ten miesiąc");
+        titles.put(4, "Starsze");
+        for (int i = 0; i < titles.size(); i++) {
+            sections.add(i, new ArrayList<Announcement>());
+        }
+        Collections.sort(announcementList);
+        for (Announcement a : announcementList) {
+            LocalDate date = a.getStartDate();
+            if (!date.isBefore(LocalDate.now())) {
+                a.setCategory(0);
+                sections.get(0).add(a);
+            } else if (!date.isBefore(LocalDate.now().minusDays(1))) {
+                a.setCategory(1);
+                sections.get(1).add(a);
+            } else if (!date.isBefore(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY))) {
+                a.setCategory(2);
+                sections.get(2).add(a);
+            } else if (!date.isBefore(LocalDate.now().withDayOfMonth(1))) {
+                a.setCategory(3);
+                sections.get(3).add(a);
+            } else {
+                a.setCategory(4);
+                sections.get(4).add(a);
+            }
+        }
+        for (int i = 0; i < sections.size(); i++) {
+            List<Announcement> section = sections.get(i);
+            if (section.size() > 0) {
+                positions.add(titles.get(i));
+                for (Announcement a : section) {
+                    positions.add(a);
+                }
+            } else {
+                Log.d(TAG, "AnnouncementAdapter: Section " + titles.get(i) + " is empty");
+            }
+        }
         this.announcementList = announcementList;
     }
 
     @Override
-    public AnnouncementAdapter.AnnouncementViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.three_line_list_item, parent, false);
-        return new AnnouncementViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v;
+        switch (viewType) {
+            case 0:
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.three_line_list_item, parent, false);
+                return new AnnouncementViewHolder(v);
+            case 1:
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.list_subheader, parent, false);
+                return new SubheaderViewHolder(v);
+            default:
+                return null;
+        }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public void onBindViewHolder(final AnnouncementViewHolder holder, int position) {
-        Announcement announcement = announcementList.get(position);
-        holder.announcementSubject.setText(announcement.getSubject());
-        holder.background.setTransitionName("announcement_background_" + announcement.getId());
-        holder.announcementTeacherName.setText(announcement.getTeacher().getName());
-        holder.announcementContent.setText(announcement.getContent());
-        holder.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        switch (holder.getItemViewType()) {
+            case 0:
+                AnnouncementViewHolder holder0 = (AnnouncementViewHolder) holder;
+                Announcement announcement = announcementList.get(position);
+                holder0.announcementSubject.setText(announcement.getSubject());
+                holder0.background.setTransitionName("announcement_background_" + announcement.getId());
+                holder0.announcementTeacherName.setText(announcement.getTeacher().getName());
+                holder0.announcementContent.setText(announcement.getContent());
+                holder0.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
+                break;
+            case 1:
+                SubheaderViewHolder holder1 = (SubheaderViewHolder) holder;
+                holder1.sectionTitle.setText((CharSequence) positions.get(position));
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return positions.get(position) instanceof Announcement ? 0 : 1;
     }
 
     @Override
@@ -50,7 +121,7 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
         return announcementList.size();
     }
 
-    static class AnnouncementViewHolder extends RecyclerView.ViewHolder {
+    private static class AnnouncementViewHolder extends RecyclerView.ViewHolder {
         public final RelativeLayout background;
         final TextView announcementTeacherName;
         final TextView announcementSubject;
@@ -72,6 +143,15 @@ class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.Annou
             announcementTeacherName = (TextView) root.findViewById(R.id.three_line_list_item_first);
             announcementContent = (TextView) root.findViewById(R.id.three_line_list_item_second);
             announcementDate = (TextView) root.findViewById(R.id.three_line_list_item_date);
+        }
+    }
+
+    private static class SubheaderViewHolder extends RecyclerView.ViewHolder {
+        final TextView sectionTitle;
+
+        public SubheaderViewHolder(View root) {
+            super(root);
+            sectionTitle = (TextView) root.findViewById(R.id.list_subheader_title);
         }
     }
 }

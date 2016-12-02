@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import pl.librus.client.R;
@@ -36,7 +35,6 @@ public class AnnouncementsFragment extends Fragment {
 
     public static AnnouncementsFragment newInstance(List<Announcement> announcementList) {
         Bundle args = new Bundle();
-        Collections.sort(announcementList);
         args.putSerializable("data", (Serializable) announcementList);
         AnnouncementsFragment fragment = new AnnouncementsFragment();
         fragment.setArguments(args);

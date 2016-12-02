@@ -1,5 +1,7 @@
 package pl.librus.client.api;
 
+import android.support.annotation.NonNull;
+
 import org.joda.time.LocalDate;
 
 import java.io.Serializable;
@@ -15,6 +17,7 @@ public class Announcement implements Serializable, Comparable<Announcement> {
     private final String subject;
     private final String content;
     private final Teacher teacher;
+    private Integer category = 4; //given by AnnouncementAdapter
 
     public Announcement(int id, LocalDate startDate, LocalDate endDate, String subject, Teacher teacher, String content) {
         this.id = id;
@@ -25,13 +28,13 @@ public class Announcement implements Serializable, Comparable<Announcement> {
         this.content = content;
     }
 
-//    Announcement(JSONObject data) throws JSONException {
-//        this.id = data.getInt("Id");
-//        this.startDate = LocalDate.parse(data.getString("StartDate"));
-//        this.endDate = LocalDate.parse(data.getString("EndDate"));
-//        this.subject = data.getString("Subject");
-//        this.content = data.getString("Content");
-//    }
+    public Integer getCategory() {
+        return category;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
+    }
 
     public Integer getId() {
         return id;
@@ -58,7 +61,12 @@ public class Announcement implements Serializable, Comparable<Announcement> {
     }
 
     @Override
-    public int compareTo(Announcement announcement) {
-        return announcement.getStartDate().compareTo(startDate);
+    public int compareTo(@NonNull Announcement announcement) {
+        int v1 = announcement.getCategory().compareTo(category);
+        if (v1 == 0) {
+            return announcement.getStartDate().compareTo(startDate);
+        }
+        return v1;
+
     }
 }
