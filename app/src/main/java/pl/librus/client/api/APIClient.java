@@ -350,8 +350,7 @@ public class APIClient {
                         String authorId = addedBy.getString("Id");
                         String author = authors.get(authorId);
                         Teacher teacher = new Teacher(author);
-                        res.add(new Announcement(id, startDate, endDate, subject, teacher, content));
-//                        res.add(new Announcement(rawAnnouncement));
+                        res.add(new Announcement(id, startDate, endDate, subject, teacher, content, true));
                     }
                     log("Resolved announcements:    " + res.toString());
                     deferred.resolve(res);

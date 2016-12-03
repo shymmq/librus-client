@@ -56,9 +56,7 @@ public class AnnouncementDetailsFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_announcement_details, container, false);
 
-        MainActivity activity = (MainActivity) getActivity();
-        activity.getDrawer().getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
-        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((MainActivity) getActivity()).setBackArrow(true);
 
         TextView title = (TextView) root.findViewById(R.id.fragment_announcement_details_top_panel);
         TextView content = (TextView) root.findViewById(R.id.fragment_announcement_details_bottom_panel);

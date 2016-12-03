@@ -24,7 +24,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import pl.librus.client.timetable.TimetableUtils;
 
@@ -36,16 +38,18 @@ public class LibrusCache implements Serializable {
     private LibrusAccount account;
     private Timetable timetable;
     private List<Announcement> announcements;
+    private Set<Integer> readAnnouncements;
     private LuckyNumber luckyNumber;
     private List<Event> events;
 
-    private LibrusCache(Context context) {
+    public LibrusCache(Context context) {
         this.context = context;
         this.timestamp = System.currentTimeMillis();
+        readAnnouncements = new HashSet<>();
     }
 
-    static Promise<LibrusCache, Promise<LibrusCache, Object, Object>, Object> load(final Context context) {
-        final Deferred<LibrusCache, Promise<LibrusCache, Object, Object>, Object> deferred = new DeferredObject<>();
+    static public Promise<LibrusCache, Object, Object> load(final Context context) {
+        final Deferred<LibrusCache, Object, Object> deferred = new DeferredObject<>();
 
         AsyncManager.runBackgroundTask(new TaskRunnable<Object, LibrusCache, Object>() {
             @Override
@@ -59,7 +63,7 @@ public class LibrusCache implements Serializable {
                     return state;
                 } catch (FileNotFoundException e) {
                     Log.d(TAG, "doLongOperation: File not found.");
-                    deferred.reject(LibrusCache.update(context));
+                    deferred.reject(null);
                     return null;
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
@@ -78,40 +82,39 @@ public class LibrusCache implements Serializable {
         return deferred.promise();
     }
 
-    public static Promise<LibrusCache, Object, Object> update(Context context) {
+    public Promise<Object, Object, Object> update() {
         Log.d(TAG, "update: Starting update");
-        final Deferred<LibrusCache, Object, Object> deferred = new DeferredObject<>();
+        final Deferred<Object, Object, Object> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
-        final LibrusCache cache = new LibrusCache(context);
         APIClient client = new APIClient(context);
         tasks.add(client.getTimetable(TimetableUtils.getWeekStart(), TimetableUtils.getWeekStart().plusWeeks(1)).done(new DoneCallback<Timetable>() {
             @Override
             public void onDone(Timetable result) {
-                cache.setTimetable(result);
+                setTimetable(result);
             }
         }));
         tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
             @Override
             public void onDone(LibrusAccount result) {
-                cache.setAccount(result);
+                setAccount(result);
             }
         }));
         tasks.add(client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
             @Override
             public void onDone(List<Announcement> result) {
-                cache.setAnnouncements(result);
+                setAnnouncements(result);
             }
         }));
         tasks.add(client.getEvents().done(new DoneCallback<List<Event>>() {
             @Override
             public void onDone(List<Event> result) {
-                cache.setEvents(result);
+                setEvents(result);
             }
         }));
         tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
             @Override
             public void onDone(LuckyNumber result) {
-                cache.setLuckyNumber(result);
+                setLuckyNumber(result);
             }
         }));
 
@@ -119,8 +122,8 @@ public class LibrusCache implements Serializable {
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
-                cache.save();
-                deferred.resolve(cache);
+                save();
+                deferred.resolve(null);
             }
         }).fail(new FailCallback<OneReject>() {
             @Override
@@ -152,6 +155,10 @@ public class LibrusCache implements Serializable {
 
     private void setAnnouncements(List<Announcement> announcements) {
         this.announcements = announcements;
+    }
+
+    public Set<Integer> getReadAnnouncements() {
+        return readAnnouncements;
     }
 
     public long getTimestamp() {

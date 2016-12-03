@@ -17,15 +17,17 @@ public class Announcement implements Serializable, Comparable<Announcement> {
     private final String subject;
     private final String content;
     private final Teacher teacher;
+    boolean unread;
     private Integer category = 4; //given by AnnouncementAdapter
 
-    public Announcement(int id, LocalDate startDate, LocalDate endDate, String subject, Teacher teacher, String content) {
+    public Announcement(int id, LocalDate startDate, LocalDate endDate, String subject, Teacher teacher, String content, boolean unread) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
         this.subject = subject;
         this.teacher = teacher;
         this.content = content;
+        this.unread = unread;
     }
 
     public Integer getCategory() {
@@ -58,6 +60,14 @@ public class Announcement implements Serializable, Comparable<Announcement> {
 
     public String getContent() {
         return content;
+    }
+
+    public boolean isUnread() {
+        return unread;
+    }
+
+    public void setUnread(boolean unread) {
+        this.unread = unread;
     }
 
     @Override

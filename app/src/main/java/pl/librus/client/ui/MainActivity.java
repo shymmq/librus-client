@@ -8,6 +8,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +23,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -31,8 +34,7 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.jdeferred.DoneCallback;
-import org.jdeferred.android.AndroidDoneCallback;
-import org.jdeferred.android.AndroidExecutionScope;
+import org.jdeferred.FailCallback;
 
 import java.util.List;
 import java.util.Locale;
@@ -53,17 +55,20 @@ public class MainActivity extends AppCompatActivity {
     ActionMenuView amv;
     AppBarLayout appBarLayout;
     TabLayout tabLayout = null;
+    LibrusCache cache;
     private TimetableFragment timetableFragment;
     private AnnouncementsFragment announcementsFragment;
     private Drawer drawer;
     private Toolbar toolbar;
     private Timetable timetable;
     private List<Event> events;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean logged_in = prefs.getBoolean("logged_in", false);
         if (!logged_in) {
@@ -71,25 +76,32 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            LibrusCache.update(this).done(new AndroidDoneCallback<LibrusCache>() {
-                @Override
-                public AndroidExecutionScope getExecutionScope() {
-                    return null;
-                }
-
+            LibrusCache.load(getApplicationContext()).done(new DoneCallback<LibrusCache>() {
                 @Override
                 public void onDone(LibrusCache result) {
-                    display(result);
+                    cache = result;
+                    display();
+                }
+            }).fail(new FailCallback<Object>() {
+                @Override
+                public void onFail(Object result) {
+                    try {
+                        cache = new LibrusCache(getApplicationContext());
+                        cache.update().waitSafely(5000);
+                        display();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }
     }
 
-    private void display(LibrusCache result) {
-        LibrusAccount account = result.getAccount();
-        luckyNumber = result.getLuckyNumber();
-        timetable = result.getTimetable();
-        events = result.getEvents();
+    private void display() {
+        LibrusAccount account = cache.getAccount();
+        luckyNumber = cache.getLuckyNumber();
+        timetable = cache.getTimetable();
+        events = cache.getEvents();
         for (Event event : events) {
 
             Lesson lesson = timetable.getLesson(event.getDate(), event.getLessonNumber());
@@ -166,17 +178,15 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = drawerBuilder.withToolbar(toolbar).build();
-        timetableFragment = TimetableFragment.newInstance(result.getTimetable());
-        announcementsFragment = AnnouncementsFragment.newInstance(result.getAnnouncements());
+        timetableFragment = TimetableFragment.newInstance(cache.getTimetable());
+        announcementsFragment = AnnouncementsFragment.newInstance(cache.getAnnouncements());
         drawer.setSelection(0);
         if (appBarLayout.findViewById(tabLayout.getId()) == null) {
             appBarLayout.addView(tabLayout);
         }
-
     }
 
     void changeFragment(Fragment fragment, String title) {
-
         Log.d(TAG, "changeFragment: \n" +
                 "fragment " + fragment + "\n" +
                 "title: " + title);
@@ -257,10 +267,10 @@ public class MainActivity extends AppCompatActivity {
                 RotateAnimation rotateAnimation = new RotateAnimation(30, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 rotateAnimation.setDuration(10000);
                 amv.getChildAt(amv.getChildCount() - 1).startAnimation(r);
-                LibrusCache.update(getApplicationContext()).done(new DoneCallback<LibrusCache>() {
+                cache.update().done(new DoneCallback<Object>() {
                     @Override
-                    public void onDone(LibrusCache result) {
-                        display(result);
+                    public void onDone(Object result) {
+                        display();
                     }
                 });
                 return true;
@@ -280,4 +290,20 @@ public class MainActivity extends AppCompatActivity {
         appBarLayout.removeView(tabLayout);
         this.tabLayout = null;
     }
+
+    public void setBackArrow(boolean enable) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            ActionBarDrawerToggle toggle = getDrawer().getActionBarDrawerToggle();
+            if (enable) {
+                toggle.setDrawerIndicatorEnabled(false);
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            } else {
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                toggle.setDrawerIndicatorEnabled(true);
+            }
+            toggle.syncState();
+        }
+    }
+
 }

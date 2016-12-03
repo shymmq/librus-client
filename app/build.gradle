@@ -28,6 +28,7 @@ dependencies {
     compile('com.mikepenz:materialdrawer:5.7.0@aar') {
         transitive = true
     }
+    compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.android.support:design:25.0.0'
     compile 'com.android.support:percent:25.0.0'
@@ -42,3 +43,4 @@ dependencies {
     compile 'com.android.support:support-v4:25.0.0'
     testCompile 'junit:junit:4.12'
 }
+apply plugin: 'com.google.gms.google-services'

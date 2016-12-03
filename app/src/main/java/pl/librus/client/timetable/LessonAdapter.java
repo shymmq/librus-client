@@ -121,18 +121,6 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                         }
                     }
                 }
-//                else if (prevLesson != null && prefs.getBoolean("currentLessonBold", true) && timeNow.isAfter(prevLesson.getEndTime()) && timeNow.isBefore(lesson.getEndTime()) && !lesson.isCanceled()) {
-//
-//                    //current lesson
-//
-//                    holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
-//
-//                } else if (prefs.getBoolean("currentLessonBold", true) && timeNow.isBefore(lesson.getEndTime()) && lesson.getLessonNumber() == 1 && !lesson.isCanceled()) {
-//
-//                    //first lesson
-//
-//                    holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
-//                }
             }
             if (!lesson.isCanceled()) {
                 holder.background.setOnClickListener(new View.OnClickListener() {
