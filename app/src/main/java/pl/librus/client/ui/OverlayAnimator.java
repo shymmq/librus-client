@@ -7,7 +7,7 @@ import android.animation.TimeInterpolator;
  * Created by szyme on 27.11.2016.
  */
 
-public class OverlayAnimator extends Animator {
+class OverlayAnimator extends Animator {
     @Override
     public long getStartDelay() {
         return 0;

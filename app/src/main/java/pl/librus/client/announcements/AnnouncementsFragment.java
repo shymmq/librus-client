@@ -51,7 +51,7 @@ public class AnnouncementsFragment extends MainFragment {
         mRecyclerView.setAdapter(adapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(getContext(), mRecyclerView, new RecyclerViewItemClickListener.OnItemClickListener() {
+        mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(getContext(), new RecyclerViewItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 Object item = adapter.getPositions().get(position);
@@ -92,7 +92,8 @@ public class AnnouncementsFragment extends MainFragment {
                     background.setTransitionName("announcement_background_" + ((Announcement) item).getId());
                     fragmentTransaction.addSharedElement(background, background.getTransitionName());
                     fragmentTransaction.addToBackStack(null).commit();
-                    fragmentTransaction.replace(((ViewGroup) getView().getParent()).getId(), fragment);
+                    @SuppressWarnings("ConstantConditions") ViewGroup parent = (ViewGroup) getView().getParent();
+                    fragmentTransaction.replace(parent.getId(), fragment);
                 }
             }
 

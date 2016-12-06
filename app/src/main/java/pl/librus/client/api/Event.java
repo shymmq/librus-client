@@ -22,31 +22,15 @@ public class Event implements Serializable {
         return category;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
     public int getLessonNumber() {
         return lessonNumber;
-    }
-
-    public void setLessonNumber(int lessonNumber) {
-        this.lessonNumber = lessonNumber;
     }
 }

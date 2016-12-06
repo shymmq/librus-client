@@ -26,6 +26,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif"
                 android:paddingBottom="16dp"
+                android:paddingEnd="16dp"
                 android:paddingStart="16dp"
                 android:paddingTop="16dp"
                 android:text="@android:string/VideoView_error_text_invalid_progressive_playback"

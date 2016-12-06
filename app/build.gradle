@@ -7,8 +7,8 @@ android {
         applicationId "pl.librus.client"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0f"
+        versionCode 2
+        versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

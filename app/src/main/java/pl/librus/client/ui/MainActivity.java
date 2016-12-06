@@ -47,11 +47,11 @@ import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "librus-client-log";
-    LuckyNumber luckyNumber;
-    ActionMenuView amv;
-    AppBarLayout appBarLayout;
-    TabLayout tabLayout = null;
-    LibrusCache cache;
+    private LuckyNumber luckyNumber;
+    private ActionMenuView amv;
+    private AppBarLayout appBarLayout;
+    private TabLayout tabLayout = null;
+    private LibrusCache cache;
     private TimetableFragment timetableFragment;
     private AnnouncementsFragment announcementsFragment;
     private Drawer drawer;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme_NoActionBar);
+//        setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
         FirebaseAnalytics.getInstance(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         refresh();
     }
 
-    void refresh() {
+    private void refresh() {
         Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
         Log.d(TAG, "MainActivity: Refresh started");
         cache.update()
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    void changeFragment(Fragment fragment, String title) {
+    private void changeFragment(Fragment fragment, String title) {
         Log.d(TAG, "changeFragment: \n" +
                 "fragment " + fragment + "\n" +
                 "title: " + title);
@@ -231,11 +231,13 @@ public class MainActivity extends AppCompatActivity {
                 date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
                 Toast.makeText(this, date, Toast.LENGTH_SHORT).show();
                 break;
+            default:
+                return true;
         }
         return false;
     }
 
-    public Drawer getDrawer() {
+    private Drawer getDrawer() {
         return drawer;
     }
 

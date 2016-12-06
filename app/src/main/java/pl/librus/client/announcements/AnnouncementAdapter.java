@@ -24,12 +24,12 @@ import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
 
 /**
- * Created by Adam on 2016-11-01. balbla
+ * Created by Adam on 2016-11-01.
  */
 
 class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "librus-client-log";
-    private List<Object> positions = new ArrayList<>();
+    private final List<Object> positions = new ArrayList<>();
 
 
     AnnouncementAdapter(List<Announcement> announcementList, Context context) {
@@ -152,12 +152,10 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         final TextView announcementContent;
         final TextView announcementDate;
         final Context context;
-        private final View root;
 
         AnnouncementViewHolder(View root) {
             super(root);
             context = root.getContext();
-            this.root = root;
 //            announcementTeacherPicture = (CircleImageView) root.findViewById(R.id.picture_announcement_item);
 //            announcementTeacherName = (TextView) root.findViewById(R.id.announcementTeacherName);
 //            announcementSubject = (TextView) root.findViewById(R.id.announcementSubject);

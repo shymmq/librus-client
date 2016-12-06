@@ -19,7 +19,7 @@ public class TimetableUtils {
 
     }
 
-    static int getTabIndex(LocalDate date) {
+    private static int getTabIndex(LocalDate date) {
         LocalDate start = getWeekStart();
         if (!date.isBefore(start) && !date.isAfter(start.plusWeeks(1))) {
             return date.getDayOfWeek() - 1;
@@ -53,7 +53,7 @@ public class TimetableUtils {
     }
 
     //return title String for given date
-    public static String getTitle(LocalDate date, boolean displayDates, boolean useRelativeTabNames) {
+    private static String getTitle(LocalDate date, boolean displayDates, boolean useRelativeTabNames) {
 
         int diff = Days.daysBetween(LocalDate.now(), date).getDays();
         boolean sameWeek = (LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY).isEqual(date.withDayOfWeek(DateTimeConstants.MONDAY)));

@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.HashMap;
 
 public class SchoolDay implements Serializable {
@@ -35,7 +34,7 @@ public class SchoolDay implements Serializable {
                     lessons.put(i, new Lesson(data.getJSONArray(i).getJSONObject(0), i, date));
                     empty = false;
                 }
-            } catch (JSONException | ParseException e) {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }

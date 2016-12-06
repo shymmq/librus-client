@@ -168,7 +168,7 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                             orgTeacher.setVisibility(View.GONE);
                             subjectContainer.setVisibility(View.GONE);
                         }
-                        MaterialDialog dialog = builder.customView(details, true).show();
+                        builder.customView(details, true).show();
                     }
                 });
             }

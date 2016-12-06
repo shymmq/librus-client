@@ -34,11 +34,9 @@ public class ItemDetailsTransition extends Transition {
 
     private final float initialElevation;
     private final float finalElevation;
-    private Context context;
 
     public ItemDetailsTransition(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.context = context;
         final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ItemDetailsTransition);
         initialElevation = ta.getDimension(R.styleable.ItemDetailsTransition_initialElevation, 0f);
         finalElevation = ta.getDimension(R.styleable.ItemDetailsTransition_finalElevation, 0f);
@@ -68,11 +66,8 @@ public class ItemDetailsTransition extends Transition {
             //TODO Add workaround for no shadow bug
             final ViewGroupOverlay overlay = sceneRoot.getOverlay();
             final View view = endValues.view;
-            final View info = endValues.view.findViewById(R.id.fragment_announcement_details_info);
             View bottomPanel = endValues.view.findViewById(R.id.fragment_announcement_details_bottom_panel);
             final TextView topPanel = (TextView) endValues.view.findViewById(R.id.fragment_announcement_details_top_panel);
-//            Animator elevationAnimator = ObjectAnimator.ofFloat(view, View.TRANSLATION_Z, initialElevation, finalElevation);
-//            elevationAnimator.setInterpolator(new DecelerateInterpolator());
 
 //           TOP PANEL
             ValueAnimator text = ValueAnimator.ofFloat(14, 20);
@@ -87,7 +82,6 @@ public class ItemDetailsTransition extends Transition {
 
             AnimatorSet set = new AnimatorSet();
             set.playTogether(bottom, top);
-//            set.setDuration(3000);
             set.addListener(getOverlayListener(overlay, view));
             return set;
         } else {
@@ -121,13 +115,5 @@ public class ItemDetailsTransition extends Transition {
             public void onAnimationRepeat(Animator animator) {
             }
         };
-    }
-
-    Animator disappear(View view) {
-//        view.setClipToOutline(true);
-//        Rect startClipBounds = view.getClipBounds();
-//        Rect endClipBounds = new Rect(startClipBounds.left, startClipBounds.top, startClipBounds.right, startClipBounds.top);
-//        return ObjectAnimat       or.ofObject(view, "clipBounds", new RectEvaluator(), startClipBounds, endClipBounds);
-        return ObjectAnimator.ofFloat(view, "alpha", 0f);
     }
 }

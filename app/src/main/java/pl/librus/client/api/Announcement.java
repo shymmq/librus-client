@@ -7,7 +7,7 @@ import org.joda.time.LocalDate;
 import java.io.Serializable;
 
 /**
- * Created by Adam on 2016-10-31.
+ * Created by Adam on 2016-10-31. librus-client
  */
 
 public class Announcement implements Serializable, Comparable<Announcement> {

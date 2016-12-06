@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 
 
 public class Lesson implements Serializable {
@@ -27,7 +26,7 @@ public class Lesson implements Serializable {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    Lesson(JSONObject data, int lessonNumber, LocalDate date) throws JSONException, ParseException {
+    Lesson(JSONObject data, int lessonNumber, LocalDate date) throws JSONException {
         this.lessonNumber = lessonNumber;
 //        Log.d(TAG, "Creating lesson from JSON:   " + data.toString());
         if (data.length() > 0) {

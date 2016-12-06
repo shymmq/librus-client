@@ -34,12 +34,12 @@ public class LibrusCache implements Serializable {
     static final long serialVersionUID = 9103658319690261655L;
     private static final String TAG = "librus-client-log";
     private final long timestamp;
+    private final Set<Integer> readAnnouncements;
     transient private Context context;
     //put additional data types here
     private LibrusAccount account;
     private Timetable timetable;
     private List<Announcement> announcements;
-    private Set<Integer> readAnnouncements;
     private LuckyNumber luckyNumber;
     private List<Event> events;
 
@@ -137,17 +137,17 @@ public class LibrusCache implements Serializable {
         return deferred.promise();
     }
 
-    private LibrusCache save() {
+    private void save() {
         try {
             FileOutputStream fos = context.openFileOutput("librus_cache", Context.MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(fos);
             os.writeObject(this);
             os.close();
             fos.close();
-            return this;
+            return;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return;
         }
     }
 
@@ -199,7 +199,7 @@ public class LibrusCache implements Serializable {
         this.events = events;
     }
 
-    public void setContext(Context context) {
+    private void setContext(Context context) {
         this.context = context;
     }
 }
