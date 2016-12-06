@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
@@ -28,25 +29,26 @@ import pl.librus.client.api.Announcement;
 
 class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "librus-client-log";
-    private ArrayList<ArrayList<Announcement>> sections = new ArrayList<ArrayList<Announcement>>();
-    private Map<Integer, String> titles = new ArrayMap<>();
     private List<Object> positions = new ArrayList<>();
 
 
-    AnnouncementAdapter(List<Announcement> announcementList) {
+    AnnouncementAdapter(List<Announcement> announcementList, Context context) {
+        Map<Integer, String> titles = new ArrayMap<>();
         titles.put(0, "Dzisiaj");
         titles.put(1, "Wczoraj");
         titles.put(2, "Ten tydzień");
         titles.put(3, "Ten miesiąc");
         titles.put(4, "Starsze");
         titles.put(5, "Nieprzeczytane");
+        ArrayList<ArrayList<Announcement>> sections = new ArrayList<>();
         for (int i = 0; i < titles.size(); i++) {
             sections.add(i, new ArrayList<Announcement>());
         }
         Collections.sort(announcementList);
+        Set<String> read = AnnouncementUtils.getRead(context);
         for (Announcement a : announcementList) {
             LocalDate date = a.getStartDate();
-            if (a.isUnread()) {
+            if (!read.contains(a.getId())) {
                 a.setCategory(5);
                 sections.get(5).add(a);
             } else if (!date.isBefore(LocalDate.now())) {
@@ -117,7 +119,7 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 holder0.announcementTeacherName.setText(announcement.getTeacher().getName());
                 holder0.announcementContent.setText(announcement.getContent());
                 holder0.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
-                if (announcement.isUnread()) {
+                if (announcement.getCategory() == 5) {
                     holder0.announcementSubject.setTypeface(holder0.announcementSubject.getTypeface(), Typeface.BOLD);
                 } else {
                     holder0.announcementSubject.setTypeface(null, Typeface.NORMAL);

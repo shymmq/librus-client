@@ -31,9 +31,10 @@ import java.util.Set;
 import pl.librus.client.timetable.TimetableUtils;
 
 public class LibrusCache implements Serializable {
+    static final long serialVersionUID = 9103658319690261655L;
     private static final String TAG = "librus-client-log";
     private final long timestamp;
-    final transient private Context context;
+    transient private Context context;
     //put additional data types here
     private LibrusAccount account;
     private Timetable timetable;
@@ -57,10 +58,11 @@ public class LibrusCache implements Serializable {
                 try {
                     FileInputStream fis = context.openFileInput("librus_cache");
                     ObjectInputStream is = new ObjectInputStream(fis);
-                    LibrusCache state = (LibrusCache) is.readObject();
+                    LibrusCache cache = (LibrusCache) is.readObject();
+                    cache.setContext(context);
                     is.close();
                     fis.close();
-                    return state;
+                    return cache;
                 } catch (FileNotFoundException e) {
                     Log.d(TAG, "doLongOperation: File not found.");
                     deferred.reject(null);
@@ -82,9 +84,9 @@ public class LibrusCache implements Serializable {
         return deferred.promise();
     }
 
-    public Promise<Object, Object, Object> update() {
+    public Promise<LibrusCache, Object, Object> update() {
         Log.d(TAG, "update: Starting update");
-        final Deferred<Object, Object, Object> deferred = new DeferredObject<>();
+        final Deferred<LibrusCache, Object, Object> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
         APIClient client = new APIClient(context);
         tasks.add(client.getTimetable(TimetableUtils.getWeekStart(), TimetableUtils.getWeekStart().plusWeeks(1)).done(new DoneCallback<Timetable>() {
@@ -195,5 +197,9 @@ public class LibrusCache implements Serializable {
 
     private void setEvents(List<Event> events) {
         this.events = events;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 }

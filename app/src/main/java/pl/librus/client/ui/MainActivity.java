@@ -36,17 +36,13 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 
-import java.util.List;
 import java.util.Locale;
 
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
-import pl.librus.client.api.Event;
-import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusCache;
 import pl.librus.client.api.LuckyNumber;
-import pl.librus.client.api.Timetable;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,15 +56,13 @@ public class MainActivity extends AppCompatActivity {
     private AnnouncementsFragment announcementsFragment;
     private Drawer drawer;
     private Toolbar toolbar;
-    private Timetable timetable;
-    private List<Event> events;
-    private FirebaseAnalytics mFirebaseAnalytics;
+    private Fragment currentFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        FirebaseAnalytics.getInstance(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean logged_in = prefs.getBoolean("logged_in", false);
         if (!logged_in) {
@@ -76,19 +70,19 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            LibrusCache.load(getApplicationContext()).done(new DoneCallback<LibrusCache>() {
+            LibrusCache.load(this).done(new DoneCallback<LibrusCache>() {
                 @Override
                 public void onDone(LibrusCache result) {
                     cache = result;
-                    display();
+                    setup();
                 }
             }).fail(new FailCallback<Object>() {
                 @Override
                 public void onFail(Object result) {
                     try {
-                        cache = new LibrusCache(getApplicationContext());
+                        cache = new LibrusCache(MainActivity.this);
                         cache.update().waitSafely(5000);
-                        display();
+                        setup();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -97,20 +91,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void display() {
+    private void setup() {
         LibrusAccount account = cache.getAccount();
         luckyNumber = cache.getLuckyNumber();
-        timetable = cache.getTimetable();
-        events = cache.getEvents();
-        for (Event event : events) {
+        //Fragments preload
+        timetableFragment = TimetableFragment.newInstance(cache);
+        announcementsFragment = AnnouncementsFragment.newInstance(cache);
 
-            Lesson lesson = timetable.getLesson(event.getDate(), event.getLessonNumber());
-            if (lesson != null) {
-                lesson.setEvent(event);
-            }
-        }
+        //Drawer setup
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
-
+        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
+                .withIdentifier(666)
+                .withName("Szczęśliwy numerek: " + luckyNumber.getLuckyNumber())
+                .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
         AccountHeader header = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withSelectionListEnabledForSingleProfile(true)
@@ -118,10 +111,6 @@ public class MainActivity extends AppCompatActivity {
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
                 .addProfiles(profile)
                 .build();
-        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                .withIdentifier(666)
-                .withName("Szczęśliwy numerek: " + luckyNumber.getLuckyNumber())
-                .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
         final DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withAccountHeader(header)
@@ -133,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(1)
                                 .withName("Oceny")
-                                .withIcon(R.drawable.ic_event_black_48dp),
+                                .withIcon(R.drawable.ic_assignment_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(2)
                                 .withName("Terminarz")
@@ -178,19 +167,33 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = drawerBuilder.withToolbar(toolbar).build();
-        timetableFragment = TimetableFragment.newInstance(cache.getTimetable());
-        announcementsFragment = AnnouncementsFragment.newInstance(cache.getAnnouncements());
         drawer.setSelection(0);
-        if (appBarLayout.findViewById(tabLayout.getId()) == null) {
+        if (tabLayout != null && appBarLayout.findViewById(tabLayout.getId()) == null) {
             appBarLayout.addView(tabLayout);
         }
+        refresh();
+    }
+
+    void refresh() {
+        Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
+        Log.d(TAG, "MainActivity: Refresh started");
+        cache.update()
+                .done(new DoneCallback<LibrusCache>() {
+                    @Override
+                    public void onDone(LibrusCache result) {
+                        ((MainFragment) currentFragment).refresh(cache);
+                        Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "MainActivity: Refresh done");
+
+                    }
+                });
     }
 
     void changeFragment(Fragment fragment, String title) {
         Log.d(TAG, "changeFragment: \n" +
                 "fragment " + fragment + "\n" +
                 "title: " + title);
-
+        currentFragment = fragment;
         toolbar.setTitle(title);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -240,10 +243,6 @@ public class MainActivity extends AppCompatActivity {
         return toolbar;
     }
 
-    public AppBarLayout getAppBarLayout() {
-        return appBarLayout;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -267,12 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 RotateAnimation rotateAnimation = new RotateAnimation(30, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 rotateAnimation.setDuration(10000);
                 amv.getChildAt(amv.getChildCount() - 1).startAnimation(r);
-                cache.update().done(new DoneCallback<Object>() {
-                    @Override
-                    public void onDone(Object result) {
-                        display();
-                    }
-                });
+                refresh();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

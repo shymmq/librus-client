@@ -11,23 +11,22 @@ import java.io.Serializable;
  */
 
 public class Announcement implements Serializable, Comparable<Announcement> {
-    private final Integer id;
+    static final long serialVersionUID = -3384390935483292393L;
+    private final String id;
     private final LocalDate startDate;
     private final LocalDate endDate;
     private final String subject;
     private final String content;
     private final Teacher teacher;
-    boolean unread;
     private Integer category = 4; //given by AnnouncementAdapter
 
-    public Announcement(int id, LocalDate startDate, LocalDate endDate, String subject, Teacher teacher, String content, boolean unread) {
+    public Announcement(String id, LocalDate startDate, LocalDate endDate, String subject, Teacher teacher, String content) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
         this.subject = subject;
         this.teacher = teacher;
         this.content = content;
-        this.unread = unread;
     }
 
     public Integer getCategory() {
@@ -38,7 +37,7 @@ public class Announcement implements Serializable, Comparable<Announcement> {
         this.category = category;
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
@@ -60,14 +59,6 @@ public class Announcement implements Serializable, Comparable<Announcement> {
 
     public String getContent() {
         return content;
-    }
-
-    public boolean isUnread() {
-        return unread;
-    }
-
-    public void setUnread(boolean unread) {
-        this.unread = unread;
     }
 
     @Override

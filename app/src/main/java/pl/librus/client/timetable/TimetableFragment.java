@@ -6,21 +6,39 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 import pl.librus.client.R;
+import pl.librus.client.api.Event;
+import pl.librus.client.api.Lesson;
+import pl.librus.client.api.LibrusCache;
 import pl.librus.client.api.Timetable;
 import pl.librus.client.ui.MainActivity;
+import pl.librus.client.ui.MainFragment;
 
-public class TimetableFragment extends Fragment {
+public class TimetableFragment extends MainFragment {
     private final String TAG = "librus-client-log";
     private TabLayout tabLayout;
 
-    public static TimetableFragment newInstance(Timetable timetable) {
+    public static TimetableFragment newInstance(LibrusCache cache) {
 
         Bundle args = new Bundle();
+
+        Timetable timetable = cache.getTimetable();
+        List<Event> events = cache.getEvents();
+
+        for (Event event : events) {
+            Lesson lesson = timetable.getLesson(event.getDate(), event.getLessonNumber());
+            if (lesson != null) {
+                lesson.setEvent(event);
+            }
+        }
+
         args.putSerializable("data", timetable);
         TimetableFragment fragment = new TimetableFragment();
         fragment.setArguments(args);
@@ -50,6 +68,11 @@ public class TimetableFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ((MainActivity) getActivity()).removeTabs(tabLayout);
+    }
+
+    @Override
+    public void refresh(LibrusCache cache) {
+        Log.d(TAG, "TimetableFragment update()");
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {

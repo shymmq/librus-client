@@ -1,7 +1,6 @@
 package pl.librus.client.announcements;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,32 +8,34 @@ import android.support.v7.widget.RecyclerView;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
+import pl.librus.client.api.LibrusCache;
 import pl.librus.client.ui.MainActivity;
+import pl.librus.client.ui.MainFragment;
 import pl.librus.client.ui.RecyclerViewItemClickListener;
 
-public class AnnouncementsFragment extends Fragment {
+public class AnnouncementsFragment extends MainFragment {
     private final String TAG = "librus-client-log";
     private final boolean debug = false;
-    private List<Announcement> announcementList = new ArrayList<>();
 
     public AnnouncementsFragment() {
         // Required empty public constructor
     }
 
-    public static AnnouncementsFragment newInstance(List<Announcement> announcementList) {
+    public static AnnouncementsFragment newInstance(LibrusCache cache) {
         Bundle args = new Bundle();
-        args.putSerializable("data", (Serializable) announcementList);
+        Serializable announcements = (Serializable) cache.getAnnouncements();
+        args.putSerializable("data", announcements);
         AnnouncementsFragment fragment = new AnnouncementsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -43,10 +44,10 @@ public class AnnouncementsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_announcements, container, false);
-        announcementList = (List<Announcement>) getArguments().getSerializable("data");
+        List<Announcement> announcementList = (List<Announcement>) getArguments().getSerializable("data");
         RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
         assert announcementList != null;
-        final AnnouncementAdapter adapter = new AnnouncementAdapter(announcementList);
+        final AnnouncementAdapter adapter = new AnnouncementAdapter(announcementList, getContext());
         mRecyclerView.setAdapter(adapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
@@ -88,15 +89,21 @@ public class AnnouncementsFragment extends Fragment {
                     setReturnTransition(t);
                     setReenterTransition(t);
 
+                    background.setTransitionName("announcement_background_" + ((Announcement) item).getId());
                     fragmentTransaction.addSharedElement(background, background.getTransitionName());
-
-                    fragmentTransaction.replace(((ViewGroup) getView().getParent()).getId(), fragment);
                     fragmentTransaction.addToBackStack(null).commit();
+                    fragmentTransaction.replace(((ViewGroup) getView().getParent()).getId(), fragment);
                 }
             }
+
         }));
         ((MainActivity) getActivity()).setBackArrow(false);
         return root;
     }
 
+    @Override
+    public void refresh(LibrusCache cache) {
+        Log.d(TAG, "AnnouncementsFragment update()");
+
+    }
 }

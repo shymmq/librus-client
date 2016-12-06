@@ -1,0 +1,57 @@
+{
+  "project_info": {
+    "project_number": "934408527422",
+    "firebase_url": "https://librus-client.firebaseio.com",
+    "project_id": "librus-client",
+    "storage_bucket": "librus-client.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934408527422:android:a551aae266aeafa2",
+        "android_client_info": {
+          "package_name": "pl.librus.client"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "934408527422-h4ggjblh9dqa7ghr2nk1n77ur7vaomv3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pl.librus.client",
+            "certificate_hash": "67397D9165DF966C2AC63F9D23B63E3AD06C2E30"
+          }
+        },
+        {
+          "client_id": "934408527422-j4f9uoo87poj9e9ose78fh8ru5v9qe3v.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "934408527422-5mclqjt8ni156ca7v44ak5dhjcv4oan9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTC7wl12zYSBp8ZWvPqo-yrfyDCHz3YSQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-88413190-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

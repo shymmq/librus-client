@@ -71,6 +71,8 @@ public class AnnouncementDetailsFragment extends Fragment {
 
         background.setTransitionName("announcement_background_" + announcement.getId());
         info.setTransitionName("announcement_info_" + announcement.getId());
+
+        AnnouncementUtils.markAsRead(announcement.getId(), getContext());
         return root;
     }
 

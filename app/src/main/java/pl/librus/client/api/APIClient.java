@@ -341,7 +341,7 @@ public class APIClient {
                     for (int announcementIndex = 0; announcementIndex < announcementArray.length(); announcementIndex++) {
                         JSONObject rawAnnouncement = announcementArray.getJSONObject(announcementIndex);
 
-                        Integer id = rawAnnouncement.getInt("Id");
+                        String id = rawAnnouncement.getString("Id");
                         LocalDate startDate = LocalDate.parse(rawAnnouncement.getString("StartDate"));
                         LocalDate endDate = LocalDate.parse(rawAnnouncement.getString("EndDate"));
                         String subject = rawAnnouncement.getString("Subject");
@@ -350,7 +350,7 @@ public class APIClient {
                         String authorId = addedBy.getString("Id");
                         String author = authors.get(authorId);
                         Teacher teacher = new Teacher(author);
-                        res.add(new Announcement(id, startDate, endDate, subject, teacher, content, true));
+                        res.add(new Announcement(id, startDate, endDate, subject, teacher, content));
                     }
                     log("Resolved announcements:    " + res.toString());
                     deferred.resolve(res);
@@ -426,7 +426,6 @@ public class APIClient {
                         Iterator<String> dayIterator = rawData.keys();
                         while (dayIterator.hasNext()) {
                             String key = dayIterator.next();
-                            log(key);
                             timetable.addSchoolDay(new SchoolDay(rawData.getJSONArray(key), LocalDate.parse(key)));
                         }
                     }
