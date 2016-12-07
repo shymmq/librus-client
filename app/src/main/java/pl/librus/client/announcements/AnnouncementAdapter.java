@@ -17,6 +17,7 @@ import org.joda.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -118,16 +119,20 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 holder0.background.setTransitionName("announcement_background_" + announcement.getId());
                 holder0.announcementTeacherName.setText(announcement.getTeacher().getName());
                 holder0.announcementContent.setText(announcement.getContent());
-                holder0.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
-                if (announcement.getCategory() == 5) {
+                if (announcement.getCategory() == 5)
                     holder0.announcementSubject.setTypeface(holder0.announcementSubject.getTypeface(), Typeface.BOLD);
-                } else {
+                else
                     holder0.announcementSubject.setTypeface(null, Typeface.NORMAL);
-                }
+
+                if (announcement.getStartDate().isBefore(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)))
+                    holder0.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
+                else
+                    holder0.announcementDate.setText(announcement.getStartDate().dayOfWeek().getAsShortText(new Locale("pl")));
                 break;
             case 1:
                 SubheaderViewHolder holder1 = (SubheaderViewHolder) holder;
                 holder1.sectionTitle.setText((CharSequence) positions.get(position));
+                break;
         }
     }
 
