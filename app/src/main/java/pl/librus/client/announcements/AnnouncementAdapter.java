@@ -23,6 +23,7 @@ import java.util.Set;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
+import pl.librus.client.api.Teacher;
 
 /**
  * Created by Adam on 2016-11-01.
@@ -31,9 +32,10 @@ import pl.librus.client.api.Announcement;
 class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "librus-client-log";
     private final List<Object> positions = new ArrayList<>();
+    private final Map<String, Teacher> teacherMap;
 
-
-    AnnouncementAdapter(List<Announcement> announcementList, Context context) {
+    AnnouncementAdapter(List<Announcement> announcements, Map<String, Teacher> teacherMap, Context context) {
+        this.teacherMap = teacherMap;
         Map<Integer, String> titles = new ArrayMap<>();
         titles.put(0, "Dzisiaj");
         titles.put(1, "Wczoraj");
@@ -45,9 +47,9 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         for (int i = 0; i < titles.size(); i++) {
             sections.add(i, new ArrayList<Announcement>());
         }
-        Collections.sort(announcementList);
+        Collections.sort(announcements);
         Set<String> read = AnnouncementUtils.getRead(context);
-        for (Announcement a : announcementList) {
+        for (Announcement a : announcements) {
             LocalDate date = a.getStartDate();
             if (!read.contains(a.getId())) {
                 a.setCategory(5);
@@ -115,9 +117,12 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             case 0:
                 AnnouncementViewHolder holder0 = (AnnouncementViewHolder) holder;
                 Announcement announcement = (Announcement) positions.get(position);
+                Teacher teacher = teacherMap.get(announcement.getAuthorId());
+                if (teacher == null)
+                    Log.e(TAG, "No teacher with id " + announcement.getAuthorId());
                 holder0.announcementSubject.setText(announcement.getSubject());
                 holder0.background.setTransitionName("announcement_background_" + announcement.getId());
-                holder0.announcementTeacherName.setText(announcement.getTeacher().getName());
+                holder0.announcementTeacherName.setText(teacher.getName());
                 holder0.announcementContent.setText(announcement.getContent());
                 if (announcement.getCategory() == 5)
                     holder0.announcementSubject.setTypeface(holder0.announcementSubject.getTypeface(), Typeface.BOLD);
@@ -146,7 +151,7 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return positions.size();
     }
 
-    public List<Object> getPositions() {
+    List<Object> getPositions() {
         return positions;
     }
 
@@ -176,7 +181,7 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static class SubheaderViewHolder extends RecyclerView.ViewHolder {
         final TextView sectionTitle;
 
-        public SubheaderViewHolder(View root) {
+        SubheaderViewHolder(View root) {
             super(root);
             sectionTitle = (TextView) root.findViewById(R.id.list_subheader_title);
         }

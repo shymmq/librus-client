@@ -35,13 +35,15 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
+import org.jdeferred.android.AndroidDoneCallback;
+import org.jdeferred.android.AndroidExecutionScope;
 
 import java.util.Locale;
 
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.api.LibrusAccount;
-import pl.librus.client.api.LibrusCache;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.LuckyNumber;
 import pl.librus.client.timetable.TimetableFragment;
 
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionMenuView amv;
     private AppBarLayout appBarLayout;
     private TabLayout tabLayout = null;
-    private LibrusCache cache;
+    private LibrusData librusData;
     private TimetableFragment timetableFragment;
     private AnnouncementsFragment announcementsFragment;
     private Drawer drawer;
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
 //        setTheme(R.style.AppTheme_NoActionBar);
+        setContentView(R.layout.activity_main);
         super.onCreate(savedInstanceState);
         FirebaseAnalytics.getInstance(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -70,33 +73,38 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            LibrusCache.load(this).done(new DoneCallback<LibrusCache>() {
+            LibrusData.load(this).done(new DoneCallback<LibrusData>() {
                 @Override
-                public void onDone(LibrusCache result) {
-                    cache = result;
+                public void onDone(LibrusData result) {
+                    librusData = result;
                     setup();
                 }
             }).fail(new FailCallback<Object>() {
                 @Override
                 public void onFail(Object result) {
-                    try {
-                        cache = new LibrusCache(MainActivity.this);
-                        cache.update().waitSafely(5000);
-                        setup();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    librusData = new LibrusData(MainActivity.this);
+                    librusData.updatePersistent().done(new AndroidDoneCallback<Void>() {
+                        @Override
+                        public void onDone(Void result) {
+                            setup();
+                        }
+
+                        @Override
+                        public AndroidExecutionScope getExecutionScope() {
+                            return null;
+                        }
+                    });
                 }
             });
         }
     }
 
     private void setup() {
-        LibrusAccount account = cache.getAccount();
-        luckyNumber = cache.getLuckyNumber();
+        LibrusAccount account = librusData.getAccount();
+        luckyNumber = librusData.getLuckyNumber();
         //Fragments preload
-        timetableFragment = TimetableFragment.newInstance(cache);
-        announcementsFragment = AnnouncementsFragment.newInstance(cache);
+        timetableFragment = TimetableFragment.newInstance(librusData);
+        announcementsFragment = AnnouncementsFragment.newInstance(librusData);
 
         //Drawer setup
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
@@ -162,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true);
 
-        setContentView(R.layout.activity_main);
         appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -177,16 +184,14 @@ public class MainActivity extends AppCompatActivity {
     private void refresh() {
         Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
         Log.d(TAG, "MainActivity: Refresh started");
-        cache.update()
-                .done(new DoneCallback<LibrusCache>() {
-                    @Override
-                    public void onDone(LibrusCache result) {
-                        ((MainFragment) currentFragment).refresh(cache);
-                        Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "MainActivity: Refresh done");
-
-                    }
-                });
+        librusData.update().done(new DoneCallback<Void>() {
+            @Override
+            public void onDone(Void result) {
+                ((MainFragment) currentFragment).refresh(librusData);
+                Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "MainActivity: Refresh done");
+            }
+        });
     }
 
     private void changeFragment(Fragment fragment, String title) {

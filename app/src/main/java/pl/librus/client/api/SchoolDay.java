@@ -3,8 +3,6 @@ package pl.librus.client.api;
 import android.annotation.SuppressLint;
 
 import org.joda.time.LocalDate;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,29 +14,8 @@ public class SchoolDay implements Serializable {
     @SuppressLint("UseSparseArrays")
     private HashMap<Integer, Lesson> lessons = new HashMap<>();
 
-    public SchoolDay(HashMap<Integer, Lesson> lessons, LocalDate date) {
-        this.lessons = lessons;
+    SchoolDay(LocalDate date) {
         this.date = date;
-    }
-
-
-    SchoolDay(JSONArray data, LocalDate date) {
-        this.date = date;
-//        Log.d(TAG, "SchoolDay: parsing json: " + date.toString() + data.toString());
-        for (int i = 0; i < data.length(); i++) {
-            try {
-                if (data.getJSONArray(i).length() == 0) {
-//                    Log.d(TAG, "SchoolDay: Creating empty Lesson");
-                    lessons.put(i, null);
-                } else {
-                    lessons.put(i, new Lesson(data.getJSONArray(i).getJSONObject(0), i, date));
-                    empty = false;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        cleanUp();
     }
 
     private void cleanUp() {
@@ -53,7 +30,7 @@ public class SchoolDay implements Serializable {
 //        Log.d(TAG, "cleanUp: DONE: " + lessons.toString());
     }
 
-    public void setLesson(int number, Lesson lesson) {
+    void setLesson(int number, Lesson lesson) {
         lessons.put(number, lesson);
         empty = false;
     }
@@ -62,16 +39,8 @@ public class SchoolDay implements Serializable {
         return date;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
     Lesson getLastLesson() {
         return lessons.get(lessons.size());
-    }
-
-    HashMap<Integer, Lesson> getLessons() {
-        return lessons;
     }
 
     public Lesson getLesson(int i) {
@@ -82,8 +51,11 @@ public class SchoolDay implements Serializable {
         return empty;
     }
 
+    void setEmpty(boolean empty) {
+        this.empty = empty;
+    }
+
     public int size() {
         return lessons.size();
     }
-
 }

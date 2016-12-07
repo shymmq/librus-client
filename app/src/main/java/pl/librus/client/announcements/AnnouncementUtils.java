@@ -14,7 +14,7 @@ import java.util.Set;
 class AnnouncementUtils {
     private static final String READ_KEY = "AnnouncementUtils:read";
 
-    public static void markAsRead(String id, Context context) {
+    static void markAsRead(String id, Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
         Set<String> read = preferences.getStringSet(READ_KEY, new HashSet<String>());
@@ -25,7 +25,7 @@ class AnnouncementUtils {
         editor.commit();
     }
 
-    public static Set<String> getRead(Context context) {
+    static Set<String> getRead(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getStringSet(READ_KEY, new HashSet<String>());
     }

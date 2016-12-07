@@ -17,15 +17,15 @@ public class Announcement implements Serializable, Comparable<Announcement> {
     private final LocalDate endDate;
     private final String subject;
     private final String content;
-    private final Teacher teacher;
+    private final String authorId;
     private Integer category = 4; //given by AnnouncementAdapter
 
-    public Announcement(String id, LocalDate startDate, LocalDate endDate, String subject, Teacher teacher, String content) {
+    Announcement(String id, LocalDate startDate, LocalDate endDate, String subject, String content, String authorId) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
         this.subject = subject;
-        this.teacher = teacher;
+        this.authorId = authorId;
         this.content = content;
     }
 
@@ -49,16 +49,16 @@ public class Announcement implements Serializable, Comparable<Announcement> {
         return endDate;
     }
 
-    public Teacher getTeacher() {
-        return teacher;
-    }
-
     public String getSubject() {
         return subject;
     }
 
     public String getContent() {
         return content;
+    }
+
+    public String getAuthorId() {
+        return authorId;
     }
 
     @Override
@@ -70,4 +70,6 @@ public class Announcement implements Serializable, Comparable<Announcement> {
         return v1;
 
     }
+
+
 }

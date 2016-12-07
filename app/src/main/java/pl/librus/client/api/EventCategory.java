@@ -2,12 +2,14 @@ package pl.librus.client.api;
 
 import java.io.Serializable;
 
-class Subject implements Serializable {
-    static final long serialVersionUID = 6430596135265744363L;
+/**
+ * Created by szyme on 07.12.2016. librus-client
+ */
+class EventCategory implements Serializable {
     private String name;
     private String id;
 
-    Subject(String id, String name) {
+    EventCategory(String id, String name) {
         this.name = name;
         this.id = id;
     }
@@ -19,4 +21,5 @@ class Subject implements Serializable {
     public String getId() {
         return id;
     }
+
 }

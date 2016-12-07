@@ -1,22 +1,32 @@
 package pl.librus.client.api;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.Serializable;
 
 public class Teacher implements Serializable {
-    private String name;
+    private String id;
+    private String firstName;
+    private String lastName;
 
-    Teacher(JSONObject data) throws JSONException {
-        this.name = data.getString("FirstName") + " " + data.getString("LastName");
+    Teacher(String id, String firstName, String lastName) {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.id = id;
     }
 
-    public Teacher(String name) {
-        this.name = name;
+    public String getId() {
+        return id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public String getName() {
-        return name;
+        return firstName + ' ' + lastName;
     }
+
 }

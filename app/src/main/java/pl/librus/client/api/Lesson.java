@@ -1,12 +1,7 @@
 package pl.librus.client.api;
 
-import android.util.Log;
-
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.Serializable;
 
@@ -26,37 +21,24 @@ public class Lesson implements Serializable {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    Lesson(JSONObject data, int lessonNumber, LocalDate date) throws JSONException {
+    Lesson(int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+           Subject subject, Teacher teacher,
+           boolean isCanceled,
+           boolean substitution,
+           Subject orgSubject, Teacher orgTeacher,
+           Event event) {
         this.lessonNumber = lessonNumber;
-//        Log.d(TAG, "Creating lesson from JSON:   " + data.toString());
-        if (data.length() > 0) {
-            this.isCanceled = data.getBoolean("IsCanceled");
-            this.subject = new Subject(data.getJSONObject("Subject"));
-            this.teacher = new Teacher(data.getJSONObject("Teacher"));
-            startTime = LocalTime.parse(data.getString("HourFrom"), DateTimeFormat.forPattern("HH:mm"));
-            endTime = LocalTime.parse(data.getString("HourTo"), DateTimeFormat.forPattern("HH:mm"));
-            this.date = date;
-            this.substitution = data.getBoolean("IsSubstitutionClass");
-            if (substitution) {
-                try {
-                    String orgTeacherId = data.getJSONObject("OrgTeacher").getString("Id");
-                    this.orgTeacher = new Teacher(orgTeacherId);
-                    this.orgSubject = new Subject(data.getJSONObject("OrgSubject").getString("Id"));
-                } catch (JSONException e) {
-                    String TAG = "schedule:log";
-                    Log.d(TAG, "JSONException : " + date.toString() + " " + "Lesson " + lessonNumber + " " + subject.getName());
-                }
-            }
-        }
-
-    }
-
-    public Lesson(Subject subject, Teacher teacher, int lessonNumber) {
+        this.event = event;
         this.subject = subject;
         this.teacher = teacher;
-        this.lessonNumber = lessonNumber;
+        this.orgSubject = orgSubject;
+        this.orgTeacher = orgTeacher;
+        this.substitution = substitution;
+        this.isCanceled = isCanceled;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
-
 
     public Event getEvent() {
         return event;

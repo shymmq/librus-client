@@ -16,7 +16,7 @@ import java.util.List;
 import pl.librus.client.R;
 import pl.librus.client.api.Event;
 import pl.librus.client.api.Lesson;
-import pl.librus.client.api.LibrusCache;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Timetable;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainFragment;
@@ -25,7 +25,7 @@ public class TimetableFragment extends MainFragment {
     private final String TAG = "librus-client-log";
     private TabLayout tabLayout;
 
-    public static TimetableFragment newInstance(LibrusCache cache) {
+    public static TimetableFragment newInstance(LibrusData cache) {
 
         Bundle args = new Bundle();
 
@@ -71,7 +71,7 @@ public class TimetableFragment extends MainFragment {
     }
 
     @Override
-    public void refresh(LibrusCache cache) {
+    public void refresh(LibrusData cache) {
         Log.d(TAG, "TimetableFragment update()");
     }
 
