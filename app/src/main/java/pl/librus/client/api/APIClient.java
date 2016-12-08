@@ -426,11 +426,9 @@ public class APIClient {
                             SchoolDay schoolDay = new SchoolDay(date);
                             JSONArray rawSchoolDay = rawData.getJSONArray(key);
 
-                            for (int i = 1; i < rawSchoolDay.length(); i++) {
+                            for (int i = 0; i < rawSchoolDay.length(); i++) {
                                 try {
-                                    if (rawSchoolDay.getJSONArray(i).length() == 0) {
-                                        schoolDay.setLesson(i, null);
-                                    } else {
+                                    if (rawSchoolDay.getJSONArray(i).length() != 0) {
                                         JSONObject rawLesson = rawSchoolDay.getJSONArray(i).getJSONObject(0);
                                         boolean isCanceled = rawLesson.getBoolean("IsCanceled");
                                         boolean isSubstitutionClass = rawLesson.getBoolean("IsSubstitutionClass");
@@ -457,12 +455,7 @@ public class APIClient {
                                     e.printStackTrace();
                                 }
                             }
-                            //clean up
-                            if (!schoolDay.isEmpty()) {
-                                while (schoolDay.getLastLesson() == null) {
-                                    schoolDay.removeLastLesson();
-                                }
-                            }
+                            
                             timetable.addSchoolDay(schoolDay);
                         }
                     }

@@ -13,6 +13,7 @@ public class SchoolDay implements Serializable {
     private boolean empty = true;
     @SuppressLint("UseSparseArrays")
     private HashMap<Integer, Lesson> lessons = new HashMap<>();
+    private int lastLesson = 0;
 
     SchoolDay(LocalDate date) {
         this.date = date;
@@ -21,14 +22,15 @@ public class SchoolDay implements Serializable {
     void setLesson(int number, Lesson lesson) {
         lessons.put(number, lesson);
         empty = false;
+        lastLesson = number > lastLesson ? number : lastLesson;
+    }
+
+    public int getLastLesson() {
+        return lastLesson;
     }
 
     public LocalDate getDate() {
         return date;
-    }
-
-    Lesson getLastLesson() {
-        return lessons.get(lessons.size());
     }
 
     public Lesson getLesson(int i) {
@@ -47,7 +49,7 @@ public class SchoolDay implements Serializable {
         return lessons.size();
     }
 
-    public void removeLastLesson() {
-        lessons.remove(lessons.size());
+    public void removeLesson(int i) {
+        lessons.remove(i);
     }
 }
