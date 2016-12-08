@@ -108,6 +108,7 @@ public class APIClient {
             @Override
             public void onFailure(Request request, IOException e) {
                 e.printStackTrace();
+                deferred.reject(0);
             }
 
             @Override
@@ -115,6 +116,8 @@ public class APIClient {
                 if (response.isSuccessful()) {
                     try {
                         deferred.resolve(new JSONObject(response.body().string()));
+                        Log.d(TAG, "API Request " + endpoint + " successful.");
+                        response.body().close();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -274,8 +277,8 @@ public class APIClient {
         return deferred;
     }
 
-    Promise<List<Teacher>, Integer, Integer> getTeachers() {
-        final Deferred<List<Teacher>, Integer, Integer> deferred = new DeferredObject<>();
+    Promise<List<Teacher>, Void, Void> getTeachers() {
+        final Deferred<List<Teacher>, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/Users").then(new DoneCallback<JSONObject>() {
             @Override
@@ -293,6 +296,7 @@ public class APIClient {
                     deferred.resolve(res);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    deferred.reject(null);
                 }
             }
         });
@@ -300,8 +304,8 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<Subject>, Integer, Integer> getSubjects() {
-        final Deferred<List<Subject>, Integer, Integer> deferred = new DeferredObject<>();
+    Promise<List<Subject>, Void, Void> getSubjects() {
+        final Deferred<List<Subject>, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/Subjects").then(new DoneCallback<JSONObject>() {
             @Override
@@ -318,6 +322,7 @@ public class APIClient {
                     deferred.resolve(res);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    deferred.reject(null);
                 }
             }
         });
@@ -325,8 +330,8 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<Announcement>, Integer, Integer> getAnnouncements() {
-        final Deferred<List<Announcement>, Integer, Integer> deferred = new DeferredObject<>();
+    Promise<List<Announcement>, Void, Void> getAnnouncements() {
+        final Deferred<List<Announcement>, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/SchoolNotices").then(new DoneCallback<JSONObject>() {
             @Override
@@ -343,11 +348,11 @@ public class APIClient {
                                 announcement.getString("Subject"),
                                 announcement.getString("Content"),
                                 announcement.getJSONObject("AddedBy").getString("Id")));
-
                     }
                     deferred.resolve(res);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    deferred.reject(null);
                 }
             }
         });
@@ -421,7 +426,7 @@ public class APIClient {
                             SchoolDay schoolDay = new SchoolDay(date);
                             JSONArray rawSchoolDay = rawData.getJSONArray(key);
 
-                            for (int i = 0; i < rawSchoolDay.length(); i++) {
+                            for (int i = 1; i < rawSchoolDay.length(); i++) {
                                 try {
                                     if (rawSchoolDay.getJSONArray(i).length() == 0) {
                                         schoolDay.setLesson(i, null);
@@ -450,6 +455,12 @@ public class APIClient {
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                }
+                            }
+                            //clean up
+                            if (!schoolDay.isEmpty()) {
+                                while (schoolDay.getLastLesson() == null) {
+                                    schoolDay.removeLastLesson();
                                 }
                             }
                             timetable.addSchoolDay(schoolDay);

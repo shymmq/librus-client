@@ -2,7 +2,7 @@ package pl.librus.client.api;
 
 import java.io.Serializable;
 
-class Subject implements Serializable {
+public class Subject implements Serializable {
     static final long serialVersionUID = 6430596135265744363L;
     private String name;
     private String id;

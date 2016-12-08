@@ -11,10 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Event;
+import pl.librus.client.api.EventCategory;
 import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Timetable;
@@ -27,8 +30,6 @@ public class TimetableFragment extends MainFragment {
 
     public static TimetableFragment newInstance(LibrusData cache) {
 
-        Bundle args = new Bundle();
-
         Timetable timetable = cache.getTimetable();
         List<Event> events = cache.getEvents();
 
@@ -39,9 +40,12 @@ public class TimetableFragment extends MainFragment {
             }
         }
 
-        args.putSerializable("data", timetable);
         TimetableFragment fragment = new TimetableFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("data", timetable);
+        args.putSerializable("event_map", (Serializable) cache.getEventCategoriesMap());
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -54,7 +58,7 @@ public class TimetableFragment extends MainFragment {
 
         Timetable timetable = (Timetable) getArguments().getSerializable("data");
 
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), timetable);
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), timetable, (Map<String, EventCategory>) getArguments().getSerializable("event_map"));
 
         viewPager.setAdapter(sectionsPagerAdapter);
         viewPager.setCurrentItem(TimetableUtils.getDefaultTab(), true);
@@ -78,15 +82,17 @@ public class TimetableFragment extends MainFragment {
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private final Timetable timetable;
+        private final Map<String, EventCategory> eventCategoryMap;
 
-        SectionsPagerAdapter(FragmentManager fm, Timetable timetable) {
+        SectionsPagerAdapter(FragmentManager fm, Timetable timetable, Map<String, EventCategory> eventCategoryMap) {
             super(fm);
             this.timetable = timetable;
+            this.eventCategoryMap = eventCategoryMap;
         }
 
         @Override
         public Fragment getItem(int position) {
-            return TimetablePageFragment.newInstance(timetable.getSchoolDay(TimetableUtils.getTabDate(position)));
+            return TimetablePageFragment.newInstance(timetable.getSchoolDay(TimetableUtils.getTabDate(position)), eventCategoryMap);
         }
 
         @Override

@@ -34,9 +34,9 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
+import org.jdeferred.android.AndroidFailCallback;
 
 import java.util.Locale;
 
@@ -63,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
 //        setTheme(R.style.AppTheme_NoActionBar);
-        setContentView(R.layout.activity_main);
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         FirebaseAnalytics.getInstance(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean logged_in = prefs.getBoolean("logged_in", false);
@@ -73,13 +73,23 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            LibrusData.load(this).done(new DoneCallback<LibrusData>() {
+            LibrusData.load(this).done(new AndroidDoneCallback<LibrusData>() {
+                @Override
+                public AndroidExecutionScope getExecutionScope() {
+                    return null;
+                }
+
                 @Override
                 public void onDone(LibrusData result) {
                     librusData = result;
                     setup();
                 }
-            }).fail(new FailCallback<Object>() {
+            }).fail(new AndroidFailCallback<Object>() {
+                @Override
+                public AndroidExecutionScope getExecutionScope() {
+                    return null;
+                }
+
                 @Override
                 public void onFail(Object result) {
                     librusData = new LibrusData(MainActivity.this);

@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 public class SchoolDay implements Serializable {
-
+    static final long serialVersionUID = -8357220840792654725L;
     private LocalDate date = LocalDate.now();
     private boolean empty = true;
     @SuppressLint("UseSparseArrays")
@@ -16,18 +16,6 @@ public class SchoolDay implements Serializable {
 
     SchoolDay(LocalDate date) {
         this.date = date;
-    }
-
-    private void cleanUp() {
-        if (lessons.containsKey(0)) {
-            lessons.remove(0);
-        }
-        int index = 10;
-        while (lessons.get(index) == null && index >= 0) {
-            lessons.remove(index);
-            index--;
-        }
-//        Log.d(TAG, "cleanUp: DONE: " + lessons.toString());
     }
 
     void setLesson(int number, Lesson lesson) {
@@ -57,5 +45,9 @@ public class SchoolDay implements Serializable {
 
     public int size() {
         return lessons.size();
+    }
+
+    public void removeLastLesson() {
+        lessons.remove(lessons.size());
     }
 }

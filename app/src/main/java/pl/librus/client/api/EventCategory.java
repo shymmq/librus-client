@@ -5,7 +5,8 @@ import java.io.Serializable;
 /**
  * Created by szyme on 07.12.2016. librus-client
  */
-class EventCategory implements Serializable {
+public class EventCategory implements Serializable {
+    static final long serialVersionUID = 8913346963576362939L;
     private String name;
     private String id;
 

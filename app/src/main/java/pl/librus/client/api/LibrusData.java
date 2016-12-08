@@ -11,7 +11,11 @@ import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
+import org.jdeferred.android.AndroidAlwaysCallback;
 import org.jdeferred.android.AndroidDeferredManager;
+import org.jdeferred.android.AndroidDoneCallback;
+import org.jdeferred.android.AndroidExecutionScope;
+import org.jdeferred.android.AndroidFailCallback;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MultipleResults;
 import org.jdeferred.multiple.OneReject;
@@ -191,16 +195,38 @@ public class LibrusData implements Serializable {
             }
         }));
         DeferredManager dm = new AndroidDeferredManager();
-        dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
+        dm.when(tasks.toArray(new Promise[tasks.size()])).done(new AndroidDoneCallback<MultipleResults>() {
+            @Override
+            public AndroidExecutionScope getExecutionScope() {
+                return null;
+            }
+
             @Override
             public void onDone(MultipleResults result) {
                 save();
+                Log.d(TAG, "onDone: Persistent update done");
                 deferred.resolve(null);
             }
-        }).fail(new FailCallback<OneReject>() {
+        }).fail(new AndroidFailCallback<OneReject>() {
+            @Override
+            public AndroidExecutionScope getExecutionScope() {
+                return null;
+            }
+
             @Override
             public void onFail(OneReject result) {
+                Log.d(TAG, "onFail: Persistent update failed " + result.toString());
                 deferred.reject(null);
+            }
+        }).always(new AndroidAlwaysCallback<MultipleResults, OneReject>() {
+            @Override
+            public void onAlways(Promise.State state, MultipleResults resolved, OneReject rejected) {
+                Log.d(TAG, "updatePersistent: all tasks completed.");
+            }
+
+            @Override
+            public AndroidExecutionScope getExecutionScope() {
+                return null;
             }
         });
 

@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 public class Event implements Serializable {
 
+    static final long serialVersionUID = -5781381587858850733L;
     private String categoryId;
     private String description;
     private LocalDate date;
@@ -18,7 +19,7 @@ public class Event implements Serializable {
         this.lessonNumber = lessonNumber;
     }
 
-    public String getCategory() {
+    public String getCategoryId() {
         return categoryId;
     }
 

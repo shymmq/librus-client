@@ -23,18 +23,22 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import java.util.Locale;
+import java.util.Map;
 
 import pl.librus.client.R;
+import pl.librus.client.api.EventCategory;
 import pl.librus.client.api.Lesson;
 import pl.librus.client.api.SchoolDay;
 
 public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder> {
 
     private final SchoolDay schoolDay;
+    private Map<String, EventCategory> eventCategoryMap;
 
-    public LessonAdapter(SchoolDay schoolDay) {
+    public LessonAdapter(SchoolDay schoolDay, Map<String, EventCategory> eventCategoryMap) {
         this.schoolDay = schoolDay;
 //        Log.d(TAG, "Data received in lesson adapter: " + schoolDay.getLessons().entrySet().toString());
+        this.eventCategoryMap = eventCategoryMap;
     }
 
     @Override
@@ -85,7 +89,7 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                 //event
 
                 holder.badge.setVisibility(View.VISIBLE);
-                holder.badgeText.setText(lesson.getEvent().getCategory());
+                holder.badgeText.setText(eventCategoryMap.get(lesson.getEvent().getCategoryId()).getName());
                 holder.badgeIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_event_black_24dp, context.getTheme()));
             } else if (lesson.isSubstitution()) {
 
@@ -151,7 +155,7 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                             TextView eventName = (TextView) details.findViewById(R.id.details_event_name);
                             TextView eventDescription = (TextView) details.findViewById(R.id.details_event_description);
                             event.setVisibility(View.VISIBLE);
-                            eventName.setText(lesson.getEvent().getCategory());
+                            eventName.setText(eventCategoryMap.get(lesson.getEvent().getCategoryId()).getName());
                             eventDescription.setText(lesson.getEvent().getDescription());
                         } else {
                             event.setVisibility(View.GONE);
