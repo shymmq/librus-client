@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class Lesson implements Serializable {
 
 
-    private final int lessonNumber;
+    private int lessonNumber = 0;
     private Event event = null;
     private Subject subject;
     private Teacher teacher;

@@ -60,7 +60,7 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
 
             //EMPTY LESSON
 
-            holder.lessonNumber.setText(position + 1 + ".");
+            holder.lessonNumber.setText(String.valueOf(lesson.getLessonNumber()));
             holder.badge.setVisibility(View.GONE);
             holder.lessonTeacher.setVisibility(View.GONE);
             holder.lessonSubject.setVisibility(View.GONE);
@@ -70,7 +70,7 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
 
             //LESSON
 
-            holder.lessonNumber.setText(lesson.getLessonNumber() + ".");
+            holder.lessonNumber.setText(String.valueOf(lesson.getLessonNumber()));
             holder.lessonSubject.setText(lesson.getSubject().getName());
             holder.lessonTeacher.setText(lesson.getTeacher().getName());
 

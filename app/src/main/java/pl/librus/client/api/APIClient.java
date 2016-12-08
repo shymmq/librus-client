@@ -455,7 +455,7 @@ public class APIClient {
                                     e.printStackTrace();
                                 }
                             }
-                            
+
                             timetable.addSchoolDay(schoolDay);
                         }
                     }

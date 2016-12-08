@@ -17,10 +17,10 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:fontFamily="sans-serif"
+            android:fontFamily="sans-serif-medium"
             android:text="@string/placeholder_lesson_number"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="38sp" />
+            android:textSize="40sp" />
 
     </RelativeLayout>
 
@@ -41,6 +41,7 @@
             android:id="@+id/lessonTeacher"
             android:layout_width="wrap_content"
             android:layout_height="22dp"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/space"
             android:gravity="center_vertical"
@@ -53,7 +54,10 @@
             android:layout_height="22dp"
             android:layout_alignBottom="@+id/space"
             android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/badge"
+            android:ellipsize="end"
             android:gravity="center_vertical"
+            android:maxLines="1"
             android:text="@string/placeholder_subject"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp" />
@@ -64,7 +68,6 @@
             android:layout_height="22dp"
             android:layout_above="@+id/space"
             android:layout_alignParentEnd="true"
-            android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:visibility="visible"
             app:cardBackgroundColor="@android:color/transparent"
@@ -89,7 +92,7 @@
                     android:layout_height="22dp"
                     android:layout_alignParentTop="true"
                     android:layout_toEndOf="@+id/badgeIcon"
-                    android:gravity="center"
+                    android:gravity="center_vertical"
                     android:paddingEnd="4dp"
                     android:paddingStart="4dp"
                     android:text="@string/placeholder_badge_text" />

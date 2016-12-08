@@ -3,7 +3,7 @@
 
     <string name="timetable_empty_page">Brak lekcji.\n\n¯\\_(ツ)_/¯</string>
     <string name="lesson_empty">Okienko</string>
-    <string name="placeholder_lesson_number">3.</string>
+    <string name="placeholder_lesson_number">3</string>
     <string name="placeholder_teacher_name">Andrzej Długoszek</string>
     <string name="placeholder_subject">Wychowanie fizyczne</string>
     <string name="placeholder_badge_text">badgeText</string>
