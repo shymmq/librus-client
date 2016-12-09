@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 public class Event implements Serializable {
 
-    static final long serialVersionUID = -5781381587858850733L;
+    private static final long serialVersionUID = -5781381587858850733L;
     private String categoryId;
     private String description;
     private LocalDate date;
