@@ -15,15 +15,45 @@ import pl.librus.client.R;
 class GradeCategoryViewHolder extends ParentViewHolder {
 
     private TextView title;
-    private View background;
+    private TextView content;
+    private View root, divider;
 
     GradeCategoryViewHolder(@NonNull View itemView) {
         super(itemView);
-        background = itemView.findViewById(R.id.grade_category_item_background);
-        title = (TextView) itemView.findViewById(R.id.grade_category_item_title);
+        root = itemView.findViewById(R.id.two_line_list_item_root);
+        divider = itemView.findViewById(R.id.two_line_list_item_divider);
+        title = (TextView) itemView.findViewById(R.id.two_line_list_item_title);
+        content = (TextView) itemView.findViewById(R.id.two_line_list_item_content);
+
     }
 
-    void bind(GradeCategory category) {
+    void bind(GradesFragment.GradeListCategory category) {
         title.setText(category.getTitle());
+        int size = category.getChildList().size();
+        String gradeCount;
+        if (size == 0) gradeCount = "Brak ocen";
+        else if (size == 1) gradeCount = "1 ocena";
+        else if (2 <= size && size <= 4) gradeCount = size + " oceny";
+        else if (5 <= size) gradeCount = size + " ocen";
+        else gradeCount = "Oceny: " + size;
+        content.setText(gradeCount);
+
+        root.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isExpanded()) {
+//                    divider.setVisibility(View.VISIBLE);
+                    collapseView();
+                } else {
+//                    divider.setVisibility(View.INVISIBLE);
+                    expandView();
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean shouldItemViewClickToggleExpansion() {
+        return false;
     }
 }

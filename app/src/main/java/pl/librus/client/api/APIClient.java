@@ -334,6 +334,32 @@ public class APIClient {
         return deferred.promise();
     }
 
+    Promise<List<GradeCategory>, Void, Void> getGradeCategories() {
+        final Deferred<List<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
+        APIRequest("/Grades/Categories").done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    List<GradeCategory> res = new ArrayList<>();
+                    JSONArray rawGradeCategories = result.getJSONArray("Categories");
+                    for (int i = 0; i < rawGradeCategories.length(); i++) {
+                        JSONObject rawGradeCategory = rawGradeCategories.getJSONObject(i);
+                        int weight = rawGradeCategory.has("Weight") ? rawGradeCategory.getInt("Weight") : 0;
+                        res.add(new GradeCategory(
+                                rawGradeCategory.getString("Id"),
+                                rawGradeCategory.getString("Name"),
+                                weight));
+                    }
+                    deferred.resolve(res);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(null);
+                }
+            }
+        });
+        return deferred.promise();
+    }
+
     Promise<List<Announcement>, Void, Void> getAnnouncements() {
         final Deferred<List<Announcement>, Void, Void> deferred = new DeferredObject<>();
 

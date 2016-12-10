@@ -52,6 +52,7 @@ public class LibrusData implements Serializable {
     private List<Teacher> teachers;
     private List<Subject> subjects;
     private List<EventCategory> eventCategories;
+    private List<GradeCategory> gradeCategories;
     private LibrusAccount account;
     private boolean debug = false;
 
@@ -145,7 +146,6 @@ public class LibrusData implements Serializable {
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
-                save();
                 deferred.resolve(null);
             }
         }).fail(new FailCallback<OneReject>() {
@@ -164,41 +164,7 @@ public class LibrusData implements Serializable {
         List<Promise> tasks = new ArrayList<>();
         APIClient client = new APIClient(context);
 
-        tasks.add(client.getTimetable(TimetableUtils.getWeekStart(), TimetableUtils.getWeekStart().plusWeeks(1)).done(new DoneCallback<Timetable>() {
-            @Override
-            public void onDone(Timetable result) {
-                setTimetable(result);
-                log("Timetable downloaded");
-            }
-        }));
-        tasks.add(client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
-            @Override
-            public void onDone(List<Announcement> result) {
-                setAnnouncements(result);
-                log("Announcements downloaded");
-            }
-        }));
-        tasks.add(client.getEvents().done(new DoneCallback<List<Event>>() {
-            @Override
-            public void onDone(List<Event> result) {
-                setEvents(result);
-                log("Events downloaded");
-            }
-        }));
-        tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
-            @Override
-            public void onDone(LuckyNumber result) {
-                setLuckyNumber(result);
-                log("LNumber downloaded");
-            }
-        }));
-        tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
-            @Override
-            public void onDone(List<Grade> result) {
-                setGrades(result);
-                log("Grades downloaded");
-            }
-        }));
+        tasks.add(update());
 
         //Persistent data:
         tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
@@ -231,6 +197,13 @@ public class LibrusData implements Serializable {
                 setEventCategories(result);
                 log("EventCat downloaded");
 
+            }
+        }));
+        tasks.add(client.getGradeCategories().done(new DoneCallback<List<GradeCategory>>() {
+            @Override
+            public void onDone(List<GradeCategory> result) {
+                setGradeCategories(result);
+                log("GradeCat downlaoded");
             }
         }));
 
@@ -338,10 +311,6 @@ public class LibrusData implements Serializable {
         this.events = events;
     }
 
-    private void setContext(Context context) {
-        this.context = context;
-    }
-
     private void setTeachers(List<Teacher> teachers) {
         this.teachers = teachers;
     }
@@ -376,5 +345,25 @@ public class LibrusData implements Serializable {
             res.put(e.getId(), e);
         }
         return res;
+    }
+
+    public Map<String, GradeCategory> getGradeCategoriesMap() {
+        Map<String, GradeCategory> res = new HashMap<>();
+        for (GradeCategory g : gradeCategories) {
+            res.put(g.getId(), g);
+        }
+        return res;
+    }
+
+    public void setGradeCategories(List<GradeCategory> gradeCategories) {
+        this.gradeCategories = gradeCategories;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    private void setContext(Context context) {
+        this.context = context;
     }
 }

@@ -2,6 +2,7 @@ package pl.librus.client.grades;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,8 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bignerdranch.expandablerecyclerview.model.Parent;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,29 +52,56 @@ public class GradesFragment extends MainFragment {
         List<Grade> grades = data.getGrades();
         Map<String, Subject> subjectMap = data.getSubjectMap();
         Map<String, List<Grade>> subjects = new HashMap<>();
-        List<GradeCategory> categories = new ArrayList<>();
+        List<GradeListCategory> categories = new ArrayList<>();
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
         //Categorize grades based on subject
-        for (Grade g : grades) {
-            if (!subjects.containsKey(g.getSubjectId()))
-                subjects.put(g.getSubjectId(), new ArrayList<Grade>());
-            subjects.get(g.getSubjectId()).add(g);
-        }
-        for (Map.Entry<String, List<Grade>> entry : subjects.entrySet()) {
-            categories.add(new GradeCategory(entry.getValue(), subjectMap.get(entry.getKey()).getName()));
-        }
-        Collections.sort(categories);
+
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
-        GradeAdapter adapter = new GradeAdapter(categories, getContext());
+        GradeAdapter adapter = GradeAdapter.fromLibrusData(data);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.getItemAnimator().setAddDuration(150);
+        recyclerView.getItemAnimator().setRemoveDuration(150);
+        recyclerView.getItemAnimator().setMoveDuration(150);
+        recyclerView.getItemAnimator().setChangeDuration(150);
+
         return root;
     }
 
     @Override
     public void refresh(LibrusData cache) {
 
+    }
+
+    public static class GradeListCategory implements Parent<Grade>, Comparable {
+
+        private List<Grade> grades;
+        private String title;
+
+        GradeListCategory(List<Grade> grades, String title) {
+            this.grades = grades;
+            this.title = title;
+        }
+
+        @Override
+        public List<Grade> getChildList() {
+            return grades;
+        }
+
+        @Override
+        public boolean isInitiallyExpanded() {
+            return false;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        @Override
+        public int compareTo(@NonNull Object o) {
+            return title.compareTo(((GradeListCategory) o).getTitle());
+        }
     }
 }
