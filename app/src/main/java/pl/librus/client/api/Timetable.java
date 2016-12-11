@@ -7,11 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Timetable implements Serializable {
+
+    private static final long serialVersionUID = -1448021508657217605L;
     private final String TAG = "librus-client-log";
     private final Map<LocalDate, SchoolDay> timetable = new HashMap<>();
 
 
-    public Timetable() {
+    Timetable() {
     }
 
     public Lesson getLesson(LocalDate date, int lessonNumber) {
@@ -23,7 +25,7 @@ public class Timetable implements Serializable {
         return null;
     }
 
-    public void addSchoolDay(SchoolDay schoolDay) {
+    void addSchoolDay(SchoolDay schoolDay) {
         timetable.put(schoolDay.getDate(), schoolDay);
     }
 

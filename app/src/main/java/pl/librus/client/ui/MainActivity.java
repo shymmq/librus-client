@@ -45,6 +45,7 @@ import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private Drawer drawer;
     private Toolbar toolbar;
     private Fragment currentFragment;
+    private GradesFragment gradesFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -115,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         //Fragments preload
         timetableFragment = TimetableFragment.newInstance(librusData);
         announcementsFragment = AnnouncementsFragment.newInstance(librusData);
+        gradesFragment = GradesFragment.newInstance(librusData);
 
         //Drawer setup
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
@@ -223,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 changeFragment(timetableFragment, "Plan lekcji");
                 break;
             case 1:
-                changeFragment(new PlaceholderFragment(), "Oceny");
+                changeFragment(gradesFragment, "Oceny");
                 break;
             case 2:
                 changeFragment(new PlaceholderFragment(), "Terminarz");

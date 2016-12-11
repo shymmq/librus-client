@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class Lesson implements Serializable {
 
-
+    private static final long serialVersionUID = -6693067437113468425L;
     private int lessonNumber = 0;
     private Event event = null;
     private Subject subject;

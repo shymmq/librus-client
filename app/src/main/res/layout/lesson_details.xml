@@ -114,8 +114,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@+id/details_end_time"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:paddingEnd="8dp"
+            android:paddingStart="8dp"
             android:text="@string/details_lesson_number_placeholder"
             android:textStyle="normal|bold" />
 

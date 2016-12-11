@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:fontFamily="sans-serif-medium"
+            android:fontFamily="sans-serif"
             android:text="@string/placeholder_lesson_number"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="40sp" />
@@ -68,7 +68,7 @@
             android:layout_height="22dp"
             android:layout_above="@+id/space"
             android:layout_alignParentEnd="true"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
             android:visibility="visible"
             app:cardBackgroundColor="@android:color/transparent"
             app:cardElevation="0dp">

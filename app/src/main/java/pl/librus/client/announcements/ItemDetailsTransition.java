@@ -56,7 +56,6 @@ public class ItemDetailsTransition extends Transition {
     @Override
     public void captureEndValues(TransitionValues transitionValues) {
         transitionValues.values.put(PROPNAME_ELEVATION, finalElevation);
-//        transitionValues.values.put(PROPNAME_HEIGHT, transitionValues.view.getHeight());
     }
 
     @Override
