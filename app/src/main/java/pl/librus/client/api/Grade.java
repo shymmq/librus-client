@@ -1,14 +1,18 @@
 package pl.librus.client.api;
 
+import android.support.annotation.NonNull;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
 import java.io.Serializable;
 
+import pl.librus.client.grades.GradeEntry;
+
 /**
  * Created by szyme on 08.12.2016. librus-client
  */
-public class Grade implements Serializable {
+public class Grade extends GradeEntry implements Serializable {
     private static final long serialVersionUID = 2956642488287714235L;
     private String id, grade, lessonId, subjectId, categoryId, addedById;
     private int semester;
@@ -77,6 +81,17 @@ public class Grade implements Serializable {
 
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        if (o instanceof Grade) {
+            return date.compareTo(((Grade) o).getDate());
+        } else if (o instanceof Average) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 
     enum Type {

@@ -37,13 +37,6 @@
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="16sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/md_divider_black"
-        android:visibility="invisible" />
-
     <TextView
         android:id="@+id/grade_item_grade"
         android:layout_width="40dp"
@@ -56,6 +49,7 @@
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="np"
-        android:textColor="?android:attr/textColorPrimaryInverse" />
+        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textSize="16sp" />
 
 </RelativeLayout>

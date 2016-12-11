@@ -11,7 +11,6 @@ import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
-import org.jdeferred.android.AndroidAlwaysCallback;
 import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
@@ -39,15 +38,13 @@ public class LibrusData implements Serializable {
 
     private static final String TAG = "librus-client-log";
     private final long timestamp;
+    List<Average> averages;
     transient private Context context;
-
-
     private Timetable timetable;
     private List<Announcement> announcements;
     private LuckyNumber luckyNumber;
     private List<Event> events;
     private List<Grade> grades;
-
     //Persistent data:
     private List<Teacher> teachers;
     private List<Subject> subjects;
@@ -141,7 +138,13 @@ public class LibrusData implements Serializable {
                 log("Grades downloaded");
             }
         }));
-
+        tasks.add(client.getAverages().done(new DoneCallback<List<Average>>() {
+            @Override
+            public void onDone(List<Average> result) {
+                setAverages(result);
+                log("Averages downloaded");
+            }
+        }));
         DeferredManager dm = new AndroidDeferredManager();
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
@@ -216,7 +219,6 @@ public class LibrusData implements Serializable {
 
             @Override
             public void onDone(MultipleResults result) {
-                save();
                 Log.d(TAG, "onDone: Persistent update done");
                 deferred.resolve(null);
             }
@@ -231,22 +233,12 @@ public class LibrusData implements Serializable {
                 Log.d(TAG, "onFail: Persistent update failed " + result.toString());
                 deferred.reject(null);
             }
-        }).always(new AndroidAlwaysCallback<MultipleResults, OneReject>() {
-            @Override
-            public void onAlways(Promise.State state, MultipleResults resolved, OneReject rejected) {
-                Log.d(TAG, "updatePersistent: all tasks completed.");
-            }
-
-            @Override
-            public AndroidExecutionScope getExecutionScope() {
-                return null;
-            }
         });
 
         return deferred.promise();
     }
 
-    private void save() {
+    public void save() {
         try {
             String cache_filename = "librus_client_cache";
             FileOutputStream fos = context.openFileOutput(cache_filename, Context.MODE_PRIVATE);
@@ -321,6 +313,15 @@ public class LibrusData implements Serializable {
 
     private void setEventCategories(List<EventCategory> eventCategories) {
         this.eventCategories = eventCategories;
+    }
+
+    public List<Average> getAverages() {
+
+        return averages;
+    }
+
+    public void setAverages(List<Average> averages) {
+        this.averages = averages;
     }
 
     public Map<String, Teacher> getTeacherMap() {

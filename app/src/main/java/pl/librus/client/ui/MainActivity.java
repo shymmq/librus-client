@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                     librusData.updatePersistent().done(new AndroidDoneCallback<Void>() {
                         @Override
                         public void onDone(Void result) {
+                            librusData.save();
                             setup();
                         }
 
@@ -200,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
         librusData.update().done(new DoneCallback<Void>() {
             @Override
             public void onDone(Void result) {
+                librusData.save();
                 ((MainFragment) currentFragment).refresh(librusData);
                 Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "MainActivity: Refresh done");

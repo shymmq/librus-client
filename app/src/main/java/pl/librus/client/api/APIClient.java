@@ -549,4 +549,30 @@ public class APIClient {
         });
         return deferred.promise();
     }
+
+    Promise<List<Average>, Void, Void> getAverages() {
+        final Deferred<List<Average>, Void, Void> deferred = new DeferredObject<>();
+        APIRequest("/Grades/Averages").then(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    List<Average> res = new ArrayList<>();
+                    JSONArray rawAverages = result.getJSONArray("Averages");
+                    for (int i = 0; i < rawAverages.length(); i++) {
+                        JSONObject rawAverage = rawAverages.getJSONObject(i);
+                        res.add(new Average(
+                                rawAverage.getJSONObject("Subject").getString("Id"),
+                                rawAverage.getDouble("Semester1"),
+                                rawAverage.getDouble("Semester2"),
+                                rawAverage.getDouble("FullYear")));
+                    }
+                    deferred.resolve(res);
+                } catch (Exception e) {
+                    deferred.reject(null);
+                    e.printStackTrace();
+                }
+            }
+        });
+        return deferred.promise();
+    }
 }

@@ -13,6 +13,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder;
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
+import com.bignerdranch.expandablerecyclerview.model.Parent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import pl.librus.client.R;
+import pl.librus.client.api.Average;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.LibrusData;
@@ -32,10 +34,12 @@ import pl.librus.client.api.Teacher;
  * Created by szyme on 09.12.2016. librus-client
  */
 
-class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCategory, Grade, GradeAdapter.GradeCategoryViewHolder, GradeAdapter.GradeViewHolder> {
+class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCategory, GradeEntry, GradeAdapter.GradeCategoryViewHolder, ChildViewHolder> {
 
     @NonNull
-    private final List<GradesFragment.GradeListCategory> categories;
+    private final List<GradeListCategory> categories;
+    private final int TYPE_GRADE = 11;
+    private final int TYPE_AVERAGE = 12;
     private LayoutInflater inflater;
     private Map<String, GradeCategory> gradeMap;
     private Map<String, Subject> subjectMap;
@@ -56,9 +60,9 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
      *
      * @param parentList List of all parents to be displayed in the RecyclerView that this
      *                   adapter is linked to
-     * @param context
+     * @param context    Context
      */
-    GradeAdapter(@NonNull List<GradesFragment.GradeListCategory> parentList, Map<String, GradeCategory> gradeMap, Map<String, Subject> subjectMap, Map<String, Teacher> teacherMap, Context context) {
+    private GradeAdapter(@NonNull List<GradeListCategory> parentList, Map<String, GradeCategory> gradeMap, Map<String, Subject> subjectMap, Map<String, Teacher> teacherMap, Context context) {
         super(parentList);
         this.categories = parentList;
         this.gradeMap = gradeMap;
@@ -70,20 +74,27 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
 
     static GradeAdapter fromLibrusData(LibrusData data) {
         List<Grade> grades = data.getGrades();
+        List<Average> averages = data.getAverages();
         Map<String, Subject> subjectMap = data.getSubjectMap();
-        Map<String, List<Grade>> subjects = new HashMap<>();
-        List<GradesFragment.GradeListCategory> categories = new ArrayList<>();
+        Map<String, List<GradeEntry>> subjects = new HashMap<>();
+        List<GradeListCategory> categories = new ArrayList<>();
 
         //Categorize grades by subject
         for (Grade g : grades) {
             if (!subjects.containsKey(g.getSubjectId()))
-                subjects.put(g.getSubjectId(), new ArrayList<Grade>());
+                subjects.put(g.getSubjectId(), new ArrayList<GradeEntry>());
             subjects.get(g.getSubjectId()).add(g);
         }
-        for (Map.Entry<String, List<Grade>> entry : subjects.entrySet()) {
-            categories.add(new GradesFragment.GradeListCategory(entry.getValue(), subjectMap.get(entry.getKey()).getName()));
+        for (Average a : averages) {
+            if (!subjects.containsKey(a.getSubjectId()))
+                subjects.put(a.getSubjectId(), new ArrayList<GradeEntry>());
+            subjects.get(a.getSubjectId()).add(a);
         }
-        Collections.sort(categories);
+        for (Map.Entry<String, List<GradeEntry>> entry : subjects.entrySet()) {
+            Collections.sort(entry.getValue(), Collections.<GradeEntry>reverseOrder());
+            categories.add(new GradeListCategory(entry.getValue(), subjectMap.get(entry.getKey()).getName()));
+        }
+        Collections.sort(categories, Collections.<GradeListCategory>reverseOrder());
         return new GradeAdapter(categories, data.getGradeCategoriesMap(), data.getSubjectMap(), data.getTeacherMap(), data.getContext());
     }
 
@@ -96,55 +107,80 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
 
     @NonNull
     @Override
-    public GradeViewHolder onCreateChildViewHolder(@NonNull ViewGroup childViewGroup, int viewType) {
-        View root = inflater.inflate(R.layout.grade_item, childViewGroup, false);
-        return new GradeViewHolder(root);
+    public ChildViewHolder onCreateChildViewHolder(@NonNull ViewGroup childViewGroup, int viewType) {
+        switch (viewType) {
+            case TYPE_GRADE:
+                return new GradeViewHolder(inflater.inflate(R.layout.grade_item, childViewGroup, false));
+            case TYPE_AVERAGE:
+                return new AverageViewHolder(inflater.inflate(R.layout.average_item, childViewGroup, false));
+            default:
+                return new GradeViewHolder(inflater.inflate(R.layout.grade_item, childViewGroup, false));
+        }
     }
 
 
     @Override
-    public void onBindParentViewHolder(@NonNull GradeCategoryViewHolder parentViewHolder, int parentPosition, @NonNull GradesFragment.GradeListCategory parent) {
+    public void onBindParentViewHolder(@NonNull GradeCategoryViewHolder parentViewHolder, int parentPosition, @NonNull GradeListCategory parent) {
         parentViewHolder.bind(parent);
     }
 
     @Override
-    public void onBindChildViewHolder(@NonNull final GradeViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull final Grade child) {
-        childViewHolder.bind(child, gradeMap.get(child.getCategoryId()));
-        final Context context = childViewHolder.itemView.getContext();
-        childViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: handle retakes, show semester number
-                MaterialDialog.Builder builder = new MaterialDialog.Builder(context).title("Szczegóły oceny").positiveText("Zamknij");
-                LayoutInflater inflater = LayoutInflater.from(context);
-                View details = inflater.inflate(R.layout.grade_details, null);
+    public void onBindChildViewHolder(@NonNull final ChildViewHolder childViewHolder, final int parentPosition, final int childPosition, @NonNull final GradeEntry child) {
+        if (child instanceof Grade) {
+//                viewType = TYPE_GRADE
+            final Grade grade = (Grade) child;
+            final GradeViewHolder gradeViewHolder = (GradeViewHolder) childViewHolder;
+            gradeViewHolder.bind(grade, gradeMap.get(grade.getCategoryId()));
+            gradeViewHolder.itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
 
-                TextView gradeView = (TextView) details.findViewById(R.id.grade_details_grade);
-                TextView weightView = (TextView) details.findViewById(R.id.grade_details_weight);
-                TextView categoryView = (TextView) details.findViewById(R.id.grade_details_category);
-                TextView subjectView = (TextView) details.findViewById(R.id.grade_details_subject);
-                TextView dateView = (TextView) details.findViewById(R.id.grade_details_date);
-                TextView addDateView = (TextView) details.findViewById(R.id.grade_details_addDate);
-                TextView addedByView = (TextView) details.findViewById(R.id.grade_details_addedBy);
+                            //TODO: handle retakes, show semester number
+                            Context context = gradeViewHolder.itemView.getContext();
+                            MaterialDialog.Builder builder = new MaterialDialog.Builder(context).title("Szczegóły oceny").positiveText("Zamknij");
+                            LayoutInflater inflater = LayoutInflater.from(context);
+                            View details = inflater.inflate(R.layout.grade_details, null);
 
-                gradeView.setText(child.getGrade());
-                weightView.setText(String.valueOf(gradeMap.get(child.getCategoryId()).getWeight()));
-                categoryView.setText(gradeMap.get(child.getCategoryId()).getName());
-                subjectView.setText(subjectMap.get(child.getSubjectId()).getName());
-                dateView.setText(child.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
-                addDateView.setText(child.getAddDate().toString("HH:mm, EEEE, d MMMM yyyy", new Locale("pl")));
-                addedByView.setText(teacherMap.get(child.getAddedById()).getName());
+                            TextView gradeView = (TextView) details.findViewById(R.id.grade_details_grade);
+                            TextView weightView = (TextView) details.findViewById(R.id.grade_details_weight);
+                            TextView categoryView = (TextView) details.findViewById(R.id.grade_details_category);
+                            TextView subjectView = (TextView) details.findViewById(R.id.grade_details_subject);
+                            TextView dateView = (TextView) details.findViewById(R.id.grade_details_date);
+                            TextView addDateView = (TextView) details.findViewById(R.id.grade_details_addDate);
+                            TextView addedByView = (TextView) details.findViewById(R.id.grade_details_addedBy);
 
-                builder.customView(details, true).show();
-            }
-        });
+                            gradeView.setText(grade.getGrade());
+                            weightView.setText(String.valueOf(gradeMap.get(grade.getCategoryId()).getWeight()));
+                            categoryView.setText(gradeMap.get(grade.getCategoryId()).getName());
+                            subjectView.setText(subjectMap.get(grade.getSubjectId()).getName());
+                            dateView.setText(grade.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
+                            addDateView.setText(grade.getAddDate().toString("HH:mm, EEEE, d MMMM yyyy", new Locale("pl")));
+                            addedByView.setText(teacherMap.get(grade.getAddedById()).getName());
+
+                            builder.customView(details, true).show();
+                        }
+
+                    }
+            );
+        } else if (child instanceof Average) {
+            AverageViewHolder averageViewHolder = (AverageViewHolder) childViewHolder;
+            averageViewHolder.bind((Average) child);
+        }
+
     }
+
+    @Override
+    public int getChildViewType(int parentPosition, int childPosition) {
+        return categories.get(parentPosition).getChildList().get(childPosition) instanceof Grade ? TYPE_GRADE : TYPE_AVERAGE;
+    }
+
 
     /**
      * Created by szyme on 09.12.2016. librus-client
      */
 
-    static class GradeViewHolder extends ChildViewHolder {
+    private static class GradeViewHolder extends ChildViewHolder {
 
         private TextView grade, title, subtitle;
 
@@ -159,6 +195,24 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
             grade.setText(g.getGrade());
             title.setText(c.getName());
             subtitle.setText(g.getDate().toString("d MMM.", new Locale("pl")));
+        }
+    }
+
+    private static class AverageViewHolder extends ChildViewHolder {
+        TextView average;
+
+        /**
+         * Default constructor.
+         *
+         * @param itemView The {@link View} being hosted in this ViewHolder
+         */
+        AverageViewHolder(@NonNull View itemView) {
+            super(itemView);
+            average = (TextView) itemView.findViewById(R.id.average_item_average);
+        }
+
+        void bind(Average a) {
+            average.setText(String.valueOf(a.getFullYear()));
         }
     }
 
@@ -181,7 +235,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
             arrow = itemView.findViewById(R.id.grade_category_item_arrow);
         }
 
-        void bind(GradesFragment.GradeListCategory category) {
+        void bind(GradeListCategory category) {
             title.setText(category.getTitle());
             int size = category.getChildList().size();
             String gradeCount;
@@ -209,6 +263,39 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
         @Override
         public boolean shouldItemViewClickToggleExpansion() {
             return false;
+        }
+    }
+
+    /**
+     * Created by szyme on 11.12.2016. librus-client
+     */
+    static class GradeListCategory implements Parent<GradeEntry>, Comparable {
+
+        private List<GradeEntry> gradeEntries;
+        private String title;
+
+        GradeListCategory(List<GradeEntry> grades, String title) {
+            this.gradeEntries = grades;
+            this.title = title;
+        }
+
+        @Override
+        public List<GradeEntry> getChildList() {
+            return gradeEntries;
+        }
+
+        @Override
+        public boolean isInitiallyExpanded() {
+            return false;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        @Override
+        public int compareTo(@NonNull Object o) {
+            return title.compareTo(((GradeListCategory) o).getTitle());
         }
     }
 }
