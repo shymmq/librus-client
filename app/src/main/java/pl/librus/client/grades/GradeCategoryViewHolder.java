@@ -1,5 +1,6 @@
 package pl.librus.client.grades;
 
+import android.animation.ObjectAnimator;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
@@ -14,17 +15,17 @@ import pl.librus.client.R;
 
 class GradeCategoryViewHolder extends ParentViewHolder {
 
-    private TextView title;
-    private TextView content;
-    private View root, divider;
+    TextView title;
+    TextView content;
+    View root, arrow;
 
     GradeCategoryViewHolder(@NonNull View itemView) {
         super(itemView);
-        root = itemView.findViewById(R.id.two_line_list_item_root);
-        divider = itemView.findViewById(R.id.two_line_list_item_divider);
-        title = (TextView) itemView.findViewById(R.id.two_line_list_item_title);
-        content = (TextView) itemView.findViewById(R.id.two_line_list_item_content);
-
+        root = itemView.findViewById(R.id.grade_category_item_root);
+//        divider = itemView.findViewById(R.id.grade_category_item_divider);
+        title = (TextView) itemView.findViewById(R.id.grade_category_item_title);
+        content = (TextView) itemView.findViewById(R.id.grade_category_item_content);
+        arrow = itemView.findViewById(R.id.grade_category_item_arrow);
     }
 
     void bind(GradesFragment.GradeListCategory category) {
@@ -42,10 +43,10 @@ class GradeCategoryViewHolder extends ParentViewHolder {
             @Override
             public void onClick(View view) {
                 if (isExpanded()) {
-//                    divider.setVisibility(View.VISIBLE);
+                    ObjectAnimator.ofFloat(arrow, "rotation", 180f, 0f).start();
                     collapseView();
                 } else {
-//                    divider.setVisibility(View.INVISIBLE);
+                    ObjectAnimator.ofFloat(arrow, "rotation", 0f, 180f).start();
                     expandView();
                 }
             }

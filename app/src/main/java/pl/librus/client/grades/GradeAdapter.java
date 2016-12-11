@@ -3,20 +3,13 @@ package pl.librus.client.grades;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
-
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +21,6 @@ import java.util.Map;
 import pl.librus.client.R;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
-import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
@@ -113,11 +105,10 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
     }
 
     @Override
-    public void onBindChildViewHolder(@NonNull GradeViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull final Grade child) {
+    public void onBindChildViewHolder(@NonNull final GradeViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull final Grade child) {
         childViewHolder.bind(child, gradeMap.get(child.getCategoryId()));
-        RelativeLayout background = (RelativeLayout) childViewHolder.itemView.getRootView();
-        final Context context = background.getContext();
-        background.setOnClickListener(new View.OnClickListener() {
+        final Context context = childViewHolder.itemView.getContext();
+        childViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //TODO: handle retakes, show semester number
@@ -125,7 +116,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
                 LayoutInflater inflater = LayoutInflater.from(context);
                 View details = inflater.inflate(R.layout.grade_details, null);
 
-                TextView gradeView = (TextView) details.findViewById(R.id.grade_detials_grade);
+                TextView gradeView = (TextView) details.findViewById(R.id.grade_details_grade);
                 TextView weightView = (TextView) details.findViewById(R.id.grade_details_weight);
                 TextView categoryView = (TextView) details.findViewById(R.id.grade_details_category);
                 TextView subjectView = (TextView) details.findViewById(R.id.grade_details_subject);
@@ -138,7 +129,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
                 categoryView.setText(gradeMap.get(child.getCategoryId()).getName());
                 subjectView.setText(subjectMap.get(child.getSubjectId()).getName());
                 dateView.setText(child.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
-                addDateView.setText(child.getAddDate().toString("EEEE, HH:mm, d MMMM yyyy", new Locale("pl")));
+                addDateView.setText(child.getAddDate().toString("HH:mm, EEEE, d MMMM yyyy", new Locale("pl")));
                 addedByView.setText(teacherMap.get(child.getAddedById()).getName());
 
                 builder.customView(details, true).show();

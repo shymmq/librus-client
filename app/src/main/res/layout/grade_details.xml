@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,10 +15,10 @@
             android:layout_height="wrap_content"
             android:text="Ocena"/>
         <TextView
+            android:id="@+id/grade_details_grade"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="5"
-            android:id="@+id/grade_detials_grade"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -33,10 +33,10 @@
             android:layout_height="wrap_content"
             android:text="Waga"/>
         <TextView
+            android:id="@+id/grade_details_weight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="7"
-            android:id="@+id/grade_details_weight"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -51,10 +51,10 @@
             android:layout_height="wrap_content"
             android:text="Kategoria"/>
         <TextView
+            android:id="@+id/grade_details_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="sprawdzian"
-            android:id="@+id/grade_details_category"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -69,18 +69,19 @@
             android:layout_height="wrap_content"
             android:text="Przedmiot"/>
         <TextView
+            android:id="@+id/grade_details_subject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="filozofia"
-            android:id="@+id/grade_details_subject"
             android:textStyle="bold"/>
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?android:attr/listDivider"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/listDivider" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -93,10 +94,10 @@
             android:layout_height="wrap_content"
             android:text="Data"/>
         <TextView
+            android:id="@+id/grade_details_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="wtorek, 11 września 2001"
-            android:id="@+id/grade_details_date"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -111,10 +112,10 @@
             android:layout_height="wrap_content"
             android:text="Data dodania"/>
         <TextView
+            android:id="@+id/grade_details_addDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="19:21, czwartek, 13 września 2001"
-            android:id="@+id/grade_details_addDate"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -129,10 +130,10 @@
             android:layout_height="wrap_content"
             android:text="Dodana przez"/>
         <TextView
+            android:id="@+id/grade_details_addedBy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ktośtam Jakiśtam"
-            android:id="@+id/grade_details_addedBy"
             android:textStyle="bold"/>
     </LinearLayout>
 </LinearLayout>
