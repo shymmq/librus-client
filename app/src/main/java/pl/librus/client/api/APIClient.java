@@ -575,4 +575,47 @@ public class APIClient {
         });
         return deferred.promise();
     }
+
+    Promise<List<TextGrade>, Void, Void> getTextGrades() {
+        final Deferred<List<TextGrade>, Void, Void> deferred = new DeferredObject<>();
+        APIRequest("/TextGrades").then(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    List<TextGrade> res = new ArrayList<>();
+                    JSONArray rawTextGrades = result.getJSONArray("Grades");
+
+                    for (int i = 0; i < rawTextGrades.length(); i++) {
+                        JSONObject rawTextGrade = rawTextGrades.getJSONObject(i);
+                        TextGrade.Type type;
+                        if (rawTextGrade.getBoolean("IsSemester"))
+                            type = TextGrade.Type.SEMESTER;
+                        else if (rawTextGrade.getBoolean("IsSemesterProposition"))
+                            type = TextGrade.Type.SEMESTER_PROPOSITION;
+                        else if (rawTextGrade.getBoolean("IsFinal"))
+                            type = TextGrade.Type.FINAL;
+                        else if (rawTextGrade.getBoolean("IsFinalProposition"))
+                            type = TextGrade.Type.FINAL_PROPOSITION;
+                        else
+                            type = TextGrade.Type.NORMAL;
+                        res.add(new TextGrade(rawTextGrade.getString("Id"),
+                                rawTextGrade.getString("Grade"),
+                                rawTextGrade.getJSONObject("Lesson").getString("Id"),
+                                rawTextGrade.getJSONObject("Subject").getString("Id"),
+                                rawTextGrade.getJSONObject("Category").getString("Id"),
+                                rawTextGrade.getJSONObject("AddedBy").getString("Id"),
+                                rawTextGrade.getInt("Semester"),
+                                LocalDate.parse(rawTextGrade.getString("Date")),
+                                LocalDateTime.parse(rawTextGrade.getString("AddDate"), DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")),
+                                type));
+                    }
+                    deferred.resolve(res);
+                } catch (JSONException e) {
+                    deferred.reject(null);
+                    e.printStackTrace();
+                }
+            }
+        });
+        return deferred.promise();
+    }
 }

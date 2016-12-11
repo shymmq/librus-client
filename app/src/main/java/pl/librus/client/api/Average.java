@@ -40,6 +40,6 @@ public class Average extends GradeEntry implements Serializable {
 
     @Override
     public int compareTo(@NonNull Object o) {
-        return o instanceof Grade ? 1 : 0;
+        return 1;
     }
 }

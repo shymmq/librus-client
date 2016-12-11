@@ -8,6 +8,7 @@ import org.joda.time.LocalDateTime;
 import java.io.Serializable;
 
 import pl.librus.client.grades.GradeEntry;
+import pl.librus.client.grades.TextGradeSummary;
 
 /**
  * Created by szyme on 08.12.2016. librus-client
@@ -41,11 +42,11 @@ public class Grade extends GradeEntry implements Serializable {
         this.addDate = addDate;
         this.type = type;
     }
-//    List<String> commentIds;
 
     public String getId() {
         return id;
     }
+//    List<String> commentIds;
 
     public String getGrade() {
         return grade;
@@ -85,13 +86,10 @@ public class Grade extends GradeEntry implements Serializable {
 
     @Override
     public int compareTo(@NonNull Object o) {
-        if (o instanceof Grade) {
-            return date.compareTo(((Grade) o).getDate());
-        } else if (o instanceof Average) {
-            return -1;
-        } else {
-            return 0;
-        }
+        if (o instanceof Grade) return date.compareTo(((Grade) o).getDate());
+        else if (o instanceof Average) return -1;
+        else if (o instanceof TextGradeSummary) return 1;
+        else return 0;
     }
 
     enum Type {

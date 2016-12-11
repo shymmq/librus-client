@@ -29,6 +29,7 @@ import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
+import pl.librus.client.api.TextGrade;
 
 /**
  * Created by szyme on 09.12.2016. librus-client
@@ -40,6 +41,8 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
     private final List<GradeListCategory> categories;
     private final int TYPE_GRADE = 11;
     private final int TYPE_AVERAGE = 12;
+    private final int TYPE_TEXT = 13;
+
     private LayoutInflater inflater;
     private Map<String, GradeCategory> gradeMap;
     private Map<String, Subject> subjectMap;
@@ -73,24 +76,30 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
 
 
     static GradeAdapter fromLibrusData(LibrusData data) {
-        List<Grade> grades = data.getGrades();
-        List<Average> averages = data.getAverages();
+        List<GradeEntry> gradeEntries = new ArrayList<>();
+        gradeEntries.addAll(data.getGrades());
+        gradeEntries.addAll(data.getAverages());
+        List<TextGrade> textGrades = data.getTextGrades();
         Map<String, Subject> subjectMap = data.getSubjectMap();
         Map<String, List<GradeEntry>> subjects = new HashMap<>();
+        Map<String, List<TextGrade>> textGradesMap = new HashMap<>();
         List<GradeListCategory> categories = new ArrayList<>();
 
         //Categorize grades by subject
-        for (Grade g : grades) {
+        for (GradeEntry g : gradeEntries) {
             if (!subjects.containsKey(g.getSubjectId()))
                 subjects.put(g.getSubjectId(), new ArrayList<GradeEntry>());
             subjects.get(g.getSubjectId()).add(g);
         }
-        for (Average a : averages) {
-            if (!subjects.containsKey(a.getSubjectId()))
-                subjects.put(a.getSubjectId(), new ArrayList<GradeEntry>());
-            subjects.get(a.getSubjectId()).add(a);
+        for (TextGrade t : textGrades) {
+            if (!textGradesMap.containsKey(t.getSubjectId()))
+                textGradesMap.put(t.getSubjectId(), new ArrayList<TextGrade>());
+            textGradesMap.get(t.getSubjectId()).add(t);
         }
         for (Map.Entry<String, List<GradeEntry>> entry : subjects.entrySet()) {
+            if (textGradesMap.containsKey(entry.getKey())) {
+                entry.getValue().add(new TextGradeSummary(entry.getKey(), textGradesMap.get(entry.getKey())));
+            }
             Collections.sort(entry.getValue(), Collections.<GradeEntry>reverseOrder());
             categories.add(new GradeListCategory(entry.getValue(), subjectMap.get(entry.getKey()).getName()));
         }
@@ -113,6 +122,8 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
                 return new GradeViewHolder(inflater.inflate(R.layout.grade_item, childViewGroup, false));
             case TYPE_AVERAGE:
                 return new AverageViewHolder(inflater.inflate(R.layout.average_item, childViewGroup, false));
+            case TYPE_TEXT:
+                return new TextGradeViewHolder(inflater.inflate(R.layout.text_grade_item, childViewGroup, false));
             default:
                 return new GradeViewHolder(inflater.inflate(R.layout.grade_item, childViewGroup, false));
         }
@@ -166,13 +177,20 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
         } else if (child instanceof Average) {
             AverageViewHolder averageViewHolder = (AverageViewHolder) childViewHolder;
             averageViewHolder.bind((Average) child);
+        } else if (child instanceof TextGradeSummary) {
+            TextGradeViewHolder textGradeViewHolder = (TextGradeViewHolder) childViewHolder;
+            textGradeViewHolder.bind((TextGradeSummary) child);
         }
 
     }
 
     @Override
     public int getChildViewType(int parentPosition, int childPosition) {
-        return categories.get(parentPosition).getChildList().get(childPosition) instanceof Grade ? TYPE_GRADE : TYPE_AVERAGE;
+        GradeEntry child = categories.get(parentPosition).getChildList().get(childPosition);
+        if (child instanceof Grade) return TYPE_GRADE;
+        else if (child instanceof Average) return TYPE_AVERAGE;
+        else if (child instanceof TextGradeSummary) return TYPE_TEXT;
+        else return 0;
     }
 
 
@@ -213,6 +231,35 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
 
         void bind(Average a) {
             average.setText(String.valueOf(a.getFullYear()));
+        }
+    }
+
+    private static class TextGradeViewHolder extends ChildViewHolder {
+        private final TextView count;
+//        TextView grade, category, date;
+
+        /**
+         * Default constructor.
+         *
+         * @param itemView The {@link View} being hosted in this ViewHolder
+         */
+        TextGradeViewHolder(@NonNull View itemView) {
+            super(itemView);
+            count = (TextView) itemView.findViewById(R.id.text_grade_item_count);
+//            grade = (TextView) itemView.findViewById(R.id.text_grade_item_grade);
+//            category = (TextView) itemView.findViewById(R.id.text_grade_item_title);
+//            date = (TextView) itemView.findViewById(R.id.text_grade_item_date);
+        }
+
+        void bind(TextGradeSummary t) {
+            String title;
+            int size = t.getGrades().size();
+            if (size == 1)
+                title = "+1 ocena tekstowa...";
+            else if (2 <= size && size <= 4) title = "+" + size + " oceny tekstowe...";
+            else if (5 <= size) title = "+" + size + " ocen tekstowych...";
+            else title = "Oceny tekstowe: " + size;
+            count.setText(title);
         }
     }
 

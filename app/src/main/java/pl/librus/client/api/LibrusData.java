@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pl.librus.client.grades.GradeEntry;
 import pl.librus.client.timetable.TimetableUtils;
 
 public class LibrusData implements Serializable {
@@ -38,13 +39,14 @@ public class LibrusData implements Serializable {
 
     private static final String TAG = "librus-client-log";
     private final long timestamp;
-    List<Average> averages;
     transient private Context context;
     private Timetable timetable;
     private List<Announcement> announcements;
     private LuckyNumber luckyNumber;
     private List<Event> events;
-    private List<Grade> grades;
+    private List<Grade> grades;             //grades
+    private List<TextGrade> textGrades;
+    private List<Average> averages;
     //Persistent data:
     private List<Teacher> teachers;
     private List<Subject> subjects;
@@ -52,7 +54,6 @@ public class LibrusData implements Serializable {
     private List<GradeCategory> gradeCategories;
     private LibrusAccount account;
     private boolean debug = false;
-
     public LibrusData(Context context) {
         this.context = context;
         this.timestamp = System.currentTimeMillis();
@@ -92,6 +93,14 @@ public class LibrusData implements Serializable {
             }
         });
         return deferred.promise();
+    }
+
+    public List<TextGrade> getTextGrades() {
+        return textGrades;
+    }
+
+    public void setTextGrades(List<TextGrade> textGrades) {
+        this.textGrades = textGrades;
     }
 
     private void log(String text) {
@@ -143,6 +152,13 @@ public class LibrusData implements Serializable {
             public void onDone(List<Average> result) {
                 setAverages(result);
                 log("Averages downloaded");
+            }
+        }));
+        tasks.add(client.getTextGrades().done(new DoneCallback<List<TextGrade>>() {
+            @Override
+            public void onDone(List<TextGrade> result) {
+                setTextGrades(result);
+                log("Text grades downloaded");
             }
         }));
         DeferredManager dm = new AndroidDeferredManager();
@@ -251,6 +267,9 @@ public class LibrusData implements Serializable {
         }
     }
 
+
+    //Getters
+
     public List<Announcement> getAnnouncements() {
         return announcements;
     }
@@ -267,7 +286,7 @@ public class LibrusData implements Serializable {
         return grades;
     }
 
-    public void setGrades(List<Grade> grades) {
+    private void setGrades(List<Grade> grades) {
         this.grades = grades;
     }
 
@@ -287,6 +306,8 @@ public class LibrusData implements Serializable {
         this.account = account;
     }
 
+    //Setters
+
     public LuckyNumber getLuckyNumber() {
         return luckyNumber;
     }
@@ -303,6 +324,27 @@ public class LibrusData implements Serializable {
         this.events = events;
     }
 
+    public List<Average> getAverages() {
+
+        return averages;
+    }
+
+    private void setAverages(List<Average> averages) {
+        this.averages = averages;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    private void setContext(Context context) {
+        this.context = context;
+    }
+
+    private void setGradeCategories(List<GradeCategory> gradeCategories) {
+        this.gradeCategories = gradeCategories;
+    }
+
     private void setTeachers(List<Teacher> teachers) {
         this.teachers = teachers;
     }
@@ -315,14 +357,7 @@ public class LibrusData implements Serializable {
         this.eventCategories = eventCategories;
     }
 
-    public List<Average> getAverages() {
-
-        return averages;
-    }
-
-    public void setAverages(List<Average> averages) {
-        this.averages = averages;
-    }
+    //Utility methods
 
     public Map<String, Teacher> getTeacherMap() {
         Map<String, Teacher> res = new HashMap<>();
@@ -356,15 +391,11 @@ public class LibrusData implements Serializable {
         return res;
     }
 
-    public void setGradeCategories(List<GradeCategory> gradeCategories) {
-        this.gradeCategories = gradeCategories;
-    }
-
-    public Context getContext() {
-        return context;
-    }
-
-    private void setContext(Context context) {
-        this.context = context;
+    public List<GradeEntry> getGradeEntries() {
+        List<GradeEntry> gradeEntries = new ArrayList<>();
+        gradeEntries.addAll(grades);
+        gradeEntries.addAll(averages);
+        gradeEntries.addAll(textGrades);
+        return gradeEntries;
     }
 }

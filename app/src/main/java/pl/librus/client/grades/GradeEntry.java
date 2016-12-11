@@ -5,4 +5,5 @@ package pl.librus.client.grades;
  */
 
 public abstract class GradeEntry implements Comparable {
+    public abstract String getSubjectId();
 }
