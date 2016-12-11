@@ -8,7 +8,7 @@
     android:padding="0dp">
 
     <TextView
-        android:id="@+id/text_grade_item_count"
+        android:id="@+id/text_grade_summary_item_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="false"

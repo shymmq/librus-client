@@ -35,10 +35,10 @@ import pl.librus.client.api.TextGrade;
  * Created by szyme on 09.12.2016. librus-client
  */
 
-class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCategory, GradeEntry, GradeAdapter.GradeCategoryViewHolder, ChildViewHolder> {
+class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, GradeEntry, GradeAdapter.GradeCategoryViewHolder, ChildViewHolder> {
 
     @NonNull
-    private final List<GradeListCategory> categories;
+    private final List<Category> categories;
     private final int TYPE_GRADE = 11;
     private final int TYPE_AVERAGE = 12;
     private final int TYPE_TEXT = 13;
@@ -65,7 +65,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
      *                   adapter is linked to
      * @param context    Context
      */
-    private GradeAdapter(@NonNull List<GradeListCategory> parentList, Map<String, GradeCategory> gradeMap, Map<String, Subject> subjectMap, Map<String, Teacher> teacherMap, Context context) {
+    private GradeAdapter(@NonNull List<Category> parentList, Map<String, GradeCategory> gradeMap, Map<String, Subject> subjectMap, Map<String, Teacher> teacherMap, Context context) {
         super(parentList);
         this.categories = parentList;
         this.gradeMap = gradeMap;
@@ -83,7 +83,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
         Map<String, Subject> subjectMap = data.getSubjectMap();
         Map<String, List<GradeEntry>> subjects = new HashMap<>();
         Map<String, List<TextGrade>> textGradesMap = new HashMap<>();
-        List<GradeListCategory> categories = new ArrayList<>();
+        List<Category> categories = new ArrayList<>();
 
         //Categorize grades by subject
         for (GradeEntry g : gradeEntries) {
@@ -101,9 +101,9 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
                 entry.getValue().add(new TextGradeSummary(entry.getKey(), textGradesMap.get(entry.getKey())));
             }
             Collections.sort(entry.getValue(), Collections.<GradeEntry>reverseOrder());
-            categories.add(new GradeListCategory(entry.getValue(), subjectMap.get(entry.getKey()).getName()));
+            categories.add(new Category(entry.getValue(), subjectMap.get(entry.getKey()).getName()));
         }
-        Collections.sort(categories, Collections.<GradeListCategory>reverseOrder());
+        Collections.sort(categories, Collections.<Category>reverseOrder());
         return new GradeAdapter(categories, data.getGradeCategoriesMap(), data.getSubjectMap(), data.getTeacherMap(), data.getContext());
     }
 
@@ -123,7 +123,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
             case TYPE_AVERAGE:
                 return new AverageViewHolder(inflater.inflate(R.layout.average_item, childViewGroup, false));
             case TYPE_TEXT:
-                return new TextGradeViewHolder(inflater.inflate(R.layout.text_grade_item, childViewGroup, false));
+                return new TextGradeSummaryViewHolder(inflater.inflate(R.layout.text_grade_summary_item, childViewGroup, false));
             default:
                 return new GradeViewHolder(inflater.inflate(R.layout.grade_item, childViewGroup, false));
         }
@@ -131,7 +131,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
 
 
     @Override
-    public void onBindParentViewHolder(@NonNull GradeCategoryViewHolder parentViewHolder, int parentPosition, @NonNull GradeListCategory parent) {
+    public void onBindParentViewHolder(@NonNull GradeCategoryViewHolder parentViewHolder, int parentPosition, @NonNull Category parent) {
         parentViewHolder.bind(parent);
     }
 
@@ -178,7 +178,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
             AverageViewHolder averageViewHolder = (AverageViewHolder) childViewHolder;
             averageViewHolder.bind((Average) child);
         } else if (child instanceof TextGradeSummary) {
-            TextGradeViewHolder textGradeViewHolder = (TextGradeViewHolder) childViewHolder;
+            TextGradeSummaryViewHolder textGradeViewHolder = (TextGradeSummaryViewHolder) childViewHolder;
             textGradeViewHolder.bind((TextGradeSummary) child);
         }
 
@@ -234,7 +234,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
         }
     }
 
-    private static class TextGradeViewHolder extends ChildViewHolder {
+    private static class TextGradeSummaryViewHolder extends ChildViewHolder {
         private final TextView count;
 //        TextView grade, category, date;
 
@@ -243,9 +243,9 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
          *
          * @param itemView The {@link View} being hosted in this ViewHolder
          */
-        TextGradeViewHolder(@NonNull View itemView) {
+        TextGradeSummaryViewHolder(@NonNull View itemView) {
             super(itemView);
-            count = (TextView) itemView.findViewById(R.id.text_grade_item_count);
+            count = (TextView) itemView.findViewById(R.id.text_grade_summary_item_count);
 //            grade = (TextView) itemView.findViewById(R.id.text_grade_item_grade);
 //            category = (TextView) itemView.findViewById(R.id.text_grade_item_title);
 //            date = (TextView) itemView.findViewById(R.id.text_grade_item_date);
@@ -282,7 +282,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
             arrow = itemView.findViewById(R.id.grade_category_item_arrow);
         }
 
-        void bind(GradeListCategory category) {
+        void bind(Category category) {
             title.setText(category.getTitle());
             int size = category.getChildList().size();
             String gradeCount;
@@ -316,12 +316,12 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
     /**
      * Created by szyme on 11.12.2016. librus-client
      */
-    static class GradeListCategory implements Parent<GradeEntry>, Comparable {
+    static class Category implements Parent<GradeEntry>, Comparable {
 
         private List<GradeEntry> gradeEntries;
         private String title;
 
-        GradeListCategory(List<GradeEntry> grades, String title) {
+        Category(List<GradeEntry> grades, String title) {
             this.gradeEntries = grades;
             this.title = title;
         }
@@ -342,7 +342,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.GradeListCateg
 
         @Override
         public int compareTo(@NonNull Object o) {
-            return title.compareTo(((GradeListCategory) o).getTitle());
+            return title.compareTo(((Category) o).getTitle());
         }
     }
 }
