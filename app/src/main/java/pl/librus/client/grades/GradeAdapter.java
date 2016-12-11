@@ -1,6 +1,7 @@
 package pl.librus.client.grades;
 
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -9,7 +10,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.bignerdranch.expandablerecyclerview.ChildViewHolder;
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
+import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +32,7 @@ import pl.librus.client.api.Teacher;
  * Created by szyme on 09.12.2016. librus-client
  */
 
-class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCategory, Grade, GradeCategoryViewHolder, GradeViewHolder> {
+class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCategory, Grade, GradeAdapter.GradeCategoryViewHolder, GradeAdapter.GradeViewHolder> {
 
     @NonNull
     private final List<GradesFragment.GradeListCategory> categories;
@@ -135,5 +138,77 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
                 builder.customView(details, true).show();
             }
         });
+    }
+
+    /**
+     * Created by szyme on 09.12.2016. librus-client
+     */
+
+    static class GradeViewHolder extends ChildViewHolder {
+
+        private TextView grade, title, subtitle;
+
+        GradeViewHolder(@NonNull View itemView) {
+            super(itemView);
+            grade = (TextView) itemView.findViewById(R.id.grade_item_grade);
+            title = (TextView) itemView.findViewById(R.id.grade_item_title);
+            subtitle = (TextView) itemView.findViewById(R.id.grade_item_subtitle);
+        }
+
+        void bind(Grade g, GradeCategory c) {
+            grade.setText(g.getGrade());
+            title.setText(c.getName());
+            subtitle.setText(g.getDate().toString("d MMM.", new Locale("pl")));
+        }
+    }
+
+    /**
+     * Created by szyme on 09.12.2016. librus-client
+     */
+
+    static class GradeCategoryViewHolder extends ParentViewHolder {
+
+        TextView title;
+        TextView content;
+        View root, arrow;
+
+        GradeCategoryViewHolder(@NonNull View itemView) {
+            super(itemView);
+            root = itemView.findViewById(R.id.grade_category_item_root);
+            //        divider = itemView.findViewById(R.id.grade_category_item_divider);
+            title = (TextView) itemView.findViewById(R.id.grade_category_item_title);
+            content = (TextView) itemView.findViewById(R.id.grade_category_item_content);
+            arrow = itemView.findViewById(R.id.grade_category_item_arrow);
+        }
+
+        void bind(GradesFragment.GradeListCategory category) {
+            title.setText(category.getTitle());
+            int size = category.getChildList().size();
+            String gradeCount;
+            if (size == 0) gradeCount = "Brak ocen";
+            else if (size == 1) gradeCount = "1 ocena";
+            else if (2 <= size && size <= 4) gradeCount = size + " oceny";
+            else if (5 <= size) gradeCount = size + " ocen";
+            else gradeCount = "Oceny: " + size;
+            content.setText(gradeCount);
+
+            root.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (isExpanded()) {
+                        ObjectAnimator.ofFloat(arrow, "rotation", 180f, 0f).start();
+                        collapseView();
+                    } else {
+                        ObjectAnimator.ofFloat(arrow, "rotation", 0f, 180f).start();
+                        expandView();
+                    }
+                }
+            });
+        }
+
+        @Override
+        public boolean shouldItemViewClickToggleExpansion() {
+            return false;
+        }
     }
 }
