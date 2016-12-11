@@ -13,10 +13,19 @@ import pl.librus.client.api.TextGrade;
 public class TextGradeSummary extends GradeEntry {
     private String subjectId;
     private List<TextGrade> grades;
+    private boolean isExpanded = false;
 
     TextGradeSummary(String subjectId, List<TextGrade> grades) {
         this.subjectId = subjectId;
         this.grades = grades;
+    }
+
+    public boolean isExpanded() {
+        return isExpanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        isExpanded = expanded;
     }
 
     @Override

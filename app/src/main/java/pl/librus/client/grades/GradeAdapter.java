@@ -179,9 +179,16 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             averageViewHolder.bind((Average) child);
         } else if (child instanceof TextGradeSummary) {
             TextGradeSummaryViewHolder textGradeViewHolder = (TextGradeSummaryViewHolder) childViewHolder;
-            textGradeViewHolder.bind((TextGradeSummary) child);
+            final TextGradeSummary textGradeSummary = (TextGradeSummary) child;
+            textGradeViewHolder.bind(textGradeSummary);
+            textGradeViewHolder.summary.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    textGradeSummary.setExpanded(!textGradeSummary.isExpanded());
+                    notifyChildChanged(parentPosition, childPosition);
+                }
+            });
         }
-
     }
 
     @Override
@@ -236,6 +243,8 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
 
     private static class TextGradeSummaryViewHolder extends ChildViewHolder {
         private final TextView count;
+        ViewGroup container, summary;
+//        View arrow;
 //        TextView grade, category, date;
 
         /**
@@ -246,12 +255,16 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
         TextGradeSummaryViewHolder(@NonNull View itemView) {
             super(itemView);
             count = (TextView) itemView.findViewById(R.id.text_grade_summary_item_count);
+            summary = (ViewGroup) itemView.findViewById(R.id.text_grade_summary);
+            container = (ViewGroup) itemView.findViewById(R.id.text_grade_item_container);
+//            arrow = itemView.findViewById(R.id.text_grade_summary_arrow);
 //            grade = (TextView) itemView.findViewById(R.id.text_grade_item_grade);
 //            category = (TextView) itemView.findViewById(R.id.text_grade_item_title);
 //            date = (TextView) itemView.findViewById(R.id.text_grade_item_date);
         }
 
-        void bind(TextGradeSummary t) {
+        void bind(final TextGradeSummary t) {
+            //setup summary
             String title;
             int size = t.getGrades().size();
             if (size == 1)
@@ -259,6 +272,17 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             else if (2 <= size && size <= 4) title = "+" + size + " oceny tekstowe...";
             else if (5 <= size) title = "+" + size + " ocen tekstowych...";
             else title = "Oceny tekstowe: " + size;
+            //setup expanded view
+            final boolean expanded = t.isExpanded();
+            container.setVisibility(expanded ? View.VISIBLE : View.GONE);
+            List<TextGrade> textGrades = t.getGrades();
+            container.removeAllViews();
+            for (TextGrade g : textGrades) {
+                View v = LayoutInflater.from(itemView.getContext()).inflate(R.layout.text_grade_item, container, false);
+                ((TextView) v.findViewById(R.id.text_grade_item_title)).setText(g.getCategoryId());
+                ((TextView) v.findViewById(R.id.text_grade_item_content)).setText(g.getGrade());
+                container.addView(v);
+            }
             count.setText(title);
         }
     }
@@ -342,7 +366,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
 
         @Override
         public int compareTo(@NonNull Object o) {
-            return title.compareTo(((Category) o).getTitle());
+            return -title.compareTo(((Category) o).getTitle());
         }
     }
 }
