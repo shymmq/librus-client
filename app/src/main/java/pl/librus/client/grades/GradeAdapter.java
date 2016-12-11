@@ -95,7 +95,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradesFragment.GradeListCat
     @NonNull
     @Override
     public GradeCategoryViewHolder onCreateParentViewHolder(@NonNull ViewGroup parentViewGroup, int viewType) {
-        View root = inflater.inflate(R.layout.two_line_list_item, parentViewGroup, false);
+        View root = inflater.inflate(R.layout.grade_category_item, parentViewGroup, false);
         return new GradeCategoryViewHolder(root);
     }
 
