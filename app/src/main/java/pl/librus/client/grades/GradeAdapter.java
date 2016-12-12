@@ -123,7 +123,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             case TYPE_AVERAGE:
                 return new AverageViewHolder(inflater.inflate(R.layout.average_item, childViewGroup, false));
             case TYPE_TEXT:
-                return new TextGradeSummaryViewHolder(inflater.inflate(R.layout.text_grade_summary_item, childViewGroup, false));
+                return new TextGradeSummaryViewHolder(inflater.inflate(R.layout.text_grade_summary_item, childViewGroup, false), gradeMap);
             default:
                 return new GradeViewHolder(inflater.inflate(R.layout.grade_item, childViewGroup, false));
         }
@@ -243,7 +243,9 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
 
     private static class TextGradeSummaryViewHolder extends ChildViewHolder {
         private final TextView count;
-        ViewGroup container, summary;
+        ViewGroup container;
+        ViewGroup summary;
+        Map<String, GradeCategory> gradeCategoryMap;
 //        View arrow;
 //        TextView grade, category, date;
 
@@ -252,15 +254,13 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
          *
          * @param itemView The {@link View} being hosted in this ViewHolder
          */
-        TextGradeSummaryViewHolder(@NonNull View itemView) {
+        TextGradeSummaryViewHolder(@NonNull View itemView, Map<String, GradeCategory> gradeCategoryMap) {
             super(itemView);
+
             count = (TextView) itemView.findViewById(R.id.text_grade_summary_item_count);
             summary = (ViewGroup) itemView.findViewById(R.id.text_grade_summary);
             container = (ViewGroup) itemView.findViewById(R.id.text_grade_item_container);
-//            arrow = itemView.findViewById(R.id.text_grade_summary_arrow);
-//            grade = (TextView) itemView.findViewById(R.id.text_grade_item_grade);
-//            category = (TextView) itemView.findViewById(R.id.text_grade_item_title);
-//            date = (TextView) itemView.findViewById(R.id.text_grade_item_date);
+            this.gradeCategoryMap = gradeCategoryMap;
         }
 
         void bind(final TextGradeSummary t) {
@@ -279,7 +279,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             container.removeAllViews();
             for (TextGrade g : textGrades) {
                 View v = LayoutInflater.from(itemView.getContext()).inflate(R.layout.text_grade_item, container, false);
-                ((TextView) v.findViewById(R.id.text_grade_item_title)).setText(g.getCategoryId());
+                ((TextView) v.findViewById(R.id.text_grade_item_title)).setText(gradeCategoryMap.get(g.getCategoryId()).getName());
                 ((TextView) v.findViewById(R.id.text_grade_item_content)).setText(g.getGrade());
                 container.addView(v);
             }
