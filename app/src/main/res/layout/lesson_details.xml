@@ -143,15 +143,16 @@
             android:id="@+id/textView4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
             android:text="@string/details_event_category_title" />
 
         <TextView
             android:id="@+id/details_event_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:fontFamily="sans-serif"
+            android:paddingLeft="16dp"
             android:text="@string/details_event_category_placeholder"
             android:textColor="?android:attr/textColorSecondary"
             android:textSize="14sp"
@@ -161,18 +162,43 @@
             android:id="@+id/textView5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
             android:text="@string/details_event_description_title" />
 
         <TextView
             android:id="@+id/details_event_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:paddingStart="16dp"
             android:text="@string/details_event_description_placeholder"
             android:textColor="?android:attr/textColorSecondary"
             android:textStyle="normal|bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingStart="16dp"
+                android:text="Dodane przez"
+                android:textColor="?android:attr/textColorSecondary" />
+
+            <TextView
+                android:id="@+id/details_event_addedBy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:text="@string/library_AndroidIconics_author"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textStyle="normal|bold" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

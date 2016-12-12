@@ -263,8 +263,9 @@ public class APIClient {
                         String categoryId = rawEvent.getJSONObject("Category").getString("Id");
                         String description = rawEvent.getString("Content");
                         LocalDate date = LocalDate.parse(rawEvent.getString("Date"));
+                        String addedById = rawEvent.getJSONObject("CreatedBy").getString("Id");
                         int lessonNumber = Integer.parseInt(rawEvent.getString("LessonNo"));
-                        res.add(new Event(categoryId, description, date, lessonNumber));
+                        res.add(new Event(categoryId, description, date, addedById, lessonNumber));
                     }
                     deferred.resolve(res);
                 } catch (JSONException e) {
@@ -445,8 +446,8 @@ public class APIClient {
                                                 new Teacher(teacher.getString("Id"), teacher.getString("FirstName"), teacher.getString("LastName")),
                                                 isCanceled,
                                                 isSubstitutionClass,
-                                                isSubstitutionClass ? new Subject(orgSubject.getString("Id"), orgSubject.getString("Name")) : null,
-                                                isSubstitutionClass ? new Teacher(orgTeacher.getString("Id"), orgTeacher.getString("FirstName"), orgTeacher.getString("LastName")) : null,
+                                                isSubstitutionClass ? orgSubject.getString("Id") : null,
+                                                isSubstitutionClass ? orgTeacher.getString("Id") : null,
                                                 null)
                                         );
                                         schoolDay.setEmpty(false);

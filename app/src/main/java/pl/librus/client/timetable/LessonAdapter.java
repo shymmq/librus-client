@@ -28,17 +28,24 @@ import java.util.Map;
 import pl.librus.client.R;
 import pl.librus.client.api.EventCategory;
 import pl.librus.client.api.Lesson;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.SchoolDay;
+import pl.librus.client.api.Subject;
+import pl.librus.client.api.Teacher;
 
 public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder> {
 
     private final SchoolDay schoolDay;
+    private final Map<String, Subject> subjectMap;
     private Map<String, EventCategory> eventCategoryMap;
+    private Map<String, Teacher> teacherMap;
 
-    public LessonAdapter(SchoolDay schoolDay, Map<String, EventCategory> eventCategoryMap) {
+    public LessonAdapter(SchoolDay schoolDay, LibrusData data) {
         this.schoolDay = schoolDay;
 //        Log.d(TAG, "Data received in lesson adapter: " + schoolDay.getLessons().entrySet().toString());
-        this.eventCategoryMap = eventCategoryMap;
+        this.eventCategoryMap = data.getEventCategoriesMap();
+        this.teacherMap = data.getTeacherMap();
+        this.subjectMap = data.getSubjectMap();
     }
 
     @Override
@@ -135,10 +142,10 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                         LayoutInflater inflater = LayoutInflater.from(context);
                         View details = inflater.inflate(R.layout.lesson_details, null);
 
-                        TextView teacher = (TextView) details.findViewById(R.id.details_teacher);
-                        TextView orgTeacher = (TextView) details.findViewById(R.id.details_org_teacher);
-                        TextView orgSubject = (TextView) details.findViewById(R.id.details_org_subject);
-                        TextView subject = (TextView) details.findViewById(R.id.details_subject);
+                        TextView teacherView = (TextView) details.findViewById(R.id.details_teacher);
+                        TextView orgTeacherView = (TextView) details.findViewById(R.id.details_org_teacher);
+                        TextView orgSubjectView = (TextView) details.findViewById(R.id.details_org_subject);
+                        TextView subjectView = (TextView) details.findViewById(R.id.details_subject);
                         RelativeLayout subjectContainer = (RelativeLayout) details.findViewById(R.id.details_subject_container);
                         TextView date = (TextView) details.findViewById(R.id.details_date);
                         TextView startTime = (TextView) details.findViewById(R.id.details_start_time);
@@ -146,7 +153,8 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                         TextView lessonNumber = (TextView) details.findViewById(R.id.details_lesson_number);
                         LinearLayout event = (LinearLayout) details.findViewById(R.id.event);
 
-                        teacher.setText(lesson.getTeacher().getName());
+                        teacherView.setText(lesson.getTeacher().getName());
+                        subjectView.setText(lesson.getSubject().getName());
                         date.setText(lesson.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
                         startTime.setText(lesson.getStartTime().toString("HH:mm"));
                         endTime.setText(" - " + lesson.getEndTime().toString("HH:mm"));
@@ -154,22 +162,27 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                         if (lesson.getEvent() != null) {
                             TextView eventName = (TextView) details.findViewById(R.id.details_event_name);
                             TextView eventDescription = (TextView) details.findViewById(R.id.details_event_description);
+                            TextView addedBy = (TextView) details.findViewById(R.id.details_event_addedBy);
+
                             event.setVisibility(View.VISIBLE);
                             eventName.setText(eventCategoryMap.get(lesson.getEvent().getCategoryId()).getName());
                             eventDescription.setText(lesson.getEvent().getDescription());
+                            addedBy.setText(teacherMap.get(lesson.getEvent().getAddedById()).getName());
+
                         } else {
                             event.setVisibility(View.GONE);
                         }
                         if (lesson.isSubstitution()) {
-                            if (lesson.getTeacher() != lesson.getOrgTeacher()) {
-                                orgTeacher.setText(lesson.getOrgTeacher().getName() + " -> ");
+                            Teacher orgTeacher = teacherMap.get(lesson.getOrgTeacherId());
+                            if (lesson.getTeacher() != orgTeacher) {
+                                orgTeacherView.setText(orgTeacher.getName() + " -> ");
                             }
-                            if (lesson.getSubject() != lesson.getOrgSubject()) {
-                                orgSubject.setText(lesson.getOrgSubject().getName() + " -> ");
-                                subject.setText(lesson.getSubject().getName());
+                            Subject orgSubject = subjectMap.get(lesson.getOrgSubjectId());
+                            if (lesson.getSubject() != orgSubject) {
+                                orgSubjectView.setText(orgSubject.getName() + " -> ");
                             }
                         } else {
-                            orgTeacher.setVisibility(View.GONE);
+                            orgTeacherView.setVisibility(View.GONE);
                             subjectContainer.setVisibility(View.GONE);
                         }
                         builder.customView(details, true).show();

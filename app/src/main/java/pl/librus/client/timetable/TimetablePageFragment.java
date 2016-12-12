@@ -9,26 +9,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.io.Serializable;
-import java.util.Map;
+import org.joda.time.LocalDate;
 
 import pl.librus.client.R;
-import pl.librus.client.api.EventCategory;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.SchoolDay;
 
 public class TimetablePageFragment extends Fragment {
     private static final String ARG_DATA = "data";
-    private static final String ARG_MAP = "map";
+    private static final String ARG_DATE = "date";
     private final String TAG = "librus-client-log";
 
     public TimetablePageFragment() {
     }
 
-    public static TimetablePageFragment newInstance(SchoolDay data, Map<String, EventCategory> eventCategoryMap) {
+    public static TimetablePageFragment newInstance(LibrusData data, LocalDate date) {
         TimetablePageFragment fragment = new TimetablePageFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_DATA, data);
-        args.putSerializable(ARG_MAP, (Serializable) eventCategoryMap);
+        args.putSerializable(ARG_DATE, date);
         fragment.setArguments(args);
         return fragment;
     }
@@ -36,8 +35,11 @@ public class TimetablePageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        SchoolDay schoolDay = (SchoolDay) getArguments().getSerializable(ARG_DATA);
-        Map<String, EventCategory> eventCategoryMap = (Map<String, EventCategory>) getArguments().getSerializable(ARG_MAP);
+        LibrusData data = (LibrusData) getArguments().getSerializable(ARG_DATA);
+        LocalDate date = (LocalDate) getArguments().getSerializable(ARG_DATE);
+        assert data != null && date != null;
+        SchoolDay schoolDay = data.getTimetable().getSchoolDay(date);
+
         if (schoolDay == null) {
             Log.d(TAG, "onCreateView: schoolday == null");
             return inflater.inflate(R.layout.fragment_timetable_page_empty, container, false);
@@ -50,7 +52,7 @@ public class TimetablePageFragment extends Fragment {
             recyclerView.setHasFixedSize(true);
             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-            RecyclerView.Adapter adapter = new LessonAdapter(schoolDay, eventCategoryMap);
+            RecyclerView.Adapter adapter = new LessonAdapter(schoolDay, data);
             recyclerView.setAdapter(adapter);
             return rootView;
         }

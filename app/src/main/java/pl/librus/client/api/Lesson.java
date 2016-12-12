@@ -9,13 +9,14 @@ import java.io.Serializable;
 public class Lesson implements Serializable {
 
 
+    private static final long serialVersionUID = 3925316087529938003L;
     private int lessonNumber = 0;
     private Event event = null;
     private Subject subject;
     private Teacher teacher;
-    private Subject orgSubject = null;
-    private Teacher orgTeacher = null;
-    private boolean substitution = false;
+    private String orgSubjectId = null;
+    private String orgTeacherId = null;
+    private boolean substitution;
     private boolean isCanceled;
     private LocalDate date;
     private LocalTime startTime;
@@ -25,14 +26,14 @@ public class Lesson implements Serializable {
            Subject subject, Teacher teacher,
            boolean isCanceled,
            boolean substitution,
-           Subject orgSubject, Teacher orgTeacher,
+           String orgSubjectId, String orgTeacherId,
            Event event) {
         this.lessonNumber = lessonNumber;
         this.event = event;
         this.subject = subject;
         this.teacher = teacher;
-        this.orgSubject = orgSubject;
-        this.orgTeacher = orgTeacher;
+        this.orgSubjectId = orgSubjectId;
+        this.orgTeacherId = orgTeacherId;
         this.substitution = substitution;
         this.isCanceled = isCanceled;
         this.date = date;
@@ -48,12 +49,12 @@ public class Lesson implements Serializable {
         this.event = event;
     }
 
-    public Subject getOrgSubject() {
-        return orgSubject;
+    public String getOrgSubjectId() {
+        return orgSubjectId;
     }
 
-    public Teacher getOrgTeacher() {
-        return orgTeacher;
+    public String getOrgTeacherId() {
+        return orgTeacherId;
     }
 
     public LocalDate getDate() {
