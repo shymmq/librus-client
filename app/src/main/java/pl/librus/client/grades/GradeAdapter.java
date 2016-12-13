@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -26,6 +27,7 @@ import pl.librus.client.R;
 import pl.librus.client.api.Average;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
+import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
@@ -44,9 +46,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
     private final int TYPE_TEXT = 13;
 
     private LayoutInflater inflater;
-    private Map<String, GradeCategory> gradeMap;
-    private Map<String, Subject> subjectMap;
-    private Map<String, Teacher> teacherMap;
+    private LibrusData data;
 
     /**
      * Primary constructor. Sets up {@link #mParentList} and {@link #mFlatItemList}.
@@ -65,12 +65,10 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
      *                   adapter is linked to
      * @param context    Context
      */
-    private GradeAdapter(@NonNull List<Category> parentList, Map<String, GradeCategory> gradeMap, Map<String, Subject> subjectMap, Map<String, Teacher> teacherMap, Context context) {
+    private GradeAdapter(@NonNull List<Category> parentList, LibrusData data, Context context) {
         super(parentList);
+        this.data = data;
         this.categories = parentList;
-        this.gradeMap = gradeMap;
-        this.subjectMap = subjectMap;
-        this.teacherMap = teacherMap;
         inflater = LayoutInflater.from(context);
     }
 
@@ -104,7 +102,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             categories.add(new Category(entry.getValue(), subjectMap.get(entry.getKey()).getName()));
         }
         Collections.sort(categories, Collections.<Category>reverseOrder());
-        return new GradeAdapter(categories, data.getGradeCategoriesMap(), data.getSubjectMap(), data.getTeacherMap(), data.getContext());
+        return new GradeAdapter(categories, data, data.getContext());
     }
 
     @NonNull
@@ -123,7 +121,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             case TYPE_AVERAGE:
                 return new AverageViewHolder(inflater.inflate(R.layout.average_item, childViewGroup, false));
             case TYPE_TEXT:
-                return new TextGradeSummaryViewHolder(inflater.inflate(R.layout.text_grade_summary_item, childViewGroup, false), gradeMap);
+                return new TextGradeSummaryViewHolder(inflater.inflate(R.layout.text_grade_summary_item, childViewGroup, false), data.getGradeCategoriesMap());
             default:
                 return new GradeViewHolder(inflater.inflate(R.layout.grade_item, childViewGroup, false));
         }
@@ -141,7 +139,11 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
 //                viewType = TYPE_GRADE
             final Grade grade = (Grade) child;
             final GradeViewHolder gradeViewHolder = (GradeViewHolder) childViewHolder;
-            gradeViewHolder.bind(grade, gradeMap.get(grade.getCategoryId()));
+            final Map<String, GradeCategory> gradeMap = data.getGradeCategoriesMap();
+            final Map<String, Subject> subjectMap = data.getSubjectMap();
+            final Map<String, Teacher> teacherMap = data.getTeacherMap();
+            final Map<String, GradeComment> commentMap = data.getCommentMap();
+            gradeViewHolder.bind(grade, gradeMap.get(grade.getCategoryId()), grade.getCommentId() == null ? null : commentMap.get(grade.getCommentId()));
             gradeViewHolder.itemView.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
@@ -207,6 +209,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
 
     private static class GradeViewHolder extends ChildViewHolder {
 
+        ImageView commentBadge;
         private TextView grade, title, subtitle;
 
         GradeViewHolder(@NonNull View itemView) {
@@ -214,12 +217,14 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             grade = (TextView) itemView.findViewById(R.id.grade_item_grade);
             title = (TextView) itemView.findViewById(R.id.grade_item_title);
             subtitle = (TextView) itemView.findViewById(R.id.grade_item_subtitle);
+            commentBadge = (ImageView) itemView.findViewById(R.id.grade_item_comment_badge);
         }
 
-        void bind(Grade g, GradeCategory c) {
+        void bind(Grade g, GradeCategory c, GradeComment comment) {
             grade.setText(g.getGrade());
             title.setText(c.getName());
             subtitle.setText(g.getDate().toString("d MMM.", new Locale("pl")));
+            commentBadge.setVisibility(comment == null ? View.GONE : View.VISIBLE);
         }
     }
 

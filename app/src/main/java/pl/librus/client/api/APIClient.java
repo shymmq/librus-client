@@ -534,6 +534,7 @@ public class APIClient {
                                 rawGrade.getJSONObject("Subject").getString("Id"),
                                 rawGrade.getJSONObject("Category").getString("Id"),
                                 rawGrade.getJSONObject("AddedBy").getString("Id"),
+                                rawGrade.has("Comments") ? rawGrade.getJSONArray("Comments").getJSONObject(0).getString("Id") : null,
                                 rawGrade.getInt("Semester"),
                                 LocalDate.parse(rawGrade.getString("Date")),
                                 LocalDateTime.parse(rawGrade.getString("AddDate"), DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")),
@@ -613,6 +614,31 @@ public class APIClient {
                 } catch (JSONException e) {
                     deferred.reject(null);
                     e.printStackTrace();
+                }
+            }
+        });
+        return deferred.promise();
+    }
+
+    Promise<List<GradeComment>, Void, Void> getComments() {
+        final Deferred<List<GradeComment>, Void, Void> deferred = new DeferredObject<>();
+        APIRequest("/Grades/Comments").done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    List<GradeComment> res = new ArrayList<>();
+                    JSONArray rawComments = result.getJSONArray("Comments");
+                    for (int i = 0; i < rawComments.length(); i++) {
+                        JSONObject rawComment = rawComments.getJSONObject(i);
+                        res.add(new GradeComment(rawComment.getString("Id"),
+                                rawComment.getJSONObject("AddedBy").getString("Id"),
+                                rawComment.getJSONObject("Grade").getString("Id"),
+                                rawComment.getString("Text")));
+                    }
+                    deferred.resolve(res);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(null);
                 }
             }
         });

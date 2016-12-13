@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pl.librus.client.grades.GradeEntry;
 import pl.librus.client.timetable.TimetableUtils;
 
 public class LibrusData implements Serializable {
@@ -40,20 +39,26 @@ public class LibrusData implements Serializable {
     private static final String TAG = "librus-client-log";
     private final long timestamp;
     transient private Context context;
-    private Timetable timetable;
-    private List<Announcement> announcements;
-    private LuckyNumber luckyNumber;
+    private boolean debug = false;
+
+    private Timetable timetable;            //timetable
     private List<Event> events;
-    private List<Grade> grades;             //grades
+
+    private List<Grade> grades;              //grades
+    private List<GradeComment> gradeComments;
     private List<TextGrade> textGrades;
     private List<Average> averages;
+
+    private List<Announcement> announcements;//other
+    private LuckyNumber luckyNumber;
+
     //Persistent data:
     private List<Teacher> teachers;
     private List<Subject> subjects;
     private List<EventCategory> eventCategories;
     private List<GradeCategory> gradeCategories;
     private LibrusAccount account;
-    private boolean debug = false;
+
     public LibrusData(Context context) {
         this.context = context;
         this.timestamp = System.currentTimeMillis();
@@ -95,13 +100,6 @@ public class LibrusData implements Serializable {
         return deferred.promise();
     }
 
-    public List<TextGrade> getTextGrades() {
-        return textGrades;
-    }
-
-    public void setTextGrades(List<TextGrade> textGrades) {
-        this.textGrades = textGrades;
-    }
 
     private void log(String text) {
         if (debug) Log.d(TAG, text);
@@ -145,6 +143,13 @@ public class LibrusData implements Serializable {
             public void onDone(List<Grade> result) {
                 setGrades(result);
                 log("Grades downloaded");
+            }
+        }));
+        tasks.add(client.getComments().done(new DoneCallback<List<GradeComment>>() {
+            @Override
+            public void onDone(List<GradeComment> result) {
+                setGradeComments(result);
+                log("Grade comments downloaded");
             }
         }));
         tasks.add(client.getAverages().done(new DoneCallback<List<Average>>() {
@@ -269,11 +274,19 @@ public class LibrusData implements Serializable {
 
 
     //Getters
+    public List<TextGrade> getTextGrades() {
+        return textGrades;
+    }
+
+    private void setTextGrades(List<TextGrade> textGrades) {
+        this.textGrades = textGrades;
+    }
 
     public List<Announcement> getAnnouncements() {
         return announcements;
     }
 
+    //Setters
     private void setAnnouncements(List<Announcement> announcements) {
         this.announcements = announcements;
     }
@@ -306,7 +319,14 @@ public class LibrusData implements Serializable {
         this.account = account;
     }
 
-    //Setters
+    public List<GradeComment> getGradeComments() {
+
+        return gradeComments;
+    }
+
+    private void setGradeComments(List<GradeComment> gradeComments) {
+        this.gradeComments = gradeComments;
+    }
 
     public LuckyNumber getLuckyNumber() {
         return luckyNumber;
@@ -316,14 +336,6 @@ public class LibrusData implements Serializable {
         this.luckyNumber = luckyNumber;
     }
 
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    private void setEvents(List<Event> events) {
-        this.events = events;
-    }
-
     public List<Average> getAverages() {
 
         return averages;
@@ -331,6 +343,14 @@ public class LibrusData implements Serializable {
 
     private void setAverages(List<Average> averages) {
         this.averages = averages;
+    }
+
+    public List<Event> getEvents() {
+        return events;
+    }
+
+    private void setEvents(List<Event> events) {
+        this.events = events;
     }
 
     public Context getContext() {
@@ -356,7 +376,6 @@ public class LibrusData implements Serializable {
     private void setEventCategories(List<EventCategory> eventCategories) {
         this.eventCategories = eventCategories;
     }
-
     //Utility methods
 
     public Map<String, Teacher> getTeacherMap() {
@@ -391,11 +410,11 @@ public class LibrusData implements Serializable {
         return res;
     }
 
-    public List<GradeEntry> getGradeEntries() {
-        List<GradeEntry> gradeEntries = new ArrayList<>();
-        gradeEntries.addAll(grades);
-        gradeEntries.addAll(averages);
-        gradeEntries.addAll(textGrades);
-        return gradeEntries;
+    public Map<String, GradeComment> getCommentMap() {
+        Map<String, GradeComment> res = new HashMap<>();
+        for (GradeComment c : gradeComments) {
+            res.put(c.getId(), c);
+        }
+        return res;
     }
 }

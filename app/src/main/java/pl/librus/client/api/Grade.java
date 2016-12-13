@@ -15,7 +15,7 @@ import pl.librus.client.grades.TextGradeSummary;
  */
 public class Grade extends GradeEntry implements Serializable {
     private static final long serialVersionUID = 2956642488287714235L;
-    private String id, grade, lessonId, subjectId, categoryId, addedById;
+    private String id, grade, lessonId, subjectId, categoryId, addedById, commentId;
     private int semester;
     private LocalDate date;
     private LocalDateTime addDate;
@@ -27,6 +27,7 @@ public class Grade extends GradeEntry implements Serializable {
           String subjectId,
           String categoryId,
           String addedById,
+          String commentId,
           int semester,
           LocalDate date,
           LocalDateTime addDate,
@@ -37,6 +38,7 @@ public class Grade extends GradeEntry implements Serializable {
         this.subjectId = subjectId;
         this.categoryId = categoryId;
         this.addedById = addedById;
+        this.commentId = commentId;
         this.semester = semester;
         this.date = date;
         this.addDate = addDate;
@@ -80,6 +82,10 @@ public class Grade extends GradeEntry implements Serializable {
         return addDate;
     }
 
+    public String getCommentId() {
+        return commentId;
+    }
+
     public Type getType() {
         return type;
     }
@@ -91,6 +97,7 @@ public class Grade extends GradeEntry implements Serializable {
         else if (o instanceof TextGradeSummary) return 1;
         else return 0;
     }
+
 
     enum Type {
         NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
