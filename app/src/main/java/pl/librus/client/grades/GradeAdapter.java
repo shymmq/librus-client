@@ -137,45 +137,14 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
     public void onBindChildViewHolder(@NonNull final ChildViewHolder childViewHolder, final int parentPosition, final int childPosition, @NonNull final GradeEntry child) {
         if (child instanceof Grade) {
 //                viewType = TYPE_GRADE
+            Map<String, GradeCategory> gradeCategoryMap = data.getGradeCategoriesMap();
+            Map<String, GradeComment> gradeCommentMap = data.getCommentMap();
             final Grade grade = (Grade) child;
             final GradeViewHolder gradeViewHolder = (GradeViewHolder) childViewHolder;
-            final Map<String, GradeCategory> gradeMap = data.getGradeCategoriesMap();
-            final Map<String, Subject> subjectMap = data.getSubjectMap();
-            final Map<String, Teacher> teacherMap = data.getTeacherMap();
-            final Map<String, GradeComment> commentMap = data.getCommentMap();
-            gradeViewHolder.bind(grade, gradeMap.get(grade.getCategoryId()), grade.getCommentId() == null ? null : commentMap.get(grade.getCommentId()));
-            gradeViewHolder.itemView.setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-
-                            //TODO: handle retakes, show semester number
-                            Context context = gradeViewHolder.itemView.getContext();
-                            MaterialDialog.Builder builder = new MaterialDialog.Builder(context).title("Szczegóły oceny").positiveText("Zamknij");
-                            LayoutInflater inflater = LayoutInflater.from(context);
-                            View details = inflater.inflate(R.layout.grade_details, null);
-
-                            TextView gradeView = (TextView) details.findViewById(R.id.grade_details_grade);
-                            TextView weightView = (TextView) details.findViewById(R.id.grade_details_weight);
-                            TextView categoryView = (TextView) details.findViewById(R.id.grade_details_category);
-                            TextView subjectView = (TextView) details.findViewById(R.id.grade_details_subject);
-                            TextView dateView = (TextView) details.findViewById(R.id.grade_details_date);
-                            TextView addDateView = (TextView) details.findViewById(R.id.grade_details_addDate);
-                            TextView addedByView = (TextView) details.findViewById(R.id.grade_details_addedBy);
-
-                            gradeView.setText(grade.getGrade());
-                            weightView.setText(String.valueOf(gradeMap.get(grade.getCategoryId()).getWeight()));
-                            categoryView.setText(gradeMap.get(grade.getCategoryId()).getName());
-                            subjectView.setText(subjectMap.get(grade.getSubjectId()).getName());
-                            dateView.setText(grade.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
-                            addDateView.setText(grade.getAddDate().toString("HH:mm, EEEE, d MMMM yyyy", new Locale("pl")));
-                            addedByView.setText(teacherMap.get(grade.getAddedById()).getName());
-
-                            builder.customView(details, true).show();
-                        }
-
-                    }
-            );
+            gradeViewHolder.bind(grade,
+                    gradeCategoryMap.get(grade.getCategoryId()),
+                    grade.getCommentId() == null ? null : gradeCommentMap.get(grade.getCommentId()),
+                    data);
         } else if (child instanceof Average) {
             AverageViewHolder averageViewHolder = (AverageViewHolder) childViewHolder;
             averageViewHolder.bind((Average) child);
@@ -220,11 +189,50 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             commentBadge = (ImageView) itemView.findViewById(R.id.grade_item_comment_badge);
         }
 
-        void bind(Grade g, GradeCategory c, GradeComment comment) {
+        void bind(final Grade g, GradeCategory c, final GradeComment comment, final LibrusData data) {
             grade.setText(g.getGrade());
             title.setText(c.getName());
             subtitle.setText(g.getDate().toString("d MMM.", new Locale("pl")));
             commentBadge.setVisibility(comment == null ? View.GONE : View.VISIBLE);
+
+
+            final Map<String, GradeCategory> gradeMap = data.getGradeCategoriesMap();
+            final Map<String, Subject> subjectMap = data.getSubjectMap();
+            final Map<String, Teacher> teacherMap = data.getTeacherMap();
+            itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                            //TODO: handle retakes, show semester number
+                            MaterialDialog.Builder builder = new MaterialDialog.Builder(data.getContext()).title("Szczegóły oceny").positiveText("Zamknij");
+                            LayoutInflater inflater = LayoutInflater.from(data.getContext());
+                            View details = inflater.inflate(R.layout.grade_details, null);
+
+                            View commentContainer = details.findViewById(R.id.grade_details_comment_container);
+                            TextView gradeView = (TextView) details.findViewById(R.id.grade_details_grade);
+                            TextView weightView = (TextView) details.findViewById(R.id.grade_details_weight);
+                            TextView categoryView = (TextView) details.findViewById(R.id.grade_details_category);
+                            TextView subjectView = (TextView) details.findViewById(R.id.grade_details_subject);
+                            TextView dateView = (TextView) details.findViewById(R.id.grade_details_date);
+                            TextView addDateView = (TextView) details.findViewById(R.id.grade_details_addDate);
+                            TextView addedByView = (TextView) details.findViewById(R.id.grade_details_addedBy);
+                            TextView commentView = (TextView) details.findViewById(R.id.grade_details_comment);
+
+                            gradeView.setText(g.getGrade());
+                            weightView.setText(String.valueOf(gradeMap.get(g.getCategoryId()).getWeight()));
+                            categoryView.setText(gradeMap.get(g.getCategoryId()).getName());
+                            subjectView.setText(subjectMap.get(g.getSubjectId()).getName());
+                            dateView.setText(g.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
+                            addDateView.setText(g.getAddDate().toString("HH:mm, EEEE, d MMMM yyyy", new Locale("pl")));
+                            addedByView.setText(teacherMap.get(g.getAddedById()).getName());
+                            commentContainer.setVisibility(comment == null ? View.GONE : View.VISIBLE);
+                            commentView.setText(comment == null ? "" : comment.getText());
+                            builder.customView(details, true).show();
+                        }
+
+                    }
+            );
         }
     }
 

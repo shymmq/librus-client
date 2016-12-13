@@ -5,6 +5,7 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/grade_details_grade_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -23,6 +24,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/grade_details_weight_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -41,6 +43,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/grade_details_category_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -50,6 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Kategoria"/>
+
         <TextView
             android:id="@+id/grade_details_category"
             android:layout_width="match_parent"
@@ -59,6 +63,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/grade_details_subject_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -74,6 +79,27 @@
             android:layout_height="wrap_content"
             android:text="filozofia"
             android:textStyle="bold"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/grade_details_comment_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Komentarz" />
+
+        <TextView
+            android:id="@+id/grade_details_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Naprawdę WOW!"
+            android:textStyle="normal|bold" />
     </LinearLayout>
 
     <View
