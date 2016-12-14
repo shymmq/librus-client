@@ -238,6 +238,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
 
     private static class AverageViewHolder extends ChildViewHolder {
         TextView average;
+        private View itemView;
 
         /**
          * Default constructor.
@@ -247,10 +248,31 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
         AverageViewHolder(@NonNull View itemView) {
             super(itemView);
             average = (TextView) itemView.findViewById(R.id.average_item_average);
+            this.itemView = itemView;
         }
 
-        void bind(Average a) {
+        void bind(final Average a) {
             average.setText(String.valueOf(a.getFullYear()));
+            if (a.getFullYear() > 0.0f) {
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        MaterialDialog.Builder builder = new MaterialDialog.Builder(itemView.getContext()).title("Średnia").positiveText("Zamknij");
+                        View popupView = LayoutInflater.from(itemView.getContext()).inflate(R.layout.average_details, null);
+                        View container1 = popupView.findViewById(R.id.average_details_1_container);
+                        View container2 = popupView.findViewById(R.id.average_details_2_container);
+                        View containerFull = popupView.findViewById(R.id.average_details_full_container);
+                        ((TextView) popupView.findViewById(R.id.average_details_1)).setText(String.valueOf(a.getSemester1()));
+                        ((TextView) popupView.findViewById(R.id.average_details_2)).setText(String.valueOf(a.getSemester2()));
+                        ((TextView) popupView.findViewById(R.id.average_details_full)).setText(String.valueOf(a.getFullYear()));
+                        container1.setVisibility(a.getSemester1() > 0.0f ? View.VISIBLE : View.GONE);
+                        container2.setVisibility(a.getSemester2() > 0.0f ? View.VISIBLE : View.GONE);
+                        containerFull.setVisibility(a.getFullYear() > 0.0f && a.getSemester2() > 0.0f ? View.VISIBLE : View.GONE);
+                        builder.customView(popupView, true);
+                        builder.show();
+                    }
+                });
+            }
         }
     }
 
