@@ -59,9 +59,11 @@ public class TimetableFragment extends MainFragment {
         List<Event> events = data.getEvents();
         Timetable timetable = data.getTimetable();
         for (Event event : events) {
-            Lesson lesson = timetable.getLesson(event.getDate(), event.getLessonNumber());
-            if (lesson != null) {
-                data.getTimetable().getLesson(event.getDate(), event.getLessonNumber()).setEvent(event);
+            if (event.getLessonNumber() >= 0) {
+                Lesson lesson = timetable.getLesson(event.getDate(), event.getLessonNumber());
+                if (lesson != null) {
+                    data.getTimetable().getLesson(event.getDate(), event.getLessonNumber()).setEvent(event);
+                }
             }
         }
 

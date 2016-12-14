@@ -45,7 +45,7 @@ public class APIClient {
             .writeTimeout(9, TimeUnit.DAYS)
             .readTimeout(9, TimeUnit.DAYS)
             .build();
-    boolean debug = false;
+    boolean debug = true;
 
     APIClient(Context _context) {
         context = _context;
@@ -268,14 +268,14 @@ public class APIClient {
             public void onDone(JSONObject result) {
                 try {
                     List<Event> res = new ArrayList<>();
-                    JSONArray events = result.getJSONArray("HomeWorks");
-                    for (int i = 0; i < events.length(); i++) {
-                        JSONObject rawEvent = events.getJSONObject(i);
+                    JSONArray rawEvents = result.getJSONArray("HomeWorks");
+                    for (int i = 0; i < rawEvents.length(); i++) {
+                        JSONObject rawEvent = rawEvents.getJSONObject(i);
                         String categoryId = rawEvent.getJSONObject("Category").getString("Id");
                         String description = rawEvent.getString("Content");
                         LocalDate date = LocalDate.parse(rawEvent.getString("Date"));
                         String addedById = rawEvent.getJSONObject("CreatedBy").getString("Id");
-                        int lessonNumber = Integer.parseInt(rawEvent.getString("LessonNo"));
+                        int lessonNumber = rawEvent.isNull("LessonNo") ? -1 : Integer.parseInt(rawEvent.getString("LessonNo"));
                         res.add(new Event(categoryId, description, date, addedById, lessonNumber));
                     }
                     deferred.resolve(res);
