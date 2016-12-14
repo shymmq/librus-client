@@ -38,6 +38,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class APIClient {
+    public static final MediaType JSON
+            = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "librus-client-log";
     private final Context context;
     private final OkHttpClient client = new OkHttpClient.Builder()
@@ -45,6 +47,7 @@ public class APIClient {
             .writeTimeout(9, TimeUnit.DAYS)
             .readTimeout(9, TimeUnit.DAYS)
             .build();
+    String AUTH_URL = "https://api.librus.pl/2.0/PushDevices";
     boolean debug = true;
 
     APIClient(Context _context) {
@@ -231,6 +234,39 @@ public class APIClient {
                 }
             }
         });
+        return deferred.promise();
+    }
+
+    Promise<Integer, Object, Void> pushDevices(final String regToken) {
+        final Deferred<Integer, Object, Void> deferred = new DeferredObject<>();
+        try {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            final String access_token = preferences.getString("access_token", "");
+
+            JSONObject params = new JSONObject();
+            params.put("provider", "Android_dru");
+            params.put("device", regToken);
+            RequestBody body = RequestBody.create(JSON, params.toString());
+            final Request request = new Request.Builder()
+                    .addHeader("Authorization", "Bearer " + access_token)
+                    .url(AUTH_URL)
+                    .post(body)
+                    .build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    deferred.reject(e);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    deferred.resolve(response.code());
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+            deferred.reject(null);
+        }
         return deferred.promise();
     }
 

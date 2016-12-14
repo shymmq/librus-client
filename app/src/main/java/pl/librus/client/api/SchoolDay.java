@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 public class SchoolDay implements Serializable {
-    static final long serialVersionUID = -8357220840792654725L;
+    private static final long serialVersionUID = -8357220840792654725L;
     private LocalDate date = LocalDate.now();
     private boolean empty = true;
     @SuppressLint("UseSparseArrays")

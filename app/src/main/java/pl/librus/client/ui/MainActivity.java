@@ -42,6 +42,7 @@ import java.util.Locale;
 
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
+import pl.librus.client.api.GCMRegisterTask;
 import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.LuckyNumber;
@@ -192,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         if (tabLayout != null && appBarLayout.findViewById(tabLayout.getId()) == null) {
             appBarLayout.addView(tabLayout);
         }
+        new GCMRegisterTask(this).execute();
         refresh();
     }
 

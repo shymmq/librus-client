@@ -44,6 +44,8 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.github.boxme:asyncmanager:1.0.0'
     compile 'com.android.support:support-v4:25.0.1'
+    compile 'com.google.android.gms:play-services-gcm:10.0.1'
+    compile 'com.google.android.gms:play-services:10.0.1'
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'
