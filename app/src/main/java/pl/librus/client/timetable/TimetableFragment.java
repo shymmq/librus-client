@@ -14,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
-import java.util.Map;
-import java.util.prefs.PreferenceChangeEvent;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Event;
@@ -55,7 +53,6 @@ public class TimetableFragment extends MainFragment {
         Log.d(TAG, "displayDates: " + displayDates);
         Log.d(TAG, "useRelativeTabNames: " + useRelativeTabNames);
 
-        Timetable timetable = (Timetable) getArguments().getSerializable("data");
         LibrusData data = (LibrusData) getArguments().getSerializable("data");
 
         assert data != null;
