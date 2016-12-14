@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 public class LibrusAccount implements Serializable {
+    private static final long serialVersionUID = 432189466589507680L;
     private String id,
             classId,
             firstName,

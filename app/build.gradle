@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.0'
+    buildToolsVersion '25.0.1'
     defaultConfig {
         applicationId "pl.librus.client"
         minSdkVersion 21
@@ -29,6 +29,7 @@ dependencies {
     compile('com.mikepenz:materialdrawer:5.7.0@aar') {
         transitive = true
     }
+    compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.android.support:appcompat-v7:25.0.0'

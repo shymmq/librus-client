@@ -36,7 +36,6 @@ public class AnnouncementDetailsFragment extends Fragment {
      * @param announcement Announcement to show
      * @return A new instance of fragment AnnouncementDetailsFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static AnnouncementDetailsFragment newInstance(Announcement announcement, Teacher author) {
         AnnouncementDetailsFragment fragment = new AnnouncementDetailsFragment();
         Bundle args = new Bundle();

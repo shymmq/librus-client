@@ -1,6 +1,8 @@
 package pl.librus.client.timetable;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
+import java.util.Map;
+import java.util.prefs.PreferenceChangeEvent;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Event;
@@ -25,6 +29,7 @@ public class TimetableFragment extends MainFragment {
     private static final String ARG_DATA = "data";
     private final String TAG = "librus-client-log";
     private TabLayout tabLayout;
+    private boolean displayDates, useRelativeTabNames;
 
     public static TimetableFragment newInstance(LibrusData data) {
         TimetableFragment fragment = new TimetableFragment();
@@ -44,6 +49,13 @@ public class TimetableFragment extends MainFragment {
         MainActivity activity = (MainActivity) getActivity();
         ViewPager viewPager = (ViewPager) root.findViewById(R.id.container);
 
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+        displayDates = sp.getBoolean("displayDates", true);
+        useRelativeTabNames = sp.getBoolean("useRelativeTabNames", true);
+        Log.d(TAG, "displayDates: " + displayDates);
+        Log.d(TAG, "useRelativeTabNames: " + useRelativeTabNames);
+
+        Timetable timetable = (Timetable) getArguments().getSerializable("data");
         LibrusData data = (LibrusData) getArguments().getSerializable("data");
 
         assert data != null;
@@ -98,7 +110,7 @@ public class TimetableFragment extends MainFragment {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return TimetableUtils.getTabTitle(position, false, true);
+            return TimetableUtils.getTabTitle(position, displayDates, useRelativeTabNames);
         }
     }
 }

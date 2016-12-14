@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 
 public class LuckyNumber implements Serializable {
+    private static final long serialVersionUID = -2804430521463559113L;
     private int luckyNumber;
     private LocalDate luckyNumberDay;
 
