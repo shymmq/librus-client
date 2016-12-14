@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -39,7 +40,11 @@ import okhttp3.Response;
 public class APIClient {
     private static final String TAG = "librus-client-log";
     private final Context context;
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(9, java.util.concurrent.TimeUnit.DAYS)
+            .writeTimeout(9, TimeUnit.DAYS)
+            .readTimeout(9, TimeUnit.DAYS)
+            .build();
     boolean debug = false;
 
     APIClient(Context _context) {
