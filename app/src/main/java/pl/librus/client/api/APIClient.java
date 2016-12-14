@@ -6,13 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-
 import org.jdeferred.Deferred;
 import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
@@ -34,6 +27,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class APIClient {
     private static final String TAG = "librus-client-log";
@@ -59,13 +60,13 @@ public class APIClient {
 
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Request request, IOException e) {
+            public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
             }
 
             @SuppressLint("CommitPrefEdits")
             @Override
-            public void onResponse(Response response) throws IOException {
+            public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
 
                     try {
@@ -111,13 +112,13 @@ public class APIClient {
 
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Request request, IOException e) {
+            public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
                 deferred.reject(0);
             }
 
             @Override
-            public void onResponse(final Response response) throws IOException {
+            public void onResponse(final Call call, final Response response) throws IOException {
                 if (response.isSuccessful()) {
                     try {
                         deferred.resolve(new JSONObject(response.body().string()));
@@ -196,12 +197,12 @@ public class APIClient {
 
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Request request, IOException e) {
+            public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
             }
 
             @Override
-            public void onResponse(Response response) throws IOException {
+            public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     deferred.reject(response);
                 } else {
