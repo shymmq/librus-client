@@ -481,8 +481,8 @@ public class APIClient {
                                                 teacher,
                                                 isCanceled,
                                                 isSubstitutionClass,
-                                                isSubstitutionClass ? orgSubject.getString("Id") : null,
-                                                isSubstitutionClass ? orgTeacher.getString("Id") : null,
+                                                isSubstitutionClass ? rawOrgSubject.getString("Id") : null,
+                                                isSubstitutionClass ? rawOrgTeacher.getString("Id") : null,
                                                 null)
                                         );
                                         schoolDay.setEmpty(false);
@@ -528,7 +528,6 @@ public class APIClient {
                             type = Grade.Type.FINAL_PROPOSITION;
                         else
                             type = Grade.Type.NORMAL;
-                        //TODO add comments
                         res.add(new Grade(
                                 rawGrade.getString("Id"),
                                 rawGrade.getString("Grade"),

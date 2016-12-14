@@ -9,6 +9,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,8 +144,6 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                         View details = inflater.inflate(R.layout.lesson_details, null);
 
                         TextView teacherView = (TextView) details.findViewById(R.id.details_teacher);
-                        TextView orgTeacherView = (TextView) details.findViewById(R.id.details_org_teacher);
-                        TextView orgSubjectView = (TextView) details.findViewById(R.id.details_org_subject);
                         TextView subjectView = (TextView) details.findViewById(R.id.details_subject);
                         RelativeLayout subjectContainer = (RelativeLayout) details.findViewById(R.id.details_subject_container);
                         TextView date = (TextView) details.findViewById(R.id.details_date);
@@ -174,16 +173,14 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                         }
                         if (lesson.isSubstitution()) {
                             Teacher orgTeacher = teacherMap.get(lesson.getOrgTeacherId());
-                            if (lesson.getTeacher() != orgTeacher) {
-                                orgTeacherView.setText(orgTeacher.getName() + " -> ");
-                            }
                             Subject orgSubject = subjectMap.get(lesson.getOrgSubjectId());
-                            if (lesson.getSubject() != orgSubject) {
-                                orgSubjectView.setText(orgSubject.getName() + " -> ");
-                            }
+                            teacherView.setText(Html.fromHtml(orgTeacher.getName() + " -> <b>" + lesson.getTeacher().getName() + "</b>"));
+                            subjectView.setText(Html.fromHtml(orgSubject.getName() + " -> <b>" + lesson.getSubject().getName() + "</b>"));
                         } else {
-                            orgTeacherView.setVisibility(View.GONE);
-                            subjectContainer.setVisibility(View.GONE);
+                            teacherView.setTypeface(teacherView.getTypeface(), Typeface.BOLD);
+                            subjectView.setTypeface(subjectView.getTypeface(), Typeface.BOLD);
+                            teacherView.setText(lesson.getTeacher().getName());
+                            subjectView.setText(lesson.getSubject().getName());
                         }
                         builder.customView(details, true).show();
                     }
