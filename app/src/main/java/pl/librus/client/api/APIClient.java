@@ -237,8 +237,8 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<Integer, Object, Void> pushDevices(final String regToken) {
-        final Deferred<Integer, Object, Void> deferred = new DeferredObject<>();
+    Promise<Integer, Integer, Void> pushDevices(final String regToken) {
+        final Deferred<Integer, Integer, Void> deferred = new DeferredObject<>();
         try {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             final String access_token = preferences.getString("access_token", "");
@@ -255,17 +255,20 @@ public class APIClient {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    deferred.reject(e);
+                    deferred.reject(0);
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    deferred.resolve(response.code());
+                    if (response.isSuccessful())
+                        deferred.resolve(response.code());
+                    else
+                        deferred.reject(response.code());
                 }
             });
         } catch (JSONException e) {
             e.printStackTrace();
-            deferred.reject(null);
+            deferred.reject(1);
         }
         return deferred.promise();
     }
