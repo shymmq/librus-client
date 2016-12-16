@@ -45,6 +45,7 @@ import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.timetable.TimetableFragment;
 
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Fragment currentFragment;
     private GradesFragment gradesFragment;
+    private AttendanceFragment attendanceFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         timetableFragment = TimetableFragment.newInstance(librusData);
         announcementsFragment = AnnouncementsFragment.newInstance(librusData);
         gradesFragment = GradesFragment.newInstance(librusData);
+        attendanceFragment = AttendanceFragment.newInstance(librusData);
 
         //Drawer setup
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
@@ -240,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 changeFragment(new PlaceholderFragment(), "Wiadomości");
                 break;
             case 5:
-                changeFragment(new PlaceholderFragment(), "Nieobecności");
+                changeFragment(attendanceFragment, "Nieobecności");
                 break;
             case 6:
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);

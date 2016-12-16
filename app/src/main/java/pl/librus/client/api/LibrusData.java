@@ -50,11 +50,14 @@ public class LibrusData implements Serializable {
     private List<Average> averages;
 
     private List<Announcement> announcements;//other
+    private List<Attendance> attendances;
+    private List<AttendanceCategory> attendanceCategories;
     private LuckyNumber luckyNumber;
 
     //Persistent data:
     private List<Teacher> teachers;
     private List<Subject> subjects;
+    private List<PlainLesson> plainLessons;
     private List<EventCategory> eventCategories;
     private List<GradeCategory> gradeCategories;
     private LibrusAccount account;
@@ -164,6 +167,27 @@ public class LibrusData implements Serializable {
             public void onDone(List<TextGrade> result) {
                 setTextGrades(result);
                 log("Text grades downloaded");
+            }
+        }));
+        tasks.add(client.getAttendances().done(new DoneCallback<List<Attendance>>() {
+            @Override
+            public void onDone(List<Attendance> result) {
+                setAttendances(result);
+                log("Attendances downloaded");
+            }
+        }));
+        tasks.add(client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
+            @Override
+            public void onDone(List<AttendanceCategory> result) {
+                setAttendanceCategories(result);
+                log("Attendance categories downloaded");
+            }
+        }));
+        tasks.add(client.getPlainLessons().done(new DoneCallback<List<PlainLesson>>() {
+            @Override
+            public void onDone(List<PlainLesson> result) {
+                setPlainLessons(result);
+                log("Plain lessons downloaded");
             }
         }));
         DeferredManager dm = new AndroidDeferredManager();
@@ -286,7 +310,27 @@ public class LibrusData implements Serializable {
         return announcements;
     }
 
+    public List<Attendance> getAttendances() {
+        return attendances;
+    }
+
+    public List<AttendanceCategory> getAttendanceCategories() {
+        return attendanceCategories;
+    }
+
     //Setters
+    public void setPlainLessons(List<PlainLesson> plainLessons) {
+        this.plainLessons = plainLessons;
+    }
+
+    public void setAttendanceCategories(List<AttendanceCategory> attendanceCategories) {
+        this.attendanceCategories = attendanceCategories;
+    }
+
+    public void setAttendances(List<Attendance> attendances) {
+        this.attendances = attendances;
+    }
+
     private void setAnnouncements(List<Announcement> announcements) {
         this.announcements = announcements;
     }
@@ -378,6 +422,14 @@ public class LibrusData implements Serializable {
     }
     //Utility methods
 
+    public Map<String, AttendanceCategory> getAttendanceCategoryMap() {
+        Map<String, AttendanceCategory> res = new HashMap<>();
+        for (AttendanceCategory ac : attendanceCategories) {
+            res.put(ac.getId(), ac);
+        }
+        return res;
+    }
+
     public Map<String, Teacher> getTeacherMap() {
         Map<String, Teacher> res = new HashMap<>();
         for (Teacher t : teachers) {
@@ -392,6 +444,14 @@ public class LibrusData implements Serializable {
             res.put(s.getId(), s);
         }
         return res;
+    }
+
+    public Map<String, String> getLessonMap() {
+        Map<String, String> res = new HashMap<>();
+        for(PlainLesson pl : plainLessons) {
+            res.put(String.valueOf(pl.getId()), String.valueOf(pl.getSubjectId()));
+        }
+        return  res;
     }
 
     public Map<String, EventCategory> getEventCategoriesMap() {

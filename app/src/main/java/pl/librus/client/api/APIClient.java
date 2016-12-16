@@ -3,7 +3,9 @@ package pl.librus.client.api;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
+import android.support.v4.graphics.ColorUtils;
 import android.util.Log;
 
 import org.jdeferred.Deferred;
@@ -342,6 +344,34 @@ public class APIClient {
         return deferred.promise();
     }
 
+    Promise<List<PlainLesson>, Void, Void> getPlainLessons() {
+        final Deferred<List<PlainLesson>, Void, Void> deferred = new DeferredObject<>();
+
+        APIRequest("/Lessons").then(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    List<PlainLesson> res = new ArrayList<>();
+                    JSONArray rawPlainLessons = result.getJSONArray("Lessons");
+                    for(int i = 0; i < rawPlainLessons.length(); i++) {
+                        JSONObject rawLesson = rawPlainLessons.getJSONObject(i);
+                        res.add(new PlainLesson(
+                                rawLesson.getInt("Id"),
+                                rawLesson.getJSONObject("Teacher").getInt("Id"),
+                                rawLesson.getJSONObject("Subject").getInt("Id")
+                        ));
+                    }
+                    deferred.resolve(res);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(null);
+                }
+            }
+        });
+
+        return deferred.promise();
+    }
+
     Promise<List<GradeCategory>, Void, Void> getGradeCategories() {
         final Deferred<List<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
         APIRequest("/Grades/Categories").done(new DoneCallback<JSONObject>() {
@@ -649,6 +679,70 @@ public class APIClient {
                 }
             }
         });
+        return deferred.promise();
+    }
+
+    Promise<List<Attendance>, Void, Void> getAttendances() {
+        final Deferred<List<Attendance>, Void, Void> deffered = new DeferredObject<>();
+
+        APIRequest("/Attendances").then(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                List<Attendance> res = new ArrayList<>();
+                try {
+                    JSONArray rawAttendances = result.getJSONArray("Attendances");
+                    for (int i = 0; i < rawAttendances.length(); i++) {
+                        JSONObject attendance = rawAttendances.getJSONObject(i);
+                        res.add(new Attendance(
+                                attendance.getString("Id"),
+                                attendance.getJSONObject("Lesson").getString("Id"),
+                                attendance.getJSONObject("Trip").getString("Id"),
+                                LocalDate.parse(attendance.getString("Date")),
+                                LocalDate.parse(attendance.getString("AddDate")),
+                                attendance.getInt("LessonNo"),
+                                attendance.getInt("Semester"),
+                                attendance.getJSONObject("Type").getString("Id"),
+                                attendance.getJSONObject("AddedBy").getString("Id")));
+                        deffered.resolve(res);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deffered.reject(null);
+                }
+            }
+        });
+
+        return deffered.promise();
+    }
+
+    Promise<List<AttendanceCategory>, Void, Void> getAttendanceCategories() {
+        final Deferred<List<AttendanceCategory>, Void, Void> deferred = new DeferredObject<>();
+
+        APIRequest("/Attendances/Types").then(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                List<AttendanceCategory> res = new ArrayList<>();
+                try {
+                    JSONArray rawAttendanceCategories = result.getJSONArray("Types");
+                    for (int i = 0; i < rawAttendanceCategories.length(); i++) {
+                        JSONObject attendanceCategory = rawAttendanceCategories.getJSONObject(i);
+                        res.add(new AttendanceCategory(
+                                attendanceCategory.getString("Id"),
+                                attendanceCategory.getString("Name"),
+                                attendanceCategory.getString("Short"),
+                                attendanceCategory.getBoolean("Standard"),
+                                attendanceCategory.getBoolean("IsPresenceKind"),
+                                Color.parseColor(attendanceCategory.getString("ColorRGB")),
+                                attendanceCategory.getInt("Order")));
+                        deferred.resolve(res);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(null);
+                }
+            }
+        });
+
         return deferred.promise();
     }
 }
