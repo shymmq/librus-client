@@ -36,18 +36,14 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
-import org.jdeferred.android.AndroidFailCallback;
 
-import java.util.List;
 import java.util.Locale;
 
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
-import pl.librus.client.api.Change;
 import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.LuckyNumber;
-import pl.librus.client.api.RegistrationIntentService;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.timetable.TimetableFragment;
 
@@ -67,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-//        setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         FirebaseAnalytics.getInstance(this);
@@ -88,26 +83,6 @@ public class MainActivity extends AppCompatActivity {
                 public void onDone(LibrusData result) {
                     librusData = result;
                     setup();
-                }
-            }).fail(new AndroidFailCallback<Object>() {
-                @Override
-                public AndroidExecutionScope getExecutionScope() {
-                    return null;
-                }
-
-                @Override
-                public void onFail(Object result) {
-                    librusData = new LibrusData(MainActivity.this);
-                    librusData.updatePersistent().done(new DoneCallback<List<Change>>() {
-                        @Override
-                        public void onDone(List<Change> result) {
-                            for (Change c : result) {
-                                Log.d(TAG, "Change: " + c.getAction() + " " + c.getType());
-                            }
-                            librusData.save();
-                            setup();
-                        }
-                    });
                 }
             });
         }
@@ -193,21 +168,15 @@ public class MainActivity extends AppCompatActivity {
         if (tabLayout != null && appBarLayout.findViewById(tabLayout.getId()) == null) {
             appBarLayout.addView(tabLayout);
         }
-        Intent intent = new Intent(this, RegistrationIntentService.class);
-        startService(intent);
         refresh();
     }
 
     private void refresh() {
-        Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
-        Log.d(TAG, "MainActivity: Refresh started");
-        librusData.update().done(new DoneCallback<List<Change>>() {
+        librusData.update().done(new DoneCallback<Void>() {
             @Override
-            public void onDone(List<Change> result) {
+            public void onDone(Void result) {
                 librusData.save();
                 ((MainFragment) currentFragment).refresh(librusData);
-                Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "MainActivity: Refresh done");
             }
         });
     }

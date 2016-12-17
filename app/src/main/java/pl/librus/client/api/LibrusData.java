@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import pl.librus.client.timetable.TimetableUtils;
 
@@ -37,6 +36,7 @@ public class LibrusData implements Serializable {
     private static final String TAG = "librus-client-log";
     private final long timestamp;
     transient private Context context;
+    transient private Notifier notifier;
     private boolean debug = true;
 
     private Timetable timetable;            //timetable
@@ -74,12 +74,19 @@ public class LibrusData implements Serializable {
                     ObjectInputStream is = new ObjectInputStream(fis);
                     LibrusData cache = (LibrusData) is.readObject();
                     cache.setContext(context);
+                    cache.setNotifier(new Notifier(context, cache));
                     is.close();
                     fis.close();
                     return cache;
                 } catch (FileNotFoundException e) {
                     Log.d(TAG, "doLongOperation: File not found.");
-                    deferred.reject(null);
+                    final LibrusData data = new LibrusData(context);
+                    data.updatePersistent().done(new DoneCallback<Void>() {
+                        @Override
+                        public void onDone(Void result) {
+                            deferred.resolve(data);
+                        }
+                    });
                     return null;
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
@@ -98,16 +105,15 @@ public class LibrusData implements Serializable {
         return deferred.promise();
     }
 
-
     private void log(String text) {
         if (debug) Log.d(TAG, text);
     }
 
-    public Promise<List<Change>, Void, Void> update() {
+    public Promise<Void, Void, Void> update() {
         Log.d(TAG, "update: Starting update");
-        final Deferred<List<Change>, Void, Void> deferred = new DeferredObject<>();
+        final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
-        final List<Change> changes = new ArrayList<>();
+//        final List<Change> changes = new ArrayList<>();
         APIClient client = new APIClient(context);
         tasks.add(client.getTimetable(TimetableUtils.getWeekStart(), TimetableUtils.getWeekStart().plusWeeks(1)).done(new DoneCallback<Timetable>() {
             @Override
@@ -119,8 +125,8 @@ public class LibrusData implements Serializable {
         tasks.add(client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
             @Override
             public void onDone(List<Announcement> result) {
-                List<Change> announcementChanges = setAnnouncements(result);
-                if (announcementChanges != null) changes.addAll(announcementChanges);
+//                changes.addAll(setAnnouncements(result));
+                setAnnouncements(result);
                 log("Announcements downloaded");
             }
         }));
@@ -141,6 +147,7 @@ public class LibrusData implements Serializable {
         tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
             @Override
             public void onDone(List<Grade> result) {
+//                changes.addAll(setGrades(result));
                 setGrades(result);
                 log("Grades downloaded");
             }
@@ -170,7 +177,7 @@ public class LibrusData implements Serializable {
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
-                deferred.resolve(changes);
+                deferred.resolve(null);
             }
         }).fail(new FailCallback<OneReject>() {
             @Override
@@ -182,20 +189,15 @@ public class LibrusData implements Serializable {
         return deferred.promise();
     }
 
-    public Promise<List<Change>, Void, Void> updatePersistent() {
+    public Promise<Void, Void, Void> updatePersistent() {
         Log.d(TAG, "updatePersistent: Starting persistent update");
-        final Deferred<List<Change>, Void, Void> deferred = new DeferredObject<>();
+        final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
-        final List<Change> changes = new ArrayList<>();
+//        final List<Change> changes = new ArrayList<>();
 
         APIClient client = new APIClient(context);
 
-        tasks.add(update().done(new DoneCallback<List<Change>>() {
-            @Override
-            public void onDone(List<Change> result) {
-                changes.addAll(result);
-            }
-        }));
+        tasks.add(update());
 
         //Persistent data:
         tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
@@ -243,7 +245,7 @@ public class LibrusData implements Serializable {
             @Override
             public void onDone(MultipleResults result) {
                 Log.d(TAG, "onDone: Persistent update done");
-                deferred.resolve(changes);
+                deferred.resolve(null);
             }
         }).fail(new FailCallback<OneReject>() {
             @Override
@@ -281,6 +283,22 @@ public class LibrusData implements Serializable {
         return announcements;
     }
 
+    private void setAnnouncements(List<Announcement> announcements) {
+        List<Announcement> added = new ArrayList<>(announcements);
+        added.removeAll(this.announcements);
+        notifier.addAnnouncements(added);
+
+        List<Announcement> removed = new ArrayList<>(this.announcements);
+        removed.removeAll(announcements);
+        //TODO handle removed items
+
+        List<Announcement> common = new ArrayList<>(this.announcements);
+        common.retainAll(announcements);
+        //TODO handle changed items
+
+        this.announcements = announcements;
+    }
+
     public long getTimestamp() {
         return timestamp;
     }
@@ -290,31 +308,18 @@ public class LibrusData implements Serializable {
     }
 
     private void setGrades(List<Grade> grades) {
+        List<Grade> added = new ArrayList<>(grades);
+        added.removeAll(this.grades);
+        notifier.addGrades(added);
+
+        List<Grade> removed = new ArrayList<>(this.grades);
+        removed.removeAll(grades);
+        //TODO handle removed items
+
+        List<Grade> common = new ArrayList<>(this.grades);
+        common.retainAll(announcements);
+        //TODO handle changed items
         this.grades = grades;
-    }
-
-    private List<Change> setAnnouncements(List<Announcement> newAnnouncements) {
-
-        ArrayList<Change> changes = new ArrayList<>();
-        if (announcements == null) {
-            announcements = newAnnouncements;
-            return changes;
-        }
-        for (Announcement a2 : newAnnouncements) {
-            boolean found = false;
-            for (Announcement a1 : announcements) {
-                if (Objects.equals(a1.getId(), a2.getId())) {
-                    found = true;
-                    Change change = a1.getChanges(a2);
-                    if (change != null) changes.add(change);
-                    break;
-                }
-            }
-            if (!found)
-                changes.add(new Change(a2.getId(), Change.Action.ADD, Change.ObjectType.ANNOUNCEMENT));
-        }
-        announcements = newAnnouncements;
-        return changes;
     }
 
     public Timetable getTimetable() {
@@ -342,6 +347,9 @@ public class LibrusData implements Serializable {
     }
 
     private void setLuckyNumber(LuckyNumber luckyNumber) {
+        if (!this.luckyNumber.equals(luckyNumber)) {
+            notifier.addLuckyNumber(luckyNumber);
+        }
         this.luckyNumber = luckyNumber;
     }
 
@@ -359,6 +367,17 @@ public class LibrusData implements Serializable {
     }
 
     private void setEvents(List<Event> events) {
+        List<Event> added = new ArrayList<>(events);
+        added.removeAll(this.events);
+        notifier.addEvents(added);
+
+        List<Event> removed = new ArrayList<>(this.events);
+        removed.removeAll(events);
+        //TODO handle removed items
+
+        List<Event> common = new ArrayList<>(this.events);
+        common.retainAll(events);
+        //TODO handle changed items
         this.events = events;
     }
 
@@ -424,5 +443,9 @@ public class LibrusData implements Serializable {
             res.put(c.getId(), c);
         }
         return res;
+    }
+
+    public void setNotifier(Notifier notifier) {
+        this.notifier = notifier;
     }
 }

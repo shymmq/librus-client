@@ -315,7 +315,8 @@ public class APIClient {
                         LocalDate date = LocalDate.parse(rawEvent.getString("Date"));
                         String addedById = rawEvent.getJSONObject("CreatedBy").getString("Id");
                         int lessonNumber = rawEvent.isNull("LessonNo") ? -1 : Integer.parseInt(rawEvent.getString("LessonNo"));
-                        res.add(new Event(categoryId, description, date, addedById, lessonNumber));
+                        String id = rawEvent.getString("Id");
+                        res.add(new Event(id, categoryId, description, date, addedById, lessonNumber));
                     }
                     deferred.resolve(res);
                 } catch (JSONException e) {

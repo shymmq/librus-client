@@ -11,7 +11,7 @@ import java.util.Objects;
  * Created by Adam on 2016-10-31. librus-client
  */
 
-public class Announcement implements Serializable, Comparable<Announcement>, Changeable<Announcement> {
+public class Announcement implements Serializable, Comparable<Announcement> {
     private static final long serialVersionUID = -3384390935483292393L;
     private String id;
     private LocalDate startDate;
@@ -71,11 +71,16 @@ public class Announcement implements Serializable, Comparable<Announcement>, Cha
         return v1;
     }
 
-    public Change getChanges(Announcement a) {
-        if (Objects.equals(id, a.getId()) && startDate == a.getStartDate() && endDate == a.getEndDate() && Objects.equals(subject, a.getSubject()) && Objects.equals(authorId, a.getAuthorId()) && Objects.equals(content, a.getContent())) {
-            return null;
-        } else {
-            return new Change(id, Change.Action.CHANGE, Change.ObjectType.ANNOUNCEMENT);
-        }
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Announcement && Objects.equals(((Announcement) obj).getId(), id);
     }
+    //    public Change getChanges(Announcement a) {
+//        if (Objects.equals(id, a.getId()) && startDate == a.getStartDate() && endDate == a.getEndDate() && Objects.equals(subject, a.getSubject()) && Objects.equals(authorId, a.getAuthorId()) && Objects.equals(content, a.getContent())) {
+//            return null;
+//        } else {
+//            String description = a.getSubject();
+//            return
+//        }
+//    }
 }

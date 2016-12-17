@@ -29,7 +29,8 @@ public class LuckyNumber implements Serializable {
         return luckyNumberDay;
     }
 
-    public int getChanges(LuckyNumber luckyNumber) {
-        return 0;
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof LuckyNumber && ((LuckyNumber) obj).getLuckyNumberDay().equals(luckyNumberDay);
     }
 }

@@ -98,10 +98,6 @@ public class TextGrade extends GradeEntry implements Serializable, Comparable {
         }
     }
 
-    public int getChanges(TextGrade textGrade) {
-        return 0;
-    }
-
     enum Type {
         NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
     }
