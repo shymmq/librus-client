@@ -97,8 +97,6 @@ public class Grade extends GradeEntry implements Serializable {
         else if (o instanceof TextGradeSummary) return 1;
         else return 0;
     }
-
-
     enum Type {
         NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
     }

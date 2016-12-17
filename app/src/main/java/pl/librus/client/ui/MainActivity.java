@@ -38,10 +38,12 @@ import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
 import org.jdeferred.android.AndroidFailCallback;
 
+import java.util.List;
 import java.util.Locale;
 
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
+import pl.librus.client.api.Change;
 import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.LuckyNumber;
@@ -96,16 +98,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFail(Object result) {
                     librusData = new LibrusData(MainActivity.this);
-                    librusData.updatePersistent().done(new AndroidDoneCallback<Void>() {
+                    librusData.updatePersistent().done(new DoneCallback<List<Change>>() {
                         @Override
-                        public void onDone(Void result) {
+                        public void onDone(List<Change> result) {
+                            for (Change c : result) {
+                                Log.d(TAG, "Change: " + c.getAction() + " " + c.getType());
+                            }
                             librusData.save();
                             setup();
-                        }
-
-                        @Override
-                        public AndroidExecutionScope getExecutionScope() {
-                            return null;
                         }
                     });
                 }
@@ -201,9 +201,9 @@ public class MainActivity extends AppCompatActivity {
     private void refresh() {
         Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
         Log.d(TAG, "MainActivity: Refresh started");
-        librusData.update().done(new DoneCallback<Void>() {
+        librusData.update().done(new DoneCallback<List<Change>>() {
             @Override
-            public void onDone(Void result) {
+            public void onDone(List<Change> result) {
                 librusData.save();
                 ((MainFragment) currentFragment).refresh(librusData);
                 Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();

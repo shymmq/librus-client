@@ -2,20 +2,12 @@ package pl.librus.client.grades;
 
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.bignerdranch.expandablerecyclerview.model.Parent;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
@@ -51,7 +43,7 @@ public class GradesFragment extends MainFragment {
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
-        GradeAdapter adapter = GradeAdapter.fromLibrusData(data);
+        GradeAdapter adapter = GradeAdapter.fromLibrusData(data, getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.getItemAnimator().setAddDuration(150);

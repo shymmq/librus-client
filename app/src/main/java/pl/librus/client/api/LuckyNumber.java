@@ -28,4 +28,8 @@ public class LuckyNumber implements Serializable {
     public LocalDate getLuckyNumberDay() {
         return luckyNumberDay;
     }
+
+    public int getChanges(LuckyNumber luckyNumber) {
+        return 0;
+    }
 }

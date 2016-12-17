@@ -88,4 +88,8 @@ public class Lesson implements Serializable {
     public boolean isCanceled() {
         return isCanceled;
     }
+
+    public int getChanges(Lesson lesson) {
+        return 0;
+    }
 }

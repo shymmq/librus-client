@@ -38,7 +38,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class APIClient {
-    public static final MediaType JSON
+    private static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "librus-client-log";
     private final Context context;
@@ -47,8 +47,6 @@ public class APIClient {
             .writeTimeout(9, TimeUnit.DAYS)
             .readTimeout(9, TimeUnit.DAYS)
             .build();
-    String AUTH_URL = "https://api.librus.pl/2.0/PushDevices";
-    boolean debug = true;
 
     APIClient(Context _context) {
         context = _context;
@@ -104,6 +102,7 @@ public class APIClient {
     }
 
     private void log(String text) {
+        boolean debug = false;
         if (debug) Log.d(TAG, text);
     }
 
@@ -247,6 +246,7 @@ public class APIClient {
             params.put("provider", "Android_dru");
             params.put("device", regToken);
             RequestBody body = RequestBody.create(JSON, params.toString());
+            String AUTH_URL = "https://api.librus.pl/2.0/PushDevices";
             final Request request = new Request.Builder()
                     .addHeader("Authorization", "Bearer " + access_token)
                     .url(AUTH_URL)

@@ -9,7 +9,7 @@ android {
         targetSdkVersion 25
         multiDexEnabled true
         versionCode 4
-        versionName "1.3"
+        versionName "1.3f"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

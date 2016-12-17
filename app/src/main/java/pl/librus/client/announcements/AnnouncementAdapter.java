@@ -19,10 +19,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
+import pl.librus.client.api.Reader;
 import pl.librus.client.api.Teacher;
 
 /**
@@ -48,10 +48,9 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             sections.add(i, new ArrayList<Announcement>());
         }
         Collections.sort(announcements);
-        Set<String> read = AnnouncementUtils.getRead(context);
         for (Announcement a : announcements) {
             LocalDate date = a.getStartDate();
-            if (!read.contains(a.getId())) {
+            if (!Reader.isRead(Reader.TYPE_ANNOUNCEMENT, a.getId(), context)) {
                 a.setCategory(5);
                 sections.get(5).add(a);
             } else if (!date.isBefore(LocalDate.now())) {
@@ -166,10 +165,6 @@ class AnnouncementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         AnnouncementViewHolder(View root) {
             super(root);
             context = root.getContext();
-//            announcementTeacherPicture = (CircleImageView) root.findViewById(R.id.picture_announcement_item);
-//            announcementTeacherName = (TextView) root.findViewById(R.id.announcementTeacherName);
-//            announcementSubject = (TextView) root.findViewById(R.id.announcementSubject);
-//            announcementContent = (TextView) root.findViewById(R.id.announcementContentShort);
             background = (RelativeLayout) root.findViewById(R.id.three_line_list_item_background);
             announcementSubject = (TextView) root.findViewById(R.id.three_line_list_item_title);
             announcementTeacherName = (TextView) root.findViewById(R.id.three_line_list_item_first);

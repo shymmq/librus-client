@@ -12,9 +12,6 @@ import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDeferredManager;
-import org.jdeferred.android.AndroidDoneCallback;
-import org.jdeferred.android.AndroidExecutionScope;
-import org.jdeferred.android.AndroidFailCallback;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MultipleResults;
 import org.jdeferred.multiple.OneReject;
@@ -30,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import pl.librus.client.timetable.TimetableUtils;
 
@@ -39,7 +37,7 @@ public class LibrusData implements Serializable {
     private static final String TAG = "librus-client-log";
     private final long timestamp;
     transient private Context context;
-    private boolean debug = false;
+    private boolean debug = true;
 
     private Timetable timetable;            //timetable
     private List<Event> events;
@@ -105,10 +103,11 @@ public class LibrusData implements Serializable {
         if (debug) Log.d(TAG, text);
     }
 
-    public Promise<Void, Void, Void> update() {
+    public Promise<List<Change>, Void, Void> update() {
         Log.d(TAG, "update: Starting update");
-        final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
+        final Deferred<List<Change>, Void, Void> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
+        final List<Change> changes = new ArrayList<>();
         APIClient client = new APIClient(context);
         tasks.add(client.getTimetable(TimetableUtils.getWeekStart(), TimetableUtils.getWeekStart().plusWeeks(1)).done(new DoneCallback<Timetable>() {
             @Override
@@ -120,7 +119,8 @@ public class LibrusData implements Serializable {
         tasks.add(client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
             @Override
             public void onDone(List<Announcement> result) {
-                setAnnouncements(result);
+                List<Change> announcementChanges = setAnnouncements(result);
+                if (announcementChanges != null) changes.addAll(announcementChanges);
                 log("Announcements downloaded");
             }
         }));
@@ -170,7 +170,7 @@ public class LibrusData implements Serializable {
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
-                deferred.resolve(null);
+                deferred.resolve(changes);
             }
         }).fail(new FailCallback<OneReject>() {
             @Override
@@ -182,13 +182,20 @@ public class LibrusData implements Serializable {
         return deferred.promise();
     }
 
-    public Promise<Void, Void, Void> updatePersistent() {
+    public Promise<List<Change>, Void, Void> updatePersistent() {
         Log.d(TAG, "updatePersistent: Starting persistent update");
-        final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
+        final Deferred<List<Change>, Void, Void> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
+        final List<Change> changes = new ArrayList<>();
+
         APIClient client = new APIClient(context);
 
-        tasks.add(update());
+        tasks.add(update().done(new DoneCallback<List<Change>>() {
+            @Override
+            public void onDone(List<Change> result) {
+                changes.addAll(result);
+            }
+        }));
 
         //Persistent data:
         tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
@@ -232,23 +239,13 @@ public class LibrusData implements Serializable {
         }));
 
         DeferredManager dm = new AndroidDeferredManager();
-        dm.when(tasks.toArray(new Promise[tasks.size()])).done(new AndroidDoneCallback<MultipleResults>() {
-            @Override
-            public AndroidExecutionScope getExecutionScope() {
-                return null;
-            }
-
+        dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
                 Log.d(TAG, "onDone: Persistent update done");
-                deferred.resolve(null);
+                deferred.resolve(changes);
             }
-        }).fail(new AndroidFailCallback<OneReject>() {
-            @Override
-            public AndroidExecutionScope getExecutionScope() {
-                return null;
-            }
-
+        }).fail(new FailCallback<OneReject>() {
             @Override
             public void onFail(OneReject result) {
                 Log.d(TAG, "onFail: Persistent update failed " + result.toString());
@@ -272,8 +269,6 @@ public class LibrusData implements Serializable {
         }
     }
 
-
-    //Getters
     public List<TextGrade> getTextGrades() {
         return textGrades;
     }
@@ -286,11 +281,6 @@ public class LibrusData implements Serializable {
         return announcements;
     }
 
-    //Setters
-    private void setAnnouncements(List<Announcement> announcements) {
-        this.announcements = announcements;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
@@ -301,6 +291,30 @@ public class LibrusData implements Serializable {
 
     private void setGrades(List<Grade> grades) {
         this.grades = grades;
+    }
+
+    private List<Change> setAnnouncements(List<Announcement> newAnnouncements) {
+
+        ArrayList<Change> changes = new ArrayList<>();
+        if (announcements == null) {
+            announcements = newAnnouncements;
+            return changes;
+        }
+        for (Announcement a2 : newAnnouncements) {
+            boolean found = false;
+            for (Announcement a1 : announcements) {
+                if (Objects.equals(a1.getId(), a2.getId())) {
+                    found = true;
+                    Change change = a1.getChanges(a2);
+                    if (change != null) changes.add(change);
+                    break;
+                }
+            }
+            if (!found)
+                changes.add(new Change(a2.getId(), Change.Action.ADD, Change.ObjectType.ANNOUNCEMENT));
+        }
+        announcements = newAnnouncements;
+        return changes;
     }
 
     public Timetable getTimetable() {
@@ -317,11 +331,6 @@ public class LibrusData implements Serializable {
 
     private void setAccount(LibrusAccount account) {
         this.account = account;
-    }
-
-    public List<GradeComment> getGradeComments() {
-
-        return gradeComments;
     }
 
     private void setGradeComments(List<GradeComment> gradeComments) {
@@ -376,7 +385,6 @@ public class LibrusData implements Serializable {
     private void setEventCategories(List<EventCategory> eventCategories) {
         this.eventCategories = eventCategories;
     }
-    //Utility methods
 
     public Map<String, Teacher> getTeacherMap() {
         Map<String, Teacher> res = new HashMap<>();

@@ -40,4 +40,8 @@ public class Event implements Serializable {
     public int getLessonNumber() {
         return lessonNumber;
     }
+
+    public int getChanges(Event event) {
+        return 0;
+    }
 }
