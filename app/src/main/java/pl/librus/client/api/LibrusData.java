@@ -183,13 +183,6 @@ public class LibrusData implements Serializable {
                 log("Attendance categories downloaded");
             }
         }));
-        tasks.add(client.getPlainLessons().done(new DoneCallback<List<PlainLesson>>() {
-            @Override
-            public void onDone(List<PlainLesson> result) {
-                setPlainLessons(result);
-                log("Plain lessons downloaded");
-            }
-        }));
         DeferredManager dm = new AndroidDeferredManager();
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
@@ -252,6 +245,13 @@ public class LibrusData implements Serializable {
             public void onDone(List<GradeCategory> result) {
                 setGradeCategories(result);
                 log("GradeCat downlaoded");
+            }
+        }));
+        tasks.add(client.getPlainLessons().done(new DoneCallback<List<PlainLesson>>() {
+            @Override
+            public void onDone(List<PlainLesson> result) {
+                setPlainLessons(result);
+                log("Plain lessons downloaded");
             }
         }));
 
@@ -318,16 +318,20 @@ public class LibrusData implements Serializable {
         return attendanceCategories;
     }
 
+    public List<PlainLesson> getPlainLessons() {
+        return plainLessons;
+    }
+
     //Setters
-    public void setPlainLessons(List<PlainLesson> plainLessons) {
+    private void setPlainLessons(List<PlainLesson> plainLessons) {
         this.plainLessons = plainLessons;
     }
 
-    public void setAttendanceCategories(List<AttendanceCategory> attendanceCategories) {
+    private void setAttendanceCategories(List<AttendanceCategory> attendanceCategories) {
         this.attendanceCategories = attendanceCategories;
     }
 
-    public void setAttendances(List<Attendance> attendances) {
+    private void setAttendances(List<Attendance> attendances) {
         this.attendances = attendances;
     }
 
