@@ -39,7 +39,7 @@ public class LibrusData implements Serializable {
     private static final String TAG = "librus-client-log";
     private final long timestamp;
     transient private Context context;
-    private boolean debug = false;
+    private boolean debug = true;
 
     private Timetable timetable;            //timetable
     private List<Event> events;

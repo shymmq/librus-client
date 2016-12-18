@@ -9,17 +9,17 @@ import java.io.Serializable;
  */
 
 public class AttendanceCategory implements Serializable {
-    private String id, name, shortName;
+    private String id, name, shortName, colorRGB;
     private Boolean isStandard, isPresenceKind;
-    private int order, colorRGB;
+    private int order;
 
-    public AttendanceCategory(String id, String name, String shortName, Boolean isStandard, Boolean isPresenceKind, int order, int colorRGB) {
+    public AttendanceCategory(String id, String name, String shortName, Boolean isStandard, String colorRGB, Boolean isPresenceKind, int order) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;
         this.isStandard = isStandard;
-        this.isPresenceKind = isPresenceKind;
         this.colorRGB = colorRGB;
+        this.isPresenceKind = isPresenceKind;
         this.order = order;
     }
 
@@ -39,12 +39,12 @@ public class AttendanceCategory implements Serializable {
         return isStandard;
     }
 
-    public Boolean getIsPresenceKind() {
-        return isPresenceKind;
+    public String getColorRGB() {
+        return colorRGB;
     }
 
-    public int getColorRGB() {
-        return colorRGB;
+    public Boolean getIsPresenceKind() {
+        return isPresenceKind;
     }
 
     public int getOrder() {

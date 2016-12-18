@@ -355,11 +355,12 @@ public class APIClient {
                     JSONArray rawPlainLessons = result.getJSONArray("Lessons");
                     for(int i = 0; i < rawPlainLessons.length(); i++) {
                         JSONObject rawLesson = rawPlainLessons.getJSONObject(i);
+                        JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
+                        JSONObject rawSubject = rawLesson.getJSONObject("Subject");
                         res.add(new PlainLesson(
                                 rawLesson.getInt("Id"),
-                                rawLesson.getJSONObject("Teacher").getInt("Id"),
-                                rawLesson.getJSONObject("Subject").getInt("Id")
-                        ));
+                                rawTeacher.getInt("Id"),
+                                rawSubject.getInt("Id")));
                     }
                     deferred.resolve(res);
                 } catch (JSONException e) {
@@ -683,7 +684,7 @@ public class APIClient {
     }
 
     Promise<List<Attendance>, Void, Void> getAttendances() {
-        final Deferred<List<Attendance>, Void, Void> deffered = new DeferredObject<>();
+        final Deferred<List<Attendance>, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/Attendances").then(new DoneCallback<JSONObject>() {
             @Override
@@ -693,26 +694,28 @@ public class APIClient {
                     JSONArray rawAttendances = result.getJSONArray("Attendances");
                     for (int i = 0; i < rawAttendances.length(); i++) {
                         JSONObject attendance = rawAttendances.getJSONObject(i);
+                        JSONObject lesson = attendance.getJSONObject("Lesson");
+                        JSONObject type = attendance.getJSONObject("Type");
+                        JSONObject addedBy = attendance.getJSONObject("AddedBy");
                         res.add(new Attendance(
                                 attendance.getString("Id"),
-                                attendance.getJSONObject("Lesson").getString("Id"),
-                                attendance.getJSONObject("Trip").getString("Id"),
+                                String.valueOf(lesson.getInt("Id")),
                                 LocalDate.parse(attendance.getString("Date")),
                                 LocalDate.parse(attendance.getString("AddDate")),
                                 attendance.getInt("LessonNo"),
                                 attendance.getInt("Semester"),
-                                attendance.getJSONObject("Type").getString("Id"),
-                                attendance.getJSONObject("AddedBy").getString("Id")));
-                        deffered.resolve(res);
+                                String.valueOf(type.getInt("Id")),
+                                String.valueOf(addedBy.getInt("Id"))));
                     }
+                    deferred.resolve(res);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    deffered.reject(null);
+                    deferred.reject(null);
                 }
             }
         });
 
-        return deffered.promise();
+        return deferred.promise();
     }
 
     Promise<List<AttendanceCategory>, Void, Void> getAttendanceCategories() {
@@ -721,21 +724,21 @@ public class APIClient {
         APIRequest("/Attendances/Types").then(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
-                List<AttendanceCategory> res = new ArrayList<>();
                 try {
+                    List<AttendanceCategory> res = new ArrayList<>();
                     JSONArray rawAttendanceCategories = result.getJSONArray("Types");
                     for (int i = 0; i < rawAttendanceCategories.length(); i++) {
                         JSONObject attendanceCategory = rawAttendanceCategories.getJSONObject(i);
                         res.add(new AttendanceCategory(
-                                attendanceCategory.getString("Id"),
+                                String.valueOf(attendanceCategory.getInt("Id")),
                                 attendanceCategory.getString("Name"),
                                 attendanceCategory.getString("Short"),
                                 attendanceCategory.getBoolean("Standard"),
+                                attendanceCategory.getString("ColorRGB"),
                                 attendanceCategory.getBoolean("IsPresenceKind"),
-                                Color.parseColor(attendanceCategory.getString("ColorRGB")),
                                 attendanceCategory.getInt("Order")));
-                        deferred.resolve(res);
                     }
+                    deferred.resolve(res);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     deferred.reject(null);

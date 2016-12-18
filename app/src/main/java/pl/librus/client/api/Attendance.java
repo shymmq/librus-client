@@ -9,7 +9,6 @@ import org.joda.time.LocalDate;
 public class Attendance {
     private String id;
     private String lessonId;
-    private String tripId;
     private LocalDate date;
     private LocalDate addDate;
     private int lessonNumber;
@@ -17,10 +16,9 @@ public class Attendance {
     private String typeId;
     private String addedById;
 
-    Attendance (String id, String lessonId, String tripId, LocalDate date, LocalDate addDate, int lessonNumber, int semesterNumber, String typeId, String addedById) {
+    Attendance (String id, String lessonId, LocalDate date, LocalDate addDate, int lessonNumber, int semesterNumber, String typeId, String addedById) {
         this.id = id;
         this.lessonId = lessonId;
-        this.tripId = tripId;
         this.date = date;
         this.addDate = addDate;
         this.lessonNumber = lessonNumber;
@@ -35,10 +33,6 @@ public class Attendance {
 
     public String getLessonId() {
         return lessonId;
-    }
-
-    public String getTripId() {
-        return tripId;
     }
 
     public LocalDate getDate() {
