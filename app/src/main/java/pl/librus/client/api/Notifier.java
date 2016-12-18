@@ -52,7 +52,8 @@ class Notifier {
             Announcement announcement = announcements.get(0);
             Notification.BigTextStyle style = new Notification.BigTextStyle()
                     .setBigContentTitle(announcement.getSubject())
-                    .bigText(announcement.getContent());
+                    .bigText(announcement.getContent())
+                    .setSummaryText(data.getAccount().getLogin() + " - " + data.getAccount().getName());
             sendNotification(announcement.getSubject(), announcement.getContent(), R.drawable.ic_announcement_black_48dp, null, style);
         } else if (size > 1) {
             String title;
@@ -62,7 +63,8 @@ class Notifier {
             else if (5 <= size) title = size + " nowych ogłoszeń";
             else title = "Nowe ogłoszenia: " + size;
             Notification.InboxStyle style = new Notification.InboxStyle()
-                    .setBigContentTitle(title);
+                    .setBigContentTitle(title)
+                    .setSummaryText(data.getAccount().getLogin() + " - " + data.getAccount().getName());
             for (Announcement a : announcements) {
                 style.addLine(a.getSubject());
                 Teacher author = data.getTeacherMap().get(a.getAuthorId());
