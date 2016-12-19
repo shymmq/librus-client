@@ -2,14 +2,15 @@ package pl.librus.client.timetable;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +22,10 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -31,111 +34,137 @@ import pl.librus.client.api.EventCategory;
 import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.SchoolDay;
+import pl.librus.client.api.SchoolWeek;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
 
-public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder> {
+class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final SchoolDay schoolDay;
+    private static final int VIEW_TYPE_HEADER = 45;
+    private static final int VIEW_TYPE_LESSON = 42;
+    private final List<SchoolDay> schoolDays = new ArrayList<>();
     private final Map<String, Subject> subjectMap;
     private Map<String, EventCategory> eventCategoryMap;
     private Map<String, Teacher> teacherMap;
+    private List<Object> listElements = new ArrayList<>();
 
-    public LessonAdapter(SchoolDay schoolDay, LibrusData data) {
-        this.schoolDay = schoolDay;
-//        Log.d(TAG, "Data received in lesson adapter: " + schoolDay.getLessons().entrySet().toString());
+    LessonAdapter(LibrusData data) {
+        List<SchoolWeek> schoolWeeks = data.getSchoolWeeks();
+        for (SchoolWeek schoolWeek : schoolWeeks) {
+            schoolDays.addAll(schoolWeek.getSchoolDays());
+        }
         this.eventCategoryMap = data.getEventCategoriesMap();
         this.teacherMap = data.getTeacherMap();
         this.subjectMap = data.getSubjectMap();
+        Collections.sort(schoolDays);
+        for (SchoolDay schoolDay : schoolDays) {
+            String title;
+            String subtitle = schoolDay.getDate().toString("d.M");
+            if (schoolDay.getDate().equals(LocalDate.now())) {
+                title = "Dzisiaj";
+            } else if (schoolDay.getDate().equals(LocalDate.now().plusDays(1))) {
+                title = "Jutro";
+            } else {
+                title = schoolDay.getDate().toString("EEEE", new Locale("pl"));
+                subtitle = schoolDay.getDate().toString("d.M");
+            }
+            SpannableString sectionText = new SpannableString(title.substring(0, 1).toUpperCase() + title.substring(1) + ' ' + subtitle);
+            sectionText.setSpan(new StyleSpan(Typeface.BOLD), 0, title.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            listElements.add(sectionText);
+            for (int i = 0; i < schoolDay.getLastLesson(); i++) {
+                Lesson lesson = schoolDay.getLesson(i);
+                if (lesson != null) {
+                    listElements.add(lesson);
+                }
+            }
+        }
     }
 
     @Override
-    public LessonAdapter.LessonViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.lesson_item, parent, false);
-        return new LessonViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v;
+        if (viewType == VIEW_TYPE_LESSON) {
+            v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.lesson_item, parent, false);
+            return new LessonViewHolder(v);
+        } else {
+            v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_subheader, parent, false);
+            return new SubheaderViewHolder(v);
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public void onBindViewHolder(LessonViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof LessonViewHolder) {
+            final Lesson lesson = (Lesson) listElements.get(position);
+//        final Lesson prevLesson = listElements.get(position-1?);
+            LessonViewHolder lessonHolder = (LessonViewHolder) holder;
+            final Context context = lessonHolder.background.getContext();
 
-        final Lesson lesson = schoolDay.getLesson(position + 1);
-        final Lesson prevLesson = schoolDay.getLesson(position);
-        final Context context = holder.background.getContext();
+            if (lesson == null) {
 
-        if (lesson == null) {
+                //EMPTY LESSON
 
-            //EMPTY LESSON
+                lessonHolder.lessonNumber.setVisibility(View.GONE);
+                lessonHolder.badge.setVisibility(View.GONE);
+                lessonHolder.lessonTeacher.setVisibility(View.GONE);
+                lessonHolder.lessonSubject.setVisibility(View.GONE);
+                lessonHolder.lessonEmpty.setVisibility(View.VISIBLE);
+                lessonHolder.background.setAlpha(0.5f);//TODO
+            } else {
 
-            holder.lessonNumber.setVisibility(View.GONE);
-            holder.badge.setVisibility(View.GONE);
-            holder.lessonTeacher.setVisibility(View.GONE);
-            holder.lessonSubject.setVisibility(View.GONE);
-            holder.lessonEmpty.setVisibility(View.VISIBLE);
-            holder.background.setAlpha(0.4f);
-        } else {
+                //LESSON
 
-            //LESSON
+                lessonHolder.lessonNumber.setText(String.valueOf(lesson.getLessonNumber()));
+                lessonHolder.lessonSubject.setText(lesson.getSubject().getName());
+                lessonHolder.lessonTeacher.setText(lesson.getTeacher().getName());
 
-            holder.lessonNumber.setText(String.valueOf(lesson.getLessonNumber()));
-            holder.lessonSubject.setText(lesson.getSubject().getName());
-            holder.lessonTeacher.setText(lesson.getTeacher().getName());
+                if (lesson.isCanceled()) {
 
-            if (lesson.isCanceled()) {
+                    //canceled
 
-                //canceled
+                    lessonHolder.lessonSubject.setPaintFlags(lessonHolder.lessonSubject.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    lessonHolder.lessonTeacher.setPaintFlags(lessonHolder.lessonTeacher.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//                    lessonHolder.background.setAlpha(0.5f); //TODO
+                    lessonHolder.badge.setVisibility(View.VISIBLE);
+                    lessonHolder.badgeText.setText("odwołane");
+                    lessonHolder.badgeIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_cancel_black_24dp, context.getTheme()));
+                } else {
+                    //not canceled
+                    lessonHolder.lessonSubject.setPaintFlags(lessonHolder.lessonSubject.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                    lessonHolder.lessonTeacher.setPaintFlags(lessonHolder.lessonSubject.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                    lessonHolder.background.setAlpha(1f);
+                    lessonHolder.badge.setVisibility(View.GONE);
+                }
+                if (lesson.getEvent() != null) {
 
-                holder.lessonSubject.setPaintFlags(holder.lessonSubject.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                holder.lessonTeacher.setPaintFlags(holder.lessonTeacher.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                holder.background.setAlpha(0.5f);
-                holder.badge.setVisibility(View.VISIBLE);
-                holder.badgeText.setText("odwołane");
-                holder.badgeIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_cancel_black_24dp, context.getTheme()));
-            } else if (lesson.getEvent() != null) {
+                    //event
 
-                //event
-
-                holder.badge.setVisibility(View.VISIBLE);
-                holder.badgeText.setText(eventCategoryMap.get(lesson.getEvent().getCategoryId()).getName());
-                holder.badgeIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_event_black_24dp, context.getTheme()));
-            } else if (lesson.isSubstitution()) {
+                    lessonHolder.badge.setVisibility(View.VISIBLE);
+                    lessonHolder.badgeText.setText(eventCategoryMap.get(lesson.getEvent().getCategoryId()).getName());
+                    lessonHolder.badgeIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_event_black_24dp, context.getTheme()));
+                } else {
+                    //no event
+                    lessonHolder.badge.setVisibility(View.GONE);
+                }
+            }
+            if (lesson.isSubstitution()) {
 
                 //substitution
 
-                holder.badge.setVisibility(View.VISIBLE);
-                holder.badgeText.setText("zastępstwo");
-                holder.badgeIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_swap_horiz_black_24dp, context.getTheme()));
+                lessonHolder.badge.setVisibility(View.VISIBLE);
+                lessonHolder.badgeText.setText("zastępstwo");
+                lessonHolder.badgeIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_swap_horiz_black_24dp, context.getTheme()));
             } else {
 
-                //none
+                //no substitution
 
-                holder.badge.setVisibility(View.GONE);
-            }
-
-            if (LocalDate.now().equals(lesson.getDate())) {
-
-                //if today:
-
-                LocalTime timeNow = LocalTime.now();
-                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
-                if (timeNow.isAfter(lesson.getEndTime()) && prefs.getBoolean("greyOutFinishedLessons", true)) {
-
-                    //lesson finished
-
-                    holder.background.setAlpha(0.5f);
-
-                } else if (!lesson.isCanceled() && prefs.getBoolean("currentLessonBold", true)) {
-                    if (timeNow.isBefore(lesson.getEndTime())) {
-                        if (prevLesson == null || prevLesson.isCanceled() || lesson.getLessonNumber() == 1 || timeNow.isAfter(prevLesson.getEndTime())) {
-                            holder.lessonSubject.setTypeface(holder.lessonSubject.getTypeface(), Typeface.BOLD);
-                        }
-                    }
-                }
+                lessonHolder.badge.setVisibility(View.GONE);
             }
             if (!lesson.isCanceled()) {
-                holder.background.setOnClickListener(new View.OnClickListener() {
+                lessonHolder.background.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         MaterialDialog.Builder builder = new MaterialDialog.Builder(context).title(lesson.getSubject().getName()).positiveText("Zamknij");
@@ -186,15 +215,35 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                     }
                 });
             }
+        } else {
+            SubheaderViewHolder subheaderViewHolder = (SubheaderViewHolder) holder;
+            subheaderViewHolder.sectionTitle.setText((CharSequence) listElements.get(position));
+            subheaderViewHolder.done.setVisibility(View.GONE);
         }
     }
 
     @Override
     public int getItemCount() {
-        return schoolDay.size();
+        return listElements.size();
     }
 
-    static class LessonViewHolder extends RecyclerView.ViewHolder {
+    @Override
+    public int getItemViewType(int position) {
+        return listElements.get(position) instanceof Lesson ? VIEW_TYPE_LESSON : VIEW_TYPE_HEADER;
+    }
+
+    private static class SubheaderViewHolder extends RecyclerView.ViewHolder {
+        final TextView sectionTitle;
+        final View done;
+
+        SubheaderViewHolder(View root) {
+            super(root);
+            sectionTitle = (TextView) root.findViewById(R.id.list_subheader_title);
+            done = root.findViewById(R.id.list_subheader_done);
+        }
+    }
+
+    private static class LessonViewHolder extends RecyclerView.ViewHolder {
         public final LinearLayout background;
         final TextView
                 lessonSubject;

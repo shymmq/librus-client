@@ -7,14 +7,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.jdeferred.Deferred;
-import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
-import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.impl.DeferredObject;
-import org.jdeferred.multiple.MultipleResults;
-import org.jdeferred.multiple.OneResult;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -438,76 +434,62 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<Timetable, Void, Void> getTimetable(final LocalDate... weeks) {
+    Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
 
-        final Deferred<Timetable, Void, Void> deferred = new DeferredObject<>();
+        final Deferred<SchoolWeek, Void, Void> deferred = new DeferredObject<>();
 
-        Promise promises[] = new Promise[weeks.length];
-
-        for (int i = 0; i < weeks.length; i++) {
-            LocalDate weekStart = weeks[i];
-            promises[i] = (APIRequest("/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd")));
-        }
-        DeferredManager dm = new AndroidDeferredManager();
-        dm.when(promises).done(new DoneCallback<MultipleResults>() {
+        APIRequest("/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd")).then(new DoneCallback<JSONObject>() {
             @Override
-            public void onDone(MultipleResults result) {
-                Timetable timetable = new Timetable();
+            public void onDone(JSONObject result) {
+                SchoolWeek schoolWeek = new SchoolWeek(weekStart);
                 try {
-                    for (OneResult aResult : result) {
-                        JSONObject rawData = ((JSONObject) aResult.getResult()).getJSONObject("Timetable");
-                        Iterator<String> dayIterator = rawData.keys();
-                        while (dayIterator.hasNext()) {
-                            String key = dayIterator.next();
+                    JSONObject rawData = result.getJSONObject("Timetable");
+                    Iterator<String> dayIterator = rawData.keys();
+                    while (dayIterator.hasNext()) {
+                        String key = dayIterator.next();
 
-                            LocalDate date = LocalDate.parse(key);
-                            SchoolDay schoolDay = new SchoolDay(date);
-                            JSONArray rawSchoolDay = rawData.getJSONArray(key);
+                        LocalDate date = LocalDate.parse(key);
+                        SchoolDay schoolDay = new SchoolDay(date);
+                        JSONArray rawSchoolDay = rawData.getJSONArray(key);
 
-                            for (int i = 0; i < rawSchoolDay.length(); i++) {
-                                try {
-                                    if (rawSchoolDay.getJSONArray(i).length() != 0) {
-                                        JSONObject rawLesson = rawSchoolDay.getJSONArray(i).getJSONObject(0);
-                                        boolean isCanceled = rawLesson.getBoolean("IsCanceled");
-                                        boolean isSubstitutionClass = rawLesson.getBoolean("IsSubstitutionClass");
-                                        JSONObject rawSubject = rawLesson.getJSONObject("Subject");
-                                        JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
-                                        JSONObject rawOrgSubject = isSubstitutionClass ? rawLesson.getJSONObject("OrgSubject") : null;
-                                        JSONObject rawOrgTeacher = isSubstitutionClass ? rawLesson.getJSONObject("OrgTeacher") : null;
-                                        Subject subject = new Subject(rawSubject.getString("Id"));
-                                        subject.setName(rawSubject.getString("Name"));
-                                        Teacher teacher = new Teacher(rawTeacher.getString("Id"));
-                                        teacher.setName(rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
-                                        schoolDay.setLesson(i, new Lesson(
-                                                i,
-                                                date,
-                                                LocalTime.parse(rawLesson.getString("HourFrom"), DateTimeFormat.forPattern("HH:mm")),
-                                                LocalTime.parse(rawLesson.getString("HourTo"), DateTimeFormat.forPattern("HH:mm")),
-                                                subject,
-                                                teacher,
-                                                isCanceled,
-                                                isSubstitutionClass,
-                                                isSubstitutionClass ? rawOrgSubject.getString("Id") : null,
-                                                isSubstitutionClass ? rawOrgTeacher.getString("Id") : null,
-                                                null)
-                                        );
-                                        schoolDay.setEmpty(false);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                        for (int i = 0; i < rawSchoolDay.length(); i++) {
+                            if (rawSchoolDay.getJSONArray(i).length() != 0) {
+                                JSONObject rawLesson = rawSchoolDay.getJSONArray(i).getJSONObject(0);
+                                boolean isCanceled = rawLesson.getBoolean("IsCanceled");
+                                boolean isSubstitutionClass = rawLesson.getBoolean("IsSubstitutionClass");
+                                JSONObject rawSubject = rawLesson.getJSONObject("Subject");
+                                JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
+                                JSONObject rawOrgSubject = isSubstitutionClass ? rawLesson.getJSONObject("OrgSubject") : null;
+                                JSONObject rawOrgTeacher = isSubstitutionClass ? rawLesson.getJSONObject("OrgTeacher") : null;
+                                Subject subject = new Subject(rawSubject.getString("Id"));
+                                subject.setName(rawSubject.getString("Name"));
+                                Teacher teacher = new Teacher(rawTeacher.getString("Id"));
+                                teacher.setName(rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
+                                schoolDay.setLesson(i, new Lesson(
+                                        i,
+                                        date,
+                                        LocalTime.parse(rawLesson.getString("HourFrom"), DateTimeFormat.forPattern("HH:mm")),
+                                        LocalTime.parse(rawLesson.getString("HourTo"), DateTimeFormat.forPattern("HH:mm")),
+                                        subject,
+                                        teacher,
+                                        isCanceled,
+                                        isSubstitutionClass,
+                                        isSubstitutionClass ? rawOrgSubject.getString("Id") : null,
+                                        isSubstitutionClass ? rawOrgTeacher.getString("Id") : null,
+                                        null)
+                                );
+                                schoolDay.setEmpty(false);
                             }
-
-                            timetable.addSchoolDay(schoolDay);
                         }
-                    }
 
+                        schoolWeek.addSchoolDay(schoolDay);
+                    }
+                    deferred.resolve(schoolWeek);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    deferred.reject(null);
                 }
-                deferred.resolve(timetable);
             }
-
         });
 
         return deferred.promise();

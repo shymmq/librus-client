@@ -18,6 +18,7 @@ import org.jdeferred.android.AndroidFailCallback;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MultipleResults;
 import org.jdeferred.multiple.OneReject;
+import org.joda.time.LocalDate;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,7 +42,7 @@ public class LibrusData implements Serializable {
     transient private Context context;
     private boolean debug = false;
 
-    private Timetable timetable;            //timetable
+    private List<SchoolWeek> schoolWeeks = new ArrayList<>();            //schoolWeek
     private List<Event> events;
 
     private List<Grade> grades;              //grades
@@ -110,13 +111,19 @@ public class LibrusData implements Serializable {
         final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
         APIClient client = new APIClient(context);
-        tasks.add(client.getTimetable(TimetableUtils.getWeekStart(), TimetableUtils.getWeekStart().plusWeeks(1)).done(new DoneCallback<Timetable>() {
-            @Override
-            public void onDone(Timetable result) {
-                setTimetable(result);
-                log("Timetable downloaded");
-            }
-        }));
+        schoolWeeks = new ArrayList<>();
+        List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
+
+        for (LocalDate weekStart : weekStarts) {
+            client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
+                @Override
+                public void onDone(SchoolWeek result) {
+                    schoolWeeks.add(result);
+                    log("School week " + result.getWeekStart() + " downloaded");
+                }
+            });
+        }
+
         tasks.add(client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
             @Override
             public void onDone(List<Announcement> result) {
@@ -272,8 +279,8 @@ public class LibrusData implements Serializable {
         }
     }
 
-
     //Getters
+
     public List<TextGrade> getTextGrades() {
         return textGrades;
     }
@@ -303,12 +310,8 @@ public class LibrusData implements Serializable {
         this.grades = grades;
     }
 
-    public Timetable getTimetable() {
-        return timetable;
-    }
-
-    private void setTimetable(Timetable timetable) {
-        this.timetable = timetable;
+    public List<SchoolWeek> getSchoolWeeks() {
+        return schoolWeeks;
     }
 
     public LibrusAccount getAccount() {
