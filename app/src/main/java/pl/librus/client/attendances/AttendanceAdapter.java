@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +18,13 @@ import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 import com.bignerdranch.expandablerecyclerview.model.Parent;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.MonthDay;
+import org.joda.time.Months;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,16 +71,56 @@ class AttendanceAdapter extends ExpandableRecyclerAdapter<AttendanceAdapter.Cate
         Map<String, Subject> subjectMap = data.getSubjectMap();
         List<Category> categories = new ArrayList<>();
         List<String> categoryTitles = new ArrayList<>();
-        for(int i = 0; i < attendances.size(); i++) {
+        for (int i = 0; i < attendances.size(); i++) {
             String attendanceMonth = attendances.get(i).getDate().toString("MMMM", new Locale("pl"));
-            for(int j = 0; j < categories.size(); j++) {
-                categoryTitles.add(categories.get(i).getTitle());
-            }
-            if(!categoryTitles.contains(attendanceMonth)) {
-                categories.add(new Category(attendances, attendanceMonth));
+            if (!categoryTitles.contains(attendanceMonth)) {
+                categoryTitles.add(attendanceMonth);
             }
         }
 
+        for (int i = 0; i < categoryTitles.size(); i++) {
+            List<Attendance> monthAttendances = new ArrayList<>();
+            String currentMonth = categoryTitles.get(i);
+            String oldMonth = currentMonth;
+            String newMonth = "Miesiąc";
+
+            for (int j = 0; j < attendances.size(); j++) {
+                String attendanceMonth = attendances.get(j).getDate().toString("MMMM", new Locale("pl"));
+
+                if (attendanceMonth.equals(currentMonth) && !attendances.get(j).getTypeId().equals("100")) {
+                    monthAttendances.add(attendances.get(j));
+                }
+            }
+
+            //Don't laugh
+            if (oldMonth.equals("stycznia")) {
+                newMonth = "Styczeń";
+            } else if (oldMonth.equals("lutego")) {
+                newMonth = "Luty";
+            } else if (oldMonth.equals("marca")) {
+                newMonth = "Marzec";
+            } else if (oldMonth.equals("kwetnia")) {
+                newMonth = "Kwiecień";
+            } else if (oldMonth.equals("maja")) {
+                newMonth = "Maj";
+            } else if (oldMonth.equals("czerwca")) {
+                newMonth = "Czerwiec";
+            } else if (oldMonth.equals("lipca")) {
+                newMonth = "Lipiec";
+            } else if (oldMonth.equals("sierpnia")) {
+                newMonth = "Sierpień";
+            } else if (oldMonth.equals("września")) {
+                newMonth = "Wrzesień";
+            } else if (oldMonth.equals("października")) {
+                newMonth = "Październik";
+            } else if (oldMonth.equals("listopada")) {
+                newMonth = "Listopad";
+            } else if (oldMonth.equals("grudnia")) {
+                newMonth = "Grudzień";
+            }
+
+            categories.add(new Category(monthAttendances, newMonth));
+        }
         return new AttendanceAdapter(categories, data, data.getContext());
     }
 
@@ -87,7 +133,7 @@ class AttendanceAdapter extends ExpandableRecyclerAdapter<AttendanceAdapter.Cate
 
     @NonNull
     public ChildViewHolder onCreateChildViewHolder(@NonNull ViewGroup childViewGroup, int viewType) {
-        return new AttendanceViewHolder(inflater.inflate(R.layout.grade_item, childViewGroup, false));
+        return new AttendanceViewHolder(inflater.inflate(R.layout.attendance_item, childViewGroup, false));
     }
 
     @Override
@@ -118,7 +164,7 @@ class AttendanceAdapter extends ExpandableRecyclerAdapter<AttendanceAdapter.Cate
             super(itemView);
             lessonView = (TextView) itemView.findViewById(R.id.attendance_item_lesson);
             dateView = (TextView) itemView.findViewById(R.id.attendance_item_date);
-            typeView = (TextView) itemView.findViewById(R.id.attendance_item_type);
+            //typeView = (TextView) itemView.findViewById(R.id.attendance_item_type);
             shortTypeView = (TextView) itemView.findViewById(R.id.attendance_item_shortType);
         }
 
@@ -129,7 +175,7 @@ class AttendanceAdapter extends ExpandableRecyclerAdapter<AttendanceAdapter.Cate
 
             lessonView.setText(subjectMap.get(lessonMap.get(attendance.getLessonId())).getName());
             dateView.setText(attendance.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
-            typeView.setText(attendanceCategoryMap.get(attendance.getTypeId()).getName());
+            //typeView.setText(attendanceCategoryMap.get(attendance.getTypeId()).getName());
             shortTypeView.setText(attendanceCategoryMap.get(attendance.getTypeId()).getShortName());
         }
     }
@@ -180,10 +226,12 @@ class AttendanceAdapter extends ExpandableRecyclerAdapter<AttendanceAdapter.Cate
         }
     }
 
-    static class Category implements Parent<Attendance>, Comparable {
+    static class Category implements Parent<Attendance>, Comparable<Category> {
 
         private List<Attendance> attendances;
         private String title;
+        private int month;
+        private LocalDate date;
 
         Category(List<Attendance> attendances, String title) {
             this.attendances = attendances;
@@ -204,9 +252,13 @@ class AttendanceAdapter extends ExpandableRecyclerAdapter<AttendanceAdapter.Cate
             return title;
         }
 
+        public LocalDate getDate() {
+            return date;
+        }
+
         @Override
-        public int compareTo(@NonNull Object o) {
-            return -title.compareTo(((Category) o).getTitle());
+        public int compareTo(@NonNull Category c) {
+            return -title.compareTo(c.getTitle());
         }
     }
 }

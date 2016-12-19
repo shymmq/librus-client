@@ -1,22 +1,25 @@
 package pl.librus.client.api;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+
+import java.io.Serializable;
 
 /**
  * Created by Adam on 13.12.2016.
  */
 
-public class Attendance {
+public class Attendance implements Serializable{
     private String id;
     private String lessonId;
     private LocalDate date;
-    private LocalDate addDate;
+    private LocalDateTime addDate;
     private int lessonNumber;
     private int semesterNumber;
     private String typeId;
     private String addedById;
 
-    Attendance (String id, String lessonId, LocalDate date, LocalDate addDate, int lessonNumber, int semesterNumber, String typeId, String addedById) {
+    Attendance (String id, String lessonId, LocalDate date, LocalDateTime addDate, int lessonNumber, int semesterNumber, String typeId, String addedById) {
         this.id = id;
         this.lessonId = lessonId;
         this.date = date;
@@ -39,7 +42,7 @@ public class Attendance {
         return date;
     }
 
-    public LocalDate getAddDate() {
+    public LocalDateTime getAddDate() {
         return addDate;
     }
 

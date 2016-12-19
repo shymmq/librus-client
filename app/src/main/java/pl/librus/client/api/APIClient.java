@@ -694,18 +694,15 @@ public class APIClient {
                     JSONArray rawAttendances = result.getJSONArray("Attendances");
                     for (int i = 0; i < rawAttendances.length(); i++) {
                         JSONObject attendance = rawAttendances.getJSONObject(i);
-                        JSONObject lesson = attendance.getJSONObject("Lesson");
-                        JSONObject type = attendance.getJSONObject("Type");
-                        JSONObject addedBy = attendance.getJSONObject("AddedBy");
                         res.add(new Attendance(
                                 attendance.getString("Id"),
-                                String.valueOf(lesson.getInt("Id")),
-                                LocalDate.parse(attendance.getString("Date")),
-                                LocalDate.parse(attendance.getString("AddDate")),
+                                attendance.getJSONObject("Lesson").getString("Id"),
+                                LocalDate.parse(attendance.getString("Date"), DateTimeFormat.forPattern("yyyy-MM-dd")),
+                                LocalDateTime.parse(attendance.getString("AddDate"), DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")),
                                 attendance.getInt("LessonNo"),
                                 attendance.getInt("Semester"),
-                                String.valueOf(type.getInt("Id")),
-                                String.valueOf(addedBy.getInt("Id"))));
+                                attendance.getJSONObject("Type").getString("Id"),
+                                attendance.getJSONObject("AddedBy").getString("Id")));
                     }
                     deferred.resolve(res);
                 } catch (JSONException e) {
