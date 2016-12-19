@@ -34,8 +34,6 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.jdeferred.DoneCallback;
-import org.jdeferred.android.AndroidDoneCallback;
-import org.jdeferred.android.AndroidExecutionScope;
 
 import java.util.Locale;
 
@@ -73,12 +71,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            LibrusData.load(this).done(new AndroidDoneCallback<LibrusData>() {
-                @Override
-                public AndroidExecutionScope getExecutionScope() {
-                    return null;
-                }
-
+            LibrusData.load(this).done(new DoneCallback<LibrusData>() {
                 @Override
                 public void onDone(LibrusData result) {
                     librusData = result;
@@ -293,5 +286,4 @@ public class MainActivity extends AppCompatActivity {
             toggle.syncState();
         }
     }
-
 }

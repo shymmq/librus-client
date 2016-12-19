@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -110,9 +111,19 @@ public class APIClient {
         final Deferred<JSONObject, Integer, Void> deferred = new DeferredObject<>();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         final String access_token = preferences.getString("access_token", "");
+        String url;
         String BASE_URL = "https://api.librus.pl/2.0";
+        boolean mockData = false;
+        if (!mockData)
+            url = BASE_URL + endpoint;
+        else if (Objects.equals(endpoint, "/Grades"))
+            url = "http://192.168.0.59:8080/mock-grades.json";
+        else if (Objects.equals(endpoint, "/HomeWorks"))
+            url = "http://192.168.0.59:8080/mock-events.json";
+        else
+            url = BASE_URL + endpoint;
         final Request request = new Request.Builder().addHeader("Authorization", "Bearer " + access_token)
-                .url(BASE_URL + endpoint)
+                .url(url)
                 .build();
         log("Performing APIRequest " +
                 "Endpoint: " + endpoint);

@@ -40,21 +40,21 @@ public class LibrusData implements Serializable {
     private boolean debug = true;
 
     private Timetable timetable;            //timetable
-    private List<Event> events;
+    private List<Event> events = new ArrayList<>();
 
-    private List<Grade> grades;              //grades
-    private List<GradeComment> gradeComments;
-    private List<TextGrade> textGrades;
-    private List<Average> averages;
+    private List<Grade> grades = new ArrayList<>();              //grades
+    private List<GradeComment> gradeComments = new ArrayList<>();
+    private List<TextGrade> textGrades = new ArrayList<>();
+    private List<Average> averages = new ArrayList<>();
 
-    private List<Announcement> announcements;//other
+    private List<Announcement> announcements = new ArrayList<>();//other
     private LuckyNumber luckyNumber;
 
     //Persistent data:
-    private List<Teacher> teachers;
-    private List<Subject> subjects;
-    private List<EventCategory> eventCategories;
-    private List<GradeCategory> gradeCategories;
+    private List<Teacher> teachers = new ArrayList<>();
+    private List<Subject> subjects = new ArrayList<>();
+    private List<EventCategory> eventCategories = new ArrayList<>();
+    private List<GradeCategory> gradeCategories = new ArrayList<>();
     private LibrusAccount account;
 
     public LibrusData(Context context) {
@@ -74,7 +74,7 @@ public class LibrusData implements Serializable {
                     ObjectInputStream is = new ObjectInputStream(fis);
                     LibrusData cache = (LibrusData) is.readObject();
                     cache.setContext(context);
-                    cache.setNotifier(new Notifier(context, cache));
+                    cache.notifier = new Notifier(context, cache);
                     is.close();
                     fis.close();
                     return cache;
@@ -138,8 +138,9 @@ public class LibrusData implements Serializable {
             }
         }));
         tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
-            @Override
+            //            @Override
             public void onDone(LuckyNumber result) {
+//                luckyNumber = result;
                 setLuckyNumber(result);
                 log("LNumber downloaded");
             }
@@ -286,7 +287,7 @@ public class LibrusData implements Serializable {
     private void setAnnouncements(List<Announcement> announcements) {
         List<Announcement> added = new ArrayList<>(announcements);
         added.removeAll(this.announcements);
-        notifier.addAnnouncements(added);
+        if (notifier != null) notifier.addAnnouncements(added);
 
         List<Announcement> removed = new ArrayList<>(this.announcements);
         removed.removeAll(announcements);
@@ -310,7 +311,7 @@ public class LibrusData implements Serializable {
     private void setGrades(List<Grade> grades) {
         List<Grade> added = new ArrayList<>(grades);
         added.removeAll(this.grades);
-        notifier.addGrades(added);
+        if (notifier != null) notifier.addGrades(added);
 
         List<Grade> removed = new ArrayList<>(this.grades);
         removed.removeAll(grades);
@@ -347,9 +348,9 @@ public class LibrusData implements Serializable {
     }
 
     private void setLuckyNumber(LuckyNumber luckyNumber) {
-        if (!this.luckyNumber.equals(luckyNumber)) {
-            notifier.addLuckyNumber(luckyNumber);
-        }
+        if (notifier != null)
+            if (!this.luckyNumber.equals(luckyNumber))
+                notifier.addLuckyNumber(luckyNumber);
         this.luckyNumber = luckyNumber;
     }
 
@@ -369,7 +370,7 @@ public class LibrusData implements Serializable {
     private void setEvents(List<Event> events) {
         List<Event> added = new ArrayList<>(events);
         added.removeAll(this.events);
-        notifier.addEvents(added);
+        if (notifier != null) notifier.addEvents(added);
 
         List<Event> removed = new ArrayList<>(this.events);
         removed.removeAll(events);
@@ -443,9 +444,5 @@ public class LibrusData implements Serializable {
             res.put(c.getId(), c);
         }
         return res;
-    }
-
-    public void setNotifier(Notifier notifier) {
-        this.notifier = notifier;
     }
 }
