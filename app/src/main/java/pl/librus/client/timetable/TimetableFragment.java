@@ -87,14 +87,18 @@ public class TimetableFragment extends Fragment implements MainFragment {
         } else {
             root = inflater.inflate(R.layout.fragment_timetable_tabs, container, false);
 
+            List<SchoolDay> schoolDays = new ArrayList<>();
+            for (SchoolWeek w : data.getSchoolWeeks()) schoolDays.addAll(w.getSchoolDays());
+            Collections.sort(schoolDays);
             viewPager = (ViewPager) root.findViewById(R.id.fragment_timetable_viewpager);
-            ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager(), data);
+            ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager(), schoolDays);
             viewPager.setAdapter(adapter);
 
             TabLayout tabs = (TabLayout) inflater.inflate(R.layout.tabs, null);
             ((MainActivity) getActivity()).addToolbarView(tabs);
             tabs.setupWithViewPager(viewPager);
-            
+
+            viewPager.setCurrentItem(schoolDays.indexOf(new SchoolDay(LocalDate.now())));
         }
         return root;
     }
@@ -135,10 +139,10 @@ public class TimetableFragment extends Fragment implements MainFragment {
     class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private final List<SchoolDay> schoolDays;
 
-        public ViewPagerAdapter(FragmentManager fm, LibrusData data) {
+        ViewPagerAdapter(FragmentManager fm, List<SchoolDay> schoolDays) {
             super(fm);
-            schoolDays = new ArrayList<>();
-            for (SchoolWeek w : data.getSchoolWeeks()) this.schoolDays.addAll(w.getSchoolDays());
+
+            this.schoolDays = schoolDays;
         }
 
         @Override

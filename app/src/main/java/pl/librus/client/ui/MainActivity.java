@@ -179,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
                 .withActionBarDrawerToggleAnimated(true)
                 .withSelectedItem(0);
 
-        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = drawerBuilder.withToolbar(toolbar).build();
@@ -303,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addToolbarView(View v) {
+        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         appBarLayout.addView(v, 1);
         toolbarView = v;
     }

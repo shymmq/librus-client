@@ -16,7 +16,7 @@ public class SchoolDay implements Serializable, Comparable<SchoolDay> {
     private HashMap<Integer, Lesson> lessons = new HashMap<>();
     private int lastLesson = 0;
 
-    SchoolDay(LocalDate date) {
+    public SchoolDay(LocalDate date) {
         this.date = date;
     }
 
@@ -53,5 +53,21 @@ public class SchoolDay implements Serializable, Comparable<SchoolDay> {
     @Override
     public int compareTo(@NonNull SchoolDay schoolDay) {
         return date.compareTo(schoolDay.getDate());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SchoolDay schoolDay = (SchoolDay) o;
+
+        return date.equals(schoolDay.date);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return date.hashCode();
     }
 }
