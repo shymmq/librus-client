@@ -25,16 +25,11 @@ public class LibrusData implements Serializable {
     private List<Average> averages = new ArrayList<>();
 
     private List<Announcement> announcements = new ArrayList<>();//other
-    private List<Announcement> announcements;//other
     private List<Attendance> attendances;
     private List<AttendanceCategory> attendanceCategories;
     private LuckyNumber luckyNumber;
 
     //Persistent data:
-    private List<Teacher> teachers = new ArrayList<>();
-    private List<Subject> subjects = new ArrayList<>();
-    private List<EventCategory> eventCategories = new ArrayList<>();
-    private List<GradeCategory> gradeCategories = new ArrayList<>();
     private List<Teacher> teachers;
     private List<Subject> subjects;
     private List<PlainLesson> plainLessons;
@@ -51,11 +46,19 @@ public class LibrusData implements Serializable {
         return timestamp;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
     public List<SchoolWeek> getSchoolWeeks() {
         return schoolWeeks;
     }
 
-    public void setSchoolWeeks(List<SchoolWeek> schoolWeeks) {
+    void setSchoolWeeks(List<SchoolWeek> schoolWeeks) {
         this.schoolWeeks = schoolWeeks;
     }
 
@@ -63,7 +66,7 @@ public class LibrusData implements Serializable {
         return events;
     }
 
-    public void setEvents(List<Event> events) {
+    void setEvents(List<Event> events) {
         this.events = events;
     }
 
@@ -107,6 +110,22 @@ public class LibrusData implements Serializable {
         this.announcements = announcements;
     }
 
+    public List<Attendance> getAttendances() {
+        return attendances;
+    }
+
+    public void setAttendances(List<Attendance> attendances) {
+        this.attendances = attendances;
+    }
+
+    public List<AttendanceCategory> getAttendanceCategories() {
+        return attendanceCategories;
+    }
+
+    public void setAttendanceCategories(List<AttendanceCategory> attendanceCategories) {
+        this.attendanceCategories = attendanceCategories;
+    }
+
     public LuckyNumber getLuckyNumber() {
         return luckyNumber;
     }
@@ -129,6 +148,14 @@ public class LibrusData implements Serializable {
 
     public void setSubjects(List<Subject> subjects) {
         this.subjects = subjects;
+    }
+
+    public List<PlainLesson> getPlainLessons() {
+        return plainLessons;
+    }
+
+    public void setPlainLessons(List<PlainLesson> plainLessons) {
+        this.plainLessons = plainLessons;
     }
 
     public List<EventCategory> getEventCategories() {
@@ -155,14 +182,6 @@ public class LibrusData implements Serializable {
         this.account = account;
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
     public Map<String, AttendanceCategory> getAttendanceCategoryMap() {
         Map<String, AttendanceCategory> res = new HashMap<>();
         for (AttendanceCategory ac : attendanceCategories) {
@@ -187,19 +206,15 @@ public class LibrusData implements Serializable {
 
     public Map<String, String> getLessonMap() {
         Map<String, String> res = new HashMap<>();
-        for(PlainLesson pl : plainLessons) {
+        for (PlainLesson pl : plainLessons) {
             res.put(String.valueOf(pl.getId()), String.valueOf(pl.getSubjectId()));
         }
-        return  res;
+        return res;
     }
 
     public Map<String, EventCategory> getEventCategoriesMap() {
         Map<String, EventCategory> res = new HashMap<>();
-        for (EventCategory e : eventCategories) {
-            res.put(e.getId(), e);
-        }
-        Map<String, Subject> res = new HashMap<>(subjects.size());
-        for (Subject s : subjects) res.put(s.getId(), s);
+        for (EventCategory e : eventCategories) res.put(e.getId(), e);
         return res;
     }
 
@@ -212,12 +227,6 @@ public class LibrusData implements Serializable {
     public Map<String, GradeComment> getCommentMap() {
         Map<String, GradeComment> res = new HashMap<>(gradeComments.size());
         for (GradeComment gc : gradeComments) res.put(gc.getId(), gc);
-        return res;
-    }
-
-    public Map<String, EventCategory> getEventCategoriesMap() {
-        Map<String, EventCategory> res = new HashMap<>(eventCategories.size());
-        for (EventCategory ec : eventCategories) res.put(ec.getId(), ec);
         return res;
     }
 }

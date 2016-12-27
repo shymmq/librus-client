@@ -2,7 +2,6 @@ package pl.librus.client.attendances;
 
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,22 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bignerdranch.expandablerecyclerview.model.Parent;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import pl.librus.client.R;
-import pl.librus.client.api.Attendance;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.ui.MainFragment;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AttendanceFragment extends MainFragment {
+public class AttendanceFragment extends Fragment implements MainFragment {
 
 
     private static final String ARG_DATA = "AttendanceFragment:data";

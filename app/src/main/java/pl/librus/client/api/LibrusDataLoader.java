@@ -147,6 +147,20 @@ public class LibrusDataLoader {
                 log("Text grades downloaded");
             }
         }));
+        tasks.add(client.getAttendances().done(new DoneCallback<List<Attendance>>() {
+            @Override
+            public void onDone(List<Attendance> result) {
+                librusData.setAttendances(result);
+                log("Attendances downloaded");
+            }
+        }));
+        tasks.add(client.getPlainLessons().done(new DoneCallback<List<PlainLesson>>() {
+            @Override
+            public void onDone(List<PlainLesson> result) {
+                librusData.setPlainLessons(result);
+                log("Plain lessons downloaded");
+            }
+        }));
         DeferredManager dm = new AndroidDeferredManager();
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
@@ -211,6 +225,13 @@ public class LibrusDataLoader {
                     public void onDone(List<GradeCategory> result) {
                         librusData.setGradeCategories(result);
                         log("GradeCat downlaoded");
+                    }
+                }));
+                tasks.add(client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
+                    @Override
+                    public void onDone(List<AttendanceCategory> result) {
+                        librusData.setAttendanceCategories(result);
+                        log("Attendance categories downloaded");
                     }
                 }));
 

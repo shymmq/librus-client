@@ -3,9 +3,7 @@ package pl.librus.client.api;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.preference.PreferenceManager;
-import android.support.v4.graphics.ColorUtils;
 import android.util.Log;
 
 import org.jdeferred.Deferred;
