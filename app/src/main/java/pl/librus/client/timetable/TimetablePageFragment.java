@@ -1,60 +1,58 @@
 package pl.librus.client.timetable;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.joda.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
+import eu.davidea.flexibleadapter.FlexibleAdapter;
 import pl.librus.client.R;
-import pl.librus.client.api.LibrusData;
+import pl.librus.client.api.Lesson;
 import pl.librus.client.api.SchoolDay;
 
+/**
+ * Created by szyme on 26.12.2016. librus-client
+ */
+
 public class TimetablePageFragment extends Fragment {
-    private static final String ARG_DATA = "data";
-    private static final String ARG_DATE = "date";
+    private static final String ARG_SCHOOLDAY = "TimetablePageFragment:schoolday";
     private final String TAG = "librus-client-log";
 
-    public TimetablePageFragment() {
-    }
+    public static TimetablePageFragment newInstance(SchoolDay d) {
 
-    public static TimetablePageFragment newInstance(LibrusData data, LocalDate date) {
-        TimetablePageFragment fragment = new TimetablePageFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_DATA, data);
-        args.putSerializable(ARG_DATE, date);
+        args.putSerializable(ARG_SCHOOLDAY, d);
+        TimetablePageFragment fragment = new TimetablePageFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        LibrusData data = (LibrusData) getArguments().getSerializable(ARG_DATA);
-        LocalDate date = (LocalDate) getArguments().getSerializable(ARG_DATE);
-        assert data != null && date != null;
-        SchoolDay schoolDay = data.getTimetable().getSchoolDay(date);
-
-        if (schoolDay == null) {
-            Log.d(TAG, "onCreateView: schoolday == null");
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        SchoolDay schoolDay = (SchoolDay) getArguments().getSerializable(ARG_SCHOOLDAY);
+        assert schoolDay != null;
+        if (schoolDay.isEmpty())
             return inflater.inflate(R.layout.fragment_timetable_page_empty, container, false);
-        } else if (schoolDay.isEmpty()) {
-            Log.d(TAG, schoolDay.getDate().toString() + " is empty");
-            return inflater.inflate(R.layout.fragment_timetable_page_empty, container, false);
-        } else {
-            View rootView = inflater.inflate(R.layout.fragment_timetable_page, container, false);
-            RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler);
-            recyclerView.setHasFixedSize(true);
-            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-            recyclerView.setLayoutManager(layoutManager);
-            RecyclerView.Adapter adapter = new LessonAdapter(schoolDay, data);
-            recyclerView.setAdapter(adapter);
-            return rootView;
-        }
+        View root = inflater.inflate(R.layout.fragment_timetable_page, container, false);
+        final RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_timetable_page_recycler);
+
+        List<TabLessonItem> items = new ArrayList<>();
+        for (Map.Entry<Integer, Lesson> entry : schoolDay.getLessons().entrySet())
+            items.add(new TabLessonItem(entry.getValue(), getContext()));
+        Collections.sort(items);
+        FlexibleAdapter<TabLessonItem> adapter = new FlexibleAdapter<>(items);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+        return root;
     }
 }

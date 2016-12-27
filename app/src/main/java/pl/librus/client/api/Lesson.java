@@ -10,6 +10,7 @@ public class Lesson implements Serializable {
 
 
     private static final long serialVersionUID = 3925316087529938003L;
+    private String id;
     private int lessonNumber = 0;
     private Event event = null;
     private Subject subject;
@@ -22,12 +23,14 @@ public class Lesson implements Serializable {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    Lesson(int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+    Lesson(String id,
+           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
            Subject subject, Teacher teacher,
            boolean isCanceled,
            boolean substitution,
            String orgSubjectId, String orgTeacherId,
            Event event) {
+        this.id = id;
         this.lessonNumber = lessonNumber;
         this.event = event;
         this.subject = subject;
@@ -87,5 +90,27 @@ public class Lesson implements Serializable {
 
     public boolean isCanceled() {
         return isCanceled;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Lesson lesson = (Lesson) o;
+
+        return id.equals(lesson.id) && date.equals(lesson.date);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + date.hashCode();
+        return result;
     }
 }

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -44,6 +43,7 @@ import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusData;
+import pl.librus.client.api.LibrusDataLoader;
 import pl.librus.client.api.LuckyNumber;
 import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.grades.GradesFragment;
@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private LuckyNumber luckyNumber;
     private ActionMenuView amv;
     private AppBarLayout appBarLayout;
-    private TabLayout tabLayout = null;
     private LibrusData librusData;
     private TimetableFragment timetableFragment;
     private AnnouncementsFragment announcementsFragment;
@@ -62,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Fragment currentFragment;
     private GradesFragment gradesFragment;
+    private View toolbarView;
     private AttendanceFragment attendanceFragment;
 
     @Override
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            LibrusData.load(this).done(new AndroidDoneCallback<LibrusData>() {
+            LibrusDataLoader.load(this).done(new AndroidDoneCallback<LibrusData>() {
                 @Override
                 public AndroidExecutionScope getExecutionScope() {
                     return null;
@@ -97,16 +97,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFail(Object result) {
                     librusData = new LibrusData(MainActivity.this);
-                    librusData.updatePersistent().done(new AndroidDoneCallback<Void>() {
+                    LibrusDataLoader.updatePersistent(librusData, MainActivity.this).done(new DoneCallback<LibrusData>() {
                         @Override
-                        public void onDone(Void result) {
-                            librusData.save();
+                        public void onDone(LibrusData result) {
                             setup();
-                        }
-
-                        @Override
-                        public AndroidExecutionScope getExecutionScope() {
-                            return null;
                         }
                     });
                 }
@@ -122,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
         announcementsFragment = AnnouncementsFragment.newInstance(librusData);
         gradesFragment = GradesFragment.newInstance(librusData);
         attendanceFragment = AttendanceFragment.newInstance(librusData);
+//        timetableFragment = TimetableFragment.newInstance(librusData);
+//        announcementsFragment = AnnouncementsFragment.newInstance(librusData);
+//        gradesFragment = GradesFragment.newInstance(librusData);
 
         //Drawer setup
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
@@ -185,31 +182,28 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .withActionBarDrawerToggle(true)
-                .withActionBarDrawerToggleAnimated(true);
+                .withActionBarDrawerToggleAnimated(true)
+                .withSelectedItem(0);
 
-        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = drawerBuilder.withToolbar(toolbar).build();
         drawer.setSelection(0);
-        if (tabLayout != null && appBarLayout.findViewById(tabLayout.getId()) == null) {
-            appBarLayout.addView(tabLayout);
-        }
         refresh();
     }
 
     private void refresh() {
         Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
         Log.d(TAG, "MainActivity: Refresh started");
-        librusData.update().done(new DoneCallback<Void>() {
-            @Override
-            public void onDone(Void result) {
-                librusData.save();
-                ((MainFragment) currentFragment).refresh(librusData);
-                Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "MainActivity: Refresh done");
-            }
-        });
+//        librusData.update().done(new DoneCallback<Void>() {
+//            @Override
+//            public void onDone(Void result) {
+//                librusData.save();
+//                ((MainFragment) currentFragment).refresh(librusData);
+//                Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
+//                Log.d(TAG, "MainActivity: Refresh done");
+//            }
+//        });
     }
 
     private void changeFragment(Fragment fragment, String title) {
@@ -228,16 +222,16 @@ public class MainActivity extends AppCompatActivity {
 
         switch ((int) item.getIdentifier()) {
             case 0:
-                changeFragment(timetableFragment, "Plan lekcji");
+                changeFragment(TimetableFragment.newInstance(librusData), "Plan lekcji");
                 break;
             case 1:
-                changeFragment(gradesFragment, "Oceny");
+                changeFragment(GradesFragment.newInstance(librusData), "Oceny");
                 break;
             case 2:
                 changeFragment(new PlaceholderFragment(), "Terminarz");
                 break;
             case 3:
-                changeFragment(announcementsFragment, "Ogłoszenia");
+                changeFragment(AnnouncementsFragment.newInstance(librusData), "Ogłoszenia");
                 break;
             case 4:
                 changeFragment(new PlaceholderFragment(), "Wiadomości");
@@ -298,18 +292,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void addTabs(TabLayout tabLayout) {
-        if (this.appBarLayout != null) {
-            appBarLayout.addView(tabLayout);
-        }
-        this.tabLayout = tabLayout;
-    }
-
-    public void removeTabs(TabLayout tabLayout) {
-        appBarLayout.removeView(tabLayout);
-        this.tabLayout = null;
-    }
-
     public void setBackArrow(boolean enable) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -325,4 +307,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void addToolbarView(View v) {
+        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
+        appBarLayout.addView(v, 1);
+        toolbarView = v;
+    }
+
+    public void removeToolbarView() {
+        if (toolbarView != null) appBarLayout.removeView(toolbarView);
+        toolbarView = null;
+    }
 }

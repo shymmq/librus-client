@@ -4,7 +4,9 @@
     android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:background="?attr/selectableItemBackground"
+    android:background="@color/md_light_background"
+    android:elevation="1dp"
+    android:foreground="?attr/selectableItemBackground"
     android:orientation="horizontal">
 
     <RelativeLayout

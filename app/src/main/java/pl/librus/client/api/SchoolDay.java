@@ -1,21 +1,22 @@
 package pl.librus.client.api;
 
 import android.annotation.SuppressLint;
+import android.support.annotation.NonNull;
 
 import org.joda.time.LocalDate;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
-public class SchoolDay implements Serializable {
-    static final long serialVersionUID = -8357220840792654725L;
+public class SchoolDay implements Serializable, Comparable<SchoolDay> {
+    private static final long serialVersionUID = -8357220840792654725L;
     private LocalDate date = LocalDate.now();
     private boolean empty = true;
     @SuppressLint("UseSparseArrays")
     private HashMap<Integer, Lesson> lessons = new HashMap<>();
     private int lastLesson = 0;
 
-    SchoolDay(LocalDate date) {
+    public SchoolDay(LocalDate date) {
         this.date = date;
     }
 
@@ -25,8 +26,8 @@ public class SchoolDay implements Serializable {
         lastLesson = number > lastLesson ? number : lastLesson;
     }
 
-    public int getLastLesson() {
-        return lastLesson;
+    public HashMap<Integer, Lesson> getLessons() {
+        return lessons;
     }
 
     public LocalDate getDate() {
@@ -37,6 +38,10 @@ public class SchoolDay implements Serializable {
         return lessons.get(i);
     }
 
+    public int getLastLesson() {
+        return lastLesson;
+    }
+
     public boolean isEmpty() {
         return empty;
     }
@@ -45,11 +50,24 @@ public class SchoolDay implements Serializable {
         this.empty = empty;
     }
 
-    public int size() {
-        return lessons.size();
+    @Override
+    public int compareTo(@NonNull SchoolDay schoolDay) {
+        return date.compareTo(schoolDay.getDate());
     }
 
-    public void removeLesson(int i) {
-        lessons.remove(i);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SchoolDay schoolDay = (SchoolDay) o;
+
+        return date.equals(schoolDay.date);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return date.hashCode();
     }
 }
