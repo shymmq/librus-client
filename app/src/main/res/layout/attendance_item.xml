@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <Space
+        android:id="@+id/space"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/attendance_item_shortType" />
+
+    <TextView
+        android:id="@+id/attendance_item_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/attendance_item_shortType"
+        android:layout_below="@+id/space"
+        android:layout_toEndOf="@+id/attendance_item_shortType"
+        android:gravity="center_vertical"
+        android:text=""
+        android:textColor="?android:attr/textColorSecondary"
+        tools:text="@string/details_date_placeholder" />
+
+    <TextView
+        android:id="@+id/attendance_item_lesson"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/space"
+        android:layout_alignTop="@+id/attendance_item_shortType"
+        android:layout_toEndOf="@+id/attendance_item_shortType"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:text="Biologia"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/attendance_item_shortType"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="false"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/solid_circle"
+        android:backgroundTint="@color/cardview_dark_background"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:text="nb"
+        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/attendance_item_type"
+        android:text=""
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/attendance_item_date"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp" />
+
+</RelativeLayout>

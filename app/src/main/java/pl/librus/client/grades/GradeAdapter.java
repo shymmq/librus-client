@@ -72,7 +72,6 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
         inflater = LayoutInflater.from(context);
     }
 
-
     static GradeAdapter fromLibrusData(LibrusData data) {
         List<GradeEntry> gradeEntries = new ArrayList<>();
         gradeEntries.addAll(data.getGrades());
