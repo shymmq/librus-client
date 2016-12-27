@@ -37,26 +37,18 @@ public class TimetableUtils {
         return LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
     }
 
-    public static int getDayCount() {
+    public static int getTabCount() {
 //        return Days.daysBetween(getStartDate(), getWeekStart().plusWeeks(2)).getDays() - 4;
-        return 10;
-    }
-
-    public static String getTabTitle(int index, boolean displayDates, boolean useRelativeTabNames) {
-        return getTitle(getTabDate(index), displayDates, useRelativeTabNames);
+        return getNextFullWeekStarts(LocalDate.now()).size() * 7;
     }
 
     //returns index for given date
     public static LocalDate getTabDate(int index) {
-        LocalDate weekStart = getWeekStart();
-        if (index >= 5) {
-            return weekStart.plusDays(index + 2);
-        }
-        return weekStart.plusDays(index);
+        return getNextFullWeekStarts(LocalDate.now()).get(0).plusDays(index);
     }
 
     //return title String for given date
-    private static String getTitle(LocalDate date, boolean displayDates, boolean useRelativeTabNames) {
+    static String getTitle(LocalDate date, boolean displayDates, boolean useRelativeTabNames) {
 
         int diff = Days.daysBetween(LocalDate.now(), date).getDays();
         boolean sameWeek = (LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY).isEqual(date.withDayOfWeek(DateTimeConstants.MONDAY)));
@@ -79,17 +71,27 @@ public class TimetableUtils {
 
     //we want to get next 5 days starting from today. this period can overlap one or two weeks. this method returns start days of those weeks
     public static List<LocalDate> getNextFullWeekStarts(LocalDate today) {
-        int weekDay = today.getDayOfWeek();
-        if (weekDay == DateTimeConstants.MONDAY) {
-            return Lists.newArrayList(today);
-        } else if (weekDay == DateTimeConstants.SATURDAY) {
-            return Lists.newArrayList(today.plusDays(2));
-        } else if (weekDay == DateTimeConstants.SUNDAY) {
-            return Lists.newArrayList(today.plusDays(1));
-        } else {
-            LocalDate prevMonday = today.withDayOfWeek(DateTimeConstants.MONDAY);
-            return Lists.newArrayList(prevMonday, prevMonday.plusWeeks(1));
-        }
+//        int weekDay = today.getDayOfWeek();
+//        if (weekDay == DateTimeConstants.MONDAY) {
+//            return Lists.newArrayList(today);
+//        } else if (weekDay == DateTimeConstants.SATURDAY) {
+//            return Lists.newArrayList(today.plusDays(2));
+//        } else if (weekDay == DateTimeConstants.SUNDAY) {
+//            return Lists.newArrayList(today.plusDays(1));
+//        } else {
+//            LocalDate prevMonday = today.withDayOfWeek(DateTimeConstants.MONDAY);
+//            return Lists.newArrayList(prevMonday, prevMonday.plusWeeks(1));
+
+        LocalDate lastMonday = today.withDayOfWeek(DateTimeConstants.MONDAY);
+        return Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
     }
+//    public LocalDate getLastWeekStartDate() {
+//        LocalDate res = new LocalDate(0);
+//        for (SchoolWeek week : schoolWeeks) {
+//            LocalDate weekStart = week.getWeekStart();
+//            res = weekStart.isAfter(res) ? weekStart : res;
+//        }
+//        return res;
+//    }
 }
 

@@ -243,7 +243,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
         /**
          * Default constructor.
          *
-         * @param itemView The {@link View} being hosted in this ViewHolder
+         * @param itemView The {@link View} being hosted in this EmptyLessonItemViewHolder
          */
         AverageViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -287,7 +287,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
         /**
          * Default constructor.
          *
-         * @param itemView The {@link View} being hosted in this ViewHolder
+         * @param itemView The {@link View} being hosted in this EmptyLessonItemViewHolder
          */
         TextGradeSummaryViewHolder(@NonNull View itemView, Map<String, GradeCategory> gradeCategoryMap) {
             super(itemView);

@@ -1,12 +1,14 @@
 package pl.librus.client.api;
 
+import android.support.annotation.NonNull;
+
 import org.joda.time.LocalDate;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SchoolWeek implements Serializable {
+public class SchoolWeek implements Serializable, Comparable<SchoolWeek> {
 
     private static final long serialVersionUID = -1448021508657217605L;
     private final String TAG = "librus-client-log";
@@ -25,7 +27,12 @@ public class SchoolWeek implements Serializable {
         return schoolDays;
     }
 
-    LocalDate getWeekStart() {
+    public LocalDate getWeekStart() {
         return weekStart;
+    }
+
+    @Override
+    public int compareTo(@NonNull SchoolWeek week) {
+        return weekStart.compareTo(week.getWeekStart());
     }
 }

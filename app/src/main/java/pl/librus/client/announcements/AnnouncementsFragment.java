@@ -1,6 +1,7 @@
 package pl.librus.client.announcements;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,7 +27,7 @@ import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainFragment;
 import pl.librus.client.ui.RecyclerViewItemClickListener;
 
-public class AnnouncementsFragment extends MainFragment {
+public class AnnouncementsFragment extends Fragment implements MainFragment {
     private static final String ARG_ANNOUNCEMENTS = "AnnouncementsFragment:announcements";
     private static final String ARG_TEACHERS = "AnnouncementsFragment:teachers";
     private final String TAG = "librus-client-log";

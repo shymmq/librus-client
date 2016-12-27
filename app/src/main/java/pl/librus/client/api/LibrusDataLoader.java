@@ -1,0 +1,258 @@
+package pl.librus.client.api;
+
+import android.content.Context;
+import android.util.Log;
+
+import com.desmond.asyncmanager.AsyncManager;
+import com.desmond.asyncmanager.TaskRunnable;
+
+import org.jdeferred.Deferred;
+import org.jdeferred.DeferredManager;
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+import org.jdeferred.Promise;
+import org.jdeferred.android.AndroidDeferredManager;
+import org.jdeferred.android.AndroidDoneCallback;
+import org.jdeferred.android.AndroidExecutionScope;
+import org.jdeferred.android.AndroidFailCallback;
+import org.jdeferred.impl.DeferredObject;
+import org.jdeferred.multiple.MultipleResults;
+import org.jdeferred.multiple.OneReject;
+import org.joda.time.LocalDate;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import pl.librus.client.timetable.TimetableUtils;
+
+/**
+ * Created by szyme on 24.12.2016. librus-client
+ */
+
+public class LibrusDataLoader {
+
+    private static final String TAG = "librus-client-log";
+    private static boolean debug = true;
+
+    private static void log(String text) {
+        if (debug) Log.d(TAG, text);
+    }
+
+    static public Promise<LibrusData, Object, Object> load(final Context context) {
+        final Deferred<LibrusData, Object, Object> deferred = new DeferredObject<>();
+        final String cache_filename = "librus_client_cache";
+
+        AsyncManager.runBackgroundTask(new TaskRunnable<Object, LibrusData, Object>() {
+            @Override
+            public LibrusData doLongOperation(Object o) throws InterruptedException {
+                try {
+                    FileInputStream fis = context.openFileInput(cache_filename);
+                    ObjectInputStream is = new ObjectInputStream(fis);
+                    LibrusData cache = (LibrusData) is.readObject();
+                    cache.setContext(context);
+                    is.close();
+                    fis.close();
+                    return cache;
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG, "doLongOperation: File not found.");
+                    deferred.reject(null);
+                    return null;
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            public void callback(LibrusData librusData) {
+                if (librusData != null) {
+                    Log.d(TAG, "callback: File loaded successfully");
+                    deferred.resolve(librusData);
+                }
+            }
+        });
+        return deferred.promise();
+    }
+
+    public static Promise<LibrusData, Void, Void> update(final LibrusData librusData, Context context) {
+        Log.d(TAG, "update: Starting update");
+        final Deferred<LibrusData, Void, Void> deferred = new DeferredObject<>();
+        List<Promise> tasks = new ArrayList<>();
+        APIClient client = new APIClient(context);
+        librusData.setSchoolWeeks(new ArrayList<SchoolWeek>());
+        List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
+
+        for (LocalDate weekStart : weekStarts) {
+            client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
+                @Override
+                public void onDone(SchoolWeek result) {
+                    librusData.getSchoolWeeks().add(result);
+                    log("School week " + result.getWeekStart() + " downloaded");
+                }
+            });
+        }
+
+        tasks.add(client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
+            @Override
+            public void onDone(List<Announcement> result) {
+                librusData.setAnnouncements(result);
+                log("Announcements downloaded");
+            }
+        }));
+        tasks.add(client.getEvents().done(new DoneCallback<List<Event>>() {
+            @Override
+            public void onDone(List<Event> result) {
+                librusData.setEvents(result);
+                log("Events downloaded");
+            }
+        }));
+        tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
+            @Override
+            public void onDone(LuckyNumber result) {
+                librusData.setLuckyNumber(result);
+                log("LNumber downloaded");
+            }
+        }));
+        tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
+            @Override
+            public void onDone(List<Grade> result) {
+                librusData.setGrades(result);
+                log("Grades downloaded");
+            }
+        }));
+        tasks.add(client.getComments().done(new DoneCallback<List<GradeComment>>() {
+            @Override
+            public void onDone(List<GradeComment> result) {
+                librusData.setGradeComments(result);
+                log("Grade comments downloaded");
+            }
+        }));
+        tasks.add(client.getAverages().done(new DoneCallback<List<Average>>() {
+            @Override
+            public void onDone(List<Average> result) {
+                librusData.setAverages(result);
+                log("Averages downloaded");
+            }
+        }));
+        tasks.add(client.getTextGrades().done(new DoneCallback<List<TextGrade>>() {
+            @Override
+            public void onDone(List<TextGrade> result) {
+                librusData.setTextGrades(result);
+                log("Text grades downloaded");
+            }
+        }));
+        DeferredManager dm = new AndroidDeferredManager();
+        dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
+            @Override
+            public void onDone(MultipleResults result) {
+                deferred.resolve(librusData);
+            }
+        }).fail(new FailCallback<OneReject>() {
+            @Override
+            public void onFail(OneReject result) {
+                deferred.reject(null);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    public static Promise<LibrusData, Void, Void> updatePersistent(final LibrusData librusData, final Context context) {
+        Log.d(TAG, "updatePersistent: Starting persistent update");
+        final Deferred<LibrusData, Void, Void> deferred = new DeferredObject<>();
+
+
+        update(librusData, context).done(new DoneCallback<LibrusData>() {
+            @Override
+            public void onDone(LibrusData result) {
+                List<Promise> tasks = new ArrayList<>();
+                APIClient client = new APIClient(context);
+                //Persistent data:
+                tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
+                    @Override
+                    public void onDone(LibrusAccount result) {
+                        librusData.setAccount(result);
+                        log("Account downloaded");
+
+                    }
+                }));
+                tasks.add(client.getTeachers().done(new DoneCallback<List<Teacher>>() {
+                    @Override
+                    public void onDone(List<Teacher> result) {
+                        librusData.setTeachers(result);
+                        log("Teachers downloaded");
+
+                    }
+                }));
+                tasks.add(client.getSubjects().done(new DoneCallback<List<Subject>>() {
+                    @Override
+                    public void onDone(List<Subject> result) {
+                        librusData.setSubjects(result);
+                        log("Subjects downloaded");
+
+                    }
+                }));
+                tasks.add(client.getEventCategories().done(new DoneCallback<List<EventCategory>>() {
+                    @Override
+                    public void onDone(List<EventCategory> result) {
+                        librusData.setEventCategories(result);
+                        log("EventCat downloaded");
+
+                    }
+                }));
+                tasks.add(client.getGradeCategories().done(new DoneCallback<List<GradeCategory>>() {
+                    @Override
+                    public void onDone(List<GradeCategory> result) {
+                        librusData.setGradeCategories(result);
+                        log("GradeCat downlaoded");
+                    }
+                }));
+
+                DeferredManager dm = new AndroidDeferredManager();
+                dm.when(tasks.toArray(new Promise[tasks.size()])).done(new AndroidDoneCallback<MultipleResults>() {
+                    @Override
+                    public AndroidExecutionScope getExecutionScope() {
+                        return null;
+                    }
+
+                    @Override
+                    public void onDone(MultipleResults result) {
+                        Log.d(TAG, "onDone: Persistent update done");
+                        deferred.resolve(librusData);
+                    }
+                }).fail(new AndroidFailCallback<OneReject>() {
+                    @Override
+                    public AndroidExecutionScope getExecutionScope() {
+                        return null;
+                    }
+
+                    @Override
+                    public void onFail(OneReject result) {
+                        Log.d(TAG, "onFail: Persistent update failed " + result.toString());
+                        deferred.reject(null);
+                    }
+                });
+            }
+        });
+        return deferred.promise();
+    }
+
+    static public void save(LibrusData librusData, Context context) {
+        try {
+            String cache_filename = "librus_client_cache";
+            FileOutputStream fos = context.openFileOutput(cache_filename, Context.MODE_PRIVATE);
+            ObjectOutputStream os = new ObjectOutputStream(fos);
+            os.writeObject(librusData);
+            os.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

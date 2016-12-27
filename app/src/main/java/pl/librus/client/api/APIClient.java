@@ -43,7 +43,7 @@ public class APIClient {
             .build();
     boolean debug = true;
 
-    APIClient(Context _context) {
+    public APIClient(Context _context) {
         context = _context;
     }
 
@@ -434,7 +434,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
+    public Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
 
         final Deferred<SchoolWeek, Void, Void> deferred = new DeferredObject<>();
 
@@ -466,6 +466,7 @@ public class APIClient {
                                 Teacher teacher = new Teacher(rawTeacher.getString("Id"));
                                 teacher.setName(rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
                                 schoolDay.setLesson(i, new Lesson(
+                                        rawLesson.getJSONObject("Lesson").getString("Id") + date.toString(),
                                         i,
                                         date,
                                         LocalTime.parse(rawLesson.getString("HourFrom"), DateTimeFormat.forPattern("HH:mm")),
