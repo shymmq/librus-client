@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,6 +37,8 @@ public class TimetableFragment extends Fragment implements MainFragment {
     private final String TAG = "librus-client-log";
     LibrusData data;
     private List<IFlexible> listElements = new ArrayList<>();
+    private boolean useTabs = false;
+    private ViewPager viewPager;
 
     public static TimetableFragment newInstance(LibrusData data) {
         TimetableFragment fragment = new TimetableFragment();
@@ -57,7 +59,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
         Collections.sort(schoolWeeks);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        boolean useTabs = prefs.getBoolean("useTabs", false);
+        useTabs = prefs.getBoolean("useTabs", false);
 
         if (!useTabs) {
             root = inflater.inflate(R.layout.fragment_timetable, container, false);
@@ -85,20 +87,23 @@ public class TimetableFragment extends Fragment implements MainFragment {
         } else {
             root = inflater.inflate(R.layout.fragment_timetable_tabs, container, false);
 
-            ViewPager viewPager = (ViewPager) root.findViewById(R.id.fragment_timetable_viewpager);
-            viewPager.setAdapter(new ViewPagerAdapter(getFragmentManager(), data));
+            viewPager = (ViewPager) root.findViewById(R.id.fragment_timetable_viewpager);
+            ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager(), data);
+            viewPager.setAdapter(adapter);
 
             TabLayout tabs = (TabLayout) inflater.inflate(R.layout.tabs, null);
             ((MainActivity) getActivity()).addToolbarView(tabs);
             tabs.setupWithViewPager(viewPager);
+            
         }
         return root;
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        ((MainActivity) getActivity()).removeToolbarView();
+    public void onDestroy() {
+        super.onDestroy();
+        if (useTabs)
+            ((MainActivity) getActivity()).removeToolbarView();
     }
 
     void addSchoolWeek(SchoolWeek week) {
@@ -127,7 +132,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
         Log.d(TAG, "TimetableFragment update()");
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private final List<SchoolDay> schoolDays;
 
         public ViewPagerAdapter(FragmentManager fm, LibrusData data) {
