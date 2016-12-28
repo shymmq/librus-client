@@ -43,7 +43,7 @@ public class GradesFragment extends Fragment implements MainFragment {
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
-        GradeAdapter adapter = GradeAdapter.fromLibrusData(data);
+        GradeAdapter adapter = GradeAdapter.fromLibrusData(data, getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.getItemAnimator().setAddDuration(150);

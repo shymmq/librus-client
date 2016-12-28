@@ -17,7 +17,7 @@ public class TextGrade extends GradeEntry implements Serializable, Comparable {
 
     private static final long serialVersionUID = 7711525769532900327L;
 
-    String id, lessonId, subjectId, addedById, categoryId, grade;
+    private String id, lessonId, subjectId, addedById, categoryId, grade;
     private int semester;
     private LocalDate date;
     private LocalDateTime addDate;

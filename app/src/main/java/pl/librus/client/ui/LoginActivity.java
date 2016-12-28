@@ -17,6 +17,7 @@ import org.jdeferred.Promise;
 
 import pl.librus.client.R;
 import pl.librus.client.api.APIClient;
+import pl.librus.client.api.RegistrationIntentService;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -38,12 +39,13 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 APIClient.login(usernameInput.getText().toString(), passwordInput.getText().toString(), getApplicationContext()).done(new DoneCallback<String>() {
                     @Override
                     public void onDone(String result) {
-                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(i);
+                        Intent intent1 = new Intent(LoginActivity.this, MainActivity.class);
+                        Intent intent2 = new Intent(getApplicationContext(), RegistrationIntentService.class);
+                        startService(intent2);
+                        startActivity(intent1);
                         finish();
                     }
                 }).fail(new FailCallback<Integer>() {

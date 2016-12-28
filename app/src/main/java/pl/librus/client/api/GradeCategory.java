@@ -11,7 +11,7 @@ public class GradeCategory implements Serializable {
     private String id, name;
     private int weight;
 
-    public GradeCategory(String id, String name, int weight) {
+    GradeCategory(String id, String name, int weight) {
         this.id = id;
         this.name = name;
         this.weight = weight;

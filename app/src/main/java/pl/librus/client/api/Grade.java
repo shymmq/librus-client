@@ -6,6 +6,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import pl.librus.client.grades.GradeEntry;
 import pl.librus.client.grades.TextGradeSummary;
@@ -98,6 +99,23 @@ public class Grade extends GradeEntry implements Serializable {
         else return 0;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Grade && Objects.equals(((Grade) obj).getId(), id);
+    }
+//    @Override
+//    public Change getChanges(Grade newGrade) {
+//        if (!Objects.equals(grade, newGrade.getGrade())) {
+//            //Grade value changed
+//            return new Change(Change.Action.CHANGE, Change.ObjectType.GRADE_VALUE);
+//        } else if (commentId == null && newGrade.getCommentId() != null) {
+//            //Comment added
+//            return new Change(Change.Action.ADD, Change.ObjectType.GRADE_COMMENT);
+//        } else {
+//            //Nothing important changed
+//            return null;
+//        }
+//    }
 
     enum Type {
         NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL

@@ -12,10 +12,10 @@ import pl.librus.client.grades.GradeEntry;
 
 public class Average extends GradeEntry implements Serializable {
     private static final long serialVersionUID = 6054144699190921436L;
-    double semester1, semester2, fullYear;
-    String subjectId;
+    private double semester1, semester2, fullYear;
+    private String subjectId;
 
-    public Average(String subjectId, double semester1, double semester2, double fullYear) {
+    Average(String subjectId, double semester1, double semester2, double fullYear) {
         this.semester1 = semester1;
         this.semester2 = semester2;
         this.fullYear = fullYear;

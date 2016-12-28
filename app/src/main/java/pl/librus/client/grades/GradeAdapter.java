@@ -72,7 +72,8 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
         inflater = LayoutInflater.from(context);
     }
 
-    static GradeAdapter fromLibrusData(LibrusData data) {
+
+    static GradeAdapter fromLibrusData(LibrusData data, Context context) {
         List<GradeEntry> gradeEntries = new ArrayList<>();
         gradeEntries.addAll(data.getGrades());
         gradeEntries.addAll(data.getAverages());
@@ -101,7 +102,7 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
             categories.add(new Category(entry.getValue(), subjectMap.get(entry.getKey()).getName()));
         }
         Collections.sort(categories, Collections.<Category>reverseOrder());
-        return new GradeAdapter(categories, data, data.getContext());
+        return new GradeAdapter(categories, data, context);
     }
 
     @NonNull
@@ -341,8 +342,15 @@ class GradeAdapter extends ExpandableRecyclerAdapter<GradeAdapter.Category, Grad
         }
 
         void bind(Category category) {
+            int size = 0;
             title.setText(category.getTitle());
-            int size = category.getChildList().size();
+            for (GradeEntry e :
+                    category.getChildList()) {
+                if (e instanceof Grade)
+                    size++;
+                else if (e instanceof TextGradeSummary)
+                    size += ((TextGradeSummary) e).getGrades().size();
+            }
             String gradeCount;
             if (size == 0) gradeCount = "Brak ocen";
             else if (size == 1) gradeCount = "1 ocena";

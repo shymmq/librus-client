@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -34,6 +35,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class APIClient {
+    private static final MediaType JSON
+            = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "librus-client-log";
     private final Context context;
     private final OkHttpClient client = new OkHttpClient.Builder()
@@ -41,7 +44,6 @@ public class APIClient {
             .writeTimeout(9, TimeUnit.DAYS)
             .readTimeout(9, TimeUnit.DAYS)
             .build();
-    boolean debug = true;
 
     public APIClient(Context _context) {
         context = _context;
@@ -97,6 +99,7 @@ public class APIClient {
     }
 
     private void log(String text) {
+        boolean debug = false;
         if (debug) Log.d(TAG, text);
     }
 
@@ -104,9 +107,19 @@ public class APIClient {
         final Deferred<JSONObject, Integer, Void> deferred = new DeferredObject<>();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         final String access_token = preferences.getString("access_token", "");
+        String url;
         String BASE_URL = "https://api.librus.pl/2.0";
+        boolean mockData = false;
+        if (!mockData)
+            url = BASE_URL + endpoint;
+        else if (Objects.equals(endpoint, "/Grades"))
+            url = "http://192.168.0.59:8080/mock-grades.json";
+        else if (Objects.equals(endpoint, "/HomeWorks"))
+            url = "http://192.168.0.59:8080/mock-events.json";
+        else
+            url = BASE_URL + endpoint;
         final Request request = new Request.Builder().addHeader("Authorization", "Bearer " + access_token)
-                .url(BASE_URL + endpoint)
+                .url(url)
                 .build();
         log("Performing APIRequest " +
                 "Endpoint: " + endpoint);
@@ -230,6 +243,43 @@ public class APIClient {
         return deferred.promise();
     }
 
+    Promise<Integer, Integer, Void> pushDevices(final String regToken) {
+        final Deferred<Integer, Integer, Void> deferred = new DeferredObject<>();
+        try {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            final String access_token = preferences.getString("access_token", "");
+
+            JSONObject params = new JSONObject();
+            params.put("provider", "Android_dru");
+            params.put("device", regToken);
+            RequestBody body = RequestBody.create(JSON, params.toString());
+            String AUTH_URL = "https://api.librus.pl/2.0/PushDevices";
+            final Request request = new Request.Builder()
+                    .addHeader("Authorization", "Bearer " + access_token)
+                    .url(AUTH_URL)
+                    .post(body)
+                    .build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    deferred.reject(0);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful())
+                        deferred.resolve(response.code());
+                    else
+                        deferred.reject(response.code());
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+            deferred.reject(1);
+        }
+        return deferred.promise();
+    }
+
     Promise<List<EventCategory>, Void, Void> getEventCategories() {
 
         final Deferred<List<EventCategory>, Void, Void> deferred = new DeferredObject<>();
@@ -272,7 +322,8 @@ public class APIClient {
                         LocalDate date = LocalDate.parse(rawEvent.getString("Date"));
                         String addedById = rawEvent.getJSONObject("CreatedBy").getString("Id");
                         int lessonNumber = rawEvent.isNull("LessonNo") ? -1 : Integer.parseInt(rawEvent.getString("LessonNo"));
-                        res.add(new Event(categoryId, description, date, addedById, lessonNumber));
+                        String id = rawEvent.getString("Id");
+                        res.add(new Event(id, categoryId, description, date, addedById, lessonNumber));
                     }
                     deferred.resolve(res);
                 } catch (JSONException e) {

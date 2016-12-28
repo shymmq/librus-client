@@ -92,6 +92,10 @@ public class Lesson implements Serializable {
         return isCanceled;
     }
 
+    public int getChanges(Lesson lesson) {
+        return 0;
+    }
+
     public String getId() {
         return id;
     }

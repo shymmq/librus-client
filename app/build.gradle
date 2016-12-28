@@ -48,6 +48,9 @@ dependencies {
     compile('eu.davidea:flexible-adapter:5.0.0-SNAPSHOT') {
         changing = true;
     }
+    compile 'com.android.support:support-v4:25.0.1'
+    compile 'com.google.android.gms:play-services-gcm:10.0.1'
+    compile 'com.google.android.gms:play-services:10.0.1'
     testCompile 'junit:junit:4.12'
     compile 'com.google.guava:guava:20.0'
 }

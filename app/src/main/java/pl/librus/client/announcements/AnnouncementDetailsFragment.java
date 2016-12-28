@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
+import pl.librus.client.api.Reader;
 import pl.librus.client.api.Teacher;
 import pl.librus.client.ui.MainActivity;
 
@@ -75,8 +76,7 @@ public class AnnouncementDetailsFragment extends Fragment {
 
         background.setTransitionName("announcement_background_" + announcement.getId());
         info.setTransitionName("announcement_info_" + announcement.getId());
-
-        AnnouncementUtils.markAsRead(announcement.getId(), getContext());
+        Reader.read(Reader.TYPE_ANNOUNCEMENT, announcement.getId(), getContext());
         return root;
     }
 
