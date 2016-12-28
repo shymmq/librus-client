@@ -38,7 +38,6 @@ public class TimetableFragment extends Fragment implements MainFragment {
     LibrusData data;
     private List<IFlexible> listElements = new ArrayList<>();
     private boolean useTabs = false;
-    private ViewPager viewPager;
 
     public static TimetableFragment newInstance(LibrusData data) {
         TimetableFragment fragment = new TimetableFragment();
@@ -90,7 +89,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
             List<SchoolDay> schoolDays = new ArrayList<>();
             for (SchoolWeek w : data.getSchoolWeeks()) schoolDays.addAll(w.getSchoolDays());
             Collections.sort(schoolDays);
-            viewPager = (ViewPager) root.findViewById(R.id.fragment_timetable_viewpager);
+            ViewPager viewPager = (ViewPager) root.findViewById(R.id.fragment_timetable_viewpager);
             ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager(), schoolDays);
             viewPager.setAdapter(adapter);
 
