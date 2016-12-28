@@ -214,19 +214,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void changeFragment(Fragment fragment, String title) {
-        Log.d(TAG, "changeFragment: \n" +
-                "fragment " + fragment + "\n" +
-                "title: " + title);
-        currentFragment = fragment;
-        toolbar.setTitle(title);
+        if (currentFragment == null || currentFragment.getClass() != fragment.getClass()) {
+            Log.d(TAG, "changeFragment: \n" +
+                    "fragment " + fragment + "\n" +
+                    "title: " + title);
+            currentFragment = fragment;
+            toolbar.setTitle(title);
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content_main, fragment);
-        transaction.commit();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.content_main, fragment);
+            transaction.commit();
+        }
     }
 
     private boolean selectItem(IDrawerItem item) {
-
         switch ((int) item.getIdentifier()) {
             case 0:
                 changeFragment(TimetableFragment.newInstance(librusData), "Plan lekcji");

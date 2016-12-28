@@ -107,8 +107,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (useTabs)
-            ((MainActivity) getActivity()).removeToolbarView();
+        ((MainActivity) getActivity()).removeToolbarView();
     }
 
     void addSchoolWeek(SchoolWeek week) {
