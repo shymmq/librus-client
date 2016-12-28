@@ -215,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeFragment(Fragment fragment, String title) {
         if (currentFragment == null || currentFragment.getClass() != fragment.getClass()) {
+            if (!(fragment instanceof TimetableFragment)) removeToolbarView();
             Log.d(TAG, "changeFragment: \n" +
                     "fragment " + fragment + "\n" +
                     "title: " + title);
@@ -245,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                 changeFragment(new PlaceholderFragment(), "Wiadomości");
                 break;
             case 5:
-                changeFragment(attendanceFragment, "Nieobecności");
+                changeFragment(AttendanceFragment.newInstance(librusData), "Nieobecności");
                 break;
             case 6:
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
