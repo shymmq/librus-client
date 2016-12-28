@@ -32,6 +32,7 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
     private static final String ARG_TEACHERS = "AnnouncementsFragment:teachers";
     private final String TAG = "librus-client-log";
     private final boolean debug = false;
+    private OnSetupCompleteListener listener;
 
     public AnnouncementsFragment() {
         // Required empty public constructor
@@ -108,6 +109,8 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
 
         }));
         ((MainActivity) getActivity()).setBackArrow(false);
+        if (listener != null) listener.onSetupComplete();
+
         return root;
     }
 
@@ -115,5 +118,10 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
     public void refresh(LibrusData cache) {
         Log.d(TAG, "AnnouncementsFragment update()");
 
+    }
+
+    @Override
+    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
+        this.listener = listener;
     }
 }

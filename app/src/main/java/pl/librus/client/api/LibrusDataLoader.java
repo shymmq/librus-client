@@ -80,7 +80,7 @@ public class LibrusDataLoader {
         return deferred.promise();
     }
 
-    public static Promise<LibrusData, Void, Void> update(final LibrusData librusData, Context context) {
+    public static Promise<LibrusData, Void, Void> update(final LibrusData librusData, final Context context) {
         Log.d(TAG, "update: Starting update");
         final Deferred<LibrusData, Void, Void> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
@@ -98,16 +98,44 @@ public class LibrusDataLoader {
             });
         }
 
+        final List<Announcement> pendingAnnouncements = new ArrayList<>(); //Add tagging interface to all datamodel classes
+        final List<Event> pendingEvents = new ArrayList<>();
+        final List<Grade> pendingGrades = new ArrayList<>();
+        final LuckyNumber[] pendingLuckyNumber = new LuckyNumber[1];
         tasks.add(client.getAnnouncements().done(new DoneCallback<List<Announcement>>() {
             @Override
             public void onDone(List<Announcement> result) {
+                List<Announcement> added = new ArrayList<>(result);
+                added.removeAll(librusData.getAnnouncements());
+                pendingAnnouncements.addAll(added);
+
+                List<Announcement> removed = new ArrayList<>(librusData.getAnnouncements());
+                removed.removeAll(result);
+                //TODO handle removed items
+
+                List<Announcement> common = new ArrayList<>(librusData.getAnnouncements());
+                common.retainAll(result);
+                //TODO handle changed items
+
                 librusData.setAnnouncements(result);
-                log("Announcements downloaded");
+                log(result.size() + " announcements downloaded");
             }
         }));
         tasks.add(client.getEvents().done(new DoneCallback<List<Event>>() {
             @Override
             public void onDone(List<Event> result) {
+                List<Event> added = new ArrayList<>(result);
+                added.removeAll(librusData.getEvents());
+                pendingEvents.addAll(added);
+
+                List<Event> removed = new ArrayList<>(librusData.getEvents());
+                removed.removeAll(result);
+                //TODO handle removed items
+
+                List<Event> common = new ArrayList<>(librusData.getEvents());
+                common.retainAll(result);
+                //TODO handle changed items
+
                 librusData.setEvents(result);
                 log("Events downloaded");
             }
@@ -115,6 +143,8 @@ public class LibrusDataLoader {
         tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
             @Override
             public void onDone(LuckyNumber result) {
+                if (librusData.getLuckyNumber() != null && librusData.getLuckyNumber().getLuckyNumberDay().isBefore(result.getLuckyNumberDay()))
+                    pendingLuckyNumber[0] = result;
                 librusData.setLuckyNumber(result);
                 log("LNumber downloaded");
             }
@@ -122,6 +152,18 @@ public class LibrusDataLoader {
         tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
             @Override
             public void onDone(List<Grade> result) {
+                List<Grade> added = new ArrayList<>(result);
+                added.removeAll(librusData.getGrades());
+                pendingGrades.addAll(added);
+
+                List<Grade> removed = new ArrayList<>(librusData.getGrades());
+                removed.removeAll(result);
+                //TODO handle removed items
+
+                List<Grade> common = new ArrayList<>(librusData.getGrades());
+                common.retainAll(result);
+                //TODO handle changed items
+
                 librusData.setGrades(result);
                 log("Grades downloaded");
             }
@@ -165,6 +207,12 @@ public class LibrusDataLoader {
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
+                NotificationService notificationService = new NotificationService(context, librusData);
+                notificationService
+                        .addAnnouncements(pendingAnnouncements)
+                        .addEvents(pendingEvents)
+                        .addGrades(pendingGrades)
+                        .addLuckyNumber(pendingLuckyNumber[0]);
                 deferred.resolve(librusData);
             }
         }).fail(new FailCallback<OneReject>() {

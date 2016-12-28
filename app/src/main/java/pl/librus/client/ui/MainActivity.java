@@ -33,6 +33,9 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.jdeferred.DoneCallback;
+import org.jdeferred.android.AndroidDoneCallback;
+import org.jdeferred.android.AndroidExecutionScope;
+import org.jdeferred.android.AndroidFailCallback;
 
 import java.util.Locale;
 
@@ -42,22 +45,30 @@ import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.LibrusDataLoader;
 import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.api.NotificationService;
 import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity {
+    public static final int FRAGMENT_TIMETABLE_ID = 0;
+    public static final int FRAGMENT_GRADES_ID = 1;
+    public static final int FRAGMENT_ANNOUNCEMENTS_ID = 3;
+    private static final int FRAGMENT_CALENDAR_ID = 2;
     private final String TAG = "librus-client-log";
     private LuckyNumber luckyNumber;
     private ActionMenuView amv;
     private AppBarLayout appBarLayout;
     private LibrusData librusData;
-    private TimetableFragment timetableFragment;
-    private AnnouncementsFragment announcementsFragment;
     private Drawer drawer;
     private Toolbar toolbar;
     private Fragment currentFragment;
-    private GradesFragment gradesFragment;
+    MainFragment.OnSetupCompleteListener refreshListener = new MainFragment.OnSetupCompleteListener() {
+        @Override
+        public void onSetupComplete() {
+            refresh();
+        }
+    };
     private View toolbarView;
     private AttendanceFragment attendanceFragment;
 
@@ -96,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     LibrusDataLoader.updatePersistent(librusData, MainActivity.this).done(new DoneCallback<LibrusData>() {
                         @Override
                         public void onDone(LibrusData result) {
+                            LibrusDataLoader.save(result, getApplicationContext());
                             setup();
                         }
                     });
@@ -107,14 +119,6 @@ public class MainActivity extends AppCompatActivity {
     private void setup() {
         LibrusAccount account = librusData.getAccount();
         luckyNumber = librusData.getLuckyNumber();
-        //Fragments preload
-        timetableFragment = TimetableFragment.newInstance(librusData);
-        announcementsFragment = AnnouncementsFragment.newInstance(librusData);
-        gradesFragment = GradesFragment.newInstance(librusData);
-        attendanceFragment = AttendanceFragment.newInstance(librusData);
-//        timetableFragment = TimetableFragment.newInstance(librusData);
-//        announcementsFragment = AnnouncementsFragment.newInstance(librusData);
-//        gradesFragment = GradesFragment.newInstance(librusData);
 
         //Drawer setup
         ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
@@ -134,19 +138,19 @@ public class MainActivity extends AppCompatActivity {
                 .withAccountHeader(header)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(0)
+                                .withIdentifier(FRAGMENT_TIMETABLE_ID)
                                 .withName("Plan lekcji")
                                 .withIcon(R.drawable.ic_event_note_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(1)
+                                .withIdentifier(FRAGMENT_GRADES_ID)
                                 .withName("Oceny")
                                 .withIcon(R.drawable.ic_assignment_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(2)
+                                .withIdentifier(FRAGMENT_CALENDAR_ID)
                                 .withName("Terminarz")
                                 .withIcon(R.drawable.ic_date_range_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(3)
+                                .withIdentifier(FRAGMENT_ANNOUNCEMENTS_ID)
                                 .withName("Ogłoszenia")
                                 .withIcon(R.drawable.ic_announcement_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
@@ -178,28 +182,35 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .withActionBarDrawerToggle(true)
-                .withActionBarDrawerToggleAnimated(true)
-                .withSelectedItem(0);
+                .withActionBarDrawerToggleAnimated(true);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = drawerBuilder.withToolbar(toolbar).build();
-        drawer.setSelection(0);
-        refresh();
+
+        int i = getIntent().getIntExtra(NotificationService.DEFAULT_POSITION, -1);
+        if (i >= 0) {
+            Log.d(TAG, "setup: selecting position " + i);
+            drawer.setSelection(i);
+        } else {
+            Log.d(TAG, "setup: selecting default position ");
+            drawer.setSelection(0);
+        }
+        ((MainFragment) currentFragment).setOnSetupCompleteListener(refreshListener);
     }
 
     private void refresh() {
         Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
         Log.d(TAG, "MainActivity: Refresh started");
-//        librusData.update().done(new DoneCallback<Void>() {
-//            @Override
-//            public void onDone(Void result) {
-//                librusData.save();
-//                ((MainFragment) currentFragment).refresh(librusData);
-//                Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
-//                Log.d(TAG, "MainActivity: Refresh done");
-//            }
-//        });
+        LibrusDataLoader.update(librusData, this).done(new DoneCallback<LibrusData>() {
+            @Override
+            public void onDone(LibrusData result) {
+                LibrusDataLoader.save(result, getApplicationContext());
+                ((MainFragment) currentFragment).refresh(result);
+                Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "MainActivity: Refresh done");
+            }
+        });
     }
 
     private void changeFragment(Fragment fragment, String title) {

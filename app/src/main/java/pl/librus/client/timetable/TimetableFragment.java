@@ -38,6 +38,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
     LibrusData data;
     private List<IFlexible> listElements = new ArrayList<>();
     private boolean useTabs = false;
+    private OnSetupCompleteListener listener;
 
     public static TimetableFragment newInstance(LibrusData data) {
         TimetableFragment fragment = new TimetableFragment();
@@ -99,6 +100,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
 
             viewPager.setCurrentItem(schoolDays.indexOf(new SchoolDay(LocalDate.now())));
         }
+        if (listener != null) listener.onSetupComplete();
         return root;
     }
 
@@ -133,6 +135,11 @@ public class TimetableFragment extends Fragment implements MainFragment {
     @Override
     public void refresh(LibrusData cache) {
         Log.d(TAG, "TimetableFragment update()");
+    }
+
+    @Override
+    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
+        this.listener = listener;
     }
 
     class ViewPagerAdapter extends FragmentStatePagerAdapter {

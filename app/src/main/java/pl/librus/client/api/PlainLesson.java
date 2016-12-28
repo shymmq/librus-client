@@ -6,24 +6,37 @@ import java.io.Serializable;
  * Created by Adam on 16.12.2016.
  */
 
-public class PlainLesson implements Serializable{
-    private int id, teacherId, subjectId;
+class PlainLesson implements Serializable {
+    private static final long serialVersionUID = -7695486585587614442L;
+    private String id, teacherId, subjectId;
 
-    PlainLesson(int id, int teacherId, int subjectId) {
+    PlainLesson(String id, String teacherId, String subjectId) {
         this.id = id;
         this.teacherId = teacherId;
         this.subjectId = subjectId;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public int getTeacherId() {
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTeacherId() {
         return teacherId;
     }
 
-    public int getSubjectId() {
+    public void setTeacherId(String teacherId) {
+        this.teacherId = teacherId;
+    }
+
+    public String getSubjectId() {
         return subjectId;
+    }
+
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
     }
 }

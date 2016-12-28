@@ -8,4 +8,10 @@ import pl.librus.client.api.LibrusData;
 
 public interface MainFragment {
     void refresh(LibrusData cache);
+
+    void setOnSetupCompleteListener(OnSetupCompleteListener listener);
+
+    interface OnSetupCompleteListener {
+        void onSetupComplete();
+    }
 }

@@ -7,6 +7,7 @@ import com.google.android.gms.gcm.GcmListenerService;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 
 /**
  * Created by szyme on 15.12.2016. librus-client
@@ -37,16 +38,15 @@ public class LibrusGcmListenerService extends GcmListenerService {
         fa.logEvent("notification_received", event);
 
         //Start the update
-        LibrusData.load(this).done(new DoneCallback<LibrusData>() {
+        LibrusDataLoader.load(this).done(new DoneCallback<LibrusData>() {
             @Override
             public void onDone(LibrusData result) {
-                data = result;
+                LibrusDataLoader.updatePersistent(result, getApplicationContext());
             }
-        });
-        data.update().done(new DoneCallback<Void>() {
+        }).fail(new FailCallback<Object>() {
             @Override
-            public void onDone(Void result) {
-                data.save();
+            public void onFail(Object result) {
+                LibrusDataLoader.updatePersistent(new LibrusData(getApplicationContext()), getApplicationContext());
             }
         });
     }

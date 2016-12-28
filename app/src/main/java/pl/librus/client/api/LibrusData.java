@@ -1,6 +1,9 @@
 package pl.librus.client.api;
 
 import android.content.Context;
+import android.util.ArrayMap;
+
+import org.joda.time.LocalDate;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -227,6 +230,20 @@ public class LibrusData implements Serializable {
     public Map<String, GradeComment> getCommentMap() {
         Map<String, GradeComment> res = new HashMap<>(gradeComments.size());
         for (GradeComment gc : gradeComments) res.put(gc.getId(), gc);
+        return res;
+    }
+
+    public Map<String, String> getLessonSubjectMap() {
+        Map<String, String> res = new HashMap<>();
+        for (PlainLesson pl : plainLessons) res.put(pl.getId(), pl.getSubjectId());
+        return res;
+    }
+
+    public Map<LocalDate, SchoolDay> getSchoolDayMap() {
+        Map<LocalDate, SchoolDay> res = new ArrayMap<>();
+        for (SchoolWeek w : schoolWeeks)
+            for (SchoolDay d : w.getSchoolDays())
+                res.put(d.getDate(), d);
         return res;
     }
 }

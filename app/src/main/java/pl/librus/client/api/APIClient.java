@@ -116,6 +116,10 @@ public class APIClient {
             url = "http://192.168.0.59:8080/mock-grades.json";
         else if (Objects.equals(endpoint, "/HomeWorks"))
             url = "http://192.168.0.59:8080/mock-events.json";
+        else if (Objects.equals(endpoint, "/SchoolNotices"))
+            url = "http://192.168.0.59:8080/mock-announcements.json";
+        else if (Objects.equals(endpoint, "/LuckyNumbers"))
+            url = "http://192.168.0.59:8080/mock-luckynumber.json";
         else
             url = BASE_URL + endpoint;
         final Request request = new Request.Builder().addHeader("Authorization", "Bearer " + access_token)
@@ -374,8 +378,7 @@ public class APIClient {
                     JSONArray rawSubjects = result.getJSONArray("Subjects");
                     for (int i = 0; i < rawSubjects.length(); i++) {
                         JSONObject rawSubject = rawSubjects.getJSONObject(i);
-                        Subject subject = new Subject(rawSubject.getString("Id"));
-                        subject.setName(rawSubject.getString("Name"));
+                        Subject subject = new Subject(rawSubject.getString("Name"), rawSubject.getString("Id"));
                         res.add(subject);
                     }
                     deferred.resolve(res);
@@ -398,14 +401,14 @@ public class APIClient {
                 try {
                     List<PlainLesson> res = new ArrayList<>();
                     JSONArray rawPlainLessons = result.getJSONArray("Lessons");
-                    for(int i = 0; i < rawPlainLessons.length(); i++) {
+                    for (int i = 0; i < rawPlainLessons.length(); i++) {
                         JSONObject rawLesson = rawPlainLessons.getJSONObject(i);
                         JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
                         JSONObject rawSubject = rawLesson.getJSONObject("Subject");
                         res.add(new PlainLesson(
-                                rawLesson.getInt("Id"),
-                                rawTeacher.getInt("Id"),
-                                rawSubject.getInt("Id")));
+                                rawLesson.getString("Id"),
+                                rawTeacher.getString("Id"),
+                                rawSubject.getString("Id")));
                     }
                     deferred.resolve(res);
                 } catch (JSONException e) {
@@ -541,8 +544,7 @@ public class APIClient {
                                 JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
                                 JSONObject rawOrgSubject = isSubstitutionClass ? rawLesson.getJSONObject("OrgSubject") : null;
                                 JSONObject rawOrgTeacher = isSubstitutionClass ? rawLesson.getJSONObject("OrgTeacher") : null;
-                                Subject subject = new Subject(rawSubject.getString("Id"));
-                                subject.setName(rawSubject.getString("Name"));
+                                Subject subject = new Subject(rawSubject.getString("Name"), rawSubject.getString("Id"));
                                 Teacher teacher = new Teacher(rawTeacher.getString("Id"));
                                 teacher.setName(rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
                                 schoolDay.setLesson(i, new Lesson(
