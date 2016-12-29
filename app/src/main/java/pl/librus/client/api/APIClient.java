@@ -58,7 +58,13 @@ public class APIClient {
         final Request request = new Request.Builder()
                 .url(AUTH_URL)
                 .header("Authorization", "Basic " + auth_token)
-                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), "username=" + username + "&password=" + password + "&grant_type=password&librus_long_term_token=1"))
+                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"),
+                        "username=" + username +
+                                "&password=" + password +
+                                "&grant_type=password" +
+                                "&librus_long_term_token=1" +
+                                "&librus_rules_accepted=true" +
+                                "&librus_mobile_rules_accepted=true"))                  //TODO display popup with agreement
                 .build();
 
         client.newCall(request).enqueue(new Callback() {

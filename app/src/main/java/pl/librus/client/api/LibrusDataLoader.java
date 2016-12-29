@@ -208,11 +208,12 @@ public class LibrusDataLoader {
             @Override
             public void onDone(MultipleResults result) {
                 NotificationService notificationService = new NotificationService(context, librusData);
-                notificationService
-                        .addAnnouncements(pendingAnnouncements)
-                        .addEvents(pendingEvents)
-                        .addGrades(pendingGrades)
-                        .addLuckyNumber(pendingLuckyNumber[0]);
+                if (librusData.getAccount() != null)
+                    notificationService
+                            .addAnnouncements(pendingAnnouncements)
+                            .addEvents(pendingEvents)
+                            .addGrades(pendingGrades)
+                            .addLuckyNumber(pendingLuckyNumber[0]);
                 deferred.resolve(librusData);
             }
         }).fail(new FailCallback<OneReject>() {

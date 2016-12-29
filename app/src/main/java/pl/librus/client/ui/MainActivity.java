@@ -121,7 +121,10 @@ public class MainActivity extends AppCompatActivity {
         luckyNumber = librusData.getLuckyNumber();
 
         //Drawer setup
-        ProfileDrawerItem profile = new ProfileDrawerItem().withName(account.getName()).withEmail(account.getEmail()).withIcon(R.drawable.jeb);
+        ProfileDrawerItem profile = new ProfileDrawerItem()
+                .withName(account.getName())
+                .withEmail(account.getEmail())
+                .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withIdentifier(666)
                 .withName("Szczęśliwy numerek: " + luckyNumber.getLuckyNumber())
@@ -317,12 +320,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addToolbarView(View v) {
+
         appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         appBarLayout.addView(v, 1);
         toolbarView = v;
     }
 
     public void removeToolbarView() {
+        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
         if (toolbarView != null) appBarLayout.removeView(toolbarView);
         toolbarView = null;
     }

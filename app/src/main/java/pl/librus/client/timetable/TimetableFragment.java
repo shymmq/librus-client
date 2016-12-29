@@ -85,6 +85,9 @@ public class TimetableFragment extends Fragment implements MainFragment {
             }, 50);
 
         } else {
+            TabLayout tabs = (TabLayout) inflater.inflate(R.layout.tabs, null);
+            ((MainActivity) getActivity()).addToolbarView(tabs);
+
             root = inflater.inflate(R.layout.fragment_timetable_tabs, container, false);
 
             List<SchoolDay> schoolDays = new ArrayList<>();
@@ -94,8 +97,6 @@ public class TimetableFragment extends Fragment implements MainFragment {
             ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager(), schoolDays);
             viewPager.setAdapter(adapter);
 
-            TabLayout tabs = (TabLayout) inflater.inflate(R.layout.tabs, null);
-            ((MainActivity) getActivity()).addToolbarView(tabs);
             tabs.setupWithViewPager(viewPager);
 
             viewPager.setCurrentItem(schoolDays.indexOf(new SchoolDay(LocalDate.now())));

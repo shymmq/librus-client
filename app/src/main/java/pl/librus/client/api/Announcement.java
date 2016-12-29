@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import org.joda.time.LocalDate;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * Created by Adam on 2016-10-31. librus-client
@@ -72,15 +71,19 @@ public class Announcement implements Serializable, Comparable<Announcement> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof Announcement && Objects.equals(((Announcement) obj).getId(), id);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Announcement that = (Announcement) o;
+
+        return id.equals(that.id);
+
     }
-    //    public Change getChanges(Announcement a) {
-//        if (Objects.equals(id, a.getId()) && startDate == a.getStartDate() && endDate == a.getEndDate() && Objects.equals(subject, a.getSubject()) && Objects.equals(authorId, a.getAuthorId()) && Objects.equals(content, a.getContent())) {
-//            return null;
-//        } else {
-//            String description = a.getSubject();
-//            return
-//        }
-//    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
 }
