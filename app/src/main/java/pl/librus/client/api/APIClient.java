@@ -45,7 +45,7 @@ public class APIClient {
             .readTimeout(9, TimeUnit.DAYS)
             .build();
 
-    public APIClient(Context _context) {
+    APIClient(Context _context) {
         context = _context;
     }
 
@@ -116,7 +116,7 @@ public class APIClient {
         String url;
         String BASE_URL = "https://api.librus.pl/2.0";
         boolean mockData = false;
-        if (!mockData)
+        if (mockData)
             url = BASE_URL + endpoint;
         else if (Objects.equals(endpoint, "/Grades"))
             url = "http://192.168.0.59:8080/mock-grades.json";
@@ -153,8 +153,10 @@ public class APIClient {
                     }
                 } else {
                     log("API Request failed\n" +
+                            "Edpoint: " + endpoint + "\n" +
                             "Access_token: " + access_token + "\n" +
-                            "Response code: " + response.code() + " " + response.message());
+                            "Response code: " + response.code() + " " + response.message() + "\n" +
+                            "Response: " + response.body().string());
                     refreshAccess().then(new DoneCallback<String>() {
                         @Override
                         public void onDone(String result) {
@@ -228,6 +230,9 @@ public class APIClient {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
+                    log("Refresh token request failed: \n" +
+                            "code: " + response.code() + "\n" +
+                            "response: " + response.body().string());
                     deferred.reject(response);
                 } else {
                     try {
@@ -245,6 +250,9 @@ public class APIClient {
                         deferred.resolve(access_token);
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        log("Refresh token request failed: \n" +
+                                "code: " + response.code() + "\n" +
+                                "response: " + response.body().string());
                         deferred.reject(response);
                     }
                 }
@@ -523,7 +531,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
+    Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
 
         final Deferred<SchoolWeek, Void, Void> deferred = new DeferredObject<>();
 
