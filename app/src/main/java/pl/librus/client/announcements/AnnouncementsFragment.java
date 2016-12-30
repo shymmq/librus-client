@@ -1,9 +1,17 @@
 package pl.librus.client.announcements;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.AutoTransition;
+import android.transition.Fade;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +29,7 @@ import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
+import pl.librus.client.api.Teacher;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainFragment;
 
@@ -45,11 +54,13 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_announcements, container, false);
+        Log.d(TAG, "AnnouncementsFragments onCreateView()");
+        postponeEnterTransition();
         RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
 
-        LibrusData data = (LibrusData) getArguments().getSerializable(ARG_DATA);
+        final LibrusData data = (LibrusData) getArguments().getSerializable(ARG_DATA);
         assert data != null;
 
         List<Announcement> announcementList = data.getAnnouncements();
@@ -79,60 +90,46 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
                 listItems.add(new AnnouncementItem(a, data, older));
         }
 
-//        FlexibleAdapter.OnItemClickListener onClick = new ;
         final FlexibleAdapter<AnnouncementItem> adapter = new FlexibleAdapter<>(listItems);
         adapter.setDisplayHeadersAtStartUp(true);
+        adapter.mItemClickListener = new FlexibleAdapter.OnItemClickListener() {
+            @Override
+            public boolean onItemClick(int position) {
+                AnnouncementItem item = adapter.getItem(position);
+                Announcement announcement = item.getAnnouncement();
+                Teacher teacher = data.getTeacherMap().get(announcement.getAuthorId());
+
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+
+                AnnouncementDetailsFragment announcementDetailsFragment = AnnouncementDetailsFragment.newInstance(announcement, teacher);
+
+                TransitionInflater transitionInflater = TransitionInflater.from(getContext());
+                Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
+                Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
+
+                setSharedElementEnterTransition(details_enter);
+                setSharedElementReturnTransition(details_exit);
+                setExitTransition(new Fade());
+                announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
+                announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
+
+                ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
+                ft.addSharedElement(item.getBackgroundView(), item.getBackgroundView().getTransitionName());
+                ft.addToBackStack("aaas");
+                ft.commit();
+                return false;
+            }
+        };
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(adapter);
-//        mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(getContext(), new RecyclerViewItemClickListener.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(View view, int position) {
-//                Object item = adapter.getItem(position);
-//                if (item instanceof AnnouncementItem) {
-//                    FragmentManager fragmentManager = getFragmentManager();
-//                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                    Announcement announcement = (Announcement) item;
-//                    AnnouncementDetailsFragment fragment = AnnouncementDetailsFragment.newInstance(announcement, teacherMap != null ? teacherMap.get(announcement.getAuthorId()) : null);
-//                    RelativeLayout background = (RelativeLayout) view.findViewById(R.id.three_line_list_item_background);
-//
-//                    TransitionInflater transitionInflater = TransitionInflater.from(getContext());
-//                    Transition t = new Fade();
-//                    Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
-//                    Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
-//
-//                    if (debug) {
-//                        details_enter.setDuration(3000);
-//                        details_exit.setDuration(3000);
-//                        t.setDuration(3000);
-//                    }
-//
-//                    fragment.setSharedElementEnterTransition(details_enter);
-//                    fragment.setSharedElementReturnTransition(details_exit);
-//                    setSharedElementEnterTransition(details_enter);
-//                    setSharedElementReturnTransition(details_exit);
-//
-//                    //TODO extend Fade to allow other starting/ending values
-//
-//                    fragment.setExitTransition(t);
-//                    fragment.setEnterTransition(t);
-//                    fragment.setReturnTransition(t);
-//                    fragment.setReenterTransition(t);
-//
-//                    setEnterTransition(t);
-//                    setExitTransition(t);
-//                    setReturnTransition(t);
-//                    setReenterTransition(t);
-//
-//                    background.setTransitionName("announcement_background_" + (announcement).getId());
-//                    fragmentTransaction.addSharedElement(background, background.getTransitionName());
-//                    fragmentTransaction.addToBackStack(null).commit();
-//                    @SuppressWarnings("ConstantConditions") ViewGroup parent = (ViewGroup) getView().getParent();
-//                    fragmentTransaction.replace(parent.getId(), fragment);
-//                }
-//            }
-//
-//        }));
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startPostponedEnterTransition();
+            }
+        }, 50);
         ((MainActivity) getActivity()).setBackArrow(false);
         if (listener != null) listener.onSetupComplete();
 

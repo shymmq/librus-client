@@ -28,8 +28,9 @@ import pl.librus.client.api.Teacher;
 
 class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> {
     private final LibrusData data;
-    Announcement announcement;
-    AnnouncementHeaderItem header;
+    private Announcement announcement;
+    private AnnouncementHeaderItem header;
+    private View backgroundView;
 
     public AnnouncementItem(Announcement announcement, LibrusData data, AnnouncementHeaderItem header) {
         super(header);
@@ -55,6 +56,7 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
+        this.backgroundView = holder.background;
         Teacher teacher = data.getTeacherMap().get(announcement.getAuthorId());
         holder.announcementSubject.setText(announcement.getSubject());
         holder.background.setTransitionName("announcement_background_" + announcement.getId());
@@ -86,6 +88,10 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
     @Override
     public int hashCode() {
         return announcement.hashCode();
+    }
+
+    public View getBackgroundView() {
+        return backgroundView;
     }
 
     class ViewHolder extends FlexibleViewHolder {
