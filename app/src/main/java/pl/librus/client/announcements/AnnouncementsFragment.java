@@ -56,7 +56,6 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_announcements, container, false);
-        Log.d(TAG, "AnnouncementsFragments onCreateView()");
         postponeEnterTransition();
         RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
 

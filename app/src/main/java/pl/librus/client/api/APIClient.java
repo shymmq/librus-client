@@ -115,19 +115,7 @@ public class APIClient {
         final String access_token = preferences.getString("access_token", "");
         String url;
         String BASE_URL = "https://api.librus.pl/2.0";
-        boolean mockData = false;
-        if (mockData)
-            url = BASE_URL + endpoint;
-        else if (Objects.equals(endpoint, "/Grades"))
-            url = "http://192.168.0.59:8080/mock-grades.json";
-        else if (Objects.equals(endpoint, "/HomeWorks"))
-            url = "http://192.168.0.59:8080/mock-events.json";
-        else if (Objects.equals(endpoint, "/SchoolNotices"))
-            url = "http://192.168.0.59:8080/mock-announcements.json";
-        else if (Objects.equals(endpoint, "/LuckyNumbers"))
-            url = "http://192.168.0.59:8080/mock-luckynumber.json";
-        else
-            url = BASE_URL + endpoint;
+        url = BASE_URL + endpoint;
         final Request request = new Request.Builder().addHeader("Authorization", "Bearer " + access_token)
                 .url(url)
                 .build();
