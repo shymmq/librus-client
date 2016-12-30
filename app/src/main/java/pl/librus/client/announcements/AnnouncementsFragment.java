@@ -89,7 +89,7 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
             else
                 listItems.add(new AnnouncementItem(a, data, older));
         }
-
+        Collections.sort(listItems);
         final FlexibleAdapter<AnnouncementItem> adapter = new FlexibleAdapter<>(listItems);
         adapter.setDisplayHeadersAtStartUp(true);
         adapter.mItemClickListener = new FlexibleAdapter.OnItemClickListener() {

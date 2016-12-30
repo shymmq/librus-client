@@ -26,17 +26,20 @@ import pl.librus.client.api.Teacher;
  * Created by szyme on 28.12.2016. librus-client
  */
 
-class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> {
+class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> implements Comparable<AnnouncementItem> {
     private final LibrusData data;
     private Announcement announcement;
     private AnnouncementHeaderItem header;
     private View backgroundView;
+    private boolean read;
 
     public AnnouncementItem(Announcement announcement, LibrusData data, AnnouncementHeaderItem header) {
         super(header);
         this.announcement = announcement;
         this.data = data;
         this.header = header;
+        this.read = Reader.isRead(Reader.TYPE_ANNOUNCEMENT, announcement.getId(), data.getContext());
+
     }
 
     @Override
@@ -63,11 +66,10 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         holder.announcementTeacherName.setText(teacher.getName());
         holder.announcementContent.setText(announcement.getContent());
 
-        if (!Reader.isRead(Reader.TYPE_ANNOUNCEMENT, announcement.getId(), data.getContext()))
+        if (!read)
             holder.announcementSubject.setTypeface(holder.announcementSubject.getTypeface(), Typeface.BOLD);
         else
-            holder.announcementSubject.setTypeface(holder.announcementSubject.getTypeface(), Typeface.NORMAL);
-
+            holder.announcementSubject.setTypeface(null, Typeface.NORMAL);
         if (announcement.getStartDate().isBefore(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)))
             holder.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
         else
@@ -92,6 +94,18 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
 
     public View getBackgroundView() {
         return backgroundView;
+    }
+
+    @Override
+    public int compareTo(AnnouncementItem o) {
+        int a = Boolean.compare(read, o.isRead());
+        if (a == 0)
+            return o.getAnnouncement().getStartDate().compareTo(announcement.getStartDate());
+        else return a;
+    }
+
+    public boolean isRead() {
+        return read;
     }
 
     class ViewHolder extends FlexibleViewHolder {
