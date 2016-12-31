@@ -28,7 +28,6 @@
 
     <ImageView
         android:id="@+id/list_subheader_done"
-        android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
@@ -37,5 +36,6 @@
         android:foreground="?attr/selectableItemBackground"
         android:padding="8dp"
         android:tint="@color/iconDark"
-        app:srcCompat="@drawable/ic_done_all_black_48dp" />
+        app:srcCompat="@drawable/ic_done_all_black_48dp"
+        android:layout_width="48dp" />
 </RelativeLayout>

@@ -31,6 +31,7 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
     private Announcement announcement;
     private AnnouncementHeaderItem header;
     private View backgroundView;
+    private TextView title;
     private boolean read;
 
     public AnnouncementItem(Announcement announcement, LibrusData data, AnnouncementHeaderItem header) {
@@ -57,9 +58,14 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         return announcement;
     }
 
+    public void setRead(boolean read) {
+        this.read = read;
+    }
+
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         this.backgroundView = holder.background;
+        this.title = holder.announcementSubject;
         Teacher teacher = data.getTeacherMap().get(announcement.getAuthorId());
         holder.announcementSubject.setText(announcement.getSubject());
         holder.background.setTransitionName("announcement_background_" + announcement.getId());
@@ -106,6 +112,10 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
 
     public boolean isRead() {
         return read;
+    }
+
+    public TextView getTitle() {
+        return title;
     }
 
     class ViewHolder extends FlexibleViewHolder {
