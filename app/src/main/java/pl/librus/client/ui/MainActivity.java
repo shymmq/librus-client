@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private Drawer drawer;
     private Toolbar toolbar;
     private Fragment currentFragment;
+    public MainActivity activity;
     MainFragment.OnSetupCompleteListener refreshListener = new MainFragment.OnSetupCompleteListener() {
         @Override
         public void onSetupComplete() {
@@ -70,21 +71,20 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     private View toolbarView;
-    private AttendanceFragment attendanceFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FirebaseAnalytics.getInstance(this);
+        FirebaseAnalytics.getInstance(getApplicationContext());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean logged_in = prefs.getBoolean("logged_in", false);
         if (!logged_in) {
-            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+            Intent i = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(i);
             finish();
         } else {
-            LibrusDataLoader.load(this).done(new AndroidDoneCallback<LibrusData>() {
+            LibrusDataLoader.load(getApplicationContext()).done(new AndroidDoneCallback<LibrusData>() {
                 @Override
                 public AndroidExecutionScope getExecutionScope() {
                     return null;
@@ -103,8 +103,8 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onFail(Object result) {
-                    librusData = new LibrusData(MainActivity.this);
-                    LibrusDataLoader.updatePersistent(librusData, MainActivity.this).done(new DoneCallback<LibrusData>() {
+                    librusData = new LibrusData(getApplicationContext());
+                    LibrusDataLoader.updatePersistent(librusData, getApplicationContext()).done(new DoneCallback<LibrusData>() {
                         @Override
                         public void onDone(LibrusData result) {
                             LibrusDataLoader.save(result, getApplicationContext());
@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
     private void refresh() {
         Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
         Log.d(TAG, "MainActivity: Refresh started");
-        LibrusDataLoader.update(librusData, this).done(new DoneCallback<LibrusData>() {
+        LibrusDataLoader.update(librusData, getApplicationContext()).done(new DoneCallback<LibrusData>() {
             @Override
             public void onDone(LibrusData result) {
                 LibrusDataLoader.save(result, getApplicationContext());
@@ -252,13 +252,13 @@ public class MainActivity extends AppCompatActivity {
                 changeFragment(AttendanceFragment.newInstance(librusData), "Nieobecności");
                 break;
             case 6:
-                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(i);
                 break;
             case 666:
                 String date = luckyNumber.getLuckyNumberDay().toString("EEEE, d MMMM yyyy", new Locale("pl"));
                 date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
-                Toast.makeText(this, date, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), date, Toast.LENGTH_SHORT).show();
                 break;
             default:
                 return true;
