@@ -122,7 +122,7 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
 
     @Override
     public void refresh(LibrusData cache) {
-        Log.d(TAG, "AnnouncementsFragment update()");
+        Log.d(TAG, "AnnouncementsFragment refresh()");
 
     }
 

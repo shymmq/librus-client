@@ -15,7 +15,6 @@ import org.jdeferred.FailCallback;
 
 public class LibrusGcmListenerService extends GcmListenerService {
     private static final String TAG = "librus-client-log";
-    LibrusData data;
 
     @Override
     public void onMessageReceived(String s, Bundle bundle) {
@@ -41,12 +40,22 @@ public class LibrusGcmListenerService extends GcmListenerService {
         LibrusDataLoader.load(this).done(new DoneCallback<LibrusData>() {
             @Override
             public void onDone(LibrusData result) {
-                LibrusDataLoader.updatePersistent(result, getApplicationContext());
+                LibrusDataLoader.updatePersistent(result, getApplicationContext()).done(new DoneCallback<LibrusData>() {
+                    @Override
+                    public void onDone(LibrusData result) {
+                        LibrusDataLoader.save(result, getApplicationContext());
+                    }
+                });
             }
         }).fail(new FailCallback<Object>() {
             @Override
             public void onFail(Object result) {
-                LibrusDataLoader.updatePersistent(new LibrusData(getApplicationContext()), getApplicationContext());
+                LibrusDataLoader.updatePersistent(new LibrusData(getApplicationContext()), getApplicationContext()).done(new DoneCallback<LibrusData>() {
+                    @Override
+                    public void onDone(LibrusData result) {
+                        LibrusDataLoader.save(result, getApplicationContext());
+                    }
+                });
             }
         });
     }
