@@ -85,6 +85,10 @@ public class TimetableUtils {
         LocalDate lastMonday = today.withDayOfWeek(DateTimeConstants.MONDAY);
         return Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
     }
+
+    public static String getFilenameForDate(LocalDate weekStart) {
+        return "week" + weekStart.toString("yw");//format: "week<year><weekofyear>"
+    }
 //    public LocalDate getLastWeekStartDate() {
 //        LocalDate res = new LocalDate(0);
 //        for (SchoolWeek week : schoolWeeks) {

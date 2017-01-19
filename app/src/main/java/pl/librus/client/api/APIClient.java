@@ -21,9 +21,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -33,6 +33,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import pl.librus.client.LibrusConstants;
+import pl.librus.client.cache.LibrusCache;
+import pl.librus.client.cache.LibrusCacheLoader;
+import pl.librus.client.cache.TimetableCache;
+import pl.librus.client.timetable.TimetableUtils;
+
+import static pl.librus.client.LibrusConstants.TIMETABLE_CACHE;
 
 public class APIClient {
     private static final MediaType JSON
@@ -45,7 +52,7 @@ public class APIClient {
             .readTimeout(9, TimeUnit.DAYS)
             .build();
 
-    APIClient(Context _context) {
+    public APIClient(Context _context) {
         context = _context;
     }
 
@@ -519,14 +526,14 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
+    public Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
 
         final Deferred<SchoolWeek, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd")).then(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
-                SchoolWeek schoolWeek = new SchoolWeek(weekStart);
+                final SchoolWeek schoolWeek = new SchoolWeek(weekStart);
                 try {
                     JSONObject rawData = result.getJSONObject("Timetable");
                     Iterator<String> dayIterator = rawData.keys();
@@ -569,6 +576,19 @@ public class APIClient {
 
                         schoolWeek.addSchoolDay(schoolDay);
                     }
+                    final LibrusCacheLoader cacheLoader = new LibrusCacheLoader(context);
+                    cacheLoader.load(TIMETABLE_CACHE).done(new DoneCallback<LibrusCache>() {
+                        @Override
+                        public void onDone(LibrusCache result) {
+                            TimetableCache timetableCache = (TimetableCache) result;
+                            cacheLoader.save(timetableCache.addSchoolWeek(schoolWeek), TIMETABLE_CACHE);
+                        }
+                    }).fail(new FailCallback<Void>() {
+                        @Override
+                        public void onFail(Void result) {
+                            cacheLoader.save(new TimetableCache(Collections.singletonList(schoolWeek)), TIMETABLE_CACHE);
+                        }
+                    });
                     deferred.resolve(schoolWeek);
                 } catch (JSONException e) {
                     e.printStackTrace();

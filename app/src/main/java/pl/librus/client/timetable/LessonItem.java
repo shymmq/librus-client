@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
@@ -20,9 +21,10 @@ import pl.librus.client.api.Lesson;
  */
 //
 
-class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder, LessonHeaderItem> {
+class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder, LessonHeaderItem> implements Serializable{
 
-    private final Context context;
+    private static final long serialVersionUID = -7951416905429163498L;
+    private transient final Context context;
     private Lesson lesson;
 
     LessonItem(LessonHeaderItem header, Lesson lesson, Context context) {

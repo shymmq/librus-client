@@ -100,10 +100,22 @@ public class Grade extends GradeEntry implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof Grade && Objects.equals(((Grade) obj).getId(), id);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Grade grade = (Grade) o;
+
+        return id.equals(grade.id);
+
     }
-//    @Override
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    //    @Override
 //    public Change getChanges(Grade newGrade) {
 //        if (!Objects.equals(grade, newGrade.getGrade())) {
 //            //Grade value changed

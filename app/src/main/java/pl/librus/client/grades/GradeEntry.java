@@ -6,4 +6,8 @@ package pl.librus.client.grades;
 
 public abstract class GradeEntry implements Comparable {
     public abstract String getSubjectId();
+
+    public abstract boolean equals(Object o);
+
+    public abstract int hashCode();
 }

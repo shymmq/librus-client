@@ -42,4 +42,32 @@ public class Average extends GradeEntry implements Serializable {
     public int compareTo(@NonNull Object o) {
         return 1;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Average average = (Average) o;
+
+        return Double.compare(average.semester1, semester1) == 0 &&
+                Double.compare(average.semester2, semester2) == 0 &&
+                Double.compare(average.fullYear, fullYear) == 0 &&
+                subjectId.equals(average.subjectId);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(semester1);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(semester2);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(fullYear);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + subjectId.hashCode();
+        return result;
+    }
 }

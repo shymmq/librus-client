@@ -38,6 +38,25 @@ public class TextGradeSummary extends GradeEntry {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TextGradeSummary that = (TextGradeSummary) o;
+
+        if (!subjectId.equals(that.subjectId)) return false;
+        return grades != null ? grades.equals(that.grades) : that.grades == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = subjectId.hashCode();
+        result = 31 * result + (grades != null ? grades.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public int compareTo(@NonNull Object o) {
         return -1;
     }

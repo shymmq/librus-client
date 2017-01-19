@@ -29,6 +29,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.timetable.TimetableUtils;
 
 /**
@@ -36,13 +37,6 @@ import pl.librus.client.timetable.TimetableUtils;
  */
 
 public class LibrusDataLoader {
-
-    private static final String TAG = "librus-client-log";
-    private static boolean debug = true;
-
-    private static void log(String text) {
-        if (debug) Log.d(TAG, text);
-    }
 
     static public Promise<LibrusData, Object, Object> load(final Context context) {
         final Deferred<LibrusData, Object, Object> deferred = new DeferredObject<>();
@@ -60,7 +54,7 @@ public class LibrusDataLoader {
                     fis.close();
                     return cache;
                 } catch (FileNotFoundException e) {
-                    Log.d(TAG, "doLongOperation: File not found.");
+                    LibrusUtils.log("doLongOperation: File not found.");
                     deferred.reject(null);
                     return null;
                 } catch (IOException | ClassNotFoundException e) {
@@ -72,7 +66,7 @@ public class LibrusDataLoader {
             @Override
             public void callback(LibrusData librusData) {
                 if (librusData != null) {
-                    Log.d(TAG, "callback: File loaded successfully");
+                    LibrusUtils.log("callback: File loaded successfully");
                     deferred.resolve(librusData);
                 }
             }
@@ -81,7 +75,7 @@ public class LibrusDataLoader {
     }
 
     public static Promise<LibrusData, Void, Void> update(final LibrusData librusData, final Context context) {
-        Log.d(TAG, "update: Starting update");
+        LibrusUtils.log("update: Starting update");
         final Deferred<LibrusData, Void, Void> deferred = new DeferredObject<>();
         List<Promise> tasks = new ArrayList<>();
         APIClient client = new APIClient(context);
@@ -93,7 +87,7 @@ public class LibrusDataLoader {
                 @Override
                 public void onDone(SchoolWeek result) {
                     librusData.getSchoolWeeks().add(result);
-                    log("School week " + result.getWeekStart() + " downloaded");
+                    LibrusUtils.log("School week " + result.getWeekStart() + " downloaded");
                 }
             });
         }
@@ -118,7 +112,7 @@ public class LibrusDataLoader {
                 //TODO handle changed items
 
                 librusData.setAnnouncements(result);
-                log(result.size() + " announcements downloaded");
+                LibrusUtils.log(result.size() + " announcements downloaded");
             }
         }));
         tasks.add(client.getEvents().done(new DoneCallback<List<Event>>() {
@@ -137,7 +131,7 @@ public class LibrusDataLoader {
                 //TODO handle changed items
 
                 librusData.setEvents(result);
-                log("Events downloaded");
+                LibrusUtils.log("Events downloaded");
             }
         }));
         tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
@@ -146,7 +140,7 @@ public class LibrusDataLoader {
                 if (librusData.getLuckyNumber() != null && librusData.getLuckyNumber().getLuckyNumberDay().isBefore(result.getLuckyNumberDay()))
                     pendingLuckyNumber[0] = result;
                 librusData.setLuckyNumber(result);
-                log("LNumber downloaded");
+                LibrusUtils.log("LNumber downloaded");
             }
         }));
         tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
@@ -165,42 +159,42 @@ public class LibrusDataLoader {
                 //TODO handle changed items
 
                 librusData.setGrades(result);
-                log("Grades downloaded");
+                LibrusUtils.log("Grades downloaded");
             }
         }));
         tasks.add(client.getComments().done(new DoneCallback<List<GradeComment>>() {
             @Override
             public void onDone(List<GradeComment> result) {
                 librusData.setGradeComments(result);
-                log("Grade comments downloaded");
+                LibrusUtils.log("Grade comments downloaded");
             }
         }));
         tasks.add(client.getAverages().done(new DoneCallback<List<Average>>() {
             @Override
             public void onDone(List<Average> result) {
                 librusData.setAverages(result);
-                log("Averages downloaded");
+                LibrusUtils.log("Averages downloaded");
             }
         }));
         tasks.add(client.getTextGrades().done(new DoneCallback<List<TextGrade>>() {
             @Override
             public void onDone(List<TextGrade> result) {
                 librusData.setTextGrades(result);
-                log("Text grades downloaded");
+                LibrusUtils.log("Text grades downloaded");
             }
         }));
         tasks.add(client.getAttendances().done(new DoneCallback<List<Attendance>>() {
             @Override
             public void onDone(List<Attendance> result) {
                 librusData.setAttendances(result);
-                log("Attendances downloaded");
+                LibrusUtils.log("Attendances downloaded");
             }
         }));
         tasks.add(client.getPlainLessons().done(new DoneCallback<List<PlainLesson>>() {
             @Override
             public void onDone(List<PlainLesson> result) {
                 librusData.setPlainLessons(result);
-                log("Plain lessons downloaded");
+                LibrusUtils.log("Plain lessons downloaded");
             }
         }));
         DeferredManager dm = new AndroidDeferredManager();
@@ -227,7 +221,7 @@ public class LibrusDataLoader {
     }
 
     public static Promise<LibrusData, Void, Void> updatePersistent(final LibrusData librusData, final Context context) {
-        Log.d(TAG, "updatePersistent: Starting persistent update");
+        LibrusUtils.log("updatePersistent: Starting persistent update");
         final Deferred<LibrusData, Void, Void> deferred = new DeferredObject<>();
 
 
@@ -241,7 +235,7 @@ public class LibrusDataLoader {
                     @Override
                     public void onDone(LibrusAccount result) {
                         librusData.setAccount(result);
-                        log("Account downloaded");
+                        LibrusUtils.log("Account downloaded");
 
                     }
                 }));
@@ -249,7 +243,7 @@ public class LibrusDataLoader {
                     @Override
                     public void onDone(List<Teacher> result) {
                         librusData.setTeachers(result);
-                        log("Teachers downloaded");
+                        LibrusUtils.log("Teachers downloaded");
 
                     }
                 }));
@@ -257,7 +251,7 @@ public class LibrusDataLoader {
                     @Override
                     public void onDone(List<Subject> result) {
                         librusData.setSubjects(result);
-                        log("Subjects downloaded");
+                        LibrusUtils.log("Subjects downloaded");
 
                     }
                 }));
@@ -265,7 +259,7 @@ public class LibrusDataLoader {
                     @Override
                     public void onDone(List<EventCategory> result) {
                         librusData.setEventCategories(result);
-                        log("EventCat downloaded");
+                        LibrusUtils.log("EventCat downloaded");
 
                     }
                 }));
@@ -273,14 +267,14 @@ public class LibrusDataLoader {
                     @Override
                     public void onDone(List<GradeCategory> result) {
                         librusData.setGradeCategories(result);
-                        log("GradeCat downlaoded");
+                        LibrusUtils.log("GradeCat downlaoded");
                     }
                 }));
                 tasks.add(client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
                     @Override
                     public void onDone(List<AttendanceCategory> result) {
                         librusData.setAttendanceCategories(result);
-                        log("Attendance categories downloaded");
+                        LibrusUtils.log("Attendance categories downloaded");
                     }
                 }));
 
@@ -293,7 +287,7 @@ public class LibrusDataLoader {
 
                     @Override
                     public void onDone(MultipleResults result) {
-                        Log.d(TAG, "onDone: Persistent update done");
+                        LibrusUtils.log("onDone: Persistent update done");
                         deferred.resolve(librusData);
                     }
                 }).fail(new AndroidFailCallback<OneReject>() {
@@ -304,7 +298,7 @@ public class LibrusDataLoader {
 
                     @Override
                     public void onFail(OneReject result) {
-                        Log.d(TAG, "onFail: Persistent update failed " + result.toString());
+                        LibrusUtils.log("onFail: Persistent update failed " + result.toString());
                         deferred.reject(null);
                     }
                 });
