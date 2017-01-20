@@ -82,26 +82,28 @@ public class LibrusUtils {
         return deferred.promise();
     }
 
-    public static void log(String text, int level) {
+    public static void log(String s, int level, boolean trim) {
         if (DBG) {
-            switch (level) {
-                case Log.ERROR:
-                    Log.e(TAG, text);
-                    break;
-                case Log.DEBUG:
-                    Log.d(TAG, text);
-                    break;
-                case Log.WARN:
-                    Log.w(TAG, text);
-                    break;
-                default:
-                    Log.v(TAG, text);
+            if (trim) {
+                Log.println(level, TAG, s);
+            } else {
+                final int chunkSize = 1000;
+                if (s.length() > chunkSize) log("Splitting log into chunks. Length: " + s.length());
+                for (int i = 0; i < s.length(); i += chunkSize)
+                    Log.println(level, TAG, s.substring(i, Math.min(s.length(), i + chunkSize)));
             }
         }
     }
 
     public static void log(String text) {
-        log(text, Log.DEBUG);
+        log(text, Log.DEBUG, true);
     }
 
+    public static void log(String text, int level) {
+        log(text, level, true);
+    }
+
+    public static void log(String text, boolean trim) {
+        log(text, Log.DEBUG, trim);
+    }
 }

@@ -41,6 +41,7 @@ import pl.librus.client.cache.TimetableCache;
 import pl.librus.client.timetable.TimetableUtils;
 
 import static pl.librus.client.LibrusConstants.TIMETABLE_CACHE;
+import static pl.librus.client.LibrusUtils.log;
 
 public class APIClient {
     private static final MediaType JSON
@@ -112,11 +113,6 @@ public class APIClient {
         return deferred.promise();
     }
 
-    private void log(String text) {
-        boolean debug = false;
-        if (debug) Log.d(TAG, text);
-    }
-
     private Promise<JSONObject, Integer, Void> APIRequest(final String endpoint) {
         final Deferred<JSONObject, Integer, Void> deferred = new DeferredObject<>();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -149,10 +145,11 @@ public class APIClient {
                     }
                 } else {
                     log("API Request failed\n" +
-                            "Edpoint: " + endpoint + "\n" +
-                            "Access_token: " + access_token + "\n" +
-                            "Response code: " + response.code() + " " + response.message() + "\n" +
-                            "Response: " + response.body().string());
+                                    "Edpoint: " + endpoint + "\n" +
+                                    "Access_token: " + access_token + "\n" +
+                                    "Response code: " + response.code() + " " + response.message() + "\n" +
+                                    "Response: " + response.body().string(),
+                            Log.ERROR);
                     refreshAccess().then(new DoneCallback<String>() {
                         @Override
                         public void onDone(String result) {
@@ -174,7 +171,8 @@ public class APIClient {
                                 public void onFail(Integer result) {
 
                                     //second attempt failed
-                                    log("Second attempt failed. Code " + result);
+                                    log("Second attempt failed. Code " + result,
+                                            Log.ERROR);
 
                                     deferred.reject(result);
                                 }
@@ -186,7 +184,8 @@ public class APIClient {
 
                             //refresh failed
                             log("Refresh failed \n" +
-                                    "Response code: " + result + " " + response.message());
+                                            "Response code: " + result + " " + response.message(),
+                                    Log.ERROR);
 
                             deferred.reject(result.code());
                         }
@@ -227,8 +226,9 @@ public class APIClient {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     log("Refresh token request failed: \n" +
-                            "code: " + response.code() + "\n" +
-                            "response: " + response.body().string());
+                                    "code: " + response.code() + "\n" +
+                                    "response: " + response.body().string(),
+                            Log.ERROR);
                     deferred.reject(response);
                 } else {
                     try {
@@ -247,8 +247,9 @@ public class APIClient {
                     } catch (JSONException e) {
                         e.printStackTrace();
                         log("Refresh token request failed: \n" +
-                                "code: " + response.code() + "\n" +
-                                "response: " + response.body().string());
+                                        "code: " + response.code() + "\n" +
+                                        "response: " + response.body().string(),
+                                Log.ERROR);
                         deferred.reject(response);
                     }
                 }
@@ -574,7 +575,6 @@ public class APIClient {
                                 schoolDay.setEmpty(false);
                             }
                         }
-
                         schoolWeek.addSchoolDay(schoolDay);
                     }
                     final LibrusCacheLoader cacheLoader = new LibrusCacheLoader(context);
@@ -592,7 +592,7 @@ public class APIClient {
                     });
                     deferred.resolve(schoolWeek);
                 } catch (JSONException e) {
-                    LibrusUtils.log(result.toString(),Log.ERROR);
+                    log(result.toString(), Log.ERROR,false);
                     e.printStackTrace();
                     deferred.reject(null);
                 }
