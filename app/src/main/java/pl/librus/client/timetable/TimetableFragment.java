@@ -133,7 +133,7 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
         recyclerView = (RecyclerView) view.findViewById(R.id.fragment_timetable_recycler);
         progressBar = view.findViewById(R.id.fragment_timetable_progress);
 
-        recyclerView.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.INVISIBLE);
 //        progressBar.setVisibility(View.VISIBLE);
 
         lastDisplayedWeek = savedInstanceState == null ? null : (LocalDate) savedInstanceState.getSerializable("last_date");
@@ -143,8 +143,7 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
 
         listElements.clear();
 
-        adapter = new FlexibleAdapter<>(savedInstanceState == null ? null : (List<IFlexible>) savedInstanceState.getSerializable("list_items"));
-        adapter.setDisplayHeadersAtStartUp(true);
+        adapter = new FlexibleAdapter<>(savedInstanceState == null ? listElements : (List<IFlexible>) savedInstanceState.getSerializable("list_items"));
         recyclerView.setAdapter(adapter);
 
         recyclerView.getItemAnimator().setAddDuration(0);
@@ -187,9 +186,10 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                TransitionManager.beginDelayedTransition((ViewGroup) root,new AutoTransition().setDuration(300));
+                TransitionManager.beginDelayedTransition((ViewGroup) root, new AutoTransition().setDuration(300));
                 recyclerView.setVisibility(View.VISIBLE);
-                adapter.setEndlessScrollListener(TimetableFragment.this, progress);
+                adapter.setEndlessScrollListener(TimetableFragment.this, progress)
+                        .setEndlessScrollThreshold(3);
                 updateList();
             }
         });
@@ -200,10 +200,6 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
         super.onSaveInstanceState(outState);
         outState.putSerializable("list_items", (Serializable) listElements);
         outState.putSerializable("last_date", lastDisplayedWeek);
-    }
-
-    void updateList() {
-        adapter.updateDataSet(new ArrayList<>(listElements), true);
     }
 
     @Override
@@ -218,21 +214,28 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
 
     @Override
     public void noMoreLoad(int newItemsSize) {
-
+        LibrusUtils.log("No more items to load. newItemsSize = " + newItemsSize);
     }
 
     @Override
     public void onLoadMore(int lastPosition, int currentPage) {
         final LocalDate weekStart = lastDisplayedWeek.plusWeeks(1);
-        LibrusUtils.log("TimetableFragment onLoadMore() : loading " + weekStart.toString());
+        LibrusUtils.log("OnLoadMore\n" +
+                "lastPosition: " + lastPosition + "\n" +
+                "currentPage: " + currentPage + "\n" +
+                "weekStart: " + weekStart.toString());
         new APIClient(getContext())
                 .getSchoolWeek(weekStart)
                 .done(new DoneCallback<SchoolWeek>() {
                     @Override
                     public void onDone(SchoolWeek result) {
                         lastDisplayedWeek = weekStart;
-                        listElements.addAll(getElements(result));
+                        LibrusUtils.log(weekStart.toString() + " downloaded");
+
+                        adapter.onLoadMoreComplete(getElements(result));
                         updateList();
+//                        listElements.addAll(getElements(result));
+//                        updateList();
                     }
                 });
     }
@@ -264,5 +267,11 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
 //        final Deferred<LibrusCache, Void, Void> deferred = new DeferredObject<>();
         LibrusCacheLoader cacheLoader = new LibrusCacheLoader(getContext());
         return cacheLoader.load(TIMETABLE_CACHE);
+    }
+
+    void updateList() {
+        adapter.updateDataSet(new ArrayList<>(listElements), true);
+        adapter.hideAllHeaders();
+        adapter.showAllHeaders();
     }
 }

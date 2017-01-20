@@ -11,4 +11,5 @@ public class LibrusConstants {
 
     //cache
     public static final String TIMETABLE_CACHE = "timetable_cache";
+    public static final String ACCOUNT_CACHE = "account_cache";
 }

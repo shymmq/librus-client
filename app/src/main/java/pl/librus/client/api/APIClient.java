@@ -34,6 +34,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import pl.librus.client.LibrusConstants;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.cache.LibrusCache;
 import pl.librus.client.cache.LibrusCacheLoader;
 import pl.librus.client.cache.TimetableCache;
@@ -591,6 +592,7 @@ public class APIClient {
                     });
                     deferred.resolve(schoolWeek);
                 } catch (JSONException e) {
+                    LibrusUtils.log(result.toString(),Log.ERROR);
                     e.printStackTrace();
                     deferred.reject(null);
                 }

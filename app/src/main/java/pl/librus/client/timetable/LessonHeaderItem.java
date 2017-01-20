@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import org.joda.time.LocalDate;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,7 +24,8 @@ import pl.librus.client.R;
  * Created by szyme on 23.12.2016. librus-client
  */
 
-class LessonHeaderItem extends AbstractHeaderItem<LessonHeaderItem.LessonHeaderItemViewHolder> {
+class LessonHeaderItem extends AbstractHeaderItem<LessonHeaderItem.LessonHeaderItemViewHolder> implements Serializable {
+    private static final long serialVersionUID = -7280842585284962070L;
     private LocalDate date;
 
     LessonHeaderItem(LocalDate date) {

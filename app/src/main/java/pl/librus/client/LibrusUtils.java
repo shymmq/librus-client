@@ -27,7 +27,6 @@ import static pl.librus.client.LibrusConstants.*;
 
 public class LibrusUtils {
 
-
     /**
      * Metoda do okreslania porawnej formy rzeczownika przy liczebniku.
      *
@@ -83,8 +82,26 @@ public class LibrusUtils {
         return deferred.promise();
     }
 
+    public static void log(String text, int level) {
+        if (DBG) {
+            switch (level) {
+                case Log.ERROR:
+                    Log.e(TAG, text);
+                    break;
+                case Log.DEBUG:
+                    Log.d(TAG, text);
+                    break;
+                case Log.WARN:
+                    Log.w(TAG, text);
+                    break;
+                default:
+                    Log.v(TAG, text);
+            }
+        }
+    }
+
     public static void log(String text) {
-        if (DBG) Log.d(TAG, text);
+        log(text, Log.DEBUG);
     }
 
 }

@@ -50,8 +50,34 @@ class ProgressItem extends AbstractFlexibleItem<ProgressItem.ViewHolder> {
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
-        holder.progressBar.setVisibility(View.VISIBLE);
-    }
+        holder.progressBar.setVisibility(View.INVISIBLE);
+
+        if (!adapter.isEndlessScrollEnabled()) {
+            setStatus(StatusEnum.DISABLE_ENDLESS);
+        } else if (payloads.contains(Payload.NO_MORE_LOAD)) {
+            setStatus(StatusEnum.NO_MORE_LOAD);
+        }
+
+        switch (this.status) {
+            case NO_MORE_LOAD:
+                // Reset to default status for next binding
+                setStatus(StatusEnum.MORE_TO_LOAD);
+                break;
+            case DISABLE_ENDLESS:
+                break;
+            case ON_CANCEL:
+                // Reset to default status for next binding
+                setStatus(StatusEnum.MORE_TO_LOAD);
+                break;
+            case ON_ERROR:
+                // Reset to default status for next binding
+                setStatus(StatusEnum.MORE_TO_LOAD);
+                break;
+            default:
+                holder.progressBar.setVisibility(View.VISIBLE);
+                break;
+        }
+}
 
     class ViewHolder extends FlexibleViewHolder {
         View progressBar;
