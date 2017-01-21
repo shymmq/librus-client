@@ -1,34 +1,9 @@
 package pl.librus.client;
 
-import android.content.Context;
 import android.util.Log;
 
-import org.jdeferred.Deferred;
-import org.jdeferred.DeferredManager;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
-import org.jdeferred.android.AndroidDeferredManager;
-import org.jdeferred.impl.DeferredObject;
-import org.jdeferred.multiple.MultipleResults;
-import org.jdeferred.multiple.OneReject;
-import org.joda.time.LocalDate;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import pl.librus.client.api.APIClient;
-import pl.librus.client.api.LibrusAccount;
-import pl.librus.client.api.SchoolWeek;
-import pl.librus.client.cache.AccountCache;
-import pl.librus.client.cache.LibrusCacheLoader;
-import pl.librus.client.cache.TimetableCache;
-import pl.librus.client.timetable.TimetableUtils;
-
-import static pl.librus.client.LibrusConstants.ACCOUNT_CACHE;
 import static pl.librus.client.LibrusConstants.DBG;
 import static pl.librus.client.LibrusConstants.TAG;
-import static pl.librus.client.LibrusConstants.TIMETABLE_CACHE;
 
 public class LibrusUtils {
 
@@ -51,48 +26,6 @@ public class LibrusUtils {
         else if (n > 1 && ((n % 10 != 2 || n % 10 != 3 || n % 10 != 4) || n % 100 / 10 == 1))
             return d;
         else return m;
-    }
-
-    public static Promise<Void, Void, Void> update(Context context, boolean persistent) {
-        final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
-        List<Promise> tasks = new ArrayList<>();
-        APIClient client = new APIClient(context);
-        final LibrusCacheLoader cacheLoader = new LibrusCacheLoader(context);
-
-        //Timetable
-        final TimetableCache timetableCache = new TimetableCache(new ArrayList<SchoolWeek>());
-        List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
-        for (final LocalDate weekStart : weekStarts) {
-            tasks.add(client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
-                @Override
-                public void onDone(SchoolWeek result) {
-                    timetableCache.addSchoolWeek(result);
-                    log("School week " + result.getWeekStart() + " downloaded");
-                }
-            }));
-        }
-        //Account
-        tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
-            @Override
-            public void onDone(LibrusAccount result) {
-                cacheLoader.save(new AccountCache(result), ACCOUNT_CACHE);
-            }
-        }));
-        DeferredManager dm = new AndroidDeferredManager();
-        dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
-            @Override
-            public void onDone(MultipleResults result) {
-                cacheLoader.save(timetableCache, TIMETABLE_CACHE);
-                deferred.resolve(null);
-            }
-        }).fail(new FailCallback<OneReject>() {
-            @Override
-            public void onFail(OneReject result) {
-                deferred.reject(null);
-            }
-        });
-
-        return deferred.promise();
     }
 
     public static void log(String s, int level, boolean trim) {

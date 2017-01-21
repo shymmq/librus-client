@@ -8,7 +8,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 25
         multiDexEnabled true
-        versionCode 6
+        versionCode 7
         versionName "1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -30,10 +30,6 @@ dependencies {
     compile('com.mikepenz:materialdrawer:5.8.1@aar') {
         transitive = true
     }
-    compile('com.mikepenz:fastadapter:2.1.6@aar') {
-        transitive = true
-    }
-    compile 'com.mikepenz:fastadapter-commons:2.1.0@aar'
 
     compile 'com.android.support:support-v4:25.1.0'
     compile 'com.android.support:multidex:1.0.1'

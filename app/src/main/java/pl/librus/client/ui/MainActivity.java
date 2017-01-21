@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -31,12 +30,8 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import org.jdeferred.DoneCallback;
+
 import pl.librus.client.R;
-import pl.librus.client.api.LibrusAccount;
-import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.LibrusDataLoader;
-import pl.librus.client.api.LuckyNumber;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
@@ -46,20 +41,10 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private static final int FRAGMENT_CALENDAR_ID = 2;
     private final String TAG = "librus-client-log";
     TimetableFragment timetableFragment = TimetableFragment.newInstance();
-    private LuckyNumber luckyNumber;
     private ActionMenuView amv;
     private AppBarLayout appBarLayout;
-    //private LibrusData librusData;
     private Drawer drawer;
     private Toolbar toolbar;
-    private Fragment currentFragment;
-    public MainActivity activity;
-    MainFragment.OnSetupCompleteListener refreshListener = new MainFragment.OnSetupCompleteListener() {
-        @Override
-        public void onSetupComplete() {
-            refresh();
-        }
-    };
     private View toolbarView;
     private Fragment fragment;
 
@@ -75,35 +60,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             startActivity(i);
             finish();
         } else {
-//            LibrusDataLoader.load(getApplicationContext()).done(new AndroidDoneCallback<LibrusData>() {
-//                @Override
-//                public AndroidExecutionScope getExecutionScope() {
-//                    return null;
-//                }
-//
-//                @Override
-//                public void onDone(LibrusData result) {
-//                    librusData = result;
-//                    setup(savedInstanceState);
-//                }
-//            }).fail(new AndroidFailCallback<Object>() {
-//                @Override
-//                public AndroidExecutionScope getExecutionScope() {
-//                    return null;
-//                }
-//
-//                @Override
-//                public void onFail(Object result) {
-//                    librusData = new LibrusData(getApplicationContext());
-//                    LibrusDataLoader.updatePersistent(librusData, getApplicationContext()).done(new DoneCallback<LibrusData>() {
-//                        @Override
-//                        public void onDone(LibrusData result) {
-//                            LibrusDataLoader.save(result, getApplicationContext());
-//                            setup(savedInstanceState);
-//                        }
-//                    });
-//                }
-//            });
             setup(savedInstanceState);
         }
     }
@@ -179,80 +135,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withFireOnInitialOnClick(true)
                 .withToolbar(toolbar);
         drawer = drawerBuilder.build();
-//        int i = getIntent().getIntExtra(NotificationService.DEFAULT_POSITION, -1);
-//        if (i >= 0) {
-//            Log.d(TAG, "setup: selecting position " + i);
-//            drawer.setSelection(i);
-//        } else {
-//            Log.d(TAG, "setup: selecting default position ");
-//            drawer.setSelection(0);
-//        }
-//        ((MainFragment) currentFragment).setOnSetupCompleteListener(refreshListener);
     }
 
     private void refresh() {
-        Toast.makeText(getApplicationContext(), "Refresh started", Toast.LENGTH_SHORT);
         Log.d(TAG, "MainActivity: Refresh started");
-//        LibrusDataLoader.update(librusData, getApplicationContext()).done(new DoneCallback<LibrusData>() {
-//            @Override
-//            public void onDone(LibrusData result) {
-//                LibrusDataLoader.save(result, getApplicationContext());
-//                ((MainFragment) currentFragment).refresh(result);
-//                Toast.makeText(getApplicationContext(), "Refresh done", Toast.LENGTH_SHORT).show();
-//                Log.d(TAG, "MainActivity: Refresh done");
-//            }
-//        });
     }
-
-//    private void changeFragment(Fragment fragment, String title) {
-//        //if (currentFragment == null || currentFragment.getClass() != fragment.getClass()) {
-//        if (!(fragment instanceof TimetableFragment)) removeToolbarView();
-//        Log.d(TAG, "changeFragment: \n" +
-//                "fragment " + fragment + "\n" +
-//                "title: " + title);
-//        currentFragment = fragment;
-//        toolbar.setTitle(title);
-//
-//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        transaction.replace(R.id.content_main, fragment);
-//        transaction.commit();
-//        //}
-//    }
-
-//    private boolean selectItem(IDrawerItem item) {
-//        switch ((int) item.getIdentifier()) {
-//            case 0:
-//                changeFragment(TimetableFragment.newInstance(), "Plan lekcji");
-//                break;
-//            case 1:
-//                changeFragment(GradesFragment.newInstance(librusData), "Oceny");
-//                break;
-//            case 2:
-//                changeFragment(new PlaceholderFragment(), "Terminarz");
-//                break;
-//            case 3:
-//                changeFragment(AnnouncementsFragment.newInstance(librusData), "Ogłoszenia");
-//                break;
-//            case 4:
-//                changeFragment(new PlaceholderFragment(), "Wiadomości");
-//                break;
-//            case 5:
-//                changeFragment(AttendanceFragment.newInstance(librusData), "Nieobecności");
-//                break;
-//            case 6:
-//                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
-//                startActivity(i);
-//                break;
-//            case 666:
-//                String date = luckyNumber.getLuckyNumberDay().toString("EEEE, d MMMM yyyy", new Locale("pl"));
-//                date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
-//                Toast.makeText(getApplicationContext(), date, Toast.LENGTH_SHORT).show();
-//                break;
-//            default:
-//                return true;
-//        }
-//        return false;
-//    }
 
     private Drawer getDrawer() {
         return drawer;
@@ -305,19 +192,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             }
             toggle.syncState();
         }
-    }
-
-    public void addToolbarView(View v) {
-
-        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
-        appBarLayout.addView(v, 1);
-        toolbarView = v;
-    }
-
-    public void removeToolbarView() {
-        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_main);
-        if (toolbarView != null) appBarLayout.removeView(toolbarView);
-        toolbarView = null;
     }
 
     @Override

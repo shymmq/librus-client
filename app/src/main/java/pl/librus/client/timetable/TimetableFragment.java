@@ -5,15 +5,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
-import org.jdeferred.android.AndroidDoneCallback;
-import org.jdeferred.android.AndroidExecutionScope;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
@@ -26,35 +23,21 @@ import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.SchoolDay;
 import pl.librus.client.api.SchoolWeek;
-import pl.librus.client.cache.DataLoader;
-import pl.librus.client.cache.LibrusCache;
-import pl.librus.client.cache.LibrusCacheLoader;
+import pl.librus.client.cache.SchoolWeekLoader;
 import pl.librus.client.ui.MainFragment;
 
 import static org.joda.time.DateTimeConstants.MONDAY;
-import static pl.librus.client.LibrusConstants.TIMETABLE_CACHE;
+import static pl.librus.client.cache.AbstractDataLoader.LoadMode.CACHE;
+import static pl.librus.client.cache.AbstractDataLoader.LoadMode.DOWNLOAD;
 
 public class TimetableFragment extends Fragment implements MainFragment {
-    private static final String ARG_DATA = "data";
-    private static final String STATE_SCHOOLWEEKS = "TimetableFragment:weeks";
     final ProgressItem progress = new ProgressItem();
-    private final String TAG = "librus-client-log";
-    LocalDate lastDisplayedWeek = null;
     TimetableAdapter adapter;
     LinearLayoutManager layoutManager;
     LocalDate startDate = LocalDate.now().withDayOfWeek(MONDAY);
     int page = 0;
-    private List<IFlexible> listElements = new ArrayList<>();
-    private OnSetupCompleteListener listener;
-    private RecyclerView recyclerView;
-    private View root;
-    private View progressBar;
 
     public static TimetableFragment newInstance() {
-        //Bundle args = new Bundle();
-        //args.putSerializable(ARG_DATA, data);
-        //fragment.setArguments(args);
-
         return new TimetableFragment();
     }
 
@@ -123,107 +106,61 @@ public class TimetableFragment extends Fragment implements MainFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.root = view;
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.fragment_timetable_recycler);
-        progressBar = view.findViewById(R.id.fragment_timetable_progress);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_timetable_recycler);
 
         recyclerView.setVisibility(View.VISIBLE);
-//        progressBar.setVisibility(View.VISIBLE);
-
-        lastDisplayedWeek = LocalDate.now().withDayOfWeek(MONDAY).minusWeeks(1);
 
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        listElements.clear();
-        page = 0;
+
         adapter = new TimetableAdapter(null);
         adapter.setDisplayHeadersAtStartUp(true);
-//        adapter.setDisplayHeadersAtStartUp(true);
-        //adapter.setEndlessScrollListener(TimetableFragment.this, progress)
-
+        page = 0;
         adapter.setEndlessProgressItem(progress);
-//        adapter.mItemClickListener = new FlexibleAdapter.OnItemClickListener() {
-//            @Override
-//            public boolean onItemClick(int position) {
-//
-//                LibrusUtils.log("Element " + position + " clicked " + adapter.getItem(position).getClass().getName());
-//                return false;
-//            }
-//        };
-        final DoneCallback<SchoolWeek> callback = new AndroidDoneCallback<SchoolWeek>() {
-            @Override
-            public AndroidExecutionScope getExecutionScope() {
-                return null;
-            }
-
-            @Override
-            public void onDone(final SchoolWeek result) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        LibrusUtils.log(result.getWeekStart().toString() + " downloaded");
-                        progress.setStatus(ProgressItem.IDLE);
-                        List<IFlexible> newElements = getElements(result);
-                        adapter.onLoadMoreComplete(newElements);
-                        //adapter.addItems(adapter.getItemCount() - 1, newElements);
-                        listElements.addAll(newElements);
-                        page++;
-                        //adapter.updateDataSet(new ArrayList<>(newElements));
-                    }
-                });
-            }
-        };
         adapter.onLoadMoreListener = new TimetableAdapter.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
                 progress.setStatus(ProgressItem.LOADING);
                 adapter.notifyItemChanged(adapter.getGlobalPositionOf(progress));
-                loadMore(page).done(callback);
+                loadMore(page).done(new DoneCallback<SchoolWeek>() {
+                    @Override
+                    public void onDone(final SchoolWeek result) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                LibrusUtils.log(result.getWeekStart().toString() + " downloaded");
+                                progress.setStatus(ProgressItem.IDLE);
+                                List<IFlexible> newElements = getElements(result);
+                                adapter.onLoadMoreComplete(newElements);
+                                page++;
+                            }
+                        });
+
+                    }
+                });
             }
         };
         recyclerView.setAdapter(adapter);
         adapter.onLoadMoreListener.onLoadMore();
-        // if (savedInstanceState == null) {
-        //first launch
-//            final LocalDate weekStart = LocalDate.now().withDayOfWeek(MONDAY);
-//            new DataLoader(getContext()).getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
-//                @Override
-//                public void onDone(SchoolWeek result) {
-//                    lastDisplayedWeek = weekStart;
-//                    listElements.addAll(getElements(result));
-//                    finishLoading();
-//                }
-//            });
-//        } else {
-//            finishLoading();
-//        }
     }
 
-    private Promise<SchoolWeek, Void, Void> loadMore(int currentPage) {
+    private Promise<SchoolWeek, Void, SchoolWeek> loadMore(int currentPage) {
         final LocalDate weekStart = startDate.plusWeeks(currentPage);
         LibrusUtils.log("OnLoadMore\n" +
                 "currentPage: " + currentPage + "\n" +
                 "weekStart: " + weekStart.toString());
 
-        return new DataLoader(getContext()).getSchoolWeek(weekStart, currentPage == 0);
+        return new SchoolWeekLoader(getContext()).load(currentPage == 0 ? CACHE : DOWNLOAD, weekStart);
     }
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putSerializable("list_items", (Serializable) listElements);
-//        outState.putSerializable("last_date", lastDisplayedWeek);
-//    }
 
     @Override
     public void refresh(LibrusData cache) {
-        Log.d(TAG, "TimetableFragment update()");
     }
 
     @Override
     public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-        this.listener = listener;
     }
 
     List<IFlexible> getElements(SchoolWeek schoolWeek) {
@@ -247,17 +184,5 @@ public class TimetableFragment extends Fragment implements MainFragment {
             }
         }
         return res;
-    }
-
-    Promise<LibrusCache, Void, Void> loadCache(final LocalDate date) {
-//        final Deferred<LibrusCache, Void, Void> deferred = new DeferredObject<>();
-        LibrusCacheLoader cacheLoader = new LibrusCacheLoader(getContext());
-        return cacheLoader.load(TIMETABLE_CACHE);
-    }
-
-    void updateList() {
-//        adapter.updateDataSet(new ArrayList<>(listElements), true);
-//        adapter.hideAllHeaders();
-//        adapter.showAllHeaders();
     }
 }
