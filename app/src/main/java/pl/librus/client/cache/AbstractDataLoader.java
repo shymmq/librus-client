@@ -38,66 +38,69 @@ public abstract class AbstractDataLoader<T extends Serializable, A> {
         this.client = new APIClient(context);
     }
 
-    protected abstract Promise<T, T, T> download(APIClient client, A arg);
+    protected abstract Promise<T, ?, ?> getDownloadPromise(APIClient client, A arg);
 
     protected abstract String getFilename(A arg);
 
-    public Promise<T, T, T> load(LoadMode mode, final A arg) {
+    public Promise<T, ?, ?> download(A arg) {
+        return getDownloadPromise(client, arg);    //return promise to getDownloadPromise data
+    }
 
+    public Promise<T, ?, ?> loadFromCache(final A arg) {
+        final Deferred<T, ?, ?> deferred = new DeferredObject<>();
+        //Try to load data from cache
+        loadFile(getFilename(arg))
+                //success, resolve the promise
+                .done(new DoneCallback<T>() {
+                    @Override
+                    public void onDone(T result) {
+                        deferred.resolve(result);
+                    }
+                })
+                //loading from cache failed, start downloading from server
+                .fail(new FailCallback<Void>() {
+                    @Override
+                    public void onFail(Void result) {
+                        getDownloadPromise(client, arg)
+                                //downloaded, save data to cache and resolve the promise
+                                .done(new DoneCallback<T>() {
+                                    @Override
+                                    public void onDone(T result) {
+                                        saveFile(result, getFilename(arg));
+                                        deferred.resolve(result);
+                                    }
+                                });
+                    }
+                });
+        return deferred.promise();
+    }
+
+    public Promise<T, T, T> hybridLoad(final A arg) {
         final Deferred<T, T, T> deferred = new DeferredObject<>();
 
-        if (mode == LoadMode.DOWNLOAD)
-            return download(client, arg);    //return promise to download data
-        else {
-            if (mode == LoadMode.CACHE) {
-                //Try to load data from cache
-                loadFile(getFilename(arg))
-                        //success, resolve the promise
-                        .done(new DoneCallback<T>() {
-                            @Override
-                            public void onDone(T result) {
-                                deferred.resolve(result);
-                            }
-                        })
-                        //loading from cache failed, start downloading from server
-                        .fail(new FailCallback<Void>() {
-                            @Override
-                            public void onFail(Void result) {
-                                download(client, arg)
-                                        //downloaded, save data to cache and resolve the promise
-                                        .done(new DoneCallback<T>() {
-                                            @Override
-                                            public void onDone(T result) {
-                                                saveFile(result, getFilename(arg));
-                                                deferred.resolve(result);
-                                            }
-                                        });
-                            }
-                        });
-            } else if (mode == LoadMode.HYBRID) {
-                //load from cache
-                loadFile(getFilename(arg)).always(new AlwaysCallback<T, Void>() {
+        //load from cache
+        loadFile(getFilename(arg)).always(new AlwaysCallback<T, Void>() {
+            @Override
+            public void onAlways(final Promise.State s, final T resolved, Void rejected) {
+                //notify about result
+                deferred.notify(s == Promise.State.RESOLVED ? resolved : null);
+                //after loading from cache, start getDownloadPromise from server
+                getDownloadPromise(client, arg).done(new DoneCallback<T>() {
                     @Override
-                    public void onAlways(final Promise.State s, final T resolved, Void rejected) {
-                        //notify about result
-                        deferred.notify(s == Promise.State.RESOLVED ? resolved : null);
-                        //after loading from cache, start download from server
-                        download(client, arg).done(new DoneCallback<T>() {
-                            @Override
-                            public void onDone(T result) {
-                                saveFile(result, getFilename(arg));
-                                if (s == Promise.State.RESOLVED) {
-                                    deferred.resolve(result);
-                                } else {
-                                    deferred.reject(result);
-                                }
-                            }
-                        });
+                    public void onDone(T result) {
+                        saveFile(result, getFilename(arg));
+                        if (s == Promise.State.RESOLVED) {
+                            deferred.resolve(result);
+                        } else {
+                            deferred.reject(result);
+                        }
                     }
                 });
             }
-            return deferred.promise();
-        }
+        });
+
+        return deferred.promise();
+
     }
 
     private Promise<T, Void, Void> loadFile(final String filename) {
@@ -145,16 +148,16 @@ public abstract class AbstractDataLoader<T extends Serializable, A> {
 
     public enum LoadMode {
         /**
-         * Loader will try to load data from cache. If it fails, it will download data from server.
+         * Loader will try to load data from cache. If it fails, it will getDownloadPromise data from server.
          */
         CACHE,
         /**
-         * Loader will skip loading data from cache and download data from the server
+         * Loader will skip loading data from cache and getDownloadPromise data from the server
          */
         DOWNLOAD,
         /**
          * Loader will load data from cache. If it succeeds promise is notified with cached data, otherwise it's notified with null.
-         * Loader will then download data from server and finally fire DoneCallBack if cache loading succeeded and FailCallback otherwise.
+         * Loader will then getDownloadPromise data from server and finally fire DoneCallBack if cache loading succeeded and FailCallback otherwise.
          */
         HYBRID
     }

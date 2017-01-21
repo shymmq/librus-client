@@ -29,7 +29,6 @@ import pl.librus.client.cache.SchoolWeekLoader;
 import pl.librus.client.ui.MainFragment;
 
 import static org.joda.time.DateTimeConstants.MONDAY;
-import static pl.librus.client.cache.AbstractDataLoader.LoadMode.HYBRID;
 
 public class TimetableFragment extends Fragment implements MainFragment {
     final ProgressItem progressItem = new ProgressItem();
@@ -180,7 +179,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
         LibrusUtils.log("OnLoadMore\n" +
                 "currentPage: " + currentPage + "\n" +
                 "weekStart: " + weekStart.toString());
-        return new SchoolWeekLoader(getContext()).load(HYBRID, weekStart);
+        return new SchoolWeekLoader(getContext()).hybridLoad(weekStart);
     }
 
     @Override

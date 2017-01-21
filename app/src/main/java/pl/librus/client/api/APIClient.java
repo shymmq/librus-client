@@ -343,14 +343,14 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<Teacher>, Void, Void> getTeachers() {
-        final Deferred<List<Teacher>, Void, Void> deferred = new DeferredObject<>();
+    public Promise<ArrayList<Teacher>, Void, Void> getTeachers() {
+        final Deferred<ArrayList<Teacher>, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/Users").then(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
                 try {
-                    List<Teacher> res = new ArrayList<>();
+                    ArrayList<Teacher> res = new ArrayList<>();
                     JSONArray rawTeachers = result.getJSONArray("Users");
                     for (int i = 0; i < rawTeachers.length(); i++) {
                         JSONObject rawTeacher = rawTeachers.getJSONObject(i);
@@ -423,13 +423,13 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<GradeCategory>, Void, Void> getGradeCategories() {
-        final Deferred<List<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
+    public Promise<ArrayList<GradeCategory>, Void, Void> getGradeCategories() {
+        final Deferred<ArrayList<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
         APIRequest("/Grades/Categories").done(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
                 try {
-                    List<GradeCategory> res = new ArrayList<>();
+                    ArrayList<GradeCategory> res = new ArrayList<>();
                     JSONArray rawGradeCategories = result.getJSONArray("Categories");
                     for (int i = 0; i < rawGradeCategories.length(); i++) {
                         JSONObject rawGradeCategory = rawGradeCategories.getJSONObject(i);
@@ -519,9 +519,9 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<SchoolWeek, SchoolWeek, SchoolWeek> getSchoolWeek(final LocalDate weekStart) {
+    public Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
 
-        final Deferred<SchoolWeek, SchoolWeek, SchoolWeek> deferred = new DeferredObject<>();
+        final Deferred<SchoolWeek, Void, Void> deferred = new DeferredObject<>();
 
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
         APIRequest(endpoint).then(new DoneCallback<JSONObject>() {
@@ -588,7 +588,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<Grade>, Void, Void> getGrades() {
+    public Promise<List<Grade>, Void, Void> getGrades() {
         final Deferred<List<Grade>, Void, Void> deferred = new DeferredObject<>();
         APIRequest("/Grades").then(new DoneCallback<JSONObject>() {
             @Override
@@ -633,7 +633,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<Average>, Void, Void> getAverages() {
+    public Promise<List<Average>, Void, Void> getAverages() {
         final Deferred<List<Average>, Void, Void> deferred = new DeferredObject<>();
         APIRequest("/Grades/Averages").then(new DoneCallback<JSONObject>() {
             @Override
@@ -659,7 +659,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<TextGrade>, Void, Void> getTextGrades() {
+    public Promise<List<TextGrade>, Void, Void> getTextGrades() {
         final Deferred<List<TextGrade>, Void, Void> deferred = new DeferredObject<>();
         APIRequest("/TextGrades").then(new DoneCallback<JSONObject>() {
             @Override
@@ -702,7 +702,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<GradeComment>, Void, Void> getComments() {
+    public Promise<List<GradeComment>, Void, Void> getComments() {
         final Deferred<List<GradeComment>, Void, Void> deferred = new DeferredObject<>();
         APIRequest("/Grades/Comments").done(new DoneCallback<JSONObject>() {
             @Override

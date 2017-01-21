@@ -21,7 +21,7 @@ public class SchoolWeekLoader extends AbstractDataLoader<SchoolWeek, LocalDate> 
     }
 
     @Override
-    protected Promise<SchoolWeek, SchoolWeek, SchoolWeek> download(APIClient client, LocalDate arg) {
+    protected Promise<SchoolWeek, Void, Void> getDownloadPromise(APIClient client, LocalDate arg) {
         return client.getSchoolWeek(arg);
     }
 
