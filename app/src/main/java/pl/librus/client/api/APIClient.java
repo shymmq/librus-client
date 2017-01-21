@@ -21,7 +21,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,14 +32,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import pl.librus.client.LibrusConstants;
-import pl.librus.client.LibrusUtils;
-import pl.librus.client.cache.LibrusCache;
-import pl.librus.client.cache.LibrusCacheLoader;
-import pl.librus.client.cache.TimetableCache;
-import pl.librus.client.timetable.TimetableUtils;
 
-import static pl.librus.client.LibrusConstants.TIMETABLE_CACHE;
 import static pl.librus.client.LibrusUtils.log;
 
 public class APIClient {
@@ -362,8 +354,7 @@ public class APIClient {
                     JSONArray rawTeachers = result.getJSONArray("Users");
                     for (int i = 0; i < rawTeachers.length(); i++) {
                         JSONObject rawTeacher = rawTeachers.getJSONObject(i);
-                        Teacher teacher = new Teacher(rawTeacher.getString("Id"));
-                        teacher.setName(rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
+                        Teacher teacher = new Teacher(rawTeacher.getString("Id"), rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
                         res.add(teacher);
 
                     }
@@ -488,7 +479,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<LibrusAccount, Void, Void> getAccount() {
+    public Promise<LibrusAccount, Void, Void> getAccount() {
         final Deferred<LibrusAccount, Void, Void> deferred = new DeferredObject<>();
         APIRequest("/Me").done(new DoneCallback<JSONObject>() {
             @Override
@@ -532,7 +523,8 @@ public class APIClient {
 
         final Deferred<SchoolWeek, Void, Void> deferred = new DeferredObject<>();
 
-        APIRequest("/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd")).then(new DoneCallback<JSONObject>() {
+        String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
+        APIRequest(endpoint).then(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
                 final SchoolWeek schoolWeek = new SchoolWeek(weekStart);
@@ -549,50 +541,44 @@ public class APIClient {
                         for (int i = 0; i < rawSchoolDay.length(); i++) {
                             if (rawSchoolDay.getJSONArray(i).length() != 0) {
                                 JSONObject rawLesson = rawSchoolDay.getJSONArray(i).getJSONObject(0);
+                                String id = rawLesson.getJSONObject("Lesson").getString("Id") + date.toString();
                                 boolean isCanceled = rawLesson.getBoolean("IsCanceled");
                                 boolean isSubstitutionClass = rawLesson.getBoolean("IsSubstitutionClass");
+                                int lessonNumber = rawLesson.getInt("LessonNo");
                                 JSONObject rawSubject = rawLesson.getJSONObject("Subject");
                                 JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
-                                JSONObject rawOrgSubject = isSubstitutionClass ? rawLesson.getJSONObject("OrgSubject") : null;
-                                JSONObject rawOrgTeacher = isSubstitutionClass ? rawLesson.getJSONObject("OrgTeacher") : null;
                                 Subject subject = new Subject(rawSubject.getString("Name"), rawSubject.getString("Id"));
-                                Teacher teacher = new Teacher(rawTeacher.getString("Id"));
-                                teacher.setName(rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
-                                schoolDay.setLesson(i, new Lesson(
-                                        rawLesson.getJSONObject("Lesson").getString("Id") + date.toString(),
-                                        i,
-                                        date,
-                                        LocalTime.parse(rawLesson.getString("HourFrom"), DateTimeFormat.forPattern("HH:mm")),
-                                        LocalTime.parse(rawLesson.getString("HourTo"), DateTimeFormat.forPattern("HH:mm")),
-                                        subject,
-                                        teacher,
-                                        isCanceled,
-                                        isSubstitutionClass,
-                                        isSubstitutionClass ? rawOrgSubject.getString("Id") : null,
-                                        isSubstitutionClass ? rawOrgTeacher.getString("Id") : null,
-                                        null)
-                                );
+                                Teacher teacher = new Teacher(rawTeacher.getString("Id"), rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
+                                LocalTime hourFrom = LocalTime.parse(rawLesson.getString("HourFrom"), DateTimeFormat.forPattern("HH:mm"));
+                                LocalTime hourTo = LocalTime.parse(rawLesson.getString("HourTo"), DateTimeFormat.forPattern("HH:mm"));
+                                if (isCanceled && isSubstitutionClass) {
+                                    //lesson moved
+                                    String newTeacherId = rawLesson.getJSONObject("NewTeacher").getString("Id");
+                                    String newSubjectId = rawLesson.getJSONObject("NewSubject").getString("Id");
+                                    LocalDate newDate = LocalDate.parse(rawLesson.getString("NewDate"));
+                                    int newLessonNo = rawLesson.getInt("NewLessonNo");
+                                    schoolDay.setLesson(lessonNumber,
+                                            new Lesson(id, lessonNumber, date, hourFrom, hourTo, subject, teacher, newSubjectId, newTeacherId, newLessonNo, newDate));
+                                } else if (isCanceled) {
+                                    schoolDay.setLesson(lessonNumber,
+                                            new Lesson(id, lessonNumber, date, hourFrom, hourTo, subject, teacher, true));
+                                } else if (isSubstitutionClass) {
+                                    String orgSubjectId = rawLesson.getJSONObject("OrgSubject").getString("Id");
+                                    String orgTeacherId = rawLesson.getJSONObject("OrgTeacher").getString("Id");
+                                    schoolDay.setLesson(lessonNumber,
+                                            new Lesson(id, lessonNumber, date, hourFrom, hourTo, subject, teacher, orgSubjectId, orgTeacherId));
+                                } else {
+                                    schoolDay.setLesson(lessonNumber,
+                                            new Lesson(id, lessonNumber, date, hourFrom, hourTo, subject, teacher));
+                                }
                                 schoolDay.setEmpty(false);
                             }
                         }
                         schoolWeek.addSchoolDay(schoolDay);
                     }
-                    final LibrusCacheLoader cacheLoader = new LibrusCacheLoader(context);
-                    cacheLoader.load(TIMETABLE_CACHE).done(new DoneCallback<LibrusCache>() {
-                        @Override
-                        public void onDone(LibrusCache result) {
-                            TimetableCache timetableCache = (TimetableCache) result;
-                            cacheLoader.save(timetableCache.addSchoolWeek(schoolWeek), TIMETABLE_CACHE);
-                        }
-                    }).fail(new FailCallback<Void>() {
-                        @Override
-                        public void onFail(Void result) {
-                            cacheLoader.save(new TimetableCache(Collections.singletonList(schoolWeek)), TIMETABLE_CACHE);
-                        }
-                    });
                     deferred.resolve(schoolWeek);
                 } catch (JSONException e) {
-                    log(result.toString(), Log.ERROR,false);
+                    log(result.toString(), Log.ERROR, false);
                     e.printStackTrace();
                     deferred.reject(null);
                 }

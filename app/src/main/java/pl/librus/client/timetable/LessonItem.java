@@ -21,7 +21,7 @@ import pl.librus.client.api.Lesson;
  */
 //
 
-class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder, LessonHeaderItem> implements Serializable{
+class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder, LessonHeaderItem> implements Serializable {
 
     private static final long serialVersionUID = -7951416905429163498L;
     private transient final Context context;
@@ -84,7 +84,7 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.canceled);
             holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_cancel_black_24dp));
-        } else if (lesson.isSubstitution()) {
+        } else if (lesson.isSubstitutionClass()) {
             //substitution
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.substitution);

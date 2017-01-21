@@ -10,46 +10,97 @@ public class Lesson implements Serializable {
 
 
     private static final long serialVersionUID = 3925316087529938003L;
-    private String id;
-    private int lessonNumber = 0;
-    private Event event = null;
-    private Subject subject;
-    private Teacher teacher;
-    private String orgSubjectId = null;
-    private String orgTeacherId = null;
-    private boolean substitution;
-    private boolean isCanceled;
-    private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private final int lessonNumber;
+    private final Subject subject;
+    private final Teacher teacher;
+    private final String id, orgSubjectId, orgTeacherId;
+    private final boolean isSubstitutionClass, isCanceled;
+    private final LocalDate date;
+    private final LocalTime startTime, endTime;
 
+    //for moved lessons
+    private final String newSubjectId, newTeacherId;
+    private final LocalDate newDate;
+    private final int newLessonNo;
+
+    //normal lesson
+    Lesson(String id,
+           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+           Subject subject, Teacher teacher) {
+        this.id = id;
+        this.lessonNumber = lessonNumber;
+        this.subject = subject;
+        this.teacher = teacher;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.isSubstitutionClass = false;
+        this.isCanceled = false;
+        this.orgSubjectId = this.orgTeacherId = this.newSubjectId = this.newTeacherId = null;
+        this.newDate = null;
+        this.newLessonNo = -1;
+    }
+
+    //substitution
     Lesson(String id,
            int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
            Subject subject, Teacher teacher,
-           boolean isCanceled,
-           boolean substitution,
-           String orgSubjectId, String orgTeacherId,
-           Event event) {
+           String orgSubjectId, String orgTeacherId) {
         this.id = id;
         this.lessonNumber = lessonNumber;
-        this.event = event;
         this.subject = subject;
         this.teacher = teacher;
         this.orgSubjectId = orgSubjectId;
         this.orgTeacherId = orgTeacherId;
-        this.substitution = substitution;
-        this.isCanceled = isCanceled;
+        this.isSubstitutionClass = true;
+        this.isCanceled = false;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.newSubjectId = this.newTeacherId = null;
+        this.newDate = null;
+        this.newLessonNo = -1;
     }
 
-    public Event getEvent() {
-        return event;
+    //canceled
+    Lesson(String id,
+           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+           Subject subject, Teacher teacher,
+           boolean isCanceled) {
+        this.id = id;
+        this.lessonNumber = lessonNumber;
+        this.subject = subject;
+        this.teacher = teacher;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.isSubstitutionClass = false;
+        this.isCanceled = isCanceled;
+        this.orgSubjectId = this.orgTeacherId = this.newSubjectId = this.newTeacherId = null;
+        this.newDate = null;
+        this.newLessonNo = -1;
     }
 
-    public void setEvent(Event event) {
-        this.event = event;
+    //moved
+    Lesson(String id,
+           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+           Subject subject, Teacher teacher,
+           String newSubjectId, String newTeacherId,
+           int newLessonNo, LocalDate newDate) {
+        this.id = id;
+        this.lessonNumber = lessonNumber;
+        this.subject = subject;
+        this.teacher = teacher;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.isSubstitutionClass = false;
+        this.isCanceled = false;
+        this.orgSubjectId = this.orgTeacherId = null;
+        this.newDate = newDate;
+        this.newLessonNo = newLessonNo;
+        this.newSubjectId = newSubjectId;
+        this.newTeacherId = newTeacherId;
     }
 
     public String getOrgSubjectId() {
@@ -84,16 +135,12 @@ public class Lesson implements Serializable {
         return teacher;
     }
 
-    public boolean isSubstitution() {
-        return substitution;
+    public boolean isSubstitutionClass() {
+        return isSubstitutionClass;
     }
 
     public boolean isCanceled() {
         return isCanceled;
-    }
-
-    public int getChanges(Lesson lesson) {
-        return 0;
     }
 
     public String getId() {
@@ -116,5 +163,21 @@ public class Lesson implements Serializable {
         int result = id.hashCode();
         result = 31 * result + date.hashCode();
         return result;
+    }
+
+    public int getNewLessonNo() {
+        return newLessonNo;
+    }
+
+    public LocalDate getNewDate() {
+        return newDate;
+    }
+
+    public String getNewSubjectId() {
+        return newSubjectId;
+    }
+
+    public String getNewTeacherId() {
+        return newTeacherId;
     }
 }

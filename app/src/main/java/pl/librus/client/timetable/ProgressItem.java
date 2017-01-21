@@ -1,41 +1,31 @@
 package pl.librus.client.timetable;
 
-import android.content.Context;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
-import eu.davidea.flexibleadapter.Payload;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 
 class ProgressItem extends AbstractFlexibleItem<ProgressItem.ViewHolder> {
 
-    private StatusEnum status = StatusEnum.MORE_TO_LOAD;
+    static final int IDLE = 0;
+    static final int LOADING = 1;
+    private int status = IDLE;
 
-    public enum StatusEnum {
-        MORE_TO_LOAD,    //Default = should have an empty Payload
-        DISABLE_ENDLESS, //Endless is disabled because user has set limits
-        NO_MORE_LOAD,    //Non-Empty payload = Payload.NO_MORE_LOAD
-        ON_CANCEL,
-        ON_ERROR
-    }
-
-    public StatusEnum getStatus() {
-        return status;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override
     public int getLayoutRes() {
         return R.layout.progress_item;
-    }
-
-    public void setStatus(StatusEnum status) {
-        this.status = status;
     }
 
     @Override
@@ -45,46 +35,38 @@ class ProgressItem extends AbstractFlexibleItem<ProgressItem.ViewHolder> {
 
     @Override
     public ViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater, ViewGroup parent) {
-        return new ViewHolder(inflater.inflate(R.layout.progress_item, parent, false), adapter);
+        return new ViewHolder(inflater.inflate(R.layout.progress_item, parent, false), (TimetableAdapter) adapter);
     }
 
     @Override
-    public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
-        holder.progressBar.setVisibility(View.INVISIBLE);
-
-        if (!adapter.isEndlessScrollEnabled()) {
-            setStatus(StatusEnum.DISABLE_ENDLESS);
-        } else if (payloads.contains(Payload.NO_MORE_LOAD)) {
-            setStatus(StatusEnum.NO_MORE_LOAD);
+    public void bindViewHolder(final FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
+        TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView);
+        if (this.status == IDLE) {
+            holder.button.setVisibility(View.VISIBLE);
+            holder.button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((TimetableAdapter) adapter).onLoadMoreListener.onLoadMore();
+                }
+            });
+            holder.progressBar.setVisibility(View.GONE);
+        } else if (status == LOADING) {
+            holder.progressBar.setVisibility(View.VISIBLE);
+            holder.button.setVisibility(View.GONE);
         }
 
-        switch (this.status) {
-            case NO_MORE_LOAD:
-                // Reset to default status for next binding
-                setStatus(StatusEnum.MORE_TO_LOAD);
-                break;
-            case DISABLE_ENDLESS:
-                break;
-            case ON_CANCEL:
-                // Reset to default status for next binding
-                setStatus(StatusEnum.MORE_TO_LOAD);
-                break;
-            case ON_ERROR:
-                // Reset to default status for next binding
-                setStatus(StatusEnum.MORE_TO_LOAD);
-                break;
-            default:
-                holder.progressBar.setVisibility(View.VISIBLE);
-                break;
-        }
-}
+
+//        LibrusUtils.log("Progress item .bindViewHolder()");
+    }
 
     class ViewHolder extends FlexibleViewHolder {
         View progressBar;
+        Button button;
 
-        public ViewHolder(View view, FlexibleAdapter adapter) {
+        ViewHolder(View view, TimetableAdapter adapter) {
             super(view, adapter);
-            progressBar = view.findViewById(R.id.progressBar4);
+            progressBar = view.findViewById(R.id.progress_item_progressbar);
+            button = (Button) view.findViewById(R.id.progress_item_button);
         }
     }
 }

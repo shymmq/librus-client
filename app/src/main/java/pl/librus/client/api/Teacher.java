@@ -8,11 +8,8 @@ public class Teacher implements Serializable {
     private String firstName;
     private String lastName;
 
-    Teacher(String id) {
+    public Teacher(String id, String firstName, String lastName) {
         this.id = id;
-    }
-
-    void setName(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }

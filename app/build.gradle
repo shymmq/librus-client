@@ -54,7 +54,7 @@ dependencies {
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
     compile 'com.github.boxme:asyncmanager:1.0.0'
 
-    compile 'eu.davidea:flexible-adapter:5.0.0-SNAPSHOT'
+    compile 'eu.davidea:flexible-adapter:5.0.0-rc1'
 
     testCompile 'junit:junit:4.12'
 }

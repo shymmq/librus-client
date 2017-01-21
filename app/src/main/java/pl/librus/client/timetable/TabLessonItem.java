@@ -67,10 +67,10 @@ public class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonI
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.canceled);
             holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_cancel_black_24dp));
-        } else if (lesson.isSubstitution()) {
+        } else if (lesson.isSubstitutionClass()) {
             //substitution
             holder.badge.setVisibility(View.VISIBLE);
-            holder.badgeText.setText(R.string.substitution);
+            holder.badgeText.setText("zastępstwo");
             holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_swap_horiz_black_24dp));
         } else {
             //normal lesson

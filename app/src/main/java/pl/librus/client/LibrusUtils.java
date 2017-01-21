@@ -18,12 +18,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.librus.client.api.APIClient;
+import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.api.SchoolWeek;
+import pl.librus.client.cache.AccountCache;
 import pl.librus.client.cache.LibrusCacheLoader;
 import pl.librus.client.cache.TimetableCache;
 import pl.librus.client.timetable.TimetableUtils;
 
-import static pl.librus.client.LibrusConstants.*;
+import static pl.librus.client.LibrusConstants.ACCOUNT_CACHE;
+import static pl.librus.client.LibrusConstants.DBG;
+import static pl.librus.client.LibrusConstants.TAG;
+import static pl.librus.client.LibrusConstants.TIMETABLE_CACHE;
 
 public class LibrusUtils {
 
@@ -54,6 +59,7 @@ public class LibrusUtils {
         APIClient client = new APIClient(context);
         final LibrusCacheLoader cacheLoader = new LibrusCacheLoader(context);
 
+        //Timetable
         final TimetableCache timetableCache = new TimetableCache(new ArrayList<SchoolWeek>());
         List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
         for (final LocalDate weekStart : weekStarts) {
@@ -65,6 +71,13 @@ public class LibrusUtils {
                 }
             }));
         }
+        //Account
+        tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
+            @Override
+            public void onDone(LibrusAccount result) {
+                cacheLoader.save(new AccountCache(result), ACCOUNT_CACHE);
+            }
+        }));
         DeferredManager dm = new AndroidDeferredManager();
         dm.when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override

@@ -1,56 +1,52 @@
 package pl.librus.client.timetable;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
+import org.jdeferred.android.AndroidDoneCallback;
+import org.jdeferred.android.AndroidExecutionScope;
 import org.joda.time.LocalDate;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
-import pl.librus.client.api.APIClient;
 import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.SchoolDay;
 import pl.librus.client.api.SchoolWeek;
+import pl.librus.client.cache.DataLoader;
 import pl.librus.client.cache.LibrusCache;
 import pl.librus.client.cache.LibrusCacheLoader;
-import pl.librus.client.cache.TimetableCache;
 import pl.librus.client.ui.MainFragment;
 
-import static org.joda.time.DateTimeConstants.*;
+import static org.joda.time.DateTimeConstants.MONDAY;
 import static pl.librus.client.LibrusConstants.TIMETABLE_CACHE;
 
-public class TimetableFragment extends Fragment implements MainFragment, FlexibleAdapter.EndlessScrollListener {
+public class TimetableFragment extends Fragment implements MainFragment {
     private static final String ARG_DATA = "data";
     private static final String STATE_SCHOOLWEEKS = "TimetableFragment:weeks";
-    private final String TAG = "librus-client-log";
     final ProgressItem progress = new ProgressItem();
-    private List<IFlexible> listElements = new ArrayList<>();
+    private final String TAG = "librus-client-log";
     LocalDate lastDisplayedWeek = null;
-    FlexibleAdapter<IFlexible> adapter = new FlexibleAdapter<>(listElements);
+    TimetableAdapter adapter;
+    LinearLayoutManager layoutManager;
+    LocalDate startDate = LocalDate.now().withDayOfWeek(MONDAY);
+    int page = 0;
+    private List<IFlexible> listElements = new ArrayList<>();
     private OnSetupCompleteListener listener;
     private RecyclerView recyclerView;
-    LinearLayoutManager layoutManager;
-    Parcelable layoutMgrState = null;
     private View root;
     private View progressBar;
 
@@ -89,7 +85,6 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ;
 
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         //boolean useTabs = prefs.getBoolean("useTabs", false);
@@ -133,74 +128,93 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
         recyclerView = (RecyclerView) view.findViewById(R.id.fragment_timetable_recycler);
         progressBar = view.findViewById(R.id.fragment_timetable_progress);
 
-        recyclerView.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.VISIBLE);
 //        progressBar.setVisibility(View.VISIBLE);
 
-        lastDisplayedWeek = savedInstanceState == null ? null : (LocalDate) savedInstanceState.getSerializable("last_date");
+        lastDisplayedWeek = LocalDate.now().withDayOfWeek(MONDAY).minusWeeks(1);
 
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
         listElements.clear();
+        page = 0;
+        adapter = new TimetableAdapter(null);
+        adapter.setDisplayHeadersAtStartUp(true);
+//        adapter.setDisplayHeadersAtStartUp(true);
+        //adapter.setEndlessScrollListener(TimetableFragment.this, progress)
 
-        adapter = new FlexibleAdapter<>(savedInstanceState == null ? listElements : (List<IFlexible>) savedInstanceState.getSerializable("list_items"));
-        recyclerView.setAdapter(adapter);
-
-        recyclerView.getItemAnimator().setAddDuration(0);
-        recyclerView.getItemAnimator().setChangeDuration(0);
-
-        if (savedInstanceState == null) {
-            //first launch
-            final LocalDate weekStart = LocalDate.now().withDayOfWeek(MONDAY);
-            loadCache(weekStart).done(new DoneCallback<LibrusCache>() {
-                @Override
-                public void onDone(LibrusCache result) {
-                    lastDisplayedWeek = weekStart;
-                    List<SchoolWeek> cachedWeeks = ((TimetableCache) result).getSchoolWeeks();
-                    for (SchoolWeek w : cachedWeeks) {
-                        listElements.addAll(getElements(w));
-                    }
-                    finishLoading();
-                }
-            }).fail(new FailCallback<Void>() {
-                @Override
-                public void onFail(Void result) {
-                    new APIClient(getContext())
-                            .getSchoolWeek(weekStart)
-                            .done(new DoneCallback<SchoolWeek>() {
-                                @Override
-                                public void onDone(SchoolWeek result) {
-                                    lastDisplayedWeek = weekStart;
-                                    listElements.addAll(getElements(result));
-                                    finishLoading();
-                                }
-                            });
-                }
-            });
-        } else {
-            finishLoading();
-        }
-    }
-
-    private void finishLoading() {
-        getActivity().runOnUiThread(new Runnable() {
+        adapter.setEndlessProgressItem(progress);
+//        adapter.mItemClickListener = new FlexibleAdapter.OnItemClickListener() {
+//            @Override
+//            public boolean onItemClick(int position) {
+//
+//                LibrusUtils.log("Element " + position + " clicked " + adapter.getItem(position).getClass().getName());
+//                return false;
+//            }
+//        };
+        final DoneCallback<SchoolWeek> callback = new AndroidDoneCallback<SchoolWeek>() {
             @Override
-            public void run() {
-                TransitionManager.beginDelayedTransition((ViewGroup) root, new AutoTransition().setDuration(300));
-                recyclerView.setVisibility(View.VISIBLE);
-                adapter.setEndlessScrollListener(TimetableFragment.this, progress)
-                        .setEndlessScrollThreshold(3);
-                updateList();
+            public AndroidExecutionScope getExecutionScope() {
+                return null;
             }
-        });
+
+            @Override
+            public void onDone(final SchoolWeek result) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LibrusUtils.log(result.getWeekStart().toString() + " downloaded");
+                        progress.setStatus(ProgressItem.IDLE);
+                        List<IFlexible> newElements = getElements(result);
+                        adapter.onLoadMoreComplete(newElements);
+                        //adapter.addItems(adapter.getItemCount() - 1, newElements);
+                        listElements.addAll(newElements);
+                        page++;
+                        //adapter.updateDataSet(new ArrayList<>(newElements));
+                    }
+                });
+            }
+        };
+        adapter.onLoadMoreListener = new TimetableAdapter.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                progress.setStatus(ProgressItem.LOADING);
+                adapter.notifyItemChanged(adapter.getGlobalPositionOf(progress));
+                loadMore(page).done(callback);
+            }
+        };
+        recyclerView.setAdapter(adapter);
+        adapter.onLoadMoreListener.onLoadMore();
+        // if (savedInstanceState == null) {
+        //first launch
+//            final LocalDate weekStart = LocalDate.now().withDayOfWeek(MONDAY);
+//            new DataLoader(getContext()).getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
+//                @Override
+//                public void onDone(SchoolWeek result) {
+//                    lastDisplayedWeek = weekStart;
+//                    listElements.addAll(getElements(result));
+//                    finishLoading();
+//                }
+//            });
+//        } else {
+//            finishLoading();
+//        }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable("list_items", (Serializable) listElements);
-        outState.putSerializable("last_date", lastDisplayedWeek);
+    private Promise<SchoolWeek, Void, Void> loadMore(int currentPage) {
+        final LocalDate weekStart = startDate.plusWeeks(currentPage);
+        LibrusUtils.log("OnLoadMore\n" +
+                "currentPage: " + currentPage + "\n" +
+                "weekStart: " + weekStart.toString());
+
+        return new DataLoader(getContext()).getSchoolWeek(weekStart, currentPage == 0);
     }
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putSerializable("list_items", (Serializable) listElements);
+//        outState.putSerializable("last_date", lastDisplayedWeek);
+//    }
 
     @Override
     public void refresh(LibrusData cache) {
@@ -212,34 +226,6 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
         this.listener = listener;
     }
 
-    @Override
-    public void noMoreLoad(int newItemsSize) {
-        LibrusUtils.log("No more items to load. newItemsSize = " + newItemsSize);
-    }
-
-    @Override
-    public void onLoadMore(int lastPosition, int currentPage) {
-        final LocalDate weekStart = lastDisplayedWeek.plusWeeks(1);
-        LibrusUtils.log("OnLoadMore\n" +
-                "lastPosition: " + lastPosition + "\n" +
-                "currentPage: " + currentPage + "\n" +
-                "weekStart: " + weekStart.toString());
-        new APIClient(getContext())
-                .getSchoolWeek(weekStart)
-                .done(new DoneCallback<SchoolWeek>() {
-                    @Override
-                    public void onDone(SchoolWeek result) {
-                        lastDisplayedWeek = weekStart;
-                        LibrusUtils.log(weekStart.toString() + " downloaded");
-
-                        adapter.onLoadMoreComplete(getElements(result));
-                        updateList();
-//                        listElements.addAll(getElements(result));
-//                        updateList();
-                    }
-                });
-    }
-
     List<IFlexible> getElements(SchoolWeek schoolWeek) {
         List<SchoolDay> schoolDays = schoolWeek.getSchoolDays();
         List<IFlexible> res = new ArrayList<>();
@@ -248,7 +234,7 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
             LessonHeaderItem headerItem = new LessonHeaderItem(schoolDay.getDate());
             if (schoolDay.getLessons().size() > 0) {
 
-                for (int i = 0; i < schoolDay.getLastLesson(); i++) {
+                for (int i = 0; i <= schoolDay.getLastLesson(); i++) {
 
                     Lesson lesson = schoolDay.getLesson(i);
                     if (lesson != null) {
@@ -270,8 +256,8 @@ public class TimetableFragment extends Fragment implements MainFragment, Flexibl
     }
 
     void updateList() {
-        adapter.updateDataSet(new ArrayList<>(listElements), true);
-        adapter.hideAllHeaders();
-        adapter.showAllHeaders();
+//        adapter.updateDataSet(new ArrayList<>(listElements), true);
+//        adapter.hideAllHeaders();
+//        adapter.showAllHeaders();
     }
 }
