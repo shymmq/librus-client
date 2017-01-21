@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+import org.jdeferred.ProgressCallback;
 import org.jdeferred.Promise;
 import org.joda.time.LocalDate;
 
@@ -27,11 +29,10 @@ import pl.librus.client.cache.SchoolWeekLoader;
 import pl.librus.client.ui.MainFragment;
 
 import static org.joda.time.DateTimeConstants.MONDAY;
-import static pl.librus.client.cache.AbstractDataLoader.LoadMode.CACHE;
-import static pl.librus.client.cache.AbstractDataLoader.LoadMode.DOWNLOAD;
+import static pl.librus.client.cache.AbstractDataLoader.LoadMode.HYBRID;
 
 public class TimetableFragment extends Fragment implements MainFragment {
-    final ProgressItem progress = new ProgressItem();
+    final ProgressItem progressItem = new ProgressItem();
     TimetableAdapter adapter;
     LinearLayoutManager layoutManager;
     LocalDate startDate = LocalDate.now().withDayOfWeek(MONDAY);
@@ -118,41 +119,68 @@ public class TimetableFragment extends Fragment implements MainFragment {
         adapter = new TimetableAdapter(null);
         adapter.setDisplayHeadersAtStartUp(true);
         page = 0;
-        adapter.setEndlessProgressItem(progress);
+        adapter.setEndlessProgressItem(progressItem);
         adapter.onLoadMoreListener = new TimetableAdapter.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                progress.setStatus(ProgressItem.LOADING);
-                adapter.notifyItemChanged(adapter.getGlobalPositionOf(progress));
-                loadMore(page).done(new DoneCallback<SchoolWeek>() {
-                    @Override
-                    public void onDone(final SchoolWeek result) {
-                        getActivity().runOnUiThread(new Runnable() {
+                progressItem.setStatus(ProgressItem.LOADING);
+                adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
+                loadMore(page)
+                        //when data is loaded from cache
+                        .progress(new ProgressCallback<SchoolWeek>() {
                             @Override
-                            public void run() {
-                                LibrusUtils.log(result.getWeekStart().toString() + " downloaded");
-                                progress.setStatus(ProgressItem.IDLE);
-                                List<IFlexible> newElements = getElements(result);
-                                adapter.onLoadMoreComplete(newElements);
-                                page++;
+                            public void onProgress(final SchoolWeek progress) {
+                                //if cached data was found, display on the ui thread
+                                if (progress != null) {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            LibrusUtils.log(progress.getWeekStart().toString() + " loaded from cache");
+                                            progressItem.setStatus(ProgressItem.IDLE);
+                                            List<IFlexible> newElements = getElements(progress);
+                                            adapter.onLoadMoreComplete(newElements);
+                                            page++;
+                                        }
+                                    });
+                                }
+                            }
+                        })
+                        //if no cached data was found, display it here
+                        .fail(new FailCallback<SchoolWeek>() {
+                            @Override
+                            public void onFail(final SchoolWeek result) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        LibrusUtils.log(result.getWeekStart().toString() + " downloaded");
+                                        progressItem.setStatus(ProgressItem.IDLE);
+                                        List<IFlexible> newElements = getElements(result);
+                                        adapter.onLoadMoreComplete(newElements);
+                                        page++;
+                                    }
+                                });
+
+                            }
+                        })
+                        //if items were previously loaded from cache, only update the items here.
+                        .done(new DoneCallback<SchoolWeek>() {
+                            @Override
+                            public void onDone(SchoolWeek result) {
+                                LibrusUtils.log(result.getWeekStart().toString() + " updated");
                             }
                         });
-
-                    }
-                });
             }
         };
         recyclerView.setAdapter(adapter);
         adapter.onLoadMoreListener.onLoadMore();
     }
 
-    private Promise<SchoolWeek, Void, SchoolWeek> loadMore(int currentPage) {
+    private Promise<SchoolWeek, SchoolWeek, SchoolWeek> loadMore(int currentPage) {
         final LocalDate weekStart = startDate.plusWeeks(currentPage);
         LibrusUtils.log("OnLoadMore\n" +
                 "currentPage: " + currentPage + "\n" +
                 "weekStart: " + weekStart.toString());
-
-        return new SchoolWeekLoader(getContext()).load(currentPage == 0 ? CACHE : DOWNLOAD, weekStart);
+        return new SchoolWeekLoader(getContext()).load(HYBRID, weekStart);
     }
 
     @Override

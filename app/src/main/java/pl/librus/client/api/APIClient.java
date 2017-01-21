@@ -519,9 +519,9 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<SchoolWeek, Void, SchoolWeek> getSchoolWeek(final LocalDate weekStart) {
+    public Promise<SchoolWeek, SchoolWeek, SchoolWeek> getSchoolWeek(final LocalDate weekStart) {
 
-        final Deferred<SchoolWeek, Void, SchoolWeek> deferred = new DeferredObject<>();
+        final Deferred<SchoolWeek, SchoolWeek, SchoolWeek> deferred = new DeferredObject<>();
 
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
         APIRequest(endpoint).then(new DoneCallback<JSONObject>() {

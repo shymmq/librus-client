@@ -38,21 +38,13 @@ public abstract class AbstractDataLoader<T extends Serializable, A> {
         this.client = new APIClient(context);
     }
 
-    protected abstract Promise<T, Void, T> download(APIClient client, A arg);
+    protected abstract Promise<T, T, T> download(APIClient client, A arg);
 
     protected abstract String getFilename(A arg);
 
-    public Promise<T, Void, T> load(LoadMode mode, final A arg) {
+    public Promise<T, T, T> load(LoadMode mode, final A arg) {
 
-        final Deferred<T, Void, T> deferred = new DeferredObject<>();
-
-        final DoneCallback<T> downloadCallback = new DoneCallback<T>() {
-            @Override
-            public void onDone(T result) {
-                saveFile(result, getFilename(arg));
-                deferred.resolve(result);
-            }
-        };
+        final Deferred<T, T, T> deferred = new DeferredObject<>();
 
         if (mode == LoadMode.DOWNLOAD)
             return download(client, arg);    //return promise to download data
@@ -86,11 +78,21 @@ public abstract class AbstractDataLoader<T extends Serializable, A> {
                 //load from cache
                 loadFile(getFilename(arg)).always(new AlwaysCallback<T, Void>() {
                     @Override
-                    public void onAlways(Promise.State state, final T resolved, Void rejected) {
+                    public void onAlways(final Promise.State s, final T resolved, Void rejected) {
                         //notify about result
-                        deferred.notify(state == resolved ? resolved : null);
+                        deferred.notify(s == Promise.State.RESOLVED ? resolved : null);
                         //after loading from cache, start download from server
-                        download(client, arg).done(downloadCallback);
+                        download(client, arg).done(new DoneCallback<T>() {
+                            @Override
+                            public void onDone(T result) {
+                                saveFile(result, getFilename(arg));
+                                if (s == Promise.State.RESOLVED) {
+                                    deferred.resolve(result);
+                                } else {
+                                    deferred.reject(result);
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -152,7 +154,7 @@ public abstract class AbstractDataLoader<T extends Serializable, A> {
         DOWNLOAD,
         /**
          * Loader will load data from cache. If it succeeds promise is notified with cached data, otherwise it's notified with null.
-         * Regardless of the result loader will then download data from server and finally resolve the promise.
+         * Loader will then download data from server and finally fire DoneCallBack if cache loading succeeded and FailCallback otherwise.
          */
         HYBRID
     }
