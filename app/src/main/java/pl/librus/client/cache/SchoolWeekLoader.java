@@ -10,6 +10,7 @@ import pl.librus.client.api.SchoolWeek;
 
 /**
  * Created by szyme on 21.01.2017.
+ * Czy to nie jest piękne?
  */
 
 public class SchoolWeekLoader extends AbstractDataLoader<SchoolWeek, LocalDate> {
