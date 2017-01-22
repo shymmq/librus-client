@@ -1,5 +1,6 @@
 package pl.librus.client.grades;
 
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,7 @@ import pl.librus.client.api.Subject;
  * Created by szyme on 01.01.2017.
  */
 
-class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewHolder, ISectionable> {
+class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewHolder, ISectionable> implements Comparable<GradeHeaderItem> {
 
     private static final String TAG = "librus-client-log";
     private Subject subject;
@@ -48,6 +49,13 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
     }
 
     @Override
+    public void addSubItem(ISectionable subItem) {
+        super.addSubItem(subItem);
+        if (subItem instanceof GradeItem)
+            gradeCount++;
+    }
+
+    @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         holder.subject.setText(subject.getName());
         holder.gradeCount.setText(String.valueOf(gradeCount) + ' ' + LibrusUtils.getPluralForm(gradeCount, "ocena", "oceny", "ocen"));
@@ -66,6 +74,17 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
     @Override
     public int getExpansionLevel() {
         return 0;
+    }
+
+    @Override
+    public int compareTo(@NonNull GradeHeaderItem o) {
+        int countCompare = Boolean.compare(o.gradeCount > 0, gradeCount > 0);
+        if (countCompare != 0) return countCompare;
+        else return subject.getName().compareTo(o.getSubject().getName());
+    }
+
+    public Subject getSubject() {
+        return subject;
     }
 
     class ViewHolder extends ExpandableViewHolder {

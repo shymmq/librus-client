@@ -14,12 +14,12 @@ import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.multiple.MultipleResults;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
+import pl.librus.client.api.Average;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.LibrusData;
@@ -70,8 +70,8 @@ public class GradesFragment extends Fragment implements MainFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new GradeAdapter(null);
-        adapter.setDisplayHeadersAtStartUp(true)
-                .setAutoCollapseOnExpand(true);
+        adapter.setAutoCollapseOnExpand(true)
+                .setAutoScrollOnExpand(true);
         recyclerView.setAdapter(adapter);
         //Load all necessary data from cache
         new DefaultDeferredManager().when(
@@ -119,7 +119,6 @@ public class GradesFragment extends Fragment implements MainFragment {
                         for (Subject s : subjects) {
                             headers.put(s.getId(), new GradeHeaderItem(s));
                         }
-                        final List<AbstractFlexibleItem> items = new ArrayList<>();
                         for (Grade grade : gradeCache.getGrades()) {
                             GradeItem item = new GradeItem(
                                     headers.get(grade.getSubjectId()),
@@ -127,31 +126,29 @@ public class GradesFragment extends Fragment implements MainFragment {
                                     categoryMap.get(grade.getCategoryId()));
                             headers.get(grade.getSubjectId()).addSubItem(item);
                         }
+                        for (Average average : gradeCache.getAverages()) {
+                            AverageItem item = new AverageItem(
+                                    headers.get(average.getSubjectId()),
+                                    average);
+                            headers.get(average.getSubjectId()).addSubItem(item);
+                        }
+                        final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
+                            @Override
+                            public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
+                                return o1.compareTo(o2);
+                            }
+                        };
+
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 for (GradeHeaderItem header : headers.values()) {
-                                    adapter.addSection(header);
+                                    adapter.addSection(header, headerComparator);
                                 }
                                 adapter.showAllHeaders()
                                         .collapseAll();
                             }
                         });
-//                        Map<String, GradeHeaderItem> listHeaders = new HashMap<>();
-//                        for (Grade grade : gradeCache.getGrades()) {
-//                            if (listHeaders.get(grade.getSubjectId()) == null) {
-//                                //first appearance: add new subjectitem to map
-//                                Subject subject = subjectMap.get(grade.getSubjectId());
-//                                listHeaders.put(
-//                                        grade.getSubjectId(),
-//                                        new GradeHeaderItem(subject));
-//                            }
-//                            GradeHeaderItem gradeHeaderItem = listHeaders.get(grade.getSubjectId());
-//                            GradeCategory category = categoryMap.get(grade.getCategoryId());
-//                            gradeHeaderItem.addSubItem(new GradeItem(gradeHeaderItem, grade, category));
-//                        }
-
-
                     }
                 });
 
