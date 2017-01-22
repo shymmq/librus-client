@@ -32,6 +32,7 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import pl.librus.client.R;
+import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
@@ -202,6 +203,9 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         switch ((int) drawerItem.getIdentifier()) {
             case FRAGMENT_TIMETABLE_ID:
                 fragment = timetableFragment;
+                break;
+            case FRAGMENT_GRADES_ID:
+                fragment = GradesFragment.newInstance();
                 break;
             default:
                 fragment = new PlaceholderFragment();

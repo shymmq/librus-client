@@ -369,14 +369,14 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<List<Subject>, Void, Void> getSubjects() {
-        final Deferred<List<Subject>, Void, Void> deferred = new DeferredObject<>();
+    public Promise<ArrayList<Subject>, Void, Void> getSubjects() {
+        final Deferred<ArrayList<Subject>, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/Subjects").then(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
                 try {
-                    List<Subject> res = new ArrayList<>();
+                    ArrayList<Subject> res = new ArrayList<>();
                     JSONArray rawSubjects = result.getJSONArray("Subjects");
                     for (int i = 0; i < rawSubjects.length(); i++) {
                         JSONObject rawSubject = rawSubjects.getJSONObject(i);

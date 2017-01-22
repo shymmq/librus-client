@@ -14,7 +14,7 @@ import pl.librus.client.api.Teacher;
  */
 
 public class TeacherLoader extends AbstractDataLoader<ArrayList<Teacher>, Void> {
-    TeacherLoader(Context context) {
+    public TeacherLoader(Context context) {
         super(context);
     }
 

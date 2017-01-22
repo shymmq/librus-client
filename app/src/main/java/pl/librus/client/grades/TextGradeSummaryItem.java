@@ -7,24 +7,19 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
-import eu.davidea.flexibleadapter.items.AbstractExpandableHeaderItem;
 import eu.davidea.flexibleadapter.items.AbstractExpandableItem;
-import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
-import eu.davidea.flexibleadapter.items.IExpandable;
-import eu.davidea.flexibleadapter.items.IHeader;
 import eu.davidea.flexibleadapter.items.ISectionable;
 import eu.davidea.viewholders.ExpandableViewHolder;
 import pl.librus.client.R;
-import pl.librus.client.api.TextGrade;
 
 /**
  * Created by szyme on 01.01.2017.
  */
 
-public class TextGradeSummaryItem extends AbstractExpandableItem<TextGradeSummaryItem.ViewHolder, TextGradeItem> implements ISectionable<TextGradeSummaryItem.ViewHolder, GradeSubjectItem> {
-    private GradeSubjectItem header;
+public class TextGradeSummaryItem extends AbstractExpandableItem<TextGradeSummaryItem.ViewHolder, TextGradeItem> implements ISectionable<TextGradeSummaryItem.ViewHolder, GradeHeaderItem> {
+    private GradeHeaderItem header;
 
-    public TextGradeSummaryItem(GradeSubjectItem header) {
+    public TextGradeSummaryItem(GradeHeaderItem header) {
         this.header = header;
     }
 
@@ -60,18 +55,18 @@ public class TextGradeSummaryItem extends AbstractExpandableItem<TextGradeSummar
     }
 
     @Override
-    public GradeSubjectItem getHeader() {
+    public GradeHeaderItem getHeader() {
         return header;
+    }
+
+    @Override
+    public void setHeader(GradeHeaderItem header) {
+        this.header = header;
     }
 
     @Override
     public int getExpansionLevel() {
         return 1;
-    }
-
-    @Override
-    public void setHeader(GradeSubjectItem header) {
-        this.header = header;
     }
 
     class ViewHolder extends ExpandableViewHolder {

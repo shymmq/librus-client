@@ -1,6 +1,5 @@
 package pl.librus.client.grades;
 
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,21 +14,20 @@ import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.Grade;
-import pl.librus.client.api.GradeComment;
-import pl.librus.client.api.LibrusData;
+import pl.librus.client.api.GradeCategory;
 
 /**
  * Created by szyme on 01.01.2017.
  */
 
-class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeSubjectItem> {
+class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeaderItem> {
     private final Grade grade;
-    private final LibrusData data;
+    private final GradeCategory gc;
 
-    GradeItem(GradeSubjectItem header, Grade grade, LibrusData data) {
+    GradeItem(GradeHeaderItem header, Grade grade, GradeCategory gc) {
         super(header);
         this.grade = grade;
-        this.data = data;
+        this.gc = gc;
     }
 
     @Override
@@ -51,7 +49,7 @@ class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeSubje
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         holder.grade.setText(grade.getGrade());
-        holder.title.setText(data.getGradeCategoriesMap().get(grade.getCategoryId()).getName());
+        holder.title.setText(gc.getName());
         holder.subtitle.setText(grade.getDate().toString("EEEE, d MMMM", new Locale("pl")));
         holder.commentBadge.setVisibility(grade.getCommentId() == null ? View.GONE : View.VISIBLE);
     }

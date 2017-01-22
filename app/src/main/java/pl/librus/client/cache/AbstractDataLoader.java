@@ -103,6 +103,18 @@ public abstract class AbstractDataLoader<T extends Serializable, A> {
 
     }
 
+    public Promise<T, T, T> hybridLoad() {
+        return hybridLoad(null);
+    }
+
+    public Promise<T, ?, ?> loadFromCache() {
+        return loadFromCache(null);
+    }
+
+    public Promise<T, ?, ?> download() {
+        return download(null);
+    }
+
     private Promise<T, Void, Void> loadFile(final String filename) {
         final Deferred<T, Void, Void> deferred = new DeferredObject<>();
         AsyncManager.runBackgroundTask(new TaskRunnable() {
