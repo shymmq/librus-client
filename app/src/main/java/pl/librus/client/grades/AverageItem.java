@@ -8,7 +8,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
-import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.Average;
@@ -17,11 +16,11 @@ import pl.librus.client.api.Average;
  * Created by szyme on 01.01.2017.
  */
 
-class AverageItem extends AbstractSectionableItem<AverageItem.ViewHolder, GradeHeaderItem> {
+class AverageItem extends GradeEntryItem<AverageItem.ViewHolder, GradeHeaderItem> {
     private Average average;
 
     AverageItem(GradeHeaderItem header, Average average) {
-        super(header);
+        super(header, 2, average);
         this.average = average;
     }
 

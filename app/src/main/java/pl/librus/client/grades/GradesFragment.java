@@ -143,7 +143,7 @@ public class GradesFragment extends Fragment implements MainFragment {
                             @Override
                             public void run() {
                                 for (GradeHeaderItem header : headers.values()) {
-                                    adapter.addSection(header, headerComparator);
+                                    adapter.addSection(header.sort(), headerComparator);
                                 }
                                 adapter.showAllHeaders()
                                         .collapseAll();

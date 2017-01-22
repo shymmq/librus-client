@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
-import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.Grade;
@@ -20,12 +19,12 @@ import pl.librus.client.api.GradeCategory;
  * Created by szyme on 01.01.2017.
  */
 
-class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeaderItem> {
+class GradeItem extends GradeEntryItem<GradeItem.ViewHolder, GradeHeaderItem> {
     private final Grade grade;
     private final GradeCategory gc;
 
     GradeItem(GradeHeaderItem header, Grade grade, GradeCategory gc) {
-        super(header);
+        super(header, 1, grade);
         this.grade = grade;
         this.gc = gc;
     }

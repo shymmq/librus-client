@@ -1,7 +1,5 @@
 package pl.librus.client.api;
 
-import android.support.annotation.NonNull;
-
 import java.io.Serializable;
 
 import pl.librus.client.grades.GradeEntry;
@@ -10,7 +8,7 @@ import pl.librus.client.grades.GradeEntry;
  * Created by szyme on 08.12.2016. librus-client
  */
 
-public class Average extends GradeEntry implements Serializable {
+public class Average extends GradeEntry<Average> implements Serializable {
     private static final long serialVersionUID = 6054144699190921436L;
     private double semester1, semester2, fullYear;
     private String subjectId;
@@ -38,10 +36,7 @@ public class Average extends GradeEntry implements Serializable {
         return subjectId;
     }
 
-    @Override
-    public int compareTo(@NonNull Object o) {
-        return 1;
-    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -69,5 +64,10 @@ public class Average extends GradeEntry implements Serializable {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + subjectId.hashCode();
         return result;
+    }
+
+    @Override
+    public int compareTo(Average o) {
+        return 0;
     }
 }
