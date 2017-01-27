@@ -31,13 +31,8 @@ import pl.librus.client.sql.LibrusDbHelper;
 
 public class LibrusUpdateService {
     private final Context context;
-    private boolean loading = false;
-
     List<OnUpdateCompleteListener> listeners = new ArrayList<>();
-
-    public interface OnUpdateCompleteListener {
-        void run();
-    }
+    private boolean loading = false;
 
     public LibrusUpdateService(Context context) {
         this.context = context;
@@ -150,6 +145,15 @@ public class LibrusUpdateService {
                 }
             }
         }));
+        tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
+            @Override
+            public void onDone(LuckyNumber result) {
+                ContentValues values = new ContentValues();
+                values.put(LibrusDbContract.LuckyNumbers.COLUMN_NAME_DATE, result.getLuckyNumberDay().toDateTimeAtStartOfDay().getMillis());
+                values.put(LibrusDbContract.LuckyNumbers.COLUMN_NAME_LUCKY_NUMBER, result.getLuckyNumber());
+                db.insert(LibrusDbContract.LuckyNumbers.TABLE_NAME, null, values);
+            }
+        }));
         new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
@@ -169,5 +173,9 @@ public class LibrusUpdateService {
 
     public boolean isLoading() {
         return loading;
+    }
+
+    public interface OnUpdateCompleteListener {
+        void run();
     }
 }

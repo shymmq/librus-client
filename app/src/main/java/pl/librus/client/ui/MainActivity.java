@@ -40,19 +40,17 @@ import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
-    private boolean firstLaunch = true;
     public static final int FRAGMENT_TIMETABLE_ID = 1;
     public static final int FRAGMENT_GRADES_ID = 2;
     public static final int FRAGMENT_ANNOUNCEMENTS_ID = 3;
-    private static final int FRAGMENT_CALENDAR_ID = 4;
+    public static final int FRAGMENT_CALENDAR_ID = 4;
+    public static final int LUCKY_NUMBER_ID = 666;
     private static final int SETTINGS_ID = 0;
     private final String TAG = "librus-client-log";
-
     TimetableFragment timetableFragment = TimetableFragment.newInstance();
     GradesFragment gradesFragment = GradesFragment.newInstance();
-
     SQLiteDatabase db;
-
+    private boolean firstLaunch = true;
     private ActionMenuView amv;
     private Drawer drawer;
     private Toolbar toolbar;
@@ -124,8 +122,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withEmail(username)
                 .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                .withIdentifier(666)
-                .withName("Szczęśliwy numerek: " + 99)
+                .withIdentifier(LUCKY_NUMBER_ID)
+                .withName("Szczęśliwy numerek: " + dbHelper.getLastLuckyNumber().getLuckyNumber())
                 .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
         AccountHeader header = new AccountHeaderBuilder()
                 .withActivity(this)

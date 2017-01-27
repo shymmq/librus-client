@@ -13,7 +13,9 @@ import java.util.List;
 
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
+import pl.librus.client.api.LuckyNumber;
 import pl.librus.client.sql.LibrusDbContract.GradeCategories;
+import pl.librus.client.sql.LibrusDbContract.LuckyNumbers;
 
 import static pl.librus.client.sql.LibrusDbContract.Account;
 import static pl.librus.client.sql.LibrusDbContract.DB_NAME;
@@ -41,6 +43,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(Subjects.CREATE_TABLE);
         db.execSQL(Grades.CREATE_TABLE);
         db.execSQL(GradeCategories.CREATE_TABLE);
+        db.execSQL(LuckyNumbers.CREATE_TABLE);
     }
 
     // Method is called during an upgrade of the database
@@ -52,6 +55,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(Subjects.DELETE_TABLE);
         db.execSQL(Grades.DELETE_TABLE);
         db.execSQL(GradeCategories.DELETE_TABLE);
+        db.execSQL(LuckyNumbers.DELETE_TABLE);
         onCreate(db);
     }
 
@@ -97,5 +101,24 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         );
         cursor.close();
         return category;
+    }
+
+    public LuckyNumber getLastLuckyNumber() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(LuckyNumbers.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                LuckyNumbers.COLUMN_NAME_DATE);
+        if (cursor.getCount() == 0) return new LuckyNumber(0, LocalDate.now());
+        cursor.moveToFirst();
+        LuckyNumber luckyNumber = new LuckyNumber(
+                cursor.getInt(cursor.getColumnIndexOrThrow(LuckyNumbers.COLUMN_NAME_LUCKY_NUMBER)),
+                new LocalDate(cursor.getLong(cursor.getColumnIndexOrThrow(LuckyNumbers.COLUMN_NAME_DATE)))
+        );
+        cursor.close();
+        return luckyNumber;
     }
 }

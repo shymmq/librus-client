@@ -21,6 +21,11 @@ public class LuckyNumber implements Serializable {
         this.luckyNumberDay = LocalDate.parse(luckyNumber.getString("LuckyNumberDay"));
     }
 
+    public LuckyNumber(int luckyNumber, LocalDate luckyNumberDay) {
+        this.luckyNumber = luckyNumber;
+        this.luckyNumberDay = luckyNumberDay;
+    }
+
     public int getLuckyNumber() {
         return luckyNumber;
     }

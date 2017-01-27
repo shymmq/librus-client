@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 
 public class LibrusDbContract {
 
-    public static final int DB_VERSION = 6;
+    public static final int DB_VERSION = 7;
     public static final String DB_NAME = "database.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -161,5 +161,21 @@ public class LibrusDbContract {
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
+    }
+
+    public static abstract class LuckyNumbers implements BaseColumns {
+        public static final String TABLE_NAME = "lucky_number";
+
+        public static final String COLUMN_NAME_DATE = "date";
+        public static final String COLUMN_NAME_LUCKY_NUMBER = "lucky_number";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                COLUMN_NAME_DATE + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_LUCKY_NUMBER + INTEGER_TYPE + NOT_NULL +
+                " )";
+
+        public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 }
