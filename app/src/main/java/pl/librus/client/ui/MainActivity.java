@@ -69,6 +69,13 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private void setup(Bundle savedInstanceState) {
         //LibrusAccount account = librusData.getAccount();
         //luckyNumber = librusData.getLuckyNumber();
+        timetableFragment = TimetableFragment.newInstance();
+        timetableFragment.onSetupCompleted = new Runnable() {
+            @Override
+            public void run() {
+                LibrusUpdateService.updateAll(getApplicationContext());
+            }
+        };
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //Drawer setup
@@ -137,13 +144,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withFireOnInitialOnClick(true)
                 .withToolbar(toolbar);
         drawer = drawerBuilder.build();
-        timetableFragment = TimetableFragment.newInstance();
-        timetableFragment.onSetupCompleted = new Runnable() {
-            @Override
-            public void run() {
-                LibrusUpdateService.updateAll(getApplicationContext());
-            }
-        };
     }
 
     private void refresh() {

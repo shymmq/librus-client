@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.jdeferred.Promise;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
@@ -19,15 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.items.IFlexible;
-import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.SchoolDay;
-import pl.librus.client.api.SchoolWeek;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
-import pl.librus.client.cache.SchoolWeekLoader;
 import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
@@ -159,23 +154,27 @@ public class TimetableFragment extends Fragment implements MainFragment {
                     int teacherFirstNameIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_FIRST_NAME);
                     int teacherLastNameIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_LAST_NAME);
                     LessonHeaderItem header = new LessonHeaderItem(date);
-                    while (cursor.moveToNext()) {
-                        int lessonNumber = cursor.getInt(lessonNumberIndex);
-                        Lesson lesson = new Lesson(
-                                cursor.getString(idIndex),
-                                lessonNumber,
-                                date,
-                                LocalTime.now(), LocalTime.now(),
-                                new Subject(
-                                        cursor.getString(subjectIdIndex),
-                                        cursor.getString(subjectNameIndex)),
-                                new Teacher(
-                                        cursor.getString(teacherIdIndex),
-                                        cursor.getString(teacherFirstNameIndex),
-                                        cursor.getString(teacherLastNameIndex))
-                        );
-                        LessonItem lessonItem = new LessonItem(header, lesson, getContext());
-                        newElements.add(lessonItem);
+                    if (cursor.getCount() > 0) {
+                        while (cursor.moveToNext()) {
+                            int lessonNumber = cursor.getInt(lessonNumberIndex);
+                            Lesson lesson = new Lesson(
+                                    cursor.getString(idIndex),
+                                    lessonNumber,
+                                    date,
+                                    LocalTime.now(), LocalTime.now(),
+                                    new Subject(
+                                            cursor.getString(subjectIdIndex),
+                                            cursor.getString(subjectNameIndex)),
+                                    new Teacher(
+                                            cursor.getString(teacherIdIndex),
+                                            cursor.getString(teacherFirstNameIndex),
+                                            cursor.getString(teacherLastNameIndex))
+                            );
+                            LessonItem lessonItem = new LessonItem(header, lesson, getContext());
+                            newElements.add(lessonItem);
+                        }
+                    } else {
+                        newElements.add(new EmptyLessonItem(header, date));
                     }
                     cursor.close();
                 }
@@ -183,88 +182,15 @@ public class TimetableFragment extends Fragment implements MainFragment {
                 adapter.onLoadMoreComplete(newElements);
                 if (page == 0) onSetupCompleted.run();
                 page++;
-//                loadMore(page)
-//                        //when data is loaded from cache
-//                        .progress(new ProgressCallback<SchoolWeek>() {
-//                            @Override
-//                            public void onProgress(final SchoolWeek progress) {
-//                                //if cached data was found, display on the ui thread
-//                                if (progress != null) {
-//                                    getActivity().runOnUiThread(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            LibrusUtils.log(progress.getWeekStart().toString() + " loaded from cache");
-//                                            progressItem.setStatus(ProgressItem.IDLE);
-//                                            List<IFlexible> newElements = getElements(progress);
-//                                            adapter.onLoadMoreComplete(newElements);
-//                                            page++;
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        })
-//                        //if no cached data was found, display it here
-//                        .fail(new FailCallback<SchoolWeek>() {
-//                            @Override
-//                            public void onFail(final SchoolWeek result) {
-//                                getActivity().runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        LibrusUtils.log(result.getWeekStart().toString() + " downloaded");
-//                                        progressItem.setStatus(ProgressItem.IDLE);
-//                                        List<IFlexible> newElements = getElements(result);
-//                                        adapter.onLoadMoreComplete(newElements);
-//                                        page++;
-//                                    }
-//                                });
-//
-//                            }
-//                        })
-//                        //if items were previously loaded from cache, only update the items here.
-//                        .done(new DoneCallback<SchoolWeek>() {
-//                            @Override
-//                            public void onDone(SchoolWeek result) {
-//                                LibrusUtils.log(result.getWeekStart().toString() + " updated");
-//                            }
-//                        });
             }
-        };
+        }
+
+        ;
         recyclerView.setAdapter(adapter);
         adapter.onLoadMoreListener.onLoadMore();
     }
 
-    private Promise<SchoolWeek, SchoolWeek, SchoolWeek> loadMore(int currentPage) {
-        final LocalDate weekStart = startDate.plusWeeks(currentPage);
-        LibrusUtils.log("OnLoadMore\n" +
-                "currentPage: " + currentPage + "\n" +
-                "weekStart: " + weekStart.toString());
-        return new SchoolWeekLoader(getContext()).hybridLoad(weekStart);
-    }
-
     @Override
     public void refresh(LibrusData cache) {
-    }
-
-    List<IFlexible> getElements(SchoolWeek schoolWeek) {
-        List<SchoolDay> schoolDays = schoolWeek.getSchoolDays();
-        List<IFlexible> res = new ArrayList<>();
-        for (SchoolDay schoolDay : schoolDays) {
-
-            LessonHeaderItem headerItem = new LessonHeaderItem(schoolDay.getDate());
-            if (schoolDay.getLessons().size() > 0) {
-
-                for (int i = 0; i <= schoolDay.getLastLesson(); i++) {
-
-                    Lesson lesson = schoolDay.getLesson(i);
-                    if (lesson != null) {
-                        res.add(new LessonItem(headerItem, lesson, getContext()));
-                    }
-                }
-
-            } else {
-                res.add(new EmptyLessonItem(headerItem, schoolDay.getDate()));
-            }
-        }
-        return res;
     }
 }
