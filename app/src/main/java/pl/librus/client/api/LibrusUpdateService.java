@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbContract.Account;
 import pl.librus.client.sql.LibrusDbContract.Grades;
 import pl.librus.client.sql.LibrusDbContract.Lessons;
@@ -112,8 +113,22 @@ public class LibrusUpdateService {
                     values.put(Grades.COLUMN_NAME_ADDED_BY_ID, g.getAddedById());
                     values.put(Grades.COLUMN_NAME_SEMESTER, g.getSemester());
                     values.put(Grades.COLUMN_NAME_DATE, g.getDate().toDateTimeAtStartOfDay().getMillis());
+                    values.put(Grades.COLUMN_NAME_ADD_DATE, g.getAddDate().toDateTime().getMillis());
                     values.put(Grades.COLUMN_NAME_TYPE, g.getType().ordinal());
                     db.insert(Grades.TABLE_NAME, null, values);
+                }
+            }
+        });
+        client.getGradeCategories().done(new DoneCallback<ArrayList<GradeCategory>>() {
+            @Override
+            public void onDone(ArrayList<GradeCategory> result) {
+                db.delete(LibrusDbContract.GradeCategories.TABLE_NAME, null, null);
+                for (GradeCategory gc : result) {
+                    ContentValues values = new ContentValues();
+                    values.put(LibrusDbContract.GradeCategories.COLUMN_NAME_ID, gc.getId());
+                    values.put(LibrusDbContract.GradeCategories.COLUMN_NAME_NAME, gc.getName());
+                    values.put(LibrusDbContract.GradeCategories.COLUMN_NAME_WEIGHT, gc.getWeight());
+                    db.insert(LibrusDbContract.GradeCategories.TABLE_NAME, null, values);
                 }
             }
         });

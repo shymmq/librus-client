@@ -18,17 +18,17 @@ public class Grade extends GradeEntry<Grade> implements Serializable {
     private LocalDateTime addDate;
     private Type type;
 
-    Grade(String id,
-          String grade,
-          String lessonId,
-          String subjectId,
-          String categoryId,
-          String addedById,
-          String commentId,
-          int semester,
-          LocalDate date,
-          LocalDateTime addDate,
-          Type type) {
+    public Grade(String id,
+                 String grade,
+                 String lessonId,
+                 String subjectId,
+                 String categoryId,
+                 String addedById,
+                 String commentId,
+                 int semester,
+                 LocalDate date,
+                 LocalDateTime addDate,
+                 Type type) {
         this.id = id;
         this.grade = grade;
         this.lessonId = lessonId;
@@ -122,7 +122,7 @@ public class Grade extends GradeEntry<Grade> implements Serializable {
 //        }
 //    }
 
-    enum Type {
+    public enum Type {
         NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
     }
 }

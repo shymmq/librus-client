@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 
 public class LibrusDbContract {
 
-    public static final int DB_VERSION = 4;
+    public static final int DB_VERSION = 6;
     public static final String DB_NAME = "database.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -124,6 +124,7 @@ public class LibrusDbContract {
         public static final String COLUMN_NAME_ADDED_BY_ID = "added_by_id";
         public static final String COLUMN_NAME_SEMESTER = "semester";
         public static final String COLUMN_NAME_DATE = "date";
+        public static final String COLUMN_NAME_ADD_DATE = "add_date";
         public static final String COLUMN_NAME_TYPE = "type";
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
@@ -137,9 +138,28 @@ public class LibrusDbContract {
                 COLUMN_NAME_ADDED_BY_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_SEMESTER + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_DATE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_ADD_DATE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_TYPE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_GRADE + TEXT_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
+    public static abstract class GradeCategories implements BaseColumns {
+        public static final String TABLE_NAME = "grade_categories";
+
+        public static final String COLUMN_NAME_ID = "id";
+        public static final String COLUMN_NAME_NAME = "name";
+        public static final String COLUMN_NAME_WEIGHT = "weight";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_WEIGHT + INTEGER_TYPE + " )";
+
+        public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
     }
 }

@@ -1,6 +1,8 @@
 package pl.librus.client.grades;
 
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,27 +11,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.impl.DefaultDeferredManager;
-import org.jdeferred.multiple.MultipleResults;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import pl.librus.client.R;
-import pl.librus.client.api.Average;
 import pl.librus.client.api.Grade;
-import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Subject;
-import pl.librus.client.api.Teacher;
-import pl.librus.client.cache.GradeCache;
-import pl.librus.client.cache.GradeCacheLoader;
-import pl.librus.client.cache.GradeCategoriesLoader;
-import pl.librus.client.cache.SubjectLoader;
-import pl.librus.client.cache.TeacherLoader;
+import pl.librus.client.sql.LibrusDbContract;
+import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
 /**
@@ -42,12 +34,6 @@ public class GradesFragment extends Fragment implements MainFragment {
 
     private RecyclerView recyclerView;
     private GradeAdapter adapter;
-
-    private GradeCache gradeCache;
-    private Map<String, GradeCategory> categoryMap = new HashMap<>();
-    private Map<String, Subject> subjectMap = new HashMap<>();
-    private Map<String, Teacher> teacherMap = new HashMap<>();
-    private ArrayList<Subject> subjects;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -73,83 +59,55 @@ public class GradesFragment extends Fragment implements MainFragment {
                 .setAutoScrollOnExpand(true);
         recyclerView.setAdapter(adapter);
         //Load all necessary data from cache
-        new DefaultDeferredManager().when(
-                new GradeCacheLoader(getContext())
-                        .loadFromCache()
-                        .done(new DoneCallback<GradeCache>() {
-                            @Override
-                            public void onDone(GradeCache result) {
-                                gradeCache = result;
-                            }
-                        }),
-                new GradeCategoriesLoader(getContext())
-                        .loadFromCache()
-                        .done(new DoneCallback<ArrayList<GradeCategory>>() {
-                            @Override
-                            public void onDone(ArrayList<GradeCategory> result) {
-                                for (GradeCategory gc : result)
-                                    categoryMap.put(gc.getId(), gc);
-                            }
-                        }),
-                new SubjectLoader(getContext())
-                        .loadFromCache()
-                        .done(new DoneCallback<ArrayList<Subject>>() {
-                            @Override
-                            public void onDone(ArrayList<Subject> result) {
-                                subjects = result;
-                                for (Subject s : result)
-                                    subjectMap.put(s.getId(), s);
-                            }
-                        }),
-                new TeacherLoader(getContext())
-                        .loadFromCache()
-                        .done(new DoneCallback<ArrayList<Teacher>>() {
-                            @Override
-                            public void onDone(ArrayList<Teacher> result) {
-                                for (Teacher t : result)
-                                    teacherMap.put(t.getId(), t);
-                            }
-                        }))
-                .done(new DoneCallback<MultipleResults>() {
-                    @Override
-                    public void onDone(MultipleResults result) {
-                        //All necessary data was loaded from cache
-                        final Map<String, GradeHeaderItem> headers = new HashMap<>();
-                        for (Subject s : subjects) {
-                            headers.put(s.getId(), new GradeHeaderItem(s));
-                        }
-                        for (Grade grade : gradeCache.getGrades()) {
-                            GradeItem item = new GradeItem(
-                                    headers.get(grade.getSubjectId()),
-                                    grade,
-                                    categoryMap.get(grade.getCategoryId()));
-                            headers.get(grade.getSubjectId()).addSubItem(item);
-                        }
-                        for (Average average : gradeCache.getAverages()) {
-                            AverageItem item = new AverageItem(
-                                    headers.get(average.getSubjectId()),
-                                    average);
-                            headers.get(average.getSubjectId()).addSubItem(item);
-                        }
-                        final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
-                            @Override
-                            public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
-                                return o1.compareTo(o2);
-                            }
-                        };
+        LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (GradeHeaderItem header : headers.values()) {
-                                    adapter.addSection(header.sort(), headerComparator);
-                                }
-                                adapter.showAllHeaders()
-                                        .collapseAll();
-                            }
-                        });
-                    }
-                });
+        final Map<String, GradeHeaderItem> headers = new HashMap<>();
+
+
+        //Load subjects and make a header for each subject
+        Cursor subjectCursor = db.query(LibrusDbContract.Subjects.TABLE_NAME, null, null, null, null, null, null);
+        while (subjectCursor.moveToNext()) {
+            Subject s = new Subject(
+                    subjectCursor.getString(subjectCursor.getColumnIndexOrThrow(LibrusDbContract.Subjects.COLUMN_NAME_ID)),
+                    subjectCursor.getString(subjectCursor.getColumnIndexOrThrow(LibrusDbContract.Subjects.COLUMN_NAME_NAME))
+            );
+            headers.put(s.getId(), new GradeHeaderItem(s));
+        }
+        subjectCursor.close();
+
+        List<Grade> grades = dbHelper.getGrades();
+
+        for (Grade grade : grades) {
+            GradeItem item = new GradeItem(
+                    headers.get(grade.getSubjectId()),
+                    grade,
+                    dbHelper.getGradeCategory(grade.getCategoryId()));
+            headers.get(grade.getSubjectId()).addSubItem(item);
+        }
+//        for (Average average : gradeCache.getAverages()) {
+//            AverageItem item = new AverageItem(
+//                    headers.get(average.getSubjectId()),
+//                    average);
+//            headers.get(average.getSubjectId()).addSubItem(item);
+//        }
+        final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
+            @Override
+            public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
+                return o1.compareTo(o2);
+            }
+        };
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (GradeHeaderItem header : headers.values()) {
+                    adapter.addSection(header.sort(), headerComparator);
+                }
+                adapter.showAllHeaders()
+                        .collapseAll();
+            }
+        });
 
 //        for (Average a : data.getAverages()) {
 //            if (gradeSubjectItemMap.get(a.getSubjectId()) == null) {

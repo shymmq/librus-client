@@ -40,6 +40,7 @@ import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
+    private boolean firstLaunch = true;
     public static final int FRAGMENT_TIMETABLE_ID = 1;
     public static final int FRAGMENT_GRADES_ID = 2;
     public static final int FRAGMENT_ANNOUNCEMENTS_ID = 3;
@@ -100,6 +101,12 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             @Override
             public void run() {
                 LibrusUpdateService.updateAll(getApplicationContext());
+                timetableFragment.onSetupCompleted = new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                };
             }
         };
         ProfileDrawerItem profile = new ProfileDrawerItem()
