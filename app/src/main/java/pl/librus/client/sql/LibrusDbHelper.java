@@ -16,13 +16,13 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
     // Method is called during creation of the database
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(LibrusDbContract.TimetableTable.CREATE_TABLE);
+        db.execSQL(LibrusDbContract.LessonsTable.CREATE_TABLE);
     }
 
     // Method is called during an upgrade of the database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(LibrusDbContract.TimetableTable.DELETE_TABLE);
+        db.execSQL(LibrusDbContract.LessonsTable.DELETE_TABLE);
         onCreate(db);
     }
 }

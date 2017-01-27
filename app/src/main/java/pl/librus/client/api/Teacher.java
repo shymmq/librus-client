@@ -22,4 +22,11 @@ public class Teacher implements Serializable {
         return firstName != null && lastName != null ? firstName + ' ' + lastName : id;
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
 }

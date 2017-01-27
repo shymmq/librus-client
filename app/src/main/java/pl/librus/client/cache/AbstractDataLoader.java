@@ -157,20 +157,4 @@ public abstract class AbstractDataLoader<T extends Serializable, A> {
             }
         });
     }
-
-    public enum LoadMode {
-        /**
-         * Loader will try to load data from cache. If it fails, it will getDownloadPromise data from server.
-         */
-        CACHE,
-        /**
-         * Loader will skip loading data from cache and getDownloadPromise data from the server
-         */
-        DOWNLOAD,
-        /**
-         * Loader will load data from cache. If it succeeds promise is notified with cached data, otherwise it's notified with null.
-         * Loader will then getDownloadPromise data from server and finally fire DoneCallBack if cache loading succeeded and FailCallback otherwise.
-         */
-        HYBRID
-    }
 }

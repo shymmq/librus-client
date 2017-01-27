@@ -380,7 +380,7 @@ public class APIClient {
                     JSONArray rawSubjects = result.getJSONArray("Subjects");
                     for (int i = 0; i < rawSubjects.length(); i++) {
                         JSONObject rawSubject = rawSubjects.getJSONObject(i);
-                        Subject subject = new Subject(rawSubject.getString("Name"), rawSubject.getString("Id"));
+                        Subject subject = new Subject(rawSubject.getString("Id"), rawSubject.getString("Name"));
                         res.add(subject);
                     }
                     deferred.resolve(res);
@@ -547,7 +547,7 @@ public class APIClient {
                                 int lessonNumber = rawLesson.getInt("LessonNo");
                                 JSONObject rawSubject = rawLesson.getJSONObject("Subject");
                                 JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
-                                Subject subject = new Subject(rawSubject.getString("Name"), rawSubject.getString("Id"));
+                                Subject subject = new Subject(rawSubject.getString("Id"), rawSubject.getString("Name"));
                                 Teacher teacher = new Teacher(rawTeacher.getString("Id"), rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
                                 LocalTime hourFrom = LocalTime.parse(rawLesson.getString("HourFrom"), DateTimeFormat.forPattern("HH:mm"));
                                 LocalTime hourTo = LocalTime.parse(rawLesson.getString("HourTo"), DateTimeFormat.forPattern("HH:mm"));

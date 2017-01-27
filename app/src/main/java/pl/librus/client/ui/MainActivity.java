@@ -1,10 +1,7 @@
 package pl.librus.client.ui;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
@@ -34,11 +31,9 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
+import pl.librus.client.api.LibrusUpdateService;
 import pl.librus.client.grades.GradesFragment;
-import pl.librus.client.sql.LibrusDbContract;
-import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
@@ -142,34 +137,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withFireOnInitialOnClick(true)
                 .withToolbar(toolbar);
         drawer = drawerBuilder.build();
-        LibrusDbHelper dbHelper = new LibrusDbHelper(this);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(LibrusDbContract.TimetableTable.COLUMN_NAME_ID, 34);
-        values.put(LibrusDbContract.TimetableTable.COLUMN_NAME_SUBJECT_NAME, "abcd");
-
-        long rowId = db.insert(
-                LibrusDbContract.TimetableTable.TABLE_NAME,
-                null,
-                values);
-
-        Cursor cursor = db.query(
-                LibrusDbContract.TimetableTable.TABLE_NAME,
-                new String[]{LibrusDbContract.TimetableTable.COLUMN_NAME_ID, LibrusDbContract.TimetableTable.COLUMN_NAME_SUBJECT_NAME},
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        int idIndex = cursor.getColumnIndex(LibrusDbContract.TimetableTable.COLUMN_NAME_ID);
-        int subjectNameIndex = cursor.getColumnIndex(LibrusDbContract.TimetableTable.COLUMN_NAME_SUBJECT_NAME);
-
-        while (cursor.moveToNext()) {
-            LibrusUtils.log(cursor.getString(idIndex) + " : " + cursor.getString(subjectNameIndex));
-        }
-        cursor.close();
+        LibrusUpdateService.updateAll(this);
     }
 
     private void refresh() {

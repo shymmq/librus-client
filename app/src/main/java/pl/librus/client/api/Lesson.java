@@ -24,9 +24,9 @@ public class Lesson implements Serializable {
     private final int newLessonNo;
 
     //normal lesson
-    Lesson(String id,
-           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-           Subject subject, Teacher teacher) {
+    public Lesson(String id,
+                  int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+                  Subject subject, Teacher teacher) {
         this.id = id;
         this.lessonNumber = lessonNumber;
         this.subject = subject;

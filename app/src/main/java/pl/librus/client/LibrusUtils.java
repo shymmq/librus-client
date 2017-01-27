@@ -52,4 +52,12 @@ public class LibrusUtils {
     public static void log(String text, boolean trim) {
         log(text, Log.DEBUG, trim);
     }
+
+    public static void log(Object... texts) {
+        String log = "";
+        for (Object text : texts) {
+            log += String.valueOf(text) + '\n';
+        }
+        log(log);
+    }
 }

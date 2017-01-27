@@ -7,7 +7,7 @@ public class Subject implements Serializable {
     private String name;
     private String id;
 
-    Subject(String name, String id) {
+    public Subject(String id, String name) {
         this.name = name;
         this.id = id;
     }
@@ -35,4 +35,6 @@ public class Subject implements Serializable {
     public int hashCode() {
         return id.hashCode();
     }
+
+
 }
