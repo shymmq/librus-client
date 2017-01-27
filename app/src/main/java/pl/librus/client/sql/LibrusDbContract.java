@@ -79,6 +79,38 @@ public class LibrusDbContract {
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
+    public static abstract class Teachers implements BaseColumns {
+        public static final String TABLE_NAME = "teachers";
+
+        public static final String COLUMN_NAME_ID = "id";
+        public static final String COLUMN_NAME_FIRST_NAME = "first_name";
+        public static final String COLUMN_NAME_LAST_NAME = "last_name";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_FIRST_NAME + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_LAST_NAME + TEXT_TYPE + " )";
+
+        public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
+    public static abstract class Subjects implements BaseColumns {
+        public static final String TABLE_NAME = "subjects";
+
+        public static final String COLUMN_NAME_ID = "id";
+        public static final String COLUMN_NAME_NAME = "name";
+
+        public static final String CREATE_TABLE = "CREATE TABLE " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_NAME + TEXT_TYPE + " )";
+
+        public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
     public static abstract class GradeTable implements BaseColumns {
 
         public static final String TABLE_NAME = "grades";

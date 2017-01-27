@@ -18,6 +18,8 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(LibrusDbContract.Lessons.CREATE_TABLE);
         db.execSQL(LibrusDbContract.Account.CREATE_TABLE);
+        db.execSQL(LibrusDbContract.Teachers.CREATE_TABLE);
+        db.execSQL(LibrusDbContract.Subjects.CREATE_TABLE);
     }
 
     // Method is called during an upgrade of the database
@@ -25,6 +27,8 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(LibrusDbContract.Lessons.DELETE_TABLE);
         db.execSQL(LibrusDbContract.Account.DELETE_TABLE);
+        db.execSQL(LibrusDbContract.Teachers.DELETE_TABLE);
+        db.execSQL(LibrusDbContract.Subjects.DELETE_TABLE);
         onCreate(db);
     }
 }

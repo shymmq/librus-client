@@ -6,15 +6,16 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
-import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import pl.librus.client.sql.LibrusDbContract.Account;
 import pl.librus.client.sql.LibrusDbContract.Lessons;
+import pl.librus.client.sql.LibrusDbContract.Teachers;
 import pl.librus.client.sql.LibrusDbHelper;
 
 /**
@@ -22,7 +23,7 @@ import pl.librus.client.sql.LibrusDbHelper;
  */
 
 public class LibrusUpdateService {
-    public static Promise<Void, Void, Void> updateAll(Context context) {
+    public static void updateAll(Context context) {
         final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
         APIClient client = new APIClient(context);
         LibrusDbHelper dbHelper = new LibrusDbHelper(context);
@@ -68,6 +69,18 @@ public class LibrusUpdateService {
                 db.insert(Account.TABLE_NAME, null, values);
             }
         });
-        return deferred.promise();
+        client.getTeachers().done(new DoneCallback<ArrayList<Teacher>>() {
+            @Override
+            public void onDone(ArrayList<Teacher> result) {
+                db.delete(Teachers.TABLE_NAME, null, null);
+                for (Teacher t : result) {
+                    ContentValues values = new ContentValues();
+                    values.put(Teachers.COLUMN_NAME_ID, t.getId());
+                    values.put(Teachers.COLUMN_NAME_FIRST_NAME, t.getFirstName());
+                    values.put(Teachers.COLUMN_NAME_LAST_NAME, t.getLastName());
+                    db.insert(Teachers.TABLE_NAME, null, values);
+                }
+            }
+        });
     }
 }
