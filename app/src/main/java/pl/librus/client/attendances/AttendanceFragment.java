@@ -20,7 +20,6 @@ public class AttendanceFragment extends Fragment implements MainFragment {
 
 
     private static final String ARG_DATA = "AttendanceFragment:data";
-    private OnSetupCompleteListener listener;
 
     public AttendanceFragment() {
         // Required empty public constructor
@@ -51,19 +50,12 @@ public class AttendanceFragment extends Fragment implements MainFragment {
         recyclerView.getItemAnimator().setRemoveDuration(150);
         recyclerView.getItemAnimator().setMoveDuration(150);
         recyclerView.getItemAnimator().setChangeDuration(150);
-        if (listener != null) listener.onSetupComplete();
-
         return root;
     }
 
     @Override
     public void refresh(LibrusData cache) {
 
-    }
-
-    @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-        this.listener = listener;
     }
 
 }

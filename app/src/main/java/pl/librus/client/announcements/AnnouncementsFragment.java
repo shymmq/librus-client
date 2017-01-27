@@ -1,6 +1,5 @@
 package pl.librus.client.announcements;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -16,9 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +24,6 @@ import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.Reader;
 import pl.librus.client.api.Teacher;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainFragment;
@@ -36,8 +31,6 @@ import pl.librus.client.ui.MainFragment;
 public class AnnouncementsFragment extends Fragment implements MainFragment {
     private static final String ARG_DATA = "AnnouncementsFragment:data";
     private final String TAG = "librus-client-log";
-    private OnSetupCompleteListener listener;
-
 
     public AnnouncementsFragment() {
         // Required empty public constructor
@@ -115,7 +108,6 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
             }
         }, 50);
         ((MainActivity) getActivity()).setBackArrow(false);
-        if (listener != null) listener.onSetupComplete();
 
         return root;
     }
@@ -124,10 +116,5 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
     public void refresh(LibrusData cache) {
         Log.d(TAG, "AnnouncementsFragment refresh()");
 
-    }
-
-    @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-        this.listener = listener;
     }
 }

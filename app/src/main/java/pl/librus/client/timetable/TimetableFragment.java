@@ -40,6 +40,12 @@ public class TimetableFragment extends Fragment implements MainFragment {
     LinearLayoutManager layoutManager;
     LocalDate startDate = LocalDate.now().withDayOfWeek(MONDAY);
     int page = 0;
+    public Runnable onSetupCompleted = new Runnable() {
+        @Override
+        public void run() {
+
+        }
+    };
 
     public static TimetableFragment newInstance() {
         return new TimetableFragment();
@@ -175,6 +181,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
                 }
                 progressItem.setStatus(ProgressItem.IDLE);
                 adapter.onLoadMoreComplete(newElements);
+                if (page == 0) onSetupCompleted.run();
                 page++;
 //                loadMore(page)
 //                        //when data is loaded from cache
@@ -236,10 +243,6 @@ public class TimetableFragment extends Fragment implements MainFragment {
 
     @Override
     public void refresh(LibrusData cache) {
-    }
-
-    @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
     }
 
     List<IFlexible> getElements(SchoolWeek schoolWeek) {

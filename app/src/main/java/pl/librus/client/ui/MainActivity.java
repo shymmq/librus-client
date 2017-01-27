@@ -137,7 +137,13 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withFireOnInitialOnClick(true)
                 .withToolbar(toolbar);
         drawer = drawerBuilder.build();
-        LibrusUpdateService.updateAll(this);
+        timetableFragment = TimetableFragment.newInstance();
+        timetableFragment.onSetupCompleted = new Runnable() {
+            @Override
+            public void run() {
+                LibrusUpdateService.updateAll(getApplicationContext());
+            }
+        };
     }
 
     private void refresh() {

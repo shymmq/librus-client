@@ -39,7 +39,6 @@ public class GradesFragment extends Fragment implements MainFragment {
 
 
     private static final String ARG_DATA = "GradesFragment:data";
-    private OnSetupCompleteListener listener;
 
     private RecyclerView recyclerView;
     private GradeAdapter adapter;
@@ -192,10 +191,4 @@ public class GradesFragment extends Fragment implements MainFragment {
     public void refresh(LibrusData cache) {
 
     }
-
-    @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-        this.listener = listener;
-    }
-
 }
