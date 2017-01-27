@@ -6,7 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.Promise;
+import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
+import org.jdeferred.multiple.MultipleResults;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
@@ -27,15 +30,30 @@ import pl.librus.client.sql.LibrusDbHelper;
  */
 
 public class LibrusUpdateService {
-    public static void updateAll(Context context) {
+    private final Context context;
+    private boolean loading = false;
+
+    List<OnUpdateCompleteListener> listeners = new ArrayList<>();
+
+    public interface OnUpdateCompleteListener {
+        void run();
+    }
+
+    public LibrusUpdateService(Context context) {
+        this.context = context;
+    }
+
+    public Promise<Void, Void, Void> updateAll() {
         final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
         APIClient client = new APIClient(context);
         LibrusDbHelper dbHelper = new LibrusDbHelper(context);
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete(Lessons.TABLE_NAME, null, null);
-        client.getSchoolWeek(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)).done(new DoneCallback<SchoolWeek>() {
+        List<Promise> tasks = new ArrayList<>();
+        loading = true;
+        tasks.add(client.getSchoolWeek(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)).done(new DoneCallback<SchoolWeek>() {
             @Override
             public void onDone(SchoolWeek result) {
+                db.delete(Lessons.TABLE_NAME, null, null);
                 for (SchoolDay schoolDay : result.getSchoolDays()) {
                     LocalDate date = schoolDay.getDate();
                     long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
@@ -58,8 +76,8 @@ public class LibrusUpdateService {
                     }
                 }
             }
-        });
-        client.getAccount().done(new DoneCallback<LibrusAccount>() {
+        }));
+        tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
             @Override
             public void onDone(LibrusAccount result) {
                 db.delete(Account.TABLE_NAME, null, null);
@@ -72,8 +90,8 @@ public class LibrusUpdateService {
                 values.put(Account.COLUMN_NAME_EMAIL, result.getEmail());
                 db.insert(Account.TABLE_NAME, null, values);
             }
-        });
-        client.getTeachers().done(new DoneCallback<ArrayList<Teacher>>() {
+        }));
+        tasks.add(client.getTeachers().done(new DoneCallback<ArrayList<Teacher>>() {
             @Override
             public void onDone(ArrayList<Teacher> result) {
                 db.delete(Teachers.TABLE_NAME, null, null);
@@ -85,8 +103,8 @@ public class LibrusUpdateService {
                     db.insert(Teachers.TABLE_NAME, null, values);
                 }
             }
-        });
-        client.getSubjects().done(new DoneCallback<ArrayList<Subject>>() {
+        }));
+        tasks.add(client.getSubjects().done(new DoneCallback<ArrayList<Subject>>() {
             @Override
             public void onDone(ArrayList<Subject> result) {
                 db.delete(Subjects.TABLE_NAME, null, null);
@@ -97,8 +115,8 @@ public class LibrusUpdateService {
                     db.insert(Subjects.TABLE_NAME, null, values);
                 }
             }
-        });
-        client.getGrades().done(new DoneCallback<List<Grade>>() {
+        }));
+        tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
             @Override
             public void onDone(List<Grade> result) {
                 db.delete(Grades.TABLE_NAME, null, null);
@@ -118,8 +136,8 @@ public class LibrusUpdateService {
                     db.insert(Grades.TABLE_NAME, null, values);
                 }
             }
-        });
-        client.getGradeCategories().done(new DoneCallback<ArrayList<GradeCategory>>() {
+        }));
+        tasks.add(client.getGradeCategories().done(new DoneCallback<ArrayList<GradeCategory>>() {
             @Override
             public void onDone(ArrayList<GradeCategory> result) {
                 db.delete(LibrusDbContract.GradeCategories.TABLE_NAME, null, null);
@@ -131,6 +149,25 @@ public class LibrusUpdateService {
                     db.insert(LibrusDbContract.GradeCategories.TABLE_NAME, null, values);
                 }
             }
+        }));
+        new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
+            @Override
+            public void onDone(MultipleResults result) {
+                loading = false;
+                for (OnUpdateCompleteListener listener : listeners) {
+                    listener.run();
+                }
+                deferred.resolve(null);
+            }
         });
+        return deferred.promise();
+    }
+
+    public void addListener(OnUpdateCompleteListener listener) {
+        listeners.add(listener);
+    }
+
+    public boolean isLoading() {
+        return loading;
     }
 }

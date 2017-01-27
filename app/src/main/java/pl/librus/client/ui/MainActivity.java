@@ -47,12 +47,20 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private static final int FRAGMENT_CALENDAR_ID = 4;
     private static final int SETTINGS_ID = 0;
     private final String TAG = "librus-client-log";
+
     TimetableFragment timetableFragment = TimetableFragment.newInstance();
+    GradesFragment gradesFragment = GradesFragment.newInstance();
+
     SQLiteDatabase db;
+
     private ActionMenuView amv;
     private Drawer drawer;
     private Toolbar toolbar;
-    private Fragment fragment;
+
+    private LibrusUpdateService updateService;
+
+    private Fragment currentFragment;
+    private Fragment pendingFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -75,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         //luckyNumber = librusData.getLuckyNumber();
         LibrusDbHelper dbHelper = new LibrusDbHelper(this);
         db = dbHelper.getReadableDatabase();
+        updateService = new LibrusUpdateService(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //Drawer setup
@@ -96,11 +105,12 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             name = "";
             username = "";
         }
+        cursor.close();
         timetableFragment = TimetableFragment.newInstance();
         timetableFragment.onSetupCompleted = new Runnable() {
             @Override
             public void run() {
-                LibrusUpdateService.updateAll(getApplicationContext());
+                updateService.updateAll();
                 timetableFragment.onSetupCompleted = new Runnable() {
                     @Override
                     public void run() {
@@ -235,26 +245,55 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
 
     @Override
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (fragment != null) transaction.remove(fragment);
-
-        switch ((int) drawerItem.getIdentifier()) {
-            case FRAGMENT_TIMETABLE_ID:
-                fragment = timetableFragment;
-                break;
-            case FRAGMENT_GRADES_ID:
-                fragment = GradesFragment.newInstance();
-                break;
-            case SETTINGS_ID:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-            default:
-                fragment = new PlaceholderFragment();
+        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        //Regardless of update going on in the background start the settings activity
+        if (drawerItem.getIdentifier() == SETTINGS_ID) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return false;
         }
-        fragment.setRetainInstance(true);
+        //check if there is an update in the background
+        if (updateService.isLoading()) {
+            //display loading currentFragment
+            currentFragment = LoadingFragment.newInstance();
+            //add selected currentFragment as pending
+            switch ((int) drawerItem.getIdentifier()) {
+                case FRAGMENT_TIMETABLE_ID:
+                    pendingFragment = timetableFragment;
+                    break;
+                case FRAGMENT_GRADES_ID:
+                    pendingFragment = gradesFragment;
+                    break;
+                default:
+                    pendingFragment = new PlaceholderFragment();
+                    break;
+            }
+            //add callback to switch to the pending fragment when update completes
+            updateService.addListener(new LibrusUpdateService.OnUpdateCompleteListener() {
+                @Override
+                public void run() {
+                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                    if (pendingFragment != null)
+                        transaction
+                                .replace(R.id.content_main, pendingFragment)
+                                .commit();
+                }
+            });
+        } else {
+            switch ((int) drawerItem.getIdentifier()) {
+                case FRAGMENT_TIMETABLE_ID:
+                    currentFragment = timetableFragment;
+                    break;
+                case FRAGMENT_GRADES_ID:
+                    currentFragment = gradesFragment;
+                    break;
+                default:
+                    currentFragment = new PlaceholderFragment();
+            }
+        }
+        currentFragment.setRetainInstance(true);
         transaction
-                .replace(R.id.content_main, fragment)
+                .replace(R.id.content_main, currentFragment)
                 .commit();
 
         return false;
