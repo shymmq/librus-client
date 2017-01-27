@@ -40,10 +40,11 @@ import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
-    public static final int FRAGMENT_TIMETABLE_ID = 0;
-    public static final int FRAGMENT_GRADES_ID = 1;
+    public static final int FRAGMENT_TIMETABLE_ID = 1;
+    public static final int FRAGMENT_GRADES_ID = 2;
     public static final int FRAGMENT_ANNOUNCEMENTS_ID = 3;
-    private static final int FRAGMENT_CALENDAR_ID = 2;
+    private static final int FRAGMENT_CALENDAR_ID = 4;
+    private static final int SETTINGS_ID = 0;
     private final String TAG = "librus-client-log";
     TimetableFragment timetableFragment = TimetableFragment.newInstance();
     SQLiteDatabase db;
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                         new DividerDrawerItem(),
                         lucky)
                 .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                        .withIdentifier(6)
+                        .withIdentifier(SETTINGS_ID)
                         .withName("Ustawienia")
                         .withIcon(R.drawable.ic_settings_black_48dp))
                 .withOnDrawerItemClickListener(this)
@@ -237,12 +238,16 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             case FRAGMENT_GRADES_ID:
                 fragment = GradesFragment.newInstance();
                 break;
+            case SETTINGS_ID:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
             default:
                 fragment = new PlaceholderFragment();
         }
         fragment.setRetainInstance(true);
         transaction
-                .add(R.id.content_main, fragment)
+                .replace(R.id.content_main, fragment)
                 .commit();
 
         return false;

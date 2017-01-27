@@ -11,9 +11,11 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import pl.librus.client.sql.LibrusDbContract.Account;
+import pl.librus.client.sql.LibrusDbContract.Grades;
 import pl.librus.client.sql.LibrusDbContract.Lessons;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
 import pl.librus.client.sql.LibrusDbContract.Teachers;
@@ -92,6 +94,26 @@ public class LibrusUpdateService {
                     values.put(Subjects.COLUMN_NAME_ID, s.getId());
                     values.put(Subjects.COLUMN_NAME_NAME, s.getName());
                     db.insert(Subjects.TABLE_NAME, null, values);
+                }
+            }
+        });
+        client.getGrades().done(new DoneCallback<List<Grade>>() {
+            @Override
+            public void onDone(List<Grade> result) {
+                db.delete(Grades.TABLE_NAME, null, null);
+                for (Grade g : result) {
+                    ContentValues values = new ContentValues();
+                    values.put(Grades.COLUMN_NAME_ID, g.getId());
+                    values.put(Grades.COLUMN_NAME_GRADE, g.getGrade());
+                    values.put(Grades.COLUMN_NAME_SUBJECT_ID, g.getSubjectId());
+                    values.put(Grades.COLUMN_NAME_LESSON_ID, g.getLessonId());
+                    values.put(Grades.COLUMN_NAME_CATEGORY_ID, g.getCategoryId());
+                    values.put(Grades.COLUMN_NAME_COMMENT_ID, g.getCommentId());
+                    values.put(Grades.COLUMN_NAME_ADDED_BY_ID, g.getAddedById());
+                    values.put(Grades.COLUMN_NAME_SEMESTER, g.getSemester());
+                    values.put(Grades.COLUMN_NAME_DATE, g.getDate().toDateTimeAtStartOfDay().getMillis());
+                    values.put(Grades.COLUMN_NAME_TYPE, g.getType().ordinal());
+                    db.insert(Grades.TABLE_NAME, null, values);
                 }
             }
         });
