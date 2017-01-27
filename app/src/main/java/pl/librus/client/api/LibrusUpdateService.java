@@ -15,6 +15,7 @@ import java.util.Map;
 
 import pl.librus.client.sql.LibrusDbContract.Account;
 import pl.librus.client.sql.LibrusDbContract.Lessons;
+import pl.librus.client.sql.LibrusDbContract.Subjects;
 import pl.librus.client.sql.LibrusDbContract.Teachers;
 import pl.librus.client.sql.LibrusDbHelper;
 
@@ -79,6 +80,18 @@ public class LibrusUpdateService {
                     values.put(Teachers.COLUMN_NAME_FIRST_NAME, t.getFirstName());
                     values.put(Teachers.COLUMN_NAME_LAST_NAME, t.getLastName());
                     db.insert(Teachers.TABLE_NAME, null, values);
+                }
+            }
+        });
+        client.getSubjects().done(new DoneCallback<ArrayList<Subject>>() {
+            @Override
+            public void onDone(ArrayList<Subject> result) {
+                db.delete(Subjects.TABLE_NAME, null, null);
+                for (Subject s : result) {
+                    ContentValues values = new ContentValues();
+                    values.put(Subjects.COLUMN_NAME_ID, s.getId());
+                    values.put(Subjects.COLUMN_NAME_NAME, s.getName());
+                    db.insert(Subjects.TABLE_NAME, null, values);
                 }
             }
         });
