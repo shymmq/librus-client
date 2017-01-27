@@ -42,10 +42,10 @@ public class Lesson implements Serializable {
     }
 
     //substitution
-    Lesson(String id,
-           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-           Subject subject, Teacher teacher,
-           String orgSubjectId, String orgTeacherId) {
+    public Lesson(String id,
+                  int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+                  Subject subject, Teacher teacher,
+                  String orgSubjectId, String orgTeacherId) {
         this.id = id;
         this.lessonNumber = lessonNumber;
         this.subject = subject;
@@ -63,10 +63,10 @@ public class Lesson implements Serializable {
     }
 
     //canceled
-    Lesson(String id,
-           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-           Subject subject, Teacher teacher,
-           boolean isCanceled) {
+    public Lesson(String id,
+                  int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+                  Subject subject, Teacher teacher,
+                  boolean isCanceled) {
         this.id = id;
         this.lessonNumber = lessonNumber;
         this.subject = subject;
@@ -82,11 +82,11 @@ public class Lesson implements Serializable {
     }
 
     //moved
-    Lesson(String id,
-           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-           Subject subject, Teacher teacher,
-           String newSubjectId, String newTeacherId,
-           int newLessonNo, LocalDate newDate) {
+    public Lesson(String id,
+                  int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+                  Subject subject, Teacher teacher,
+                  String newSubjectId, String newTeacherId,
+                  int newLessonNo, LocalDate newDate) {
         this.id = id;
         this.lessonNumber = lessonNumber;
         this.subject = subject;

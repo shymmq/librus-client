@@ -11,7 +11,7 @@ public class LibrusDbContract {
     private LibrusDbContract() {
     }
 
-    public static final int DB_VERSION = 2;
+    public static final int DB_VERSION = 3;
     public static final String DB_NAME = "database.db";
 
     private static final String TEXT_TYPE = " TEXT";
@@ -31,6 +31,10 @@ public class LibrusDbContract {
         public static final String COLUMN_NAME_TEACHER_ID = "teacher_id";
         public static final String COLUMN_NAME_TEACHER_FIRST_NAME = "teacher_first_name";
         public static final String COLUMN_NAME_TEACHER_LAST_NAME = "teacher_last_name";
+        public static final String COLUMN_NAME_SUBSTITUTION = "substitution";
+        public static final String COLUMN_NAME_CANCELED = "canceled";
+        public static final String COLUMN_NAME_ORG_TEACHER_ID = "org_teacher_id";
+        public static final String COLUMN_NAME_ORG_SUBJECT_ID = "org_subject_id";
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
@@ -42,8 +46,11 @@ public class LibrusDbContract {
                 COLUMN_NAME_SUBJECT_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_TEACHER_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_TEACHER_FIRST_NAME + TEXT_TYPE + COMMA_SEP +
-                COLUMN_NAME_TEACHER_LAST_NAME + TEXT_TYPE +
-                " )";
+                COLUMN_NAME_TEACHER_LAST_NAME + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_SUBSTITUTION + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_CANCELED + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_ORG_SUBJECT_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_ORG_TEACHER_ID + TEXT_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }

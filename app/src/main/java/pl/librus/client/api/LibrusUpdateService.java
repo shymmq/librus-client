@@ -42,9 +42,13 @@ public class LibrusUpdateService {
                                 values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
                                 values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
                                 values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
-                                values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_ID, lesson.getSubject().getId());
+                                values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
                                 values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_FIRST_NAME, lesson.getTeacher().getFirstName());
                                 values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_LAST_NAME, lesson.getTeacher().getLastName());
+                                values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_SUBSTITUTION, lesson.isSubstitutionClass() ? 1 : 0);
+                                values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
+                                values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
+                                values.put(LibrusDbContract.LessonsTable.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
                                 db.insert(LibrusDbContract.LessonsTable.TABLE_NAME, null, values);
                             }
                         }

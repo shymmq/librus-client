@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
@@ -23,17 +24,28 @@ import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
-import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
-import static org.joda.time.DateTimeConstants.MONDAY;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_CANCELED;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_DATE;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_ID;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_LESSON_NUMBER;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_ORG_SUBJECT_ID;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_ORG_TEACHER_ID;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_SUBJECT_ID;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_SUBJECT_NAME;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_SUBSTITUTION;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_FIRST_NAME;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_ID;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_LAST_NAME;
+import static pl.librus.client.sql.LibrusDbContract.LessonsTable.TABLE_NAME;
 
 public class TimetableFragment extends Fragment implements MainFragment {
     final ProgressItem progressItem = new ProgressItem();
     TimetableAdapter adapter;
     LinearLayoutManager layoutManager;
-    LocalDate startDate = LocalDate.now().withDayOfWeek(MONDAY);
+    LocalDate startDate = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
     int page = 0;
     public Runnable onSetupCompleted = new Runnable() {
         @Override
@@ -138,38 +150,38 @@ public class TimetableFragment extends Fragment implements MainFragment {
                 for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
                     final long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
                     Cursor cursor = db.query(
-                            LibrusDbContract.LessonsTable.TABLE_NAME,
+                            TABLE_NAME,
                             null,
-                            LibrusDbContract.LessonsTable.COLUMN_NAME_DATE + " = " + dateMillis,
+                            COLUMN_NAME_DATE + " = " + dateMillis,
                             null,
                             null,
                             null,
-                            LibrusDbContract.LessonsTable.COLUMN_NAME_LESSON_NUMBER
+                            COLUMN_NAME_LESSON_NUMBER
                     );
-                    int idIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_ID);
-                    int lessonNumberIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_LESSON_NUMBER);
-                    int subjectNameIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_SUBJECT_NAME);
-                    int subjectIdIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_SUBJECT_ID);
-                    int teacherIdIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_ID);
-                    int teacherFirstNameIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_FIRST_NAME);
-                    int teacherLastNameIndex = cursor.getColumnIndexOrThrow(LibrusDbContract.LessonsTable.COLUMN_NAME_TEACHER_LAST_NAME);
                     LessonHeaderItem header = new LessonHeaderItem(date);
                     if (cursor.getCount() > 0) {
                         while (cursor.moveToNext()) {
-                            int lessonNumber = cursor.getInt(lessonNumberIndex);
-                            Lesson lesson = new Lesson(
-                                    cursor.getString(idIndex),
-                                    lessonNumber,
-                                    date,
-                                    LocalTime.now(), LocalTime.now(),
-                                    new Subject(
-                                            cursor.getString(subjectIdIndex),
-                                            cursor.getString(subjectNameIndex)),
-                                    new Teacher(
-                                            cursor.getString(teacherIdIndex),
-                                            cursor.getString(teacherFirstNameIndex),
-                                            cursor.getString(teacherLastNameIndex))
-                            );
+                            int lessonNumber = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_LESSON_NUMBER));
+                            boolean substitution = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBSTITUTION)) > 0;
+                            boolean canceled = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_CANCELED)) > 0;
+                            Subject subject = new Subject(
+                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBJECT_ID)),
+                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBJECT_NAME)));
+                            Teacher teacher = new Teacher(
+                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_ID)),
+                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_FIRST_NAME)),
+                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_LAST_NAME)));
+                            String id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ID));
+                            Lesson lesson;
+                            if (canceled) {
+                                lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher, true);
+                            } else if (substitution) {
+                                lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher,
+                                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ORG_SUBJECT_ID)),
+                                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ORG_TEACHER_ID)));
+                            } else {
+                                lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher);
+                            }
                             LessonItem lessonItem = new LessonItem(header, lesson, getContext());
                             newElements.add(lessonItem);
                         }
