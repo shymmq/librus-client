@@ -2,9 +2,10 @@ package pl.librus.client.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -34,6 +35,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusUpdateService;
 import pl.librus.client.grades.GradesFragment;
+import pl.librus.client.sql.LibrusDbContract;
+import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
@@ -43,11 +46,10 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private static final int FRAGMENT_CALENDAR_ID = 2;
     private final String TAG = "librus-client-log";
     TimetableFragment timetableFragment = TimetableFragment.newInstance();
+    SQLiteDatabase db;
     private ActionMenuView amv;
-    private AppBarLayout appBarLayout;
     private Drawer drawer;
     private Toolbar toolbar;
-    private View toolbarView;
     private Fragment fragment;
 
     @Override
@@ -69,6 +71,29 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private void setup(Bundle savedInstanceState) {
         //LibrusAccount account = librusData.getAccount();
         //luckyNumber = librusData.getLuckyNumber();
+        LibrusDbHelper dbHelper = new LibrusDbHelper(this);
+        db = dbHelper.getReadableDatabase();
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        //Drawer setup
+        Cursor cursor = db.query(
+                LibrusDbContract.Account.TABLE_NAME,
+                new String[]{
+                        LibrusDbContract.Account.COLUMN_NAME_USERNAME,
+                        LibrusDbContract.Account.COLUMN_NAME_FIRST_NAME,
+                        LibrusDbContract.Account.COLUMN_NAME_LAST_NAME},
+                null, null, null, null, null, null);
+        String name, username;
+        if (cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            name = cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.Account.COLUMN_NAME_FIRST_NAME)) +
+                    ' ' +
+                    cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.Account.COLUMN_NAME_LAST_NAME));
+            username = cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.Account.COLUMN_NAME_USERNAME));
+        } else {
+            name = "";
+            username = "";
+        }
         timetableFragment = TimetableFragment.newInstance();
         timetableFragment.onSetupCompleted = new Runnable() {
             @Override
@@ -76,12 +101,9 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 LibrusUpdateService.updateAll(getApplicationContext());
             }
         };
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        //Drawer setup
         ProfileDrawerItem profile = new ProfileDrawerItem()
-                .withName("Grzegorz")
-                .withEmail("Brzęczyszczykiewicz")
+                .withName(name)
+                .withEmail(username)
                 .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withIdentifier(666)
