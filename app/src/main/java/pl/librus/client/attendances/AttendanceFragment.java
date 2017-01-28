@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import org.joda.time.LocalDate;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
 import pl.librus.client.api.Attendance;
+import pl.librus.client.api.AttendanceCategory;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
@@ -41,8 +43,6 @@ public class AttendanceFragment extends Fragment implements MainFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        FlexibleAdapter.enableLogs(true);
-
         View root = inflater.inflate(R.layout.fragment_attendance, container, false);
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
@@ -57,16 +57,23 @@ public class AttendanceFragment extends Fragment implements MainFragment {
         Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
         for (Attendance attendance : attendances) {
             LocalDate date = attendance.getDate();
+
+            AttendanceCategory category = dbHelper.getAttendanceCategory(attendance.getTypeId());
+
             if (headerItemMap.get(date) == null) {
                 headerItemMap.put(date, new AttendanceHeaderItem(date));
             }
+            AttendanceItem subItem = new AttendanceItem(
+                    headerItemMap.get(date),
+                    attendance,
+                    category);
             headerItemMap.get(date)
-                    .addSubItem(new AttendanceItem(
-                            headerItemMap.get(date),
-                            attendance));
+                    .addSubItem(subItem);
+
         }
-        for (Map.Entry<LocalDate, AttendanceHeaderItem> entry : headerItemMap.entrySet()) {
-            AttendanceHeaderItem headerItem = entry.getValue();
+        List<AttendanceHeaderItem> headers = new ArrayList<>(headerItemMap.values());
+        Collections.sort(headers);
+        for (AttendanceHeaderItem headerItem : headers) {
             adapter.addSection(headerItem);
         }
         return root;

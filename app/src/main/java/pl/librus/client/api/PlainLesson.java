@@ -6,11 +6,11 @@ import java.io.Serializable;
  * Created by Adam on 16.12.2016.
  */
 
-class PlainLesson implements Serializable {
+public class PlainLesson implements Serializable {
     private static final long serialVersionUID = -7695486585587614442L;
     private String id, teacherId, subjectId;
 
-    PlainLesson(String id, String teacherId, String subjectId) {
+    public PlainLesson(String id, String teacherId, String subjectId) {
         this.id = id;
         this.teacherId = teacherId;
         this.subjectId = subjectId;

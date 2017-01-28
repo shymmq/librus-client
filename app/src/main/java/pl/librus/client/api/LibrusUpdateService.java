@@ -26,7 +26,7 @@ import pl.librus.client.sql.LibrusDbContract.AttendanceCategories;
 import pl.librus.client.sql.LibrusDbContract.Attendances;
 import pl.librus.client.sql.LibrusDbContract.GradeComments;
 import pl.librus.client.sql.LibrusDbContract.Grades;
-import pl.librus.client.sql.LibrusDbContract.Lessons;
+import pl.librus.client.sql.LibrusDbContract.PlainLessons;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
 import pl.librus.client.sql.LibrusDbContract.Teachers;
 import pl.librus.client.sql.LibrusDbHelper;
@@ -63,26 +63,26 @@ public class LibrusUpdateService {
             public void onDone(SchoolWeek result) {
                 LibrusUtils.log("Saving " + result.getWeekStart() + " school week to database");
                 db.beginTransaction();
-                db.delete(Lessons.TABLE_NAME, null, null);
+                db.delete(LibrusDbContract.TimetableLessons.TABLE_NAME, null, null);
                 for (SchoolDay schoolDay : result.getSchoolDays()) {
                     LocalDate date = schoolDay.getDate();
                     long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
                     for (Map.Entry<Integer, Lesson> entry : schoolDay.getLessons().entrySet()) {
                         Lesson lesson = entry.getValue();
                         ContentValues values = new ContentValues();
-                        values.put(Lessons.COLUMN_NAME_DATE, dateMillis);
-                        values.put(Lessons.COLUMN_NAME_ID, lesson.getId());
-                        values.put(Lessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
-                        values.put(Lessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
-                        values.put(Lessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
-                        values.put(Lessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
-                        values.put(Lessons.COLUMN_NAME_TEACHER_FIRST_NAME, lesson.getTeacher().getFirstName());
-                        values.put(Lessons.COLUMN_NAME_TEACHER_LAST_NAME, lesson.getTeacher().getLastName());
-                        values.put(Lessons.COLUMN_NAME_SUBSTITUTION, lesson.isSubstitutionClass() ? 1 : 0);
-                        values.put(Lessons.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
-                        values.put(Lessons.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
-                        values.put(Lessons.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
-                        db.insert(Lessons.TABLE_NAME, null, values);
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_DATE, dateMillis);
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ID, lesson.getId());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME, lesson.getTeacher().getFirstName());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME, lesson.getTeacher().getLastName());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBSTITUTION, lesson.isSubstitutionClass() ? 1 : 0);
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
+                        db.insert(LibrusDbContract.TimetableLessons.TABLE_NAME, null, values);
                     }
                 }
                 db.setTransactionSuccessful();
@@ -247,7 +247,7 @@ public class LibrusUpdateService {
         tasks.add(client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
             @Override
             public void onDone(List<AttendanceCategory> result) {
-                LibrusUtils.log("Saving " + result.size() + "attendance categories to database");
+                LibrusUtils.log("Saving " + result.size() + " attendance categories to database");
                 db.beginTransaction();
                 db.delete(AttendanceCategories.TABLE_NAME, null, null);
                 for (AttendanceCategory ac : result) {
@@ -259,7 +259,26 @@ public class LibrusUpdateService {
                     values.put(AttendanceCategories.COLUMN_NAME_STANDARD, ac.isStandard() ? 1 : 0);
                     values.put(AttendanceCategories.COLUMN_NAME_PRESENCE, ac.isPresenceKind() ? 1 : 0);
                     values.put(AttendanceCategories.COLUMN_NAME_ORDER, ac.getOrder());
+                    LibrusUtils.log("Attendance category: " + values.toString());
                     db.insert(AttendanceCategories.TABLE_NAME, null, values);
+                }
+                db.setTransactionSuccessful();
+                db.endTransaction();
+                updateProgress();
+            }
+        }));
+        tasks.add(client.getPlainLessons().done(new DoneCallback<List<PlainLesson>>() {
+            @Override
+            public void onDone(List<PlainLesson> result) {
+                LibrusUtils.log("Saving " + result.size() + " lessons to database");
+                db.beginTransaction();
+                db.delete(PlainLessons.TABLE_NAME, null, null);
+                for (PlainLesson pl : result) {
+                    ContentValues values = new ContentValues();
+                    values.put(PlainLessons.COLUMN_NAME_ID, pl.getId());
+                    values.put(PlainLessons.COLUMN_NAME_SUBJECT_ID, pl.getSubjectId());
+                    values.put(PlainLessons.COLUMN_NAME_TEACHER_ID, pl.getId());
+                    db.insert(PlainLessons.TABLE_NAME, null, values);
                 }
                 db.setTransactionSuccessful();
                 db.endTransaction();

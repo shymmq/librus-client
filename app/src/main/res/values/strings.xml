@@ -29,8 +29,6 @@
     <string name="announcement">Ogłoszenie</string>
     <string name="placeholder_announcement">Darmowe audiobooki w bibliotece Wolne Lektury Fundacja Nowoczesna Polska zaprasza do korzystania z darmowych audiobooków opublikowanych w bibliotece internetowej WolneLektury.pl Z audioteki można korzystać bezpłatnie i bez ograniczeń. Wszystkie nagrania udostępnione zostały na wolnej licencji Creative Commons. Audiobooki dostępne są w trzech formatach: MP3, Ogg Vorbis oraz DAISY (dostosowany do potrzeb osób słabowidzących, niewidomych i wszystkich mających poważne trudności z czytaniem). Wszystkie nagrania znajdują się na stronie internetowej projektu: https://wolnelektury.pl/katalog/audiobooki/</string>
     <string name="placeholder_date">4 lis.</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="comment">Komentarz</string>
     <string name="canceled">odwołane</string>
@@ -57,5 +55,6 @@
     <string name="added_by">Dodana przez</string>
     <string name="placeholder_added_by">Ktośtam Jakiśtam</string>
     <string name="last_update">last_update</string>
-    <string name="lucky_number">"Szczęśliwy numerek: "</string>
+    <string name="lucky_number">"Szczęśliwy numerek"</string>
+    <string name="lesson">lekcja</string>
 </resources>

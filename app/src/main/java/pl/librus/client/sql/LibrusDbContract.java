@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 
 public class LibrusDbContract {
 
-    static final int DB_VERSION = 11;
+    static final int DB_VERSION = 12;
     static final String DB_NAME = "database.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -18,9 +18,9 @@ public class LibrusDbContract {
     private LibrusDbContract() {
     }
 
-    public static abstract class Lessons implements BaseColumns {
+    public static abstract class TimetableLessons implements BaseColumns {
 
-        public static final String TABLE_NAME = "lessons";
+        public static final String TABLE_NAME = "timetable_lessons";
 
         public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_DATE = "date";
@@ -248,6 +248,24 @@ public class LibrusDbContract {
                 COLUMN_NAME_STANDARD + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_PRESENCE + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_ORDER + INTEGER_TYPE +
+                " )";
+
+        static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
+    public static abstract class PlainLessons implements BaseColumns {
+        public static final String TABLE_NAME = "lessons";
+
+        public static final String COLUMN_NAME_ID = "id";
+        public static final String COLUMN_NAME_SUBJECT_ID = "teacher_id";
+        public static final String COLUMN_NAME_TEACHER_ID = "subject_id";
+
+        static final String CREATE_TABLE = "CREATE TABLE " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_SUBJECT_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_TEACHER_ID + TEXT_TYPE + NOT_NULL +
                 " )";
 
         static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;

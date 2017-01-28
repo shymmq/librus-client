@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -13,6 +14,7 @@ import org.joda.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.Attendance;
 import pl.librus.client.api.AttendanceCategory;
@@ -20,20 +22,23 @@ import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.api.PlainLesson;
+import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
 import pl.librus.client.sql.LibrusDbContract.AttendanceCategories;
 import pl.librus.client.sql.LibrusDbContract.Attendances;
 import pl.librus.client.sql.LibrusDbContract.GradeCategories;
 import pl.librus.client.sql.LibrusDbContract.GradeComments;
 import pl.librus.client.sql.LibrusDbContract.LuckyNumbers;
+import pl.librus.client.sql.LibrusDbContract.PlainLessons;
 
 import static pl.librus.client.sql.LibrusDbContract.Account;
 import static pl.librus.client.sql.LibrusDbContract.DB_NAME;
 import static pl.librus.client.sql.LibrusDbContract.DB_VERSION;
 import static pl.librus.client.sql.LibrusDbContract.Grades;
-import static pl.librus.client.sql.LibrusDbContract.Lessons;
 import static pl.librus.client.sql.LibrusDbContract.Subjects;
 import static pl.librus.client.sql.LibrusDbContract.Teachers;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons;
 
 public class LibrusDbHelper extends SQLiteOpenHelper {
     private final Context context;
@@ -46,7 +51,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
     // Method is called during creation of the database
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(Lessons.CREATE_TABLE);
+        db.execSQL(TimetableLessons.CREATE_TABLE);
         db.execSQL(Account.CREATE_TABLE);
         db.execSQL(Teachers.CREATE_TABLE);
         db.execSQL(Subjects.CREATE_TABLE);
@@ -56,6 +61,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(GradeComments.CREATE_TABLE);
         db.execSQL(Attendances.CREATE_TABLE);
         db.execSQL(AttendanceCategories.CREATE_TABLE);
+        db.execSQL(PlainLessons.CREATE_TABLE);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putLong(context.getString(R.string.last_update), -1L);   //reset last update to indicate that database is empty
@@ -65,7 +71,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
     // Method is called during an upgrade of the database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(Lessons.DELETE_TABLE);
+        db.execSQL(TimetableLessons.DELETE_TABLE);
         db.execSQL(Account.DELETE_TABLE);
         db.execSQL(Teachers.DELETE_TABLE);
         db.execSQL(Subjects.DELETE_TABLE);
@@ -75,6 +81,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(GradeComments.DELETE_TABLE);
         db.execSQL(Attendances.DELETE_TABLE);
         db.execSQL(AttendanceCategories.DELETE_TABLE);
+        db.execSQL(PlainLessons.DELETE_TABLE);
         onCreate(db);
     }
 
@@ -130,33 +137,11 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
     public List<Attendance> getAttendances() {
         List<Attendance> attendances = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor attendanceCursor = db.rawQuery("SELECT * FROM " + Attendances.TABLE_NAME, null);
-        while (attendanceCursor.moveToNext()) {
-            Attendance a = new Attendance(
-                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ID)),
-                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_LESSON_ID)),
-                    new LocalDate(attendanceCursor.getLong(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_DATE))),
-                    new LocalDateTime(attendanceCursor.getLong(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ADD_DATE))),
-                    attendanceCursor.getInt(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_LESSON_NUMBER)),
-                    attendanceCursor.getInt(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_SEMESTER)),
-                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_TYPE_ID)),
-                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ADDED_BY_ID))
-            );
-            attendances.add(a);
-        }
-        attendanceCursor.close();
-        return attendances;
-    }
-
-    public List<Attendance> getAttendancesForDay(LocalDate date) {
-        List<Attendance> attendances = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
         Cursor attendanceCursor = db.query(
-                AttendanceCategories.TABLE_NAME,
+                Attendances.TABLE_NAME,
                 null,
-                Attendances.COLUMN_NAME_DATE + " = ?",
-                new String[]{String.valueOf(dateMillis)},
+                Attendances.COLUMN_NAME_TYPE_ID + " IS NOT 100",
+                null,
                 null, null, null
         );
         while (attendanceCursor.moveToNext()) {
@@ -272,6 +257,55 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
             );
             cursor.close();
             return teacher;
+        }
+    }
+
+    public PlainLesson getLesson(String lessonId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                true,
+                PlainLessons.TABLE_NAME,
+                null,
+                PlainLessons.COLUMN_NAME_ID + " = ?",
+                new String[]{lessonId},
+                null, null, null, null
+        );
+        if (cursor.getCount() >= 1) {
+            if (cursor.getCount() > 1)
+                LibrusUtils.log(String.valueOf(cursor.getCount()) + " lessons with id " + lessonId, Log.WARN);
+            cursor.moveToFirst();
+
+            PlainLesson lesson = new PlainLesson(
+                    cursor.getString(cursor.getColumnIndexOrThrow(PlainLessons.COLUMN_NAME_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(PlainLessons.COLUMN_NAME_TEACHER_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(PlainLessons.COLUMN_NAME_SUBJECT_ID))
+            );
+            cursor.close();
+            return lesson;
+        } else throw new UnsupportedOperationException("No lesson with id " + lessonId);
+
+    }
+
+    public Subject getSubject(String subjectId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                Subjects.TABLE_NAME,
+                null,
+                Subjects.COLUMN_NAME_ID + " = ?",
+                new String[]{subjectId},
+                null, null, null);
+        if (cursor.getCount() == 0) {
+            return null;
+        } else if (cursor.getCount() > 1) {
+            throw new UnsupportedOperationException(cursor.getCount() + " subjects with same id " + subjectId);
+        } else {
+            cursor.moveToFirst();
+            Subject subject = new Subject(
+                    cursor.getString(cursor.getColumnIndexOrThrow(Subjects.COLUMN_NAME_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(Subjects.COLUMN_NAME_NAME))
+            );
+            cursor.close();
+            return subject;
         }
     }
 }

@@ -27,19 +27,19 @@ import pl.librus.client.api.Teacher;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_CANCELED;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_DATE;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_ID;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_LESSON_NUMBER;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_ORG_SUBJECT_ID;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_ORG_TEACHER_ID;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_SUBJECT_ID;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_SUBJECT_NAME;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_SUBSTITUTION;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_TEACHER_FIRST_NAME;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_TEACHER_ID;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.COLUMN_NAME_TEACHER_LAST_NAME;
-import static pl.librus.client.sql.LibrusDbContract.Lessons.TABLE_NAME;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_CANCELED;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_DATE;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_LESSON_NUMBER;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_NAME;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBSTITUTION;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.TABLE_NAME;
 
 public class TimetableFragment extends Fragment implements MainFragment {
     final ProgressItem progressItem = new ProgressItem();
