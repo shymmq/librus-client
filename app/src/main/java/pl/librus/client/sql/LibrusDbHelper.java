@@ -16,6 +16,8 @@ import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.LuckyNumber;
 import pl.librus.client.api.Teacher;
+import pl.librus.client.sql.LibrusDbContract.AttendanceCategories;
+import pl.librus.client.sql.LibrusDbContract.Attendances;
 import pl.librus.client.sql.LibrusDbContract.GradeCategories;
 import pl.librus.client.sql.LibrusDbContract.GradeComments;
 import pl.librus.client.sql.LibrusDbContract.LuckyNumbers;
@@ -44,6 +46,8 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(GradeCategories.CREATE_TABLE);
         db.execSQL(LuckyNumbers.CREATE_TABLE);
         db.execSQL(GradeComments.CREATE_TABLE);
+        db.execSQL(Attendances.CREATE_TABLE);
+        db.execSQL(AttendanceCategories.CREATE_TABLE);
     }
 
     // Method is called during an upgrade of the database
@@ -57,6 +61,8 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(GradeCategories.DELETE_TABLE);
         db.execSQL(LuckyNumbers.DELETE_TABLE);
         db.execSQL(GradeComments.DELETE_TABLE);
+        db.execSQL(Attendances.DELETE_TABLE);
+        db.execSQL(AttendanceCategories.DELETE_TABLE);
         onCreate(db);
     }
 

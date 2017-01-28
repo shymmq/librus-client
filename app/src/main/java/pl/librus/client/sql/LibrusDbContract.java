@@ -198,4 +198,62 @@ public class LibrusDbContract {
 
         static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
+
+    public static abstract class Attendances implements BaseColumns {
+        public static final String TABLE_NAME = "attendances";
+
+        public static final String COLUMN_NAME_ID = "id";
+        public static final String COLUMN_NAME_LESSON_ID = "lesson_id";
+        public static final String COLUMN_NAME_DATE = "date";
+        public static final String COLUMN_NAME_ADD_DATE = "add_date";
+        public static final String COLUMN_NAME_LESSON_NUMBER = "lesson_number";
+        public static final String COLUMN_NAME_SEMESTER = "semester";
+        public static final String COLUMN_NAME_TYPE_ID = "type_id";
+        public static final String COLUMN_NAME_ADDED_BY_ID = "added_by_id";
+
+        static final String CREATE_TABLE = "CREATE TABLE " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_LESSON_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_DATE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_ADD_DATE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_LESSON_NUMBER + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_SEMESTER + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_TYPE_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_ADDED_BY_ID + TEXT_TYPE +
+                " )";
+
+        static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
+    public static abstract class AttendanceCategories implements BaseColumns {
+        public static final String TABLE_NAME = "attendance_categories";
+        /*
+            private String id, name, shortName, colorRGB;
+            private boolean isStandard, isPresenceKind;
+            private int order;
+         */
+        public static final String COLUMN_NAME_ID = "id";
+        public static final String COLUMN_NAME_NAME = "name";
+        public static final String COLUMN_NAME_SHORT_NAME = "short_name";
+        public static final String COLUMN_NAME_COLOR = "color";
+        public static final String COLUMN_NAME_STANDARD = "standard";
+        public static final String COLUMN_NAME_PRESENCE = "presence";
+        public static final String COLUMN_NAME_ORDER = "order";
+
+        static final String CREATE_TABLE = "CREATE TABLE " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_NAME + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_SHORT_NAME + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_COLOR + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_STANDARD + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_PRESENCE + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_ORDER + INTEGER_TYPE +
+                " )";
+
+        static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
 }

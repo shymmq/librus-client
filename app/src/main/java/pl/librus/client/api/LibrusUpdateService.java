@@ -19,6 +19,9 @@ import java.util.Map;
 
 import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbContract.Account;
+import pl.librus.client.sql.LibrusDbContract.AttendanceCategories;
+import pl.librus.client.sql.LibrusDbContract.Attendances;
+import pl.librus.client.sql.LibrusDbContract.GradeComments;
 import pl.librus.client.sql.LibrusDbContract.Grades;
 import pl.librus.client.sql.LibrusDbContract.Lessons;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
@@ -169,14 +172,51 @@ public class LibrusUpdateService {
         tasks.add(client.getComments().done(new DoneCallback<List<GradeComment>>() {
             @Override
             public void onDone(List<GradeComment> result) {
-                db.delete(LibrusDbContract.GradeComments.TABLE_NAME, null, null);
+                db.delete(GradeComments.TABLE_NAME, null, null);
                 for (GradeComment gc : result) {
                     ContentValues values = new ContentValues();
-                    values.put(LibrusDbContract.GradeComments.COLUMN_NAME_ID, gc.getId());
-                    values.put(LibrusDbContract.GradeComments.COLUMN_NAME_ADDED_BY_ID, gc.getAddedById());
-                    values.put(LibrusDbContract.GradeComments.COLUMN_NAME_GRADE_ID, gc.getGradeId());
-                    values.put(LibrusDbContract.GradeComments.COLUMN_NAME_TEXT, gc.getText());
-                    db.insert(LibrusDbContract.GradeComments.TABLE_NAME, null, values);
+                    values.put(GradeComments.COLUMN_NAME_ID, gc.getId());
+                    values.put(GradeComments.COLUMN_NAME_ADDED_BY_ID, gc.getAddedById());
+                    values.put(GradeComments.COLUMN_NAME_GRADE_ID, gc.getGradeId());
+                    values.put(GradeComments.COLUMN_NAME_TEXT, gc.getText());
+                    db.insert(GradeComments.TABLE_NAME, null, values);
+                }
+                updateProgress();
+            }
+        }));
+        tasks.add(client.getAttendances().done(new DoneCallback<List<Attendance>>() {
+            @Override
+            public void onDone(List<Attendance> result) {
+                db.delete(Attendances.TABLE_NAME, null, null);
+                for (Attendance a : result) {
+                    ContentValues values = new ContentValues();
+                    values.put(Attendances.COLUMN_NAME_ID, a.getId());
+                    values.put(Attendances.COLUMN_NAME_ADD_DATE, a.getAddDate().toDateTime().getMillis());
+                    values.put(Attendances.COLUMN_NAME_ADDED_BY_ID, a.getAddedById());
+                    values.put(Attendances.COLUMN_NAME_DATE, a.getDate().toDateTimeAtStartOfDay().getMillis());
+                    values.put(Attendances.COLUMN_NAME_LESSON_ID, a.getLessonId());
+                    values.put(Attendances.COLUMN_NAME_LESSON_NUMBER, a.getLessonNumber());
+                    values.put(Attendances.COLUMN_NAME_SEMESTER, a.getSemesterNumber());
+                    values.put(Attendances.COLUMN_NAME_TYPE_ID, a.getTypeId());
+                    db.insert(Attendances.TABLE_NAME, null, values);
+                }
+                updateProgress();
+            }
+        }));
+        tasks.add(client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
+            @Override
+            public void onDone(List<AttendanceCategory> result) {
+                db.delete(AttendanceCategories.TABLE_NAME, null, null);
+                for (AttendanceCategory ac : result) {
+                    ContentValues values = new ContentValues();
+                    values.put(AttendanceCategories.COLUMN_NAME_ID, ac.getId());
+                    values.put(AttendanceCategories.COLUMN_NAME_NAME, ac.getName());
+                    values.put(AttendanceCategories.COLUMN_NAME_SHORT_NAME, ac.getShortName());
+                    values.put(AttendanceCategories.COLUMN_NAME_COLOR, ac.getColorRGB());
+                    values.put(AttendanceCategories.COLUMN_NAME_STANDARD, ac.isStandard() ? 1 : 0);
+                    values.put(AttendanceCategories.COLUMN_NAME_PRESENCE, ac.isPresenceKind() ? 1 : 0);
+                    values.put(AttendanceCategories.COLUMN_NAME_ORDER, ac.getOrder());
+                    db.insert(AttendanceCategories.TABLE_NAME, null, values);
                 }
                 updateProgress();
             }

@@ -1,7 +1,5 @@
 package pl.librus.client.api;
 
-import android.graphics.Color;
-
 import java.io.Serializable;
 
 /**
@@ -9,11 +7,12 @@ import java.io.Serializable;
  */
 
 public class AttendanceCategory implements Serializable {
+    private static final long serialVersionUID = 6194370777524603734L;
     private String id, name, shortName, colorRGB;
-    private Boolean isStandard, isPresenceKind;
+    private boolean isStandard, isPresenceKind;
     private int order;
 
-    public AttendanceCategory(String id, String name, String shortName, Boolean isStandard, String colorRGB, Boolean isPresenceKind, int order) {
+    AttendanceCategory(String id, String name, String shortName, Boolean isStandard, String colorRGB, boolean isPresenceKind, int order) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;
@@ -35,19 +34,19 @@ public class AttendanceCategory implements Serializable {
         return shortName;
     }
 
-    public Boolean getIsStandard() {
+    public int getOrder() {
+        return order;
+    }
+
+    public boolean isPresenceKind() {
+        return isPresenceKind;
+    }
+
+    public boolean isStandard() {
         return isStandard;
     }
 
     public String getColorRGB() {
         return colorRGB;
-    }
-
-    public Boolean getIsPresenceKind() {
-        return isPresenceKind;
-    }
-
-    public int getOrder() {
-        return order;
     }
 }
