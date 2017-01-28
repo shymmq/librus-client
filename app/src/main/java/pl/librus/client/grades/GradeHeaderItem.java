@@ -63,17 +63,23 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         holder.subject.setText(subject.getName());
-        holder.gradeCount.setText(String.valueOf(gradeCount) + ' ' + LibrusUtils.getPluralForm(gradeCount, "ocena", "oceny", "ocen"));
+        if (gradeCount == 0) {
+            holder.gradeCount.setText("Brak ocen");
+            holder.background.setAlpha(0.5f);
+        } else {
+            holder.gradeCount.setText(String.valueOf(gradeCount) + ' ' + LibrusUtils.getPluralForm(gradeCount, "ocena", "oceny", "ocen"));
+            holder.background.setAlpha(1.0f);
+        }
     }
 
     @Override
     public ViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater, ViewGroup parent) {
-        return new ViewHolder(inflater.inflate(R.layout.grade_category_item, parent, false), adapter);
+        return new ViewHolder(inflater.inflate(R.layout.grade_header_item, parent, false), adapter);
     }
 
     @Override
     public int getLayoutRes() {
-        return R.layout.grade_category_item;
+        return R.layout.grade_header_item;
     }
 
     @Override
@@ -94,11 +100,26 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
 
     class ViewHolder extends ExpandableViewHolder {
         final private TextView subject, gradeCount;
+        final private View background, arrow;
 
         ViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);
-            gradeCount = (TextView) view.findViewById(R.id.grade_category_item_content);
-            subject = (TextView) view.findViewById(R.id.grade_category_item_title);
+            background = view.findViewById(R.id.grade_category_item_root);
+            arrow = view.findViewById(R.id.grade_header_item_arrow);
+            gradeCount = (TextView) view.findViewById(R.id.grade_header_item_content);
+            subject = (TextView) view.findViewById(R.id.grade_header_item_title);
+        }
+
+        @Override
+        protected void expandView(int position) {
+            super.expandView(position);
+            arrow.animate().rotation(180).start();
+        }
+
+        @Override
+        protected void collapseView(int position) {
+            super.collapseView(position);
+            arrow.animate().rotation(0).start();
         }
     }
 }

@@ -14,30 +14,30 @@
         android:layout_centerVertical="true" />
 
     <TextView
-        android:id="@+id/grade_category_item_content"
+        android:id="@+id/grade_header_item_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/space"
-        android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
+        android:layout_toStartOf="@+id/grade_header_item_arrow"
         android:text="TextView"
         android:textColor="?android:attr/textColorSecondary" />
 
     <TextView
-        android:id="@+id/grade_category_item_title"
+        android:id="@+id/grade_header_item_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/space"
         android:layout_alignParentStart="true"
-        android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
+        android:layout_toStartOf="@+id/grade_header_item_arrow"
         android:text="Title"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="16sp" />
 
     <View
-        android:id="@+id/grade_category_item_divider"
+        android:id="@+id/grade_header_item_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_alignParentStart="true"
@@ -45,7 +45,7 @@
         android:background="@color/md_divider_black" />
 
     <ImageView
-        android:id="@+id/grade_category_item_arrow"
+        android:id="@+id/grade_header_item_arrow"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_alignParentEnd="true"
