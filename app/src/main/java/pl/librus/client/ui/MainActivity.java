@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //Drawer setup
+        int luckyNumber = dbHelper.getLastLuckyNumber().getLuckyNumber();
         Cursor cursor = db.query(
                 LibrusDbContract.Account.TABLE_NAME,
                 new String[]{
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withIdentifier(LUCKY_NUMBER_ID)
-                .withName("Szczęśliwy numerek: " + dbHelper.getLastLuckyNumber().getLuckyNumber())
+                .withName("Szczęśliwy numerek: " + luckyNumber)
                 .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
         AccountHeader header = new AccountHeaderBuilder()
                 .withActivity(this)

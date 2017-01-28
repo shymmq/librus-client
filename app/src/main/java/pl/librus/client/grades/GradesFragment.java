@@ -1,6 +1,7 @@
 package pl.librus.client.grades;
 
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -10,16 +11,25 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import eu.davidea.flexibleadapter.FlexibleAdapter;
+import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
 import pl.librus.client.api.Grade;
+import pl.librus.client.api.GradeCategory;
+import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Subject;
+import pl.librus.client.api.Teacher;
 import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
@@ -27,13 +37,9 @@ import pl.librus.client.ui.MainFragment;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GradesFragment extends Fragment implements MainFragment {
+public class GradesFragment extends Fragment implements MainFragment, FlexibleAdapter.OnItemClickListener {
 
-
-    private static final String ARG_DATA = "GradesFragment:data";
-
-    private RecyclerView recyclerView;
-    private GradeAdapter adapter;
+    private FlexibleAdapter<AbstractFlexibleItem> adapter;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -51,12 +57,13 @@ public class GradesFragment extends Fragment implements MainFragment {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
         //Setup RecyclerView
-        recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
+        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new GradeAdapter(null);
+        adapter = new FlexibleAdapter<>(null, this);
         adapter.setAutoCollapseOnExpand(true)
                 .setAutoScrollOnExpand(true);
+
         recyclerView.setAdapter(adapter);
         //Load all necessary data from cache
         LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
@@ -148,5 +155,61 @@ public class GradesFragment extends Fragment implements MainFragment {
     @Override
     public void refresh(LibrusData cache) {
 
+    }
+
+    @Override
+    public boolean onItemClick(int position) {
+        AbstractFlexibleItem item = adapter.getItem(position);
+        if (item instanceof GradeItem) {
+            GradeItem gradeItem = (GradeItem) item;
+            Grade grade = gradeItem.getGrade();
+            GradeCategory gc = gradeItem.getGradeCategory();
+            GradeHeaderItem header = gradeItem.getHeader();
+
+            @SuppressLint("InflateParams") View dialogLayout = LayoutInflater.from(getContext()).inflate(R.layout.grade_details, null, false);
+            TextView gradeTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_grade);
+            TextView categoryTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_category);
+            TextView subjectTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_subject);
+            TextView dateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_date);
+            TextView addDateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_addDate);
+            TextView addedByTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_addedBy);
+            TextView weightTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_weight);
+
+            View commentContainer = dialogLayout.findViewById(R.id.grade_details_comment_container);
+            View weightContainer = dialogLayout.findViewById(R.id.grade_details_weight_container);
+
+            gradeTextView.setText(grade.getGrade());
+            categoryTextView.setText(gc.getName());
+            subjectTextView.setText(header.getSubject().getName());
+            dateTextView.setText(grade.getDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
+            addDateTextView.setText(grade.getAddDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
+            weightTextView.setText(String.valueOf(gc.getWeight()));
+
+            Grade.Type type = grade.getType();
+            weightContainer.setVisibility(type == Grade.Type.NORMAL ? View.VISIBLE : View.GONE);
+            LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
+
+            Teacher addedBy = dbHelper.getTeacher(grade.getAddedById());
+            addedByTextView.setText(addedBy.getName());
+            //If comment != null, retrieve it from the database by its id.
+            if (grade.getCommentId() != null) {
+                commentContainer.setVisibility(View.VISIBLE);
+                GradeComment comment = dbHelper.getGradeComment(grade.getCommentId());
+                TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
+                commentTextView.setText(comment.getText());
+            } else {
+                commentContainer.setVisibility(View.GONE);
+            }
+            new MaterialDialog.Builder(getContext())
+                    .title(header.getSubject().getName())
+                    .customView(dialogLayout, true)
+                    .positiveText("Zamknij")
+                    .show();
+        } else //noinspection StatementWithEmptyBody
+            if (item instanceof AverageItem) {
+                //TODO
+            }
+
+        return false;
     }
 }

@@ -1,5 +1,7 @@
 package pl.librus.client.api;
 
+import android.support.annotation.NonNull;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -51,7 +53,7 @@ public class Grade extends GradeEntry<Grade> implements Serializable {
         return grade;
     }
 
-    public String getLessonId() {
+    String getLessonId() {
         return lessonId;
     }
 
@@ -67,7 +69,7 @@ public class Grade extends GradeEntry<Grade> implements Serializable {
         return addedById;
     }
 
-    public int getSemester() {
+    int getSemester() {
         return semester;
     }
 
@@ -104,23 +106,9 @@ public class Grade extends GradeEntry<Grade> implements Serializable {
     }
 
     @Override
-    public int compareTo(Grade o) {
+    public int compareTo(@NonNull Grade o) {
         return date.compareTo(o.getDate());
     }
-
-    //    @Override
-//    public Change getChanges(Grade newGrade) {
-//        if (!Objects.equals(grade, newGrade.getGrade())) {
-//            //Grade value changed
-//            return new Change(Change.Action.CHANGE, Change.ObjectType.GRADE_VALUE);
-//        } else if (commentId == null && newGrade.getCommentId() != null) {
-//            //Comment added
-//            return new Change(Change.Action.ADD, Change.ObjectType.GRADE_COMMENT);
-//        } else {
-//            //Nothing important changed
-//            return null;
-//        }
-//    }
 
     public enum Type {
         NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL

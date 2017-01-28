@@ -36,4 +36,24 @@
     <string name="canceled">odwołane</string>
     <string name="isSubstitutionClass">zastępstwo</string>
     <string name="substitution">zastępstwo</string>
+    <string name="grade_final">Roczna</string>
+    <string name="grade_final_proposition">Proponowana roczna</string>
+    <string name="grade_semester">Śródroczna</string>
+    <string name="grade_semester_proposition">Proponowana śródroczna</string>
+    <string name="date_format_no_year">EEEE, d MMMM</string>
+    <string name="type">Typ</string>
+    <string name="grade">Ocena</string>
+    <string name="placeholder_grade">5</string>
+    <string name="weight">Waga</string>
+    <string name="placeholder_weight">7</string>
+    <string name="category">Kategoria</string>
+    <string name="placeholder_category">sprawdzian</string>
+    <string name="subject">Przedmiot</string>
+    <string name="filozofia">filozofia</string>
+    <string name="placeholder_comment">Naprawdę WOW!</string>
+    <string name="date">Data</string>
+    <string name="add_date">Data dodania</string>
+    <string name="placeholder_datetime">19:21, czwartek, 13 września 2001</string>
+    <string name="added_by">Dodana przez</string>
+    <string name="placeholder_added_by">Ktośtam Jakiśtam</string>
 </resources>

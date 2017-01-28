@@ -14,13 +14,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ocena"/>
+            android:text="@string/grade" />
+
         <TextView
             android:id="@+id/grade_details_grade"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="5"
-            android:textStyle="bold"/>
+            android:text="@string/placeholder_grade"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -33,13 +34,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Waga"/>
+            android:text="@string/weight" />
+
         <TextView
             android:id="@+id/grade_details_weight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="7"
-            android:textStyle="bold"/>
+            android:text="@string/placeholder_weight"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -52,14 +54,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Kategoria"/>
+            android:text="@string/category" />
 
         <TextView
             android:id="@+id/grade_details_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="sprawdzian"
-            android:textStyle="bold"/>
+            android:text="@string/placeholder_category"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -72,13 +74,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Przedmiot"/>
+            android:text="@string/subject" />
+
         <TextView
             android:id="@+id/grade_details_subject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="filozofia"
-            android:textStyle="bold"/>
+            android:text="@string/filozofia"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
@@ -92,13 +95,13 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Komentarz" />
+            android:text="@string/comment" />
 
         <TextView
             android:id="@+id/grade_details_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Naprawdę WOW!"
+            android:text="@string/placeholder_comment"
             android:textStyle="normal|bold" />
     </LinearLayout>
 
@@ -118,13 +121,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Data"/>
+            android:text="@string/date" />
+
         <TextView
             android:id="@+id/grade_details_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="wtorek, 11 września 2001"
-            android:textStyle="bold"/>
+            android:text="@string/placeholder_date"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -136,13 +140,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Data dodania"/>
+            android:text="@string/add_date" />
+
         <TextView
             android:id="@+id/grade_details_addDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="19:21, czwartek, 13 września 2001"
-            android:textStyle="bold"/>
+            android:text="@string/placeholder_datetime"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -154,12 +159,13 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dodana przez"/>
+            android:text="@string/added_by" />
+
         <TextView
             android:id="@+id/grade_details_addedBy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ktośtam Jakiśtam"
-            android:textStyle="bold"/>
+            android:text="@string/placeholder_added_by"
+            android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

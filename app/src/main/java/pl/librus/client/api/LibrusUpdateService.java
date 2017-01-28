@@ -166,6 +166,21 @@ public class LibrusUpdateService {
                 updateProgress();
             }
         }));
+        tasks.add(client.getComments().done(new DoneCallback<List<GradeComment>>() {
+            @Override
+            public void onDone(List<GradeComment> result) {
+                db.delete(LibrusDbContract.GradeComments.TABLE_NAME, null, null);
+                for (GradeComment gc : result) {
+                    ContentValues values = new ContentValues();
+                    values.put(LibrusDbContract.GradeComments.COLUMN_NAME_ID, gc.getId());
+                    values.put(LibrusDbContract.GradeComments.COLUMN_NAME_ADDED_BY_ID, gc.getAddedById());
+                    values.put(LibrusDbContract.GradeComments.COLUMN_NAME_GRADE_ID, gc.getGradeId());
+                    values.put(LibrusDbContract.GradeComments.COLUMN_NAME_TEXT, gc.getText());
+                    db.insert(LibrusDbContract.GradeComments.TABLE_NAME, null, values);
+                }
+                updateProgress();
+            }
+        }));
         new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {

@@ -12,7 +12,7 @@ public class GradeComment implements Serializable {
 
     private String id, addedById, gradeId, text;
 
-    GradeComment(String id, String addedById, String gradeId, String text) {
+    public GradeComment(String id, String addedById, String gradeId, String text) {
         this.id = id;
         this.addedById = addedById;
         this.gradeId = gradeId;
@@ -23,11 +23,11 @@ public class GradeComment implements Serializable {
         return id;
     }
 
-    public String getAddedById() {
+    String getAddedById() {
         return addedById;
     }
 
-    public String getGradeId() {
+    String getGradeId() {
         return gradeId;
     }
 

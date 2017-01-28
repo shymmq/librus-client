@@ -15,16 +15,13 @@ import pl.librus.client.R;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
 
-/**
- * Created by szyme on 01.01.2017.
- */
-
 class GradeItem extends GradeEntryItem<GradeItem.ViewHolder, GradeHeaderItem> {
     private final Grade grade;
     private final GradeCategory gc;
 
     GradeItem(GradeHeaderItem header, Grade grade, GradeCategory gc) {
         super(header, 1, grade);
+        this.header = header;
         this.grade = grade;
         this.gc = gc;
     }
@@ -61,6 +58,14 @@ class GradeItem extends GradeEntryItem<GradeItem.ViewHolder, GradeHeaderItem> {
     @Override
     public int getLayoutRes() {
         return R.layout.grade_item;
+    }
+
+    public Grade getGrade() {
+        return grade;
+    }
+
+    GradeCategory getGradeCategory() {
+        return gc;
     }
 
 

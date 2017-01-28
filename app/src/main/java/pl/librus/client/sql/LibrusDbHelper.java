@@ -13,8 +13,11 @@ import java.util.List;
 
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
+import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.api.Teacher;
 import pl.librus.client.sql.LibrusDbContract.GradeCategories;
+import pl.librus.client.sql.LibrusDbContract.GradeComments;
 import pl.librus.client.sql.LibrusDbContract.LuckyNumbers;
 
 import static pl.librus.client.sql.LibrusDbContract.Account;
@@ -24,10 +27,6 @@ import static pl.librus.client.sql.LibrusDbContract.Grades;
 import static pl.librus.client.sql.LibrusDbContract.Lessons;
 import static pl.librus.client.sql.LibrusDbContract.Subjects;
 import static pl.librus.client.sql.LibrusDbContract.Teachers;
-
-/**
- * Created by szyme on 27.01.2017.
- */
 
 public class LibrusDbHelper extends SQLiteOpenHelper {
     public LibrusDbHelper(Context context) {
@@ -44,6 +43,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(Grades.CREATE_TABLE);
         db.execSQL(GradeCategories.CREATE_TABLE);
         db.execSQL(LuckyNumbers.CREATE_TABLE);
+        db.execSQL(GradeComments.CREATE_TABLE);
     }
 
     // Method is called during an upgrade of the database
@@ -56,7 +56,33 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(Grades.DELETE_TABLE);
         db.execSQL(GradeCategories.DELETE_TABLE);
         db.execSQL(LuckyNumbers.DELETE_TABLE);
+        db.execSQL(GradeComments.DELETE_TABLE);
         onCreate(db);
+    }
+
+    public GradeComment getGradeComment(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                GradeComments.TABLE_NAME,
+                null,
+                GradeComments.COLUMN_NAME_ID + " = ?",
+                new String[]{id},
+                null, null, null);
+        if (cursor.getCount() == 0) {
+            throw new UnsupportedOperationException("No grade comment with id " + id);
+        } else if (cursor.getCount() > 1) {
+            throw new UnsupportedOperationException(cursor.getCount() + " grade comments with same id " + id);
+        } else {
+            cursor.moveToFirst();
+            GradeComment gc = new GradeComment(
+                    cursor.getString(cursor.getColumnIndexOrThrow(GradeComments.COLUMN_NAME_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(GradeComments.COLUMN_NAME_ADDED_BY_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(GradeComments.COLUMN_NAME_GRADE_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(GradeComments.COLUMN_NAME_TEXT))
+            );
+            cursor.close();
+            return gc;
+        }
     }
 
     public List<Grade> getGrades() {
@@ -91,16 +117,19 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
                 new String[]{id},
                 null, null, null);
         if (cursor.getCount() == 0) {
-            throw new UnsupportedOperationException("No category with id " + id);
+            throw new UnsupportedOperationException("No grade category with id " + id);
+        } else if (cursor.getCount() > 1) {
+            throw new UnsupportedOperationException(cursor.getCount() + " grade categories with same id " + id);
+        } else {
+            cursor.moveToFirst();
+            GradeCategory category = new GradeCategory(
+                    cursor.getString(cursor.getColumnIndex(GradeCategories.COLUMN_NAME_ID)),
+                    cursor.getString(cursor.getColumnIndex(GradeCategories.COLUMN_NAME_NAME)),
+                    cursor.getInt(cursor.getColumnIndex(GradeCategories.COLUMN_NAME_WEIGHT))
+            );
+            cursor.close();
+            return category;
         }
-        cursor.moveToFirst();
-        GradeCategory category = new GradeCategory(
-                cursor.getString(cursor.getColumnIndex(GradeCategories.COLUMN_NAME_ID)),
-                cursor.getString(cursor.getColumnIndex(GradeCategories.COLUMN_NAME_NAME)),
-                cursor.getInt(cursor.getColumnIndex(GradeCategories.COLUMN_NAME_WEIGHT))
-        );
-        cursor.close();
-        return category;
     }
 
     public LuckyNumber getLastLuckyNumber() {
@@ -112,13 +141,41 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
                 null,
                 null,
                 LuckyNumbers.COLUMN_NAME_DATE);
-        if (cursor.getCount() == 0) return new LuckyNumber(0, LocalDate.now());
-        cursor.moveToFirst();
-        LuckyNumber luckyNumber = new LuckyNumber(
-                cursor.getInt(cursor.getColumnIndexOrThrow(LuckyNumbers.COLUMN_NAME_LUCKY_NUMBER)),
-                new LocalDate(cursor.getLong(cursor.getColumnIndexOrThrow(LuckyNumbers.COLUMN_NAME_DATE)))
-        );
-        cursor.close();
-        return luckyNumber;
+        if (cursor.getCount() == 0) {
+            throw new UnsupportedOperationException("No lucky numbers");
+        } else {
+            cursor.moveToFirst();
+            LuckyNumber luckyNumber = new LuckyNumber(
+                    cursor.getInt(cursor.getColumnIndexOrThrow(LuckyNumbers.COLUMN_NAME_LUCKY_NUMBER)),
+                    new LocalDate(cursor.getLong(cursor.getColumnIndexOrThrow(LuckyNumbers.COLUMN_NAME_DATE)))
+            );
+            cursor.close();
+            return luckyNumber;
+        }
+
+    }
+
+    public Teacher getTeacher(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                Teachers.TABLE_NAME,
+                null,
+                Teachers.COLUMN_NAME_ID + " = ?",
+                new String[]{id},
+                null, null, null);
+        if (cursor.getCount() == 0) {
+            throw new UnsupportedOperationException("No teacher with id " + id);
+        } else if (cursor.getCount() > 1) {
+            throw new UnsupportedOperationException(cursor.getCount() + " teachers with same id " + id);
+        } else {
+            cursor.moveToFirst();
+            Teacher teacher = new Teacher(
+                    cursor.getString(cursor.getColumnIndexOrThrow(Teachers.COLUMN_NAME_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(Teachers.COLUMN_NAME_FIRST_NAME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(Teachers.COLUMN_NAME_LAST_NAME))
+            );
+            cursor.close();
+            return teacher;
+        }
     }
 }
