@@ -22,6 +22,7 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -32,6 +33,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusUpdateService;
 import pl.librus.client.grades.GradesFragment;
@@ -47,9 +49,13 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     public static final int LUCKY_NUMBER_ID = 666;
     private static final int SETTINGS_ID = 0;
     private final String TAG = "librus-client-log";
+
     TimetableFragment timetableFragment = TimetableFragment.newInstance();
     GradesFragment gradesFragment = GradesFragment.newInstance();
+
     SQLiteDatabase db;
+    private LibrusDbHelper dbHelper;
+
     private ActionMenuView amv;
     private Drawer drawer;
     private Toolbar toolbar;
@@ -71,14 +77,52 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             startActivity(i);
             finish();
         } else {
-            setup(savedInstanceState);
+            LibrusUpdateService updateService = new LibrusUpdateService(getApplicationContext());
+
+            if (prefs.getLong(getString(R.string.last_update), -1) < 0) {
+                //database empty or null update and then setup()
+
+                final MaterialDialog dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .title("Pobieranie danych")
+                        .content("")
+                        .progress(false, 100)
+                        .show();
+
+                updateService.addOnProgressListener(new LibrusUpdateService.OnProgressListener() {
+                    @Override
+                    public void onProgress(final int progress) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                LibrusUtils.log("Progress: " + progress + "%");
+                                dialog.setProgress(progress);
+                            }
+                        });
+                    }
+                });
+                updateService.addOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
+                    @Override
+                    public void onUpdateComplete() {
+                        dialog.dismiss();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                setup(savedInstanceState);
+                            }
+                        });
+                    }
+                });
+                updateService.updateAll();
+            } else {
+                setup(savedInstanceState);
+            }
         }
     }
 
     private void setup(Bundle savedInstanceState) {
         //LibrusAccount account = librusData.getAccount();
         //luckyNumber = librusData.getLuckyNumber();
-        LibrusDbHelper dbHelper = new LibrusDbHelper(this);
+        dbHelper = new LibrusDbHelper(this);
         db = dbHelper.getReadableDatabase();
         updateService = new LibrusUpdateService(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);

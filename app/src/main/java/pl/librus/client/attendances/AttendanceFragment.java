@@ -9,8 +9,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.joda.time.LocalDate;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import eu.davidea.flexibleadapter.FlexibleAdapter;
+import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
+import pl.librus.client.api.Attendance;
 import pl.librus.client.api.LibrusData;
+import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
 /**
@@ -18,38 +29,44 @@ import pl.librus.client.ui.MainFragment;
  */
 public class AttendanceFragment extends Fragment implements MainFragment {
 
-
-    private static final String ARG_DATA = "AttendanceFragment:data";
-
     public AttendanceFragment() {
         // Required empty public constructor
     }
 
-    public static AttendanceFragment newInstance(LibrusData data) {
-        AttendanceFragment fragment = new AttendanceFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_DATA, data);
-        fragment.setArguments(args);
-        return fragment;
+    public static AttendanceFragment newInstance() {
+        return new AttendanceFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Get data from arguments
-        LibrusData data = (LibrusData) getArguments().getSerializable(ARG_DATA);
-        assert data != null;
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_attendance, container, false);
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
-        AttendanceAdapter adapter = AttendanceAdapter.fromLibrusData(data);
-        recyclerView.setAdapter(adapter);
+
+        FlexibleAdapter<AbstractFlexibleItem> adapter = new FlexibleAdapter<>(null);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.getItemAnimator().setAddDuration(150);
-        recyclerView.getItemAnimator().setRemoveDuration(150);
-        recyclerView.getItemAnimator().setMoveDuration(150);
-        recyclerView.getItemAnimator().setChangeDuration(150);
+        recyclerView.setAdapter(adapter);
+
+        LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
+        List<Attendance> attendances = dbHelper.getAttendances();
+        Collections.sort(attendances);
+        Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
+        for (Attendance attendance : attendances) {
+            LocalDate date = attendance.getDate();
+            if (headerItemMap.get(date) == null) {
+                headerItemMap.put(date, new AttendanceHeaderItem(date));
+            }
+            headerItemMap.get(date)
+                    .addSubItem(new AttendanceItem(
+                            headerItemMap.get(date),
+                            attendance));
+        }
+        for (Map.Entry<LocalDate, AttendanceHeaderItem> entry : headerItemMap.entrySet()) {
+            AttendanceHeaderItem headerItem = entry.getValue();
+            adapter.addSection(headerItem);
+        }
         return root;
     }
 

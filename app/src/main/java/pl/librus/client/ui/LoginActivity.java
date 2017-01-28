@@ -2,7 +2,6 @@ package pl.librus.client.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,10 +18,8 @@ import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDoneCallback;
 import org.jdeferred.android.AndroidExecutionScope;
 
-import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.APIClient;
-import pl.librus.client.api.LibrusUpdateService;
 import pl.librus.client.api.RegistrationIntentService;
 
 public class LoginActivity extends AppCompatActivity {
@@ -54,47 +51,11 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onDone(String result) {
-                        final MaterialDialog.Builder builder = new MaterialDialog.Builder(LoginActivity.this)
-                                .title("Pobieranie danych")
-                                .content("")
-                                .progress(false, 100);
-                        LibrusUtils.log(Looper.myLooper() == Looper.getMainLooper() ? "UI thread" : "Non-UI thread");
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog = builder.show();
-                            }
-                        });
-                        LibrusUpdateService updateService = new LibrusUpdateService(getApplicationContext());
-                        updateService.updateAll();
-                        updateService.addOnProgressListener(new LibrusUpdateService.OnProgressListener() {
-                            @Override
-                            public void onProgress(final int progress) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        LibrusUtils.log("Progress: " + progress + "%");
-                                        dialog.setProgress(progress);
-                                    }
-                                });
-                            }
-                        });
-                        updateService.addOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
-                            @Override
-                            public void onUpdateComplete() {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        dialog.dismiss();
-                                        Intent intent1 = new Intent(LoginActivity.this, MainActivity.class);
-                                        Intent intent2 = new Intent(getApplicationContext(), RegistrationIntentService.class);
-                                        startService(intent2);
-                                        startActivity(intent1);
-                                        finish();
-                                    }
-                                });
-                            }
-                        });
+                        Intent intent1 = new Intent(LoginActivity.this, MainActivity.class);
+                        Intent intent2 = new Intent(getApplicationContext(), RegistrationIntentService.class);
+                        startService(intent2);
+                        startActivity(intent1);
+                        finish();
                     }
                 }).fail(new FailCallback<Integer>() {
                     @Override

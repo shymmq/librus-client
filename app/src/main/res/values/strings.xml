@@ -56,4 +56,5 @@
     <string name="placeholder_datetime">19:21, czwartek, 13 września 2001</string>
     <string name="added_by">Dodana przez</string>
     <string name="placeholder_added_by">Ktośtam Jakiśtam</string>
+    <string name="last_update">last_update</string>
 </resources>

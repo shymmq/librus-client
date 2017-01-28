@@ -2,7 +2,9 @@ package pl.librus.client.api;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbContract.Account;
 import pl.librus.client.sql.LibrusDbContract.AttendanceCategories;
@@ -53,9 +56,11 @@ public class LibrusUpdateService {
         tasks.clear();
         loading = true;
         progress = 0;
+        final long startTime = System.currentTimeMillis();
         tasks.add(client.getSchoolWeek(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)).done(new DoneCallback<SchoolWeek>() {
             @Override
             public void onDone(SchoolWeek result) {
+                db.beginTransaction();
                 db.delete(Lessons.TABLE_NAME, null, null);
                 for (SchoolDay schoolDay : result.getSchoolDays()) {
                     LocalDate date = schoolDay.getDate();
@@ -78,12 +83,15 @@ public class LibrusUpdateService {
                         db.insert(Lessons.TABLE_NAME, null, values);
                     }
                 }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
             @Override
             public void onDone(LibrusAccount result) {
+                db.beginTransaction();
                 db.delete(Account.TABLE_NAME, null, null);
                 ContentValues values = new ContentValues();
                 values.put(Account.COLUMN_NAME_ID, result.getId());
@@ -93,12 +101,15 @@ public class LibrusUpdateService {
                 values.put(Account.COLUMN_NAME_USERNAME, result.getLogin());
                 values.put(Account.COLUMN_NAME_EMAIL, result.getEmail());
                 db.insert(Account.TABLE_NAME, null, values);
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getTeachers().done(new DoneCallback<ArrayList<Teacher>>() {
             @Override
             public void onDone(ArrayList<Teacher> result) {
+                db.beginTransaction();
                 db.delete(Teachers.TABLE_NAME, null, null);
                 for (Teacher t : result) {
                     ContentValues values = new ContentValues();
@@ -107,12 +118,15 @@ public class LibrusUpdateService {
                     values.put(Teachers.COLUMN_NAME_LAST_NAME, t.getLastName());
                     db.insert(Teachers.TABLE_NAME, null, values);
                 }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getSubjects().done(new DoneCallback<ArrayList<Subject>>() {
             @Override
             public void onDone(ArrayList<Subject> result) {
+                db.beginTransaction();
                 db.delete(Subjects.TABLE_NAME, null, null);
                 for (Subject s : result) {
                     ContentValues values = new ContentValues();
@@ -120,12 +134,15 @@ public class LibrusUpdateService {
                     values.put(Subjects.COLUMN_NAME_NAME, s.getName());
                     db.insert(Subjects.TABLE_NAME, null, values);
                 }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
             @Override
             public void onDone(List<Grade> result) {
+                db.beginTransaction();
                 db.delete(Grades.TABLE_NAME, null, null);
                 for (Grade g : result) {
                     ContentValues values = new ContentValues();
@@ -142,12 +159,15 @@ public class LibrusUpdateService {
                     values.put(Grades.COLUMN_NAME_TYPE, g.getType().ordinal());
                     db.insert(Grades.TABLE_NAME, null, values);
                 }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getGradeCategories().done(new DoneCallback<ArrayList<GradeCategory>>() {
             @Override
             public void onDone(ArrayList<GradeCategory> result) {
+                db.beginTransaction();
                 db.delete(LibrusDbContract.GradeCategories.TABLE_NAME, null, null);
                 for (GradeCategory gc : result) {
                     ContentValues values = new ContentValues();
@@ -156,22 +176,28 @@ public class LibrusUpdateService {
                     values.put(LibrusDbContract.GradeCategories.COLUMN_NAME_WEIGHT, gc.getWeight());
                     db.insert(LibrusDbContract.GradeCategories.TABLE_NAME, null, values);
                 }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
             @Override
             public void onDone(LuckyNumber result) {
+                db.beginTransaction();
                 ContentValues values = new ContentValues();
                 values.put(LibrusDbContract.LuckyNumbers.COLUMN_NAME_DATE, result.getLuckyNumberDay().toDateTimeAtStartOfDay().getMillis());
                 values.put(LibrusDbContract.LuckyNumbers.COLUMN_NAME_LUCKY_NUMBER, result.getLuckyNumber());
                 db.insert(LibrusDbContract.LuckyNumbers.TABLE_NAME, null, values);
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getComments().done(new DoneCallback<List<GradeComment>>() {
             @Override
             public void onDone(List<GradeComment> result) {
+                db.beginTransaction();
                 db.delete(GradeComments.TABLE_NAME, null, null);
                 for (GradeComment gc : result) {
                     ContentValues values = new ContentValues();
@@ -181,12 +207,15 @@ public class LibrusUpdateService {
                     values.put(GradeComments.COLUMN_NAME_TEXT, gc.getText());
                     db.insert(GradeComments.TABLE_NAME, null, values);
                 }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getAttendances().done(new DoneCallback<List<Attendance>>() {
             @Override
             public void onDone(List<Attendance> result) {
+                db.beginTransaction();
                 db.delete(Attendances.TABLE_NAME, null, null);
                 for (Attendance a : result) {
                     ContentValues values = new ContentValues();
@@ -200,12 +229,15 @@ public class LibrusUpdateService {
                     values.put(Attendances.COLUMN_NAME_TYPE_ID, a.getTypeId());
                     db.insert(Attendances.TABLE_NAME, null, values);
                 }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
         tasks.add(client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
             @Override
             public void onDone(List<AttendanceCategory> result) {
+                db.beginTransaction();
                 db.delete(AttendanceCategories.TABLE_NAME, null, null);
                 for (AttendanceCategory ac : result) {
                     ContentValues values = new ContentValues();
@@ -218,6 +250,8 @@ public class LibrusUpdateService {
                     values.put(AttendanceCategories.COLUMN_NAME_ORDER, ac.getOrder());
                     db.insert(AttendanceCategories.TABLE_NAME, null, values);
                 }
+                db.setTransactionSuccessful();
+                db.endTransaction();
                 updateProgress();
             }
         }));
@@ -225,6 +259,12 @@ public class LibrusUpdateService {
             @Override
             public void onDone(MultipleResults result) {
                 loading = false;
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences.Editor editor = preferences.edit();
+                long currentTimeMillis = System.currentTimeMillis();
+                LibrusUtils.log("Update completed in " + (currentTimeMillis - startTime) + " ms");
+                editor.putLong("last_update", currentTimeMillis);
+                editor.apply();
                 for (OnUpdateCompleteListener listener : onUpdateCompleteListeners) {
                     listener.onUpdateComplete();
                 }

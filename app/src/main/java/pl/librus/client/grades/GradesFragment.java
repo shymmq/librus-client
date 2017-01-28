@@ -30,7 +30,7 @@ import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
-import pl.librus.client.sql.LibrusDbContract;
+import pl.librus.client.sql.LibrusDbContract.Subjects;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
@@ -73,11 +73,11 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
 
 
         //Load subjects and make a header for each subject
-        Cursor subjectCursor = db.query(LibrusDbContract.Subjects.TABLE_NAME, null, null, null, null, null, null);
+        Cursor subjectCursor = db.query(Subjects.TABLE_NAME, null, null, null, null, null, null);
         while (subjectCursor.moveToNext()) {
             Subject s = new Subject(
-                    subjectCursor.getString(subjectCursor.getColumnIndexOrThrow(LibrusDbContract.Subjects.COLUMN_NAME_ID)),
-                    subjectCursor.getString(subjectCursor.getColumnIndexOrThrow(LibrusDbContract.Subjects.COLUMN_NAME_NAME))
+                    subjectCursor.getString(subjectCursor.getColumnIndexOrThrow(Subjects.COLUMN_NAME_ID)),
+                    subjectCursor.getString(subjectCursor.getColumnIndexOrThrow(Subjects.COLUMN_NAME_NAME))
             );
             headers.put(s.getId(), new GradeHeaderItem(s));
         }

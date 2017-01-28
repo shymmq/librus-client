@@ -12,7 +12,7 @@ public class AttendanceCategory implements Serializable {
     private boolean isStandard, isPresenceKind;
     private int order;
 
-    AttendanceCategory(String id, String name, String shortName, Boolean isStandard, String colorRGB, boolean isPresenceKind, int order) {
+    public AttendanceCategory(String id, String name, String shortName, Boolean isStandard, String colorRGB, boolean isPresenceKind, int order) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;

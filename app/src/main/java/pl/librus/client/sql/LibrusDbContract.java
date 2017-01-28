@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 
 public class LibrusDbContract {
 
-    static final int DB_VERSION = 8;
+    static final int DB_VERSION = 9;
     static final String DB_NAME = "database.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -229,18 +229,14 @@ public class LibrusDbContract {
 
     public static abstract class AttendanceCategories implements BaseColumns {
         public static final String TABLE_NAME = "attendance_categories";
-        /*
-            private String id, name, shortName, colorRGB;
-            private boolean isStandard, isPresenceKind;
-            private int order;
-         */
+
         public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_NAME = "name";
         public static final String COLUMN_NAME_SHORT_NAME = "short_name";
         public static final String COLUMN_NAME_COLOR = "color";
         public static final String COLUMN_NAME_STANDARD = "standard";
         public static final String COLUMN_NAME_PRESENCE = "presence";
-        public static final String COLUMN_NAME_ORDER = "order";
+        public static final String COLUMN_NAME_ORDER = "priority";
 
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +

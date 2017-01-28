@@ -1,9 +1,11 @@
 package pl.librus.client.sql;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -11,6 +13,9 @@ import org.joda.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.librus.client.R;
+import pl.librus.client.api.Attendance;
+import pl.librus.client.api.AttendanceCategory;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.GradeComment;
@@ -31,8 +36,11 @@ import static pl.librus.client.sql.LibrusDbContract.Subjects;
 import static pl.librus.client.sql.LibrusDbContract.Teachers;
 
 public class LibrusDbHelper extends SQLiteOpenHelper {
+    private final Context context;
+
     public LibrusDbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        this.context = context;
     }
 
     // Method is called during creation of the database
@@ -48,6 +56,10 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(GradeComments.CREATE_TABLE);
         db.execSQL(Attendances.CREATE_TABLE);
         db.execSQL(AttendanceCategories.CREATE_TABLE);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putLong(context.getString(R.string.last_update), -1L);   //reset last update to indicate that database is empty
+        editor.apply();
     }
 
     // Method is called during an upgrade of the database
@@ -115,9 +127,87 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         return grades;
     }
 
+    public List<Attendance> getAttendances() {
+        List<Attendance> attendances = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor attendanceCursor = db.rawQuery("SELECT * FROM " + Attendances.TABLE_NAME, null);
+        while (attendanceCursor.moveToNext()) {
+            Attendance a = new Attendance(
+                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ID)),
+                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_LESSON_ID)),
+                    new LocalDate(attendanceCursor.getLong(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_DATE))),
+                    new LocalDateTime(attendanceCursor.getLong(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ADD_DATE))),
+                    attendanceCursor.getInt(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_LESSON_NUMBER)),
+                    attendanceCursor.getInt(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_SEMESTER)),
+                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_TYPE_ID)),
+                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ADDED_BY_ID))
+            );
+            attendances.add(a);
+        }
+        attendanceCursor.close();
+        return attendances;
+    }
+
+    public List<Attendance> getAttendancesForDay(LocalDate date) {
+        List<Attendance> attendances = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
+        Cursor attendanceCursor = db.query(
+                AttendanceCategories.TABLE_NAME,
+                null,
+                Attendances.COLUMN_NAME_DATE + " = ?",
+                new String[]{String.valueOf(dateMillis)},
+                null, null, null
+        );
+        while (attendanceCursor.moveToNext()) {
+            Attendance a = new Attendance(
+                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ID)),
+                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_LESSON_ID)),
+                    new LocalDate(attendanceCursor.getLong(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_DATE))),
+                    new LocalDateTime(attendanceCursor.getLong(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ADD_DATE))),
+                    attendanceCursor.getInt(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_LESSON_NUMBER)),
+                    attendanceCursor.getInt(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_SEMESTER)),
+                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_TYPE_ID)),
+                    attendanceCursor.getString(attendanceCursor.getColumnIndexOrThrow(Attendances.COLUMN_NAME_ADDED_BY_ID))
+            );
+            attendances.add(a);
+        }
+        attendanceCursor.close();
+        return attendances;
+    }
+
+    public AttendanceCategory getAttendanceCategory(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                AttendanceCategories.TABLE_NAME,
+                null,
+                AttendanceCategories.COLUMN_NAME_ID + " = ?",
+                new String[]{id},
+                null, null, null);
+        if (cursor.getCount() == 0) {
+            throw new UnsupportedOperationException("No attendance category with id " + id);
+        } else if (cursor.getCount() > 1) {
+            throw new UnsupportedOperationException(cursor.getCount() + " attendance categories with same id " + id);
+        } else {
+            cursor.moveToFirst();
+            AttendanceCategory category = new AttendanceCategory(
+                    cursor.getString(cursor.getColumnIndexOrThrow(AttendanceCategories.COLUMN_NAME_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(AttendanceCategories.COLUMN_NAME_NAME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(AttendanceCategories.COLUMN_NAME_SHORT_NAME)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(AttendanceCategories.COLUMN_NAME_STANDARD)) > 0,
+                    cursor.getString(cursor.getColumnIndexOrThrow(AttendanceCategories.COLUMN_NAME_COLOR)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(AttendanceCategories.COLUMN_NAME_PRESENCE)) > 0,
+                    cursor.getInt(cursor.getColumnIndexOrThrow(AttendanceCategories.COLUMN_NAME_ORDER))
+            );
+            cursor.close();
+            return category;
+        }
+    }
+
     public GradeCategory getGradeCategory(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(GradeCategories.TABLE_NAME,
+        Cursor cursor = db.query(
+                GradeCategories.TABLE_NAME,
                 null,
                 GradeCategories.COLUMN_NAME_ID + " = ?",
                 new String[]{id},
