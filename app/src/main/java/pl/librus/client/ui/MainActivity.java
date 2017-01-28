@@ -77,6 +77,9 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             startActivity(i);
             finish();
         } else {
+            dbHelper = new LibrusDbHelper(this);
+            db = dbHelper.getReadableDatabase();
+
             LibrusUpdateService updateService = new LibrusUpdateService(getApplicationContext());
 
             if (prefs.getLong(getString(R.string.last_update), -1) < 0) {
