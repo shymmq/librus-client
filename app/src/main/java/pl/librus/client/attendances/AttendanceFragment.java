@@ -41,6 +41,8 @@ public class AttendanceFragment extends Fragment implements MainFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        FlexibleAdapter.enableLogs(true);
+
         View root = inflater.inflate(R.layout.fragment_attendance, container, false);
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);

@@ -50,6 +50,7 @@ public class LibrusUpdateService {
 
     public Promise<Void, Void, Void> updateAll() {
         final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
+        LibrusUtils.log("Starting update...");
         APIClient client = new APIClient(context);
         LibrusDbHelper dbHelper = new LibrusDbHelper(context);
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -60,6 +61,7 @@ public class LibrusUpdateService {
         tasks.add(client.getSchoolWeek(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)).done(new DoneCallback<SchoolWeek>() {
             @Override
             public void onDone(SchoolWeek result) {
+                LibrusUtils.log("Saving " + result.getWeekStart() + " school week to database");
                 db.beginTransaction();
                 db.delete(Lessons.TABLE_NAME, null, null);
                 for (SchoolDay schoolDay : result.getSchoolDays()) {
@@ -91,6 +93,7 @@ public class LibrusUpdateService {
         tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
             @Override
             public void onDone(LibrusAccount result) {
+                LibrusUtils.log("Saving account to database");
                 db.beginTransaction();
                 db.delete(Account.TABLE_NAME, null, null);
                 ContentValues values = new ContentValues();
@@ -109,6 +112,7 @@ public class LibrusUpdateService {
         tasks.add(client.getTeachers().done(new DoneCallback<ArrayList<Teacher>>() {
             @Override
             public void onDone(ArrayList<Teacher> result) {
+                LibrusUtils.log("Saving " + result.size() + " teachers to database");
                 db.beginTransaction();
                 db.delete(Teachers.TABLE_NAME, null, null);
                 for (Teacher t : result) {
@@ -126,6 +130,7 @@ public class LibrusUpdateService {
         tasks.add(client.getSubjects().done(new DoneCallback<ArrayList<Subject>>() {
             @Override
             public void onDone(ArrayList<Subject> result) {
+                LibrusUtils.log("Saving " + result.size() + " subjects to database");
                 db.beginTransaction();
                 db.delete(Subjects.TABLE_NAME, null, null);
                 for (Subject s : result) {
@@ -142,6 +147,7 @@ public class LibrusUpdateService {
         tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
             @Override
             public void onDone(List<Grade> result) {
+                LibrusUtils.log("Saving " + result.size() + " grades to database");
                 db.beginTransaction();
                 db.delete(Grades.TABLE_NAME, null, null);
                 for (Grade g : result) {
@@ -167,6 +173,7 @@ public class LibrusUpdateService {
         tasks.add(client.getGradeCategories().done(new DoneCallback<ArrayList<GradeCategory>>() {
             @Override
             public void onDone(ArrayList<GradeCategory> result) {
+                LibrusUtils.log("Saving " + result.size() + " grade categories to database");
                 db.beginTransaction();
                 db.delete(LibrusDbContract.GradeCategories.TABLE_NAME, null, null);
                 for (GradeCategory gc : result) {
@@ -184,6 +191,7 @@ public class LibrusUpdateService {
         tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
             @Override
             public void onDone(LuckyNumber result) {
+                LibrusUtils.log("Saving " + result.getLuckyNumber() + " lucky number to database");
                 db.beginTransaction();
                 ContentValues values = new ContentValues();
                 values.put(LibrusDbContract.LuckyNumbers.COLUMN_NAME_DATE, result.getLuckyNumberDay().toDateTimeAtStartOfDay().getMillis());
@@ -197,6 +205,7 @@ public class LibrusUpdateService {
         tasks.add(client.getComments().done(new DoneCallback<List<GradeComment>>() {
             @Override
             public void onDone(List<GradeComment> result) {
+                LibrusUtils.log("Saving " + result.size() + " grade comments to database");
                 db.beginTransaction();
                 db.delete(GradeComments.TABLE_NAME, null, null);
                 for (GradeComment gc : result) {
@@ -215,6 +224,7 @@ public class LibrusUpdateService {
         tasks.add(client.getAttendances().done(new DoneCallback<List<Attendance>>() {
             @Override
             public void onDone(List<Attendance> result) {
+                LibrusUtils.log("Saving " + result.size() + " attendances to database");
                 db.beginTransaction();
                 db.delete(Attendances.TABLE_NAME, null, null);
                 for (Attendance a : result) {
@@ -237,6 +247,7 @@ public class LibrusUpdateService {
         tasks.add(client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
             @Override
             public void onDone(List<AttendanceCategory> result) {
+                LibrusUtils.log("Saving " + result.size() + "attendance categories to database");
                 db.beginTransaction();
                 db.delete(AttendanceCategories.TABLE_NAME, null, null);
                 for (AttendanceCategory ac : result) {

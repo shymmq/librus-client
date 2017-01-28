@@ -213,7 +213,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
                 new String[]{id},
                 null, null, null);
         if (cursor.getCount() == 0) {
-            throw new UnsupportedOperationException("No grade category with id " + id);
+            return null;
         } else if (cursor.getCount() > 1) {
             throw new UnsupportedOperationException(cursor.getCount() + " grade categories with same id " + id);
         } else {
@@ -238,7 +238,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
                 null,
                 LuckyNumbers.COLUMN_NAME_DATE);
         if (cursor.getCount() == 0) {
-            throw new UnsupportedOperationException("No lucky numbers");
+            return null;
         } else {
             cursor.moveToFirst();
             LuckyNumber luckyNumber = new LuckyNumber(
@@ -260,7 +260,7 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
                 new String[]{id},
                 null, null, null);
         if (cursor.getCount() == 0) {
-            throw new UnsupportedOperationException("No teacher with id " + id);
+            return null;
         } else if (cursor.getCount() > 1) {
             throw new UnsupportedOperationException(cursor.getCount() + " teachers with same id " + id);
         } else {

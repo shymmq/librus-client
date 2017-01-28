@@ -1,21 +1,38 @@
 package pl.librus.client.attendances;
 
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+
+import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
+import pl.librus.client.R;
 import pl.librus.client.api.Attendance;
 
-/**
- * Created by szyme on 28.01.2017.
- */
-public class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, AttendanceHeaderItem> {
+class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, AttendanceHeaderItem> {
     private Attendance attendance;
 
-    public AttendanceItem(AttendanceHeaderItem header, Attendance attendance) {
+    AttendanceItem(AttendanceHeaderItem header, Attendance attendance) {
         super(header);
         this.attendance = attendance;
+    }
+
+    @Override
+    public int getLayoutRes() {
+        return R.layout.attendance_item;
+    }
+
+    @Override
+    public ViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater, ViewGroup parent) {
+        return new ViewHolder(inflater.inflate(getLayoutRes(), parent, false), adapter);
+    }
+
+    @Override
+    public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
+
     }
 
     @Override

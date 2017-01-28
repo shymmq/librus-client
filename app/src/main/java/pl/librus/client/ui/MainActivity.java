@@ -36,6 +36,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusUpdateService;
+import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbHelper;
@@ -46,12 +48,14 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     public static final int FRAGMENT_GRADES_ID = 2;
     public static final int FRAGMENT_ANNOUNCEMENTS_ID = 3;
     public static final int FRAGMENT_CALENDAR_ID = 4;
+    private static final int FRAGMENT_ATTENDANCES_ID = 5;
     public static final int LUCKY_NUMBER_ID = 666;
     private static final int SETTINGS_ID = 0;
     private final String TAG = "librus-client-log";
 
     TimetableFragment timetableFragment = TimetableFragment.newInstance();
     GradesFragment gradesFragment = GradesFragment.newInstance();
+    private AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
 
     SQLiteDatabase db;
     private LibrusDbHelper dbHelper;
@@ -131,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //Drawer setup
-        int luckyNumber = dbHelper.getLastLuckyNumber().getLuckyNumber();
+        LuckyNumber luckyNumber = dbHelper.getLastLuckyNumber();
         Cursor cursor = db.query(
                 LibrusDbContract.Account.TABLE_NAME,
                 new String[]{
@@ -170,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withIdentifier(LUCKY_NUMBER_ID)
-                .withName("Szczęśliwy numerek: " + luckyNumber)
+                .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.getLuckyNumber()))
                 .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
         AccountHeader header = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -331,6 +335,9 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                     break;
                 case FRAGMENT_GRADES_ID:
                     currentFragment = gradesFragment;
+                    break;
+                case FRAGMENT_ATTENDANCES_ID:
+                    currentFragment = attendanceFragment;
                     break;
                 default:
                     currentFragment = new PlaceholderFragment();

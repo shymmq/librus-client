@@ -32,6 +32,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import pl.librus.client.LibrusUtils;
 
 import static pl.librus.client.LibrusUtils.log;
 
@@ -770,12 +771,16 @@ public class APIClient {
                     JSONArray rawAttendanceCategories = result.getJSONArray("Types");
                     for (int i = 0; i < rawAttendanceCategories.length(); i++) {
                         JSONObject attendanceCategory = rawAttendanceCategories.getJSONObject(i);
+                        boolean hasColorRGB = attendanceCategory.has("ColorRGB");
+                        if (!hasColorRGB) {
+                            LibrusUtils.log("ColorRGB missing");
+                        }
                         res.add(new AttendanceCategory(
                                 String.valueOf(attendanceCategory.getInt("Id")),
                                 attendanceCategory.getString("Name"),
                                 attendanceCategory.getString("Short"),
                                 attendanceCategory.getBoolean("Standard"),
-                                attendanceCategory.getString("ColorRGB"),
+                                hasColorRGB ? attendanceCategory.getString("ColorRGB") : "",
                                 attendanceCategory.getBoolean("IsPresenceKind"),
                                 attendanceCategory.getInt("Order")));
                     }

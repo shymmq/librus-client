@@ -18,7 +18,6 @@
         android:id="@+id/attendance_item_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/attendance_item_shortType"
         android:layout_below="@+id/space"
         android:layout_toEndOf="@+id/attendance_item_shortType"
         android:gravity="center_vertical"
@@ -45,23 +44,9 @@
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/attendance_item_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@id/attendance_item_date"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:text=""
-        android:textColor="?android:attr/textColorSecondary"
-        android:textSize="12sp" />
-
-    <TextView
         android:id="@+id/attendance_item_lesson_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/space"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/attendance_item_lesson"
         android:layout_marginRight="16dp"
@@ -73,7 +58,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/space"
-        android:layout_alignTop="@+id/attendance_item_shortType"
         android:layout_toEndOf="@+id/attendance_item_shortType"
         android:layout_toStartOf="@id/attendance_item_lesson_number"
         android:ellipsize="end"

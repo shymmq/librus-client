@@ -57,4 +57,5 @@
     <string name="added_by">Dodana przez</string>
     <string name="placeholder_added_by">Ktośtam Jakiśtam</string>
     <string name="last_update">last_update</string>
+    <string name="lucky_number">"Szczęśliwy numerek: "</string>
 </resources>
