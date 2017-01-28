@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     TimetableFragment timetableFragment = TimetableFragment.newInstance();
     GradesFragment gradesFragment = GradesFragment.newInstance();
     SQLiteDatabase db;
-    private boolean firstLaunch = true;
     private ActionMenuView amv;
     private Drawer drawer;
     private Toolbar toolbar;
@@ -267,9 +266,9 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                     break;
             }
             //add callback to switch to the pending fragment when update completes
-            updateService.addListener(new LibrusUpdateService.OnUpdateCompleteListener() {
+            updateService.addOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
                 @Override
-                public void run() {
+                public void onUpdateComplete() {
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     if (pendingFragment != null)
                         transaction

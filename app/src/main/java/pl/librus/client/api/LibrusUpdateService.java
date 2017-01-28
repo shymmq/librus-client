@@ -26,13 +26,17 @@ import pl.librus.client.sql.LibrusDbContract.Teachers;
 import pl.librus.client.sql.LibrusDbHelper;
 
 /**
- * Created by szyme on 27.01.2017.
+ * This class allows to update all data asynchronously and save it to the database
  */
 
 public class LibrusUpdateService {
     private final Context context;
-    List<OnUpdateCompleteListener> listeners = new ArrayList<>();
+    private List<OnUpdateCompleteListener> onUpdateCompleteListeners = new ArrayList<>();
+    private List<OnProgressListener> onProgressListeners = new ArrayList<>();
     private boolean loading = false;
+    private int progress = 100;
+    private List<Promise> tasks = new ArrayList<>();
+
 
     public LibrusUpdateService(Context context) {
         this.context = context;
@@ -43,8 +47,9 @@ public class LibrusUpdateService {
         APIClient client = new APIClient(context);
         LibrusDbHelper dbHelper = new LibrusDbHelper(context);
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
-        List<Promise> tasks = new ArrayList<>();
+        tasks.clear();
         loading = true;
+        progress = 0;
         tasks.add(client.getSchoolWeek(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)).done(new DoneCallback<SchoolWeek>() {
             @Override
             public void onDone(SchoolWeek result) {
@@ -70,6 +75,7 @@ public class LibrusUpdateService {
                         db.insert(Lessons.TABLE_NAME, null, values);
                     }
                 }
+                updateProgress();
             }
         }));
         tasks.add(client.getAccount().done(new DoneCallback<LibrusAccount>() {
@@ -84,6 +90,7 @@ public class LibrusUpdateService {
                 values.put(Account.COLUMN_NAME_USERNAME, result.getLogin());
                 values.put(Account.COLUMN_NAME_EMAIL, result.getEmail());
                 db.insert(Account.TABLE_NAME, null, values);
+                updateProgress();
             }
         }));
         tasks.add(client.getTeachers().done(new DoneCallback<ArrayList<Teacher>>() {
@@ -97,6 +104,7 @@ public class LibrusUpdateService {
                     values.put(Teachers.COLUMN_NAME_LAST_NAME, t.getLastName());
                     db.insert(Teachers.TABLE_NAME, null, values);
                 }
+                updateProgress();
             }
         }));
         tasks.add(client.getSubjects().done(new DoneCallback<ArrayList<Subject>>() {
@@ -109,6 +117,7 @@ public class LibrusUpdateService {
                     values.put(Subjects.COLUMN_NAME_NAME, s.getName());
                     db.insert(Subjects.TABLE_NAME, null, values);
                 }
+                updateProgress();
             }
         }));
         tasks.add(client.getGrades().done(new DoneCallback<List<Grade>>() {
@@ -130,6 +139,7 @@ public class LibrusUpdateService {
                     values.put(Grades.COLUMN_NAME_TYPE, g.getType().ordinal());
                     db.insert(Grades.TABLE_NAME, null, values);
                 }
+                updateProgress();
             }
         }));
         tasks.add(client.getGradeCategories().done(new DoneCallback<ArrayList<GradeCategory>>() {
@@ -143,6 +153,7 @@ public class LibrusUpdateService {
                     values.put(LibrusDbContract.GradeCategories.COLUMN_NAME_WEIGHT, gc.getWeight());
                     db.insert(LibrusDbContract.GradeCategories.TABLE_NAME, null, values);
                 }
+                updateProgress();
             }
         }));
         tasks.add(client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
@@ -152,14 +163,15 @@ public class LibrusUpdateService {
                 values.put(LibrusDbContract.LuckyNumbers.COLUMN_NAME_DATE, result.getLuckyNumberDay().toDateTimeAtStartOfDay().getMillis());
                 values.put(LibrusDbContract.LuckyNumbers.COLUMN_NAME_LUCKY_NUMBER, result.getLuckyNumber());
                 db.insert(LibrusDbContract.LuckyNumbers.TABLE_NAME, null, values);
+                updateProgress();
             }
         }));
         new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
                 loading = false;
-                for (OnUpdateCompleteListener listener : listeners) {
-                    listener.run();
+                for (OnUpdateCompleteListener listener : onUpdateCompleteListeners) {
+                    listener.onUpdateComplete();
                 }
                 deferred.resolve(null);
             }
@@ -167,8 +179,19 @@ public class LibrusUpdateService {
         return deferred.promise();
     }
 
-    public void addListener(OnUpdateCompleteListener listener) {
-        listeners.add(listener);
+    private void updateProgress() {
+        progress += 100 / tasks.size();
+        for (OnProgressListener listener : onProgressListeners) {
+            listener.onProgress(progress);
+        }
+    }
+
+    public void addOnProgressListener(OnProgressListener listener) {
+        onProgressListeners.add(listener);
+    }
+
+    public void addOnUpdateCompleteListener(OnUpdateCompleteListener listener) {
+        onUpdateCompleteListeners.add(listener);
     }
 
     public boolean isLoading() {
@@ -176,6 +199,10 @@ public class LibrusUpdateService {
     }
 
     public interface OnUpdateCompleteListener {
-        void run();
+        void onUpdateComplete();
+    }
+
+    public interface OnProgressListener {
+        void onProgress(int progress);
     }
 }

@@ -2,6 +2,7 @@ package pl.librus.client.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -10,18 +11,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import org.jdeferred.AlwaysCallback;
-import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
+import org.jdeferred.android.AndroidDoneCallback;
+import org.jdeferred.android.AndroidExecutionScope;
 
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.APIClient;
+import pl.librus.client.api.LibrusUpdateService;
 import pl.librus.client.api.RegistrationIntentService;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "librus-schedule-debug";
+    private MaterialDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,23 +46,65 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                APIClient.login(usernameInput.getText().toString(), passwordInput.getText().toString(), getApplicationContext()).done(new DoneCallback<String>() {
+                APIClient.login(usernameInput.getText().toString(), passwordInput.getText().toString(), getApplicationContext()).done(new AndroidDoneCallback<String>() {
+                    @Override
+                    public AndroidExecutionScope getExecutionScope() {
+                        return AndroidExecutionScope.UI;
+                    }
+
                     @Override
                     public void onDone(String result) {
-                        Intent intent1 = new Intent(LoginActivity.this, MainActivity.class);
-                        Intent intent2 = new Intent(getApplicationContext(), RegistrationIntentService.class);
-                        startService(intent2);
-                        startActivity(intent1);
-                        finish();
+                        final MaterialDialog.Builder builder = new MaterialDialog.Builder(LoginActivity.this)
+                                .title("Pobieranie danych")
+                                .content("")
+                                .progress(false, 100);
+                        LibrusUtils.log(Looper.myLooper() == Looper.getMainLooper() ? "UI thread" : "Non-UI thread");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog = builder.show();
+                            }
+                        });
+                        LibrusUpdateService updateService = new LibrusUpdateService(getApplicationContext());
+                        updateService.updateAll();
+                        updateService.addOnProgressListener(new LibrusUpdateService.OnProgressListener() {
+                            @Override
+                            public void onProgress(final int progress) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        LibrusUtils.log("Progress: " + progress + "%");
+                                        dialog.setProgress(progress);
+                                    }
+                                });
+                            }
+                        });
+                        updateService.addOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
+                            @Override
+                            public void onUpdateComplete() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.dismiss();
+                                        Intent intent1 = new Intent(LoginActivity.this, MainActivity.class);
+                                        Intent intent2 = new Intent(getApplicationContext(), RegistrationIntentService.class);
+                                        startService(intent2);
+                                        startActivity(intent1);
+                                        finish();
+                                    }
+                                });
+                            }
+                        });
                     }
                 }).fail(new FailCallback<Integer>() {
                     @Override
                     public void onFail(Integer result) {
+                        String message = result == 401 ? "Nieprawidłowe hasło, spróbuj ponownie" : "Wystąpił niespodziewany błąd " + result;
                         Snackbar snackbar = Snackbar
-                                .make(findViewById(R.id.coordinator), "Nieprawidłowe hasło, spróbuj ponownie", Snackbar.LENGTH_SHORT);
+                                .make(findViewById(R.id.coordinator), message, Snackbar.LENGTH_SHORT);
 
                         snackbar.show();
-                        Log.d(TAG, "run: login failure, code " + (int) result);
+                        Log.d(TAG, "onUpdateComplete: login failure, code " + (int) result);
                     }
                 }).always(new AlwaysCallback<String, Integer>() {
                     @Override

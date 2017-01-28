@@ -94,7 +94,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
         //scroll to default position after layout is completed
 //        new Handler().postDelayed(new Runnable() {
 //            @Override
-//            public void run() {
+//            public void onUpdateComplete() {
 //                layoutManager.scrollToPositionWithOffset(adapter.getGlobalPositionOf(new LessonHeaderItem(LocalDate.now())), 0);
 //            }
 //        }, 50);
