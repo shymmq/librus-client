@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.jdeferred.DoneCallback;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import java.util.List;
 import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
 import pl.librus.client.api.Lesson;
-import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.LibrusUpdateService;
 import pl.librus.client.api.SchoolDay;
 import pl.librus.client.api.SchoolWeek;
@@ -37,7 +35,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
     };
     TimetableAdapter adapter;
     LinearLayoutManager layoutManager;
-    LocalDate startDate = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
+    LocalDate startDate;
     int page = 0;
 
     public static TimetableFragment newInstance() {
@@ -117,12 +115,32 @@ public class TimetableFragment extends Fragment implements MainFragment {
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new TimetableAdapter(null);
-        adapter.setDisplayHeadersAtStartUp(true);
-        page = 0;
-        adapter.setEndlessProgressItem(progressItem);
-
         final LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
+
+        startDate = TimetableUtils.getLastFullWeekStart(LocalDate.now());
+        List<IFlexible> initialElements = new ArrayList<>();
+        List<LocalDate> initialWeekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
+
+        for (LocalDate weekStart : initialWeekStarts) {
+            for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
+
+                LessonHeaderItem header = new LessonHeaderItem(date);
+                List<Lesson> lessons = dbHelper.getLessonsForDate(date);
+                if (lessons == null) {
+                    initialElements.add(new EmptyLessonItem(header, date));
+                } else {
+                    for (Lesson l : lessons) {
+                        LessonItem lessonItem = new LessonItem(header, l, getContext());
+                        initialElements.add(lessonItem);
+                    }
+                }
+            }
+        }
+
+        adapter = new TimetableAdapter(initialElements);
+
+        adapter.setDisplayHeadersAtStartUp(true);
+        adapter.setEndlessProgressItem(progressItem);
 
         adapter.onLoadMoreListener = new TimetableAdapter.OnLoadMoreListener() {
             @Override
@@ -130,66 +148,45 @@ public class TimetableFragment extends Fragment implements MainFragment {
                 final List<IFlexible> newElements = new ArrayList<>();
                 progressItem.setStatus(ProgressItem.LOADING);
                 adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
-                final LocalDate weekStart = startDate.plusWeeks(page);
 
-                if (page == 0) {
-                    //first page, load from cache
-                    for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
-
-                        LessonHeaderItem header = new LessonHeaderItem(date);
-                        List<Lesson> lessons = dbHelper.getLessonsForDate(date);
-                        if (lessons == null) {
-                            newElements.add(new EmptyLessonItem(header, date));
-
-                        } else {
-                            for (Lesson l : lessons) {
-                                LessonItem lessonItem = new LessonItem(header, l, getContext());
-                                newElements.add(lessonItem);
+                //additional pages, load from server
+                new LibrusUpdateService(getContext()).getSchoolWeek(startDate.plusWeeks(page)).done(new DoneCallback<SchoolWeek>() {
+                    @Override
+                    public void onDone(SchoolWeek result) {
+                        for (SchoolDay schoolDay : result.getSchoolDays()) {
+                            LocalDate date = schoolDay.getDate();
+                            LessonHeaderItem header = new LessonHeaderItem(date);
+                            if (schoolDay.isEmpty()) {
+                                newElements.add(new EmptyLessonItem(header, date));
+                            } else {
+                                List<Lesson> lessons = new ArrayList<>(schoolDay.getLessons().values());
+                                Collections.sort(lessons);
+                                for (Lesson l : lessons) {
+                                    LessonItem lessonItem = new LessonItem(header, l, getContext());
+                                    newElements.add(lessonItem);
+                                }
                             }
                         }
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressItem.setStatus(ProgressItem.IDLE);
+                                adapter.onLoadMoreComplete(newElements);
+                                onSetupCompleted.run();
+                                page++;
+                            }
+                        });
                     }
-                    progressItem.setStatus(ProgressItem.IDLE);
-                    adapter.onLoadMoreComplete(newElements);
-                    onSetupCompleted.run();
-                    page++;
-                } else {
-                    //additional pages, load from server
-                    new LibrusUpdateService(getContext()).getSchoolWeek(startDate.plusWeeks(page)).done(new DoneCallback<SchoolWeek>() {
-                        @Override
-                        public void onDone(SchoolWeek result) {
-                            for (SchoolDay schoolDay : result.getSchoolDays()) {
-                                LocalDate date = schoolDay.getDate();
-                                LessonHeaderItem header = new LessonHeaderItem(date);
-                                if (schoolDay.isEmpty()) {
-                                    newElements.add(new EmptyLessonItem(header, date));
-                                } else {
-                                    List<Lesson> lessons = new ArrayList<>(schoolDay.getLessons().values());
-                                    Collections.sort(lessons);
-                                    for (Lesson l : lessons) {
-                                        LessonItem lessonItem = new LessonItem(header, l, getContext());
-                                        newElements.add(lessonItem);
-                                    }
-                                }
-                            }
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressItem.setStatus(ProgressItem.IDLE);
-                                    adapter.onLoadMoreComplete(newElements);
-                                    onSetupCompleted.run();
-                                    page++;
-                                }
-                            });
-                        }
-                    });
-                }
+                });
             }
         };
         recyclerView.setAdapter(adapter);
-        adapter.onLoadMoreListener.onLoadMore();
+
+        onSetupCompleted.run();
+
     }
 
     @Override
-    public void refresh(LibrusData cache) {
+    public void refresh() {
     }
 }

@@ -12,7 +12,6 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MultipleResults;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
@@ -21,14 +20,18 @@ import java.util.Map;
 
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.sql.LibrusDbContract;
+import pl.librus.client.sql.LibrusDbContract.Account;
 import pl.librus.client.sql.LibrusDbContract.AttendanceCategories;
 import pl.librus.client.sql.LibrusDbContract.Attendances;
+import pl.librus.client.sql.LibrusDbContract.GradeCategories;
 import pl.librus.client.sql.LibrusDbContract.GradeComments;
 import pl.librus.client.sql.LibrusDbContract.Grades;
 import pl.librus.client.sql.LibrusDbContract.PlainLessons;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
 import pl.librus.client.sql.LibrusDbContract.Teachers;
+import pl.librus.client.sql.LibrusDbContract.TimetableLessons;
 import pl.librus.client.sql.LibrusDbHelper;
+import pl.librus.client.timetable.TimetableUtils;
 
 /**
  * This class allows to update all data asynchronously and save it to the database
@@ -58,17 +61,17 @@ public class LibrusUpdateService {
         loading = true;
         progress = 0;
         final long startTime = System.currentTimeMillis();
-        tasks.add(getGrades());
-        tasks.add(getGradeCategories());
-        tasks.add(getSubjects());
-        tasks.add(getLastLuckyNumber());
-        tasks.add(getGradeComments());
-        tasks.add(getAttendanceCategories());
-        tasks.add(getTeachers());
-        tasks.add(getSchoolWeek(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)));
-        tasks.add(getAttendances());
-        tasks.add(getPlainLessons());
-        tasks.add(getAccount());
+        tasks.add(updateGrades());
+        tasks.add(updateGradeCategories());
+        tasks.add(updateSubjects());
+        tasks.add(updateLastLuckyNumber());
+        tasks.add(updateGradeComments());
+        tasks.add(updateAttendanceCategories());
+        tasks.add(updateTeachers());
+        tasks.add(updateSchoolWeeks());
+        tasks.add(updateAttendances());
+        tasks.add(updatePlainLessons());
+        tasks.add(updateAccount());
         new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
@@ -88,7 +91,47 @@ public class LibrusUpdateService {
         return deferred.promise();
     }
 
-    private Promise<List<Grade>, ?, ?> getGrades() {
+    private Promise updateSchoolWeeks() {
+        List<Promise> tasks = new ArrayList<>();
+        List<LocalDate> nextFullWeekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
+        db.delete(TimetableLessons.TABLE_NAME, null, null);
+        for (LocalDate weekStart : nextFullWeekStarts) {
+            tasks.add(client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
+                @Override
+                public void onDone(SchoolWeek result) {
+                    LibrusUtils.log("Saving " + result.getWeekStart() + " school week to database");
+                    db.beginTransaction();
+                    for (SchoolDay schoolDay : result.getSchoolDays()) {
+                        LocalDate day = schoolDay.getDate();
+                        long dayMillis = day.toDateTimeAtStartOfDay().getMillis();
+                        for (Map.Entry<Integer, Lesson> entry : schoolDay.getLessons().entrySet()) {
+                            Lesson lesson = entry.getValue();
+                            ContentValues values = new ContentValues();
+                            values.put(TimetableLessons.COLUMN_NAME_DATE, dayMillis);
+                            values.put(TimetableLessons.COLUMN_NAME_ID, lesson.getId());
+                            values.put(TimetableLessons.COLUMN_NAME_UNIQUE_ID, lesson.getUniqueId());
+                            values.put(TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
+                            values.put(TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
+                            values.put(TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
+                            values.put(TimetableLessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
+                            values.put(TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME, lesson.getTeacher().getFirstName());
+                            values.put(TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME, lesson.getTeacher().getLastName());
+                            values.put(TimetableLessons.COLUMN_NAME_SUBSTITUTION, lesson.isSubstitutionClass() ? 1 : 0);
+                            values.put(TimetableLessons.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
+                            values.put(TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
+                            values.put(TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
+                            db.insert(TimetableLessons.TABLE_NAME, null, values);
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                    db.endTransaction();
+                }
+            }));
+        }
+        return new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()]));
+    }
+
+    private Promise<List<Grade>, ?, ?> updateGrades() {
         return client.getGrades().done(new DoneCallback<List<Grade>>() {
             @Override
             public void onDone(List<Grade> result) {
@@ -116,19 +159,19 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<List<GradeCategory>, ?, ?> getGradeCategories() {
+    private Promise<List<GradeCategory>, ?, ?> updateGradeCategories() {
         return client.getGradeCategories().done(new DoneCallback<List<GradeCategory>>() {
             @Override
             public void onDone(List<GradeCategory> result) {
                 LibrusUtils.log("Saving " + result.size() + " grade categories to database");
                 db.beginTransaction();
-                db.delete(LibrusDbContract.GradeCategories.TABLE_NAME, null, null);
+                db.delete(GradeCategories.TABLE_NAME, null, null);
                 for (GradeCategory gc : result) {
                     ContentValues values = new ContentValues();
-                    values.put(LibrusDbContract.GradeCategories.COLUMN_NAME_ID, gc.getId());
-                    values.put(LibrusDbContract.GradeCategories.COLUMN_NAME_NAME, gc.getName());
-                    values.put(LibrusDbContract.GradeCategories.COLUMN_NAME_WEIGHT, gc.getWeight());
-                    db.insert(LibrusDbContract.GradeCategories.TABLE_NAME, null, values);
+                    values.put(GradeCategories.COLUMN_NAME_ID, gc.getId());
+                    values.put(GradeCategories.COLUMN_NAME_NAME, gc.getName());
+                    values.put(GradeCategories.COLUMN_NAME_WEIGHT, gc.getWeight());
+                    db.insert(GradeCategories.TABLE_NAME, null, values);
                 }
                 db.setTransactionSuccessful();
                 db.endTransaction();
@@ -136,7 +179,7 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<List<Subject>, ?, ?> getSubjects() {
+    private Promise<List<Subject>, ?, ?> updateSubjects() {
         return client.getSubjects().done(new DoneCallback<List<Subject>>() {
             @Override
             public void onDone(List<Subject> result) {
@@ -155,7 +198,7 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<LuckyNumber, ?, ?> getLastLuckyNumber() {
+    private Promise<LuckyNumber, ?, ?> updateLastLuckyNumber() {
         return client.getLuckyNumber().done(new DoneCallback<LuckyNumber>() {
             @Override
             public void onDone(LuckyNumber result) {
@@ -171,7 +214,7 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<List<GradeComment>, ?, ?> getGradeComments() {
+    private Promise<List<GradeComment>, ?, ?> updateGradeComments() {
         return client.getComments().done(new DoneCallback<List<GradeComment>>() {
             @Override
             public void onDone(List<GradeComment> result) {
@@ -192,7 +235,7 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<List<AttendanceCategory>, ?, ?> getAttendanceCategories() {
+    private Promise<List<AttendanceCategory>, ?, ?> updateAttendanceCategories() {
         return client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
             @Override
             public void onDone(List<AttendanceCategory> result) {
@@ -217,7 +260,7 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<List<Teacher>, ?, ?> getTeachers() {
+    private Promise<List<Teacher>, ?, ?> updateTeachers() {
         return client.getTeachers().done(new DoneCallback<List<Teacher>>() {
             @Override
             public void onDone(List<Teacher> result) {
@@ -242,7 +285,6 @@ public class LibrusUpdateService {
             @Override
             public void onDone(SchoolWeek result) {
                 LibrusUtils.log("Saving " + result.getWeekStart() + " school week to database");
-                long weekStartMillis = weekStart.toDateTimeAtStartOfDay().getMillis();
                 db.beginTransaction();
                 for (SchoolDay schoolDay : result.getSchoolDays()) {
                     LocalDate day = schoolDay.getDate();
@@ -250,20 +292,20 @@ public class LibrusUpdateService {
                     for (Map.Entry<Integer, Lesson> entry : schoolDay.getLessons().entrySet()) {
                         Lesson lesson = entry.getValue();
                         ContentValues values = new ContentValues();
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_DATE, dayMillis);
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ID, lesson.getId());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_UNIQUE_ID, lesson.getUniqueId());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME, lesson.getTeacher().getFirstName());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME, lesson.getTeacher().getLastName());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBSTITUTION, lesson.isSubstitutionClass() ? 1 : 0);
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
-                        db.insert(LibrusDbContract.TimetableLessons.TABLE_NAME, null, values);
+                        values.put(TimetableLessons.COLUMN_NAME_DATE, dayMillis);
+                        values.put(TimetableLessons.COLUMN_NAME_ID, lesson.getId());
+                        values.put(TimetableLessons.COLUMN_NAME_UNIQUE_ID, lesson.getUniqueId());
+                        values.put(TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
+                        values.put(TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
+                        values.put(TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
+                        values.put(TimetableLessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
+                        values.put(TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME, lesson.getTeacher().getFirstName());
+                        values.put(TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME, lesson.getTeacher().getLastName());
+                        values.put(TimetableLessons.COLUMN_NAME_SUBSTITUTION, lesson.isSubstitutionClass() ? 1 : 0);
+                        values.put(TimetableLessons.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
+                        values.put(TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
+                        values.put(TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
+                        db.insert(TimetableLessons.TABLE_NAME, null, values);
                     }
                 }
                 db.setTransactionSuccessful();
@@ -272,7 +314,7 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<List<Attendance>, ?, ?> getAttendances() {
+    private Promise<List<Attendance>, ?, ?> updateAttendances() {
         return client.getAttendances().done(new DoneCallback<List<Attendance>>() {
             @Override
             public void onDone(List<Attendance> result) {
@@ -297,7 +339,7 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<List<PlainLesson>, ?, ?> getPlainLessons() {
+    private Promise<List<PlainLesson>, ?, ?> updatePlainLessons() {
         return client.getPlainLessons().done(new DoneCallback<List<PlainLesson>>() {
             @Override
             public void onDone(List<PlainLesson> result) {
@@ -317,37 +359,26 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<LibrusAccount, ?, ?> getAccount() {
+    private Promise<LibrusAccount, ?, ?> updateAccount() {
         return client.getAccount().done(new DoneCallback<LibrusAccount>() {
             @Override
             public void onDone(LibrusAccount result) {
                 LibrusUtils.log("Saving account to database");
                 db.beginTransaction();
-                db.delete(LibrusDbContract.Account.TABLE_NAME, null, null);
+                db.delete(Account.TABLE_NAME, null, null);
                 ContentValues values = new ContentValues();
-                values.put(LibrusDbContract.Account.COLUMN_NAME_ID, result.getId());
-                values.put(LibrusDbContract.Account.COLUMN_NAME_CLASS_ID, result.getClassId());
-                values.put(LibrusDbContract.Account.COLUMN_NAME_FIRST_NAME, result.getFirstName());
-                values.put(LibrusDbContract.Account.COLUMN_NAME_LAST_NAME, result.getLastName());
-                values.put(LibrusDbContract.Account.COLUMN_NAME_USERNAME, result.getLogin());
-                values.put(LibrusDbContract.Account.COLUMN_NAME_EMAIL, result.getEmail());
-                db.insert(LibrusDbContract.Account.TABLE_NAME, null, values);
+                values.put(Account.COLUMN_NAME_ID, result.getId());
+                values.put(Account.COLUMN_NAME_CLASS_ID, result.getClassId());
+                values.put(Account.COLUMN_NAME_FIRST_NAME, result.getFirstName());
+                values.put(Account.COLUMN_NAME_LAST_NAME, result.getLastName());
+                values.put(Account.COLUMN_NAME_USERNAME, result.getLogin());
+                values.put(Account.COLUMN_NAME_EMAIL, result.getEmail());
+                db.insert(Account.TABLE_NAME, null, values);
                 db.setTransactionSuccessful();
                 db.endTransaction();
             }
         });
     }
-
-    private DoneCallback updateProgress = new DoneCallback() {
-        @Override
-        public void onDone(Object result) {
-            progress += 100 / tasks.size();
-            for (OnProgressListener listener : onProgressListeners) {
-                listener.onProgress(progress);
-            }
-        }
-    };
-
 
     public void addOnProgressListener(OnProgressListener listener) {
         onProgressListeners.add(listener);

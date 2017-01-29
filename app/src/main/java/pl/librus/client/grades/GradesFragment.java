@@ -27,7 +27,6 @@ import pl.librus.client.R;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.GradeComment;
-import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
@@ -153,7 +152,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
     }
 
     @Override
-    public void refresh(LibrusData cache) {
+    public void refresh() {
 
     }
 

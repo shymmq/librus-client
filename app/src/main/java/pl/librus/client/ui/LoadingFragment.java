@@ -8,11 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import pl.librus.client.R;
-import pl.librus.client.api.LibrusData;
 
-/**
- * Created by szyme on 27.01.2017.
- */
 
 public class LoadingFragment extends Fragment implements MainFragment {
     public static LoadingFragment newInstance() {
@@ -31,6 +27,6 @@ public class LoadingFragment extends Fragment implements MainFragment {
     }
 
     @Override
-    public void refresh(LibrusData cache) {
+    public void refresh() {
     }
 }

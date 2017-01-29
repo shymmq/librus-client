@@ -22,7 +22,6 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
 import pl.librus.client.api.Attendance;
 import pl.librus.client.api.AttendanceCategory;
-import pl.librus.client.api.LibrusData;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
@@ -82,7 +81,7 @@ public class AttendanceFragment extends Fragment implements MainFragment {
     }
 
     @Override
-    public void refresh(LibrusData cache) {
+    public void refresh() {
 
     }
 
