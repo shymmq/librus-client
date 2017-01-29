@@ -350,7 +350,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                     currentFragment = new PlaceholderFragment();
             }
         }
-        currentFragment.setRetainInstance(true);
         transaction
                 .replace(R.id.content_main, currentFragment)
                 .commit();

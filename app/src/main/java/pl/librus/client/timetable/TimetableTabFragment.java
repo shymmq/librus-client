@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,9 +28,6 @@ public class TimetableTabFragment extends Fragment implements MainFragment {
 
     private final List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
     private final LocalDate firstWeekStart = TimetableUtils.getFirstFullWeekStart(LocalDate.now());
-
-    public TimetableTabFragment() {
-    }
 
     public static TimetableTabFragment newInstance() {
         return new TimetableTabFragment();
@@ -58,7 +55,7 @@ public class TimetableTabFragment extends Fragment implements MainFragment {
 
     }
 
-    private class TabAdapter extends FragmentStatePagerAdapter {
+    private class TabAdapter extends FragmentPagerAdapter {
 
         TabAdapter(FragmentManager fm) {
             super(fm);
