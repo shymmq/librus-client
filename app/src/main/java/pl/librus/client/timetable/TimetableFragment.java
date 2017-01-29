@@ -117,7 +117,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
 
         final LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
 
-        startDate = TimetableUtils.getLastFullWeekStart(LocalDate.now());
+        startDate = TimetableUtils.getLastFullWeekStart(LocalDate.now()).plusWeeks(1);
         List<IFlexible> initialElements = new ArrayList<>();
         List<LocalDate> initialWeekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
 
