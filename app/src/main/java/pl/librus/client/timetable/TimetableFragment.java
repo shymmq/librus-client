@@ -1,7 +1,5 @@
 package pl.librus.client.timetable;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,35 +9,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.jdeferred.DoneCallback;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
 import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.Subject;
-import pl.librus.client.api.Teacher;
+import pl.librus.client.api.LibrusUpdateService;
+import pl.librus.client.api.SchoolDay;
+import pl.librus.client.api.SchoolWeek;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
-
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_CANCELED;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_DATE;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ID;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_LESSON_NUMBER;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_ID;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_NAME;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBSTITUTION;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_ID;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.TABLE_NAME;
 
 public class TimetableFragment extends Fragment implements MainFragment {
     final ProgressItem progressItem = new ProgressItem();
@@ -121,7 +107,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_timetable_recycler);
@@ -136,68 +122,69 @@ public class TimetableFragment extends Fragment implements MainFragment {
         page = 0;
         adapter.setEndlessProgressItem(progressItem);
 
-        LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
 
         adapter.onLoadMoreListener = new TimetableAdapter.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                List<IFlexible> newElements = new ArrayList<>();
+                final List<IFlexible> newElements = new ArrayList<>();
                 progressItem.setStatus(ProgressItem.LOADING);
                 adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
                 final LocalDate weekStart = startDate.plusWeeks(page);
 
-                for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
-                    final long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
-                    Cursor cursor = db.query(
-                            TABLE_NAME,
-                            null,
-                            COLUMN_NAME_DATE + " = " + dateMillis,
-                            null,
-                            null,
-                            null,
-                            COLUMN_NAME_LESSON_NUMBER
-                    );
-                    LessonHeaderItem header = new LessonHeaderItem(date);
-                    if (cursor.getCount() > 0) {
-                        while (cursor.moveToNext()) {
-                            int lessonNumber = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_LESSON_NUMBER));
-                            boolean substitution = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBSTITUTION)) > 0;
-                            boolean canceled = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_CANCELED)) > 0;
-                            Subject subject = new Subject(
-                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBJECT_ID)),
-                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBJECT_NAME)));
-                            Teacher teacher = new Teacher(
-                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_ID)),
-                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_FIRST_NAME)),
-                                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_LAST_NAME)));
-                            String id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ID));
-                            Lesson lesson;
-                            if (canceled) {
-                                lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher, true);
-                            } else if (substitution) {
-                                lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher,
-                                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ORG_SUBJECT_ID)),
-                                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ORG_TEACHER_ID)));
-                            } else {
-                                lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher);
-                            }
-                            LessonItem lessonItem = new LessonItem(header, lesson, getContext());
-                            newElements.add(lessonItem);
-                        }
-                    } else {
-                        newElements.add(new EmptyLessonItem(header, date));
-                    }
-                    cursor.close();
-                }
-                progressItem.setStatus(ProgressItem.IDLE);
-                adapter.onLoadMoreComplete(newElements);
-                if (page == 0) onSetupCompleted.run();
-                page++;
-            }
-        }
+                if (page == 0) {
+                    //first page, load from cache
+                    for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
 
-        ;
+                        LessonHeaderItem header = new LessonHeaderItem(date);
+                        List<Lesson> lessons = dbHelper.getLessonsForDate(date);
+                        if (lessons == null) {
+                            newElements.add(new EmptyLessonItem(header, date));
+
+                        } else {
+                            for (Lesson l : lessons) {
+                                LessonItem lessonItem = new LessonItem(header, l, getContext());
+                                newElements.add(lessonItem);
+                            }
+                        }
+                    }
+                    progressItem.setStatus(ProgressItem.IDLE);
+                    adapter.onLoadMoreComplete(newElements);
+                    onSetupCompleted.run();
+                    page++;
+                } else {
+                    //additional pages, load from server
+                    new LibrusUpdateService(getContext()).getSchoolWeek(startDate.plusWeeks(page)).done(new DoneCallback<SchoolWeek>() {
+                        @Override
+                        public void onDone(SchoolWeek result) {
+                            for (SchoolDay schoolDay : result.getSchoolDays()) {
+                                LocalDate date = schoolDay.getDate();
+                                LessonHeaderItem header = new LessonHeaderItem(date);
+                                if (schoolDay.isEmpty()) {
+                                    newElements.add(new EmptyLessonItem(header, date));
+                                } else {
+                                    List<Lesson> lessons = new ArrayList<>(schoolDay.getLessons().values());
+                                    Collections.sort(lessons);
+                                    for (Lesson l : lessons) {
+                                        LessonItem lessonItem = new LessonItem(header, l, getContext());
+                                        newElements.add(lessonItem);
+                                    }
+                                }
+                            }
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressItem.setStatus(ProgressItem.IDLE);
+                                    adapter.onLoadMoreComplete(newElements);
+                                    onSetupCompleted.run();
+                                    page++;
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        };
         recyclerView.setAdapter(adapter);
         adapter.onLoadMoreListener.onLoadMore();
     }

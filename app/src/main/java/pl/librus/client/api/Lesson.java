@@ -1,12 +1,14 @@
 package pl.librus.client.api;
 
+import android.support.annotation.NonNull;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import java.io.Serializable;
 
 
-public class Lesson implements Serializable {
+public class Lesson implements Serializable, Comparable<Lesson> {
 
 
     private static final long serialVersionUID = 3925316087529938003L;
@@ -179,5 +181,10 @@ public class Lesson implements Serializable {
 
     public String getNewTeacherId() {
         return newTeacherId;
+    }
+
+    @Override
+    public int compareTo(@NonNull Lesson o) {
+        return Integer.compare(lessonNumber, o.lessonNumber);
     }
 }

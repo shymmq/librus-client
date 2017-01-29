@@ -224,8 +224,9 @@ public class APIClient {
                             Log.ERROR);
                     deferred.reject(response);
                 } else {
+                    JSONObject responseJSON = null;
                     try {
-                        JSONObject responseJSON = new JSONObject(response.body().string());
+                        responseJSON = new JSONObject(response.body().string());
 
                         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
@@ -241,7 +242,7 @@ public class APIClient {
                         e.printStackTrace();
                         log("Refresh token request failed: \n" +
                                         "code: " + response.code() + "\n" +
-                                        "response: " + response.body().string(),
+                                        "response: " + (responseJSON == null ? "null" : responseJSON.toString()),
                                 Log.ERROR);
                         deferred.reject(response);
                     }
@@ -344,8 +345,8 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<ArrayList<Teacher>, Void, Void> getTeachers() {
-        final Deferred<ArrayList<Teacher>, Void, Void> deferred = new DeferredObject<>();
+    public Promise<List<Teacher>, Void, Void> getTeachers() {
+        final Deferred<List<Teacher>, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/Users").then(new DoneCallback<JSONObject>() {
             @Override
@@ -370,8 +371,8 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<ArrayList<Subject>, Void, Void> getSubjects() {
-        final Deferred<ArrayList<Subject>, Void, Void> deferred = new DeferredObject<>();
+    public Promise<List<Subject>, Void, Void> getSubjects() {
+        final Deferred<List<Subject>, Void, Void> deferred = new DeferredObject<>();
 
         APIRequest("/Subjects").then(new DoneCallback<JSONObject>() {
             @Override
@@ -424,8 +425,8 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<ArrayList<GradeCategory>, Void, Void> getGradeCategories() {
-        final Deferred<ArrayList<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
+    public Promise<List<GradeCategory>, Void, Void> getGradeCategories() {
+        final Deferred<List<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
         APIRequest("/Grades/Categories").done(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {

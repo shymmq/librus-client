@@ -8,12 +8,13 @@ import android.provider.BaseColumns;
 
 public class LibrusDbContract {
 
-    static final int DB_VERSION = 12;
+    static final int DB_VERSION = 14;
     static final String DB_NAME = "database.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
     private static final String NOT_NULL = " NOT NULL";
+    private static final String UNIQUE = " UNIQUE";
 
     private LibrusDbContract() {
     }
@@ -38,7 +39,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + UNIQUE + COMMA_SEP +
                 COLUMN_NAME_DATE + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_LESSON_NUMBER + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_SUBJECT_ID + TEXT_TYPE + COMMA_SEP +
@@ -69,7 +70,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + COMMA_SEP +
                 COLUMN_NAME_CLASS_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_FIRST_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_LAST_NAME + TEXT_TYPE + COMMA_SEP +
@@ -89,7 +90,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + COMMA_SEP +
                 COLUMN_NAME_FIRST_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_LAST_NAME + TEXT_TYPE + " )";
 
@@ -105,7 +106,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + COMMA_SEP +
                 COLUMN_NAME_NAME + TEXT_TYPE + " )";
 
         static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -130,7 +131,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_SUBJECT_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_LESSON_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_CATEGORY_ID + TEXT_TYPE + COMMA_SEP +
@@ -155,7 +156,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_WEIGHT + INTEGER_TYPE + " )";
 
@@ -172,7 +173,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_DATE + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_DATE + INTEGER_TYPE + NOT_NULL + UNIQUE + COMMA_SEP +
                 COLUMN_NAME_LUCKY_NUMBER + INTEGER_TYPE + NOT_NULL +
                 " )";
 
@@ -190,7 +191,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + UNIQUE + COMMA_SEP +
                 COLUMN_NAME_ADDED_BY_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_GRADE_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_TEXT + TEXT_TYPE + NOT_NULL +
@@ -214,7 +215,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_LESSON_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_DATE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_ADD_DATE + INTEGER_TYPE + COMMA_SEP +
@@ -241,7 +242,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_NAME + TEXT_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_SHORT_NAME + TEXT_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_COLOR + TEXT_TYPE + NOT_NULL + COMMA_SEP +
@@ -263,7 +264,7 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_SUBJECT_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_TEACHER_ID + TEXT_TYPE + NOT_NULL +
                 " )";

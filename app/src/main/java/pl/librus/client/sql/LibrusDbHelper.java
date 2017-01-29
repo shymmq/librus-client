@@ -10,6 +10,7 @@ import android.util.Log;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import pl.librus.client.api.AttendanceCategory;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.GradeComment;
+import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LuckyNumber;
 import pl.librus.client.api.PlainLesson;
 import pl.librus.client.api.Subject;
@@ -39,6 +41,19 @@ import static pl.librus.client.sql.LibrusDbContract.Grades;
 import static pl.librus.client.sql.LibrusDbContract.Subjects;
 import static pl.librus.client.sql.LibrusDbContract.Teachers;
 import static pl.librus.client.sql.LibrusDbContract.TimetableLessons;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_CANCELED;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_DATE;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_LESSON_NUMBER;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_NAME;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBSTITUTION;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_ID;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME;
+import static pl.librus.client.sql.LibrusDbContract.TimetableLessons.TABLE_NAME;
 
 public class LibrusDbHelper extends SQLiteOpenHelper {
     private final Context context;
@@ -83,6 +98,57 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
         db.execSQL(AttendanceCategories.DELETE_TABLE);
         db.execSQL(PlainLessons.DELETE_TABLE);
         onCreate(db);
+    }
+
+    public List<Lesson> getLessonsForDate(LocalDate date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Lesson> result = new ArrayList<>();
+        final long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
+        Cursor cursor = db.query(
+                TABLE_NAME,
+                null,
+                COLUMN_NAME_DATE + " = " + dateMillis,
+                null,
+                null,
+                null,
+                COLUMN_NAME_LESSON_NUMBER
+        );
+        if (cursor.getCount() == 0) {
+            return null;
+        } else {
+            while (cursor.moveToNext()) {
+
+                int lessonNumber = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_LESSON_NUMBER));
+                boolean substitution = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBSTITUTION)) > 0;
+                boolean canceled = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NAME_CANCELED)) > 0;
+
+                Subject subject = new Subject(
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBJECT_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_SUBJECT_NAME)));
+
+                Teacher teacher = new Teacher(
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_FIRST_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_TEACHER_LAST_NAME)));
+
+                String id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ID));
+
+                Lesson lesson;
+
+                if (canceled) {
+                    lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher, true);
+                } else if (substitution) {
+                    lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher,
+                            cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ORG_SUBJECT_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME_ORG_TEACHER_ID)));
+                } else {
+                    lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher);
+                }
+                result.add(lesson);
+            }
+            cursor.close();
+            return result;
+        }
     }
 
     public GradeComment getGradeComment(String id) {
