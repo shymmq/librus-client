@@ -47,8 +47,10 @@ public class AttendanceFragment extends Fragment implements MainFragment {
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
 
-        FlexibleAdapter<AbstractFlexibleItem> adapter = new FlexibleAdapter<>(null);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        FlexibleAdapter<AbstractFlexibleItem> adapter = new FlexibleAdapter<>(null);
+        adapter.expandItemsAtStartUp();
         recyclerView.setAdapter(adapter);
 
         LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
@@ -74,7 +76,7 @@ public class AttendanceFragment extends Fragment implements MainFragment {
         List<AttendanceHeaderItem> headers = new ArrayList<>(headerItemMap.values());
         Collections.sort(headers);
         for (AttendanceHeaderItem headerItem : headers) {
-            adapter.addSection(headerItem);
+            adapter.expand(adapter.addSection(headerItem));
         }
         return root;
     }

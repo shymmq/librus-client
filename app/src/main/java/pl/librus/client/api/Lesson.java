@@ -149,6 +149,10 @@ public class Lesson implements Serializable, Comparable<Lesson> {
         return id;
     }
 
+    public String getUniqueId() {
+        return id + lessonNumber + date.getWeekOfWeekyear();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

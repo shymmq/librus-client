@@ -237,20 +237,22 @@ public class LibrusUpdateService {
         });
     }
 
-    public Promise<SchoolWeek, ?, ?> getSchoolWeek(LocalDate date) {
-        return client.getSchoolWeek(date).done(new DoneCallback<SchoolWeek>() {
+    public Promise<SchoolWeek, ?, ?> getSchoolWeek(final LocalDate weekStart) {
+        return client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
             @Override
             public void onDone(SchoolWeek result) {
                 LibrusUtils.log("Saving " + result.getWeekStart() + " school week to database");
+                long weekStartMillis = weekStart.toDateTimeAtStartOfDay().getMillis();
                 db.beginTransaction();
                 for (SchoolDay schoolDay : result.getSchoolDays()) {
-                    LocalDate date = schoolDay.getDate();
-                    long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
+                    LocalDate day = schoolDay.getDate();
+                    long dayMillis = day.toDateTimeAtStartOfDay().getMillis();
                     for (Map.Entry<Integer, Lesson> entry : schoolDay.getLessons().entrySet()) {
                         Lesson lesson = entry.getValue();
                         ContentValues values = new ContentValues();
-                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_DATE, dateMillis);
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_DATE, dayMillis);
                         values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ID, lesson.getId());
+                        values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_UNIQUE_ID, lesson.getUniqueId());
                         values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
                         values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
                         values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
@@ -261,7 +263,7 @@ public class LibrusUpdateService {
                         values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
                         values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
                         values.put(LibrusDbContract.TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
-                        db.replace(LibrusDbContract.TimetableLessons.TABLE_NAME, null, values);
+                        db.insert(LibrusDbContract.TimetableLessons.TABLE_NAME, null, values);
                     }
                 }
                 db.setTransactionSuccessful();

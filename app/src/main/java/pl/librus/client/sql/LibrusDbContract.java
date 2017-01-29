@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 
 public class LibrusDbContract {
 
-    static final int DB_VERSION = 14;
+    static final int DB_VERSION = 19;
     static final String DB_NAME = "database.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -24,6 +24,7 @@ public class LibrusDbContract {
         public static final String TABLE_NAME = "timetable_lessons";
 
         public static final String COLUMN_NAME_ID = "id";
+        public static final String COLUMN_NAME_UNIQUE_ID = "unique_id";
         public static final String COLUMN_NAME_DATE = "date";
         public static final String COLUMN_NAME_LESSON_NUMBER = "lesson_number";
         public static final String COLUMN_NAME_SUBJECT_ID = "subject_id";
@@ -39,7 +40,8 @@ public class LibrusDbContract {
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + UNIQUE + COMMA_SEP +
+                COLUMN_NAME_ID + TEXT_TYPE + NOT_NULL + COMMA_SEP +
+                COLUMN_NAME_UNIQUE_ID + TEXT_TYPE + NOT_NULL + UNIQUE + COMMA_SEP +
                 COLUMN_NAME_DATE + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_LESSON_NUMBER + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_SUBJECT_ID + TEXT_TYPE + COMMA_SEP +
@@ -50,7 +52,8 @@ public class LibrusDbContract {
                 COLUMN_NAME_SUBSTITUTION + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_CANCELED + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_ORG_SUBJECT_ID + TEXT_TYPE + COMMA_SEP +
-                COLUMN_NAME_ORG_TEACHER_ID + TEXT_TYPE + " )";
+                COLUMN_NAME_ORG_TEACHER_ID + TEXT_TYPE +
+                " )";
 
         static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }

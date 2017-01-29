@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
     android:clickable="true"
-    android:foreground="?attr/selectableItemBackground">
+    android:foreground="?attr/selectableItemBackground"
+    android:layout_height="72dp">
 
     <Space
         android:id="@+id/space"
@@ -23,7 +23,7 @@
         android:gravity="center_vertical"
         android:text="@string/placeholder_lesson_number"
         android:textColor="?android:attr/textColorSecondary"
-        android:layout_marginRight="16dp" />
+        android:layout_marginEnd="16dp" />
 
     <TextView
         android:id="@+id/attendance_item_shortType"
@@ -35,7 +35,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:background="@drawable/solid_circle"
-        android:backgroundTint="@color/cardview_dark_background"
+        android:backgroundTint="@color/md_blue_grey_800"
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="nb"
@@ -53,6 +53,7 @@
         android:maxLines="1"
         android:text="Biologia"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:layout_marginEnd="16dp" />
 
 </RelativeLayout>
