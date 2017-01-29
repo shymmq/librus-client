@@ -42,22 +42,24 @@ import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.timetable.TimetableFragment;
+import pl.librus.client.timetable.TimetableTabFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
     public static final int FRAGMENT_TIMETABLE_ID = 1;
     public static final int FRAGMENT_GRADES_ID = 2;
     public static final int FRAGMENT_ANNOUNCEMENTS_ID = 3;
     public static final int FRAGMENT_CALENDAR_ID = 4;
-    private static final int FRAGMENT_ATTENDANCES_ID = 5;
     public static final int LUCKY_NUMBER_ID = 666;
+    private static final int FRAGMENT_ATTENDANCES_ID = 5;
     private static final int SETTINGS_ID = 0;
     private final String TAG = "librus-client-log";
 
-    TimetableFragment timetableFragment = TimetableFragment.newInstance();
-    GradesFragment gradesFragment = GradesFragment.newInstance();
+    private TimetableFragment timetableFragment = TimetableFragment.newInstance();
+    private GradesFragment gradesFragment = GradesFragment.newInstance();
     private AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
+    private TimetableTabFragment timetableTabFragment = TimetableTabFragment.newInstance();
 
-    SQLiteDatabase db;
+    private SQLiteDatabase db;
     private LibrusDbHelper dbHelper;
 
     private ActionMenuView amv;
@@ -308,10 +310,14 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             //add selected currentFragment as pending
             switch ((int) drawerItem.getIdentifier()) {
                 case FRAGMENT_TIMETABLE_ID:
-                    pendingFragment = timetableFragment;
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                    pendingFragment = preferences.getBoolean("useTabs", false) ? timetableTabFragment : timetableFragment;
                     break;
                 case FRAGMENT_GRADES_ID:
                     pendingFragment = gradesFragment;
+                    break;
+                case FRAGMENT_ATTENDANCES_ID:
+                    pendingFragment = attendanceFragment;
                     break;
                 default:
                     pendingFragment = new PlaceholderFragment();
@@ -331,7 +337,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         } else {
             switch ((int) drawerItem.getIdentifier()) {
                 case FRAGMENT_TIMETABLE_ID:
-                    currentFragment = timetableFragment;
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                    currentFragment = preferences.getBoolean("useTabs", false) ? timetableTabFragment : timetableFragment;
                     break;
                 case FRAGMENT_GRADES_ID:
                     currentFragment = gradesFragment;

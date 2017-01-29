@@ -1,13 +1,19 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="0dp">
+    android:background="@color/md_grey_200">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_timetable_page_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listheader="D"
         tools:listitem="@layout/lesson_item" />
-</RelativeLayout>
+
+    <TextView
+        android:id="@+id/fragment_timetable_page_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/message_no_lessons" />
+</FrameLayout>

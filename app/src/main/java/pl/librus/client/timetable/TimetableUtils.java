@@ -33,7 +33,7 @@ public class TimetableUtils {
 
     //returns first week for which to start downloading
 
-    public static LocalDate getWeekStart() {
+    private static LocalDate getWeekStart() {
         return LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
     }
 
@@ -86,13 +86,13 @@ public class TimetableUtils {
         return Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
     }
 
-    public static LocalDate getLastFullWeekStart(LocalDate today) {
+    static LocalDate getLastFullWeekStart(LocalDate today) {
         LocalDate lastMonday = today.withDayOfWeek(DateTimeConstants.MONDAY);
         return lastMonday.plusWeeks(1);
     }
 
-    public static String getFilenameForDate(LocalDate weekStart) {
-        return "week" + weekStart.toString("yw");//format: "week<year><weekofyear>"
+    static LocalDate getFirstFullWeekStart(LocalDate today) {
+        return today.withDayOfWeek(DateTimeConstants.MONDAY);
     }
 //    public LocalDate getLastWeekStartDate() {
 //        LocalDate res = new LocalDate(0);

@@ -19,6 +19,7 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:fontFamily="sans-serif"
+            android:maxLength="1"
             android:text="@string/placeholder_lesson_number"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="40sp" />
@@ -93,7 +94,10 @@
                     android:layout_height="22dp"
                     android:layout_alignParentTop="true"
                     android:layout_toEndOf="@+id/badgeIcon"
+                    android:ellipsize="end"
                     android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:maxWidth="108dp"
                     android:paddingEnd="4dp"
                     android:paddingStart="4dp"
                     android:text="@string/placeholder_badge_text" />

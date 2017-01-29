@@ -19,7 +19,7 @@ class TimetableAdapter extends FlexibleAdapter<IFlexible> {
         }
     };
 
-    public TimetableAdapter(@Nullable List<IFlexible> items) {
+    TimetableAdapter(@Nullable List<IFlexible> items) {
         super(items);
     }
 
