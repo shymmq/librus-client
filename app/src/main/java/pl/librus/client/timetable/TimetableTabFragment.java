@@ -2,6 +2,7 @@ package pl.librus.client.timetable;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -14,6 +15,7 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import java.util.List;
+import java.util.Locale;
 
 import pl.librus.client.R;
 import pl.librus.client.ui.MainFragment;
@@ -26,7 +28,6 @@ public class TimetableTabFragment extends Fragment implements MainFragment {
 
     private final List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
     private final LocalDate firstWeekStart = TimetableUtils.getFirstFullWeekStart(LocalDate.now());
-    private ViewPager viewPager;
 
     public TimetableTabFragment() {
     }
@@ -43,9 +44,13 @@ public class TimetableTabFragment extends Fragment implements MainFragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        viewPager = (ViewPager) view.findViewById(R.id.fragment_timetable_tab_viewpager);
+        ViewPager viewPager = (ViewPager) view.findViewById(R.id.fragment_timetable_tab_viewpager);
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.fragment_timetable_tab_tablayout);
+
         TabAdapter adapter = new TabAdapter(getChildFragmentManager());
+
         viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
@@ -55,18 +60,27 @@ public class TimetableTabFragment extends Fragment implements MainFragment {
 
     private class TabAdapter extends FragmentStatePagerAdapter {
 
-        public TabAdapter(FragmentManager fm) {
+        TabAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public Fragment getItem(int position) {
-            return TimetablePageFragment.newInstance(firstWeekStart.plusDays(position));
+            return TimetablePageFragment.newInstance(getDateForPosition(position));
         }
 
         @Override
         public int getCount() {
             return weekStarts.size() * DateTimeConstants.DAYS_PER_WEEK;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return getDateForPosition(position).toString("EEEE", new Locale("pl"));
+        }
+
+        private LocalDate getDateForPosition(int position) {
+            return firstWeekStart.plusDays(position);
         }
     }
 }
