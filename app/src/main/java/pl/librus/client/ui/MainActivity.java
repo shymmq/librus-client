@@ -13,7 +13,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,12 +46,12 @@ import pl.librus.client.timetable.TimetableTabFragment;
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
     public static final int FRAGMENT_TIMETABLE_ID = 1;
     public static final int FRAGMENT_GRADES_ID = 2;
-    public static final int FRAGMENT_ANNOUNCEMENTS_ID = 3;
-    public static final int FRAGMENT_CALENDAR_ID = 4;
-    public static final int LUCKY_NUMBER_ID = 666;
-    private static final int FRAGMENT_ATTENDANCES_ID = 5;
-    private static final int SETTINGS_ID = 0;
-    private final String TAG = "librus-client-log";
+    public static final int FRAGMENT_CALENDAR_ID = 3;
+    public static final int FRAGMENT_ANNOUNCEMENTS_ID = 4;
+    public static final int FRAGMENT_MESSAGES_ID = 5;
+    public static final int FRAGMENT_ATTENDANCES_ID = 6;
+    public static final int LUCKY_NUMBER_ID = 7;
+    public static final int SETTINGS_ID = 8;
 
     private TimetableFragment timetableFragment = TimetableFragment.newInstance();
     private GradesFragment gradesFragment = GradesFragment.newInstance();
@@ -68,8 +67,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
 
     private LibrusUpdateService updateService;
 
-    private Fragment currentFragment;
-    private Fragment pendingFragment;
+    private MainFragment currentFragment;
+    private MainFragment pendingFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -109,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                         });
                     }
                 });
-                updateService.addOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
+                updateService.setOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
                     @Override
                     public void onUpdateComplete() {
                         dialog.dismiss();
@@ -157,19 +156,9 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             username = "";
         }
         cursor.close();
-        timetableFragment = TimetableFragment.newInstance();
-        timetableFragment.onSetupCompleted = new Runnable() {
-            @Override
-            public void run() {
-                updateService.updateAll();
-                timetableFragment.onSetupCompleted = new Runnable() {
-                    @Override
-                    public void run() {
 
-                    }
-                };
-            }
-        };
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         ProfileDrawerItem profile = new ProfileDrawerItem()
                 .withName(name)
                 .withEmail(username)
@@ -185,39 +174,40 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
                 .addProfiles(profile)
                 .build();
+
         final DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withAccountHeader(header)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(FRAGMENT_TIMETABLE_ID)
-                                .withName("Plan lekcji")
+                                .withName(R.string.timetable_view_title)
                                 .withIcon(R.drawable.ic_event_note_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(FRAGMENT_GRADES_ID)
-                                .withName("Oceny")
+                                .withName(R.string.grades_view_title)
                                 .withIcon(R.drawable.ic_assignment_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(FRAGMENT_CALENDAR_ID)
-                                .withName("Terminarz")
+                                .withName(R.string.calendar_view_title)
                                 .withIcon(R.drawable.ic_date_range_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
                                 .withIdentifier(FRAGMENT_ANNOUNCEMENTS_ID)
-                                .withName("Ogłoszenia")
+                                .withName(R.string.announcements_view_title)
                                 .withIcon(R.drawable.ic_announcement_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(4)
-                                .withName("Wiadomości")
+                                .withIdentifier(FRAGMENT_MESSAGES_ID)
+                                .withName(R.string.messages_view_title)
                                 .withIcon(R.drawable.ic_message_black_48dp),
                         new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(5)
-                                .withName("Nieobecności")
+                                .withIdentifier(FRAGMENT_ATTENDANCES_ID)
+                                .withName(R.string.attendances_view_title)
                                 .withIcon(R.drawable.ic_person_outline_black_48dp),
                         new DividerDrawerItem(),
                         lucky)
                 .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                         .withIdentifier(SETTINGS_ID)
-                        .withName("Ustawienia")
+                        .withName(R.string.settings_title)
                         .withIcon(R.drawable.ic_settings_black_48dp))
                 .withOnDrawerItemClickListener(this)
                 .withDelayOnDrawerClose(50)
@@ -230,15 +220,31 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 })
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
-                .withSavedInstance(savedInstanceState)
-                .withSelectedItem(FRAGMENT_TIMETABLE_ID)
-                .withFireOnInitialOnClick(true)
                 .withToolbar(toolbar);
         drawer = drawerBuilder.build();
+
+        //show the default fragment
+        final MainFragment defaultFragment = getFragmentForId(Integer.parseInt(prefs.
+                getString(
+                        getString(R.string.prefs_default_fragment),
+                        getString(R.string.timetable_view_key)
+                )));
+        //when first fragment is set up, start the update
+        defaultFragment.setOnSetupCompleteLister(new MainFragment.OnSetupCompleteListener() {
+            @Override
+            public void run() {
+                updateService.updateAll();
+                defaultFragment.removeListener();
+            }
+        });
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction
+                .replace(R.id.content_main, (Fragment) defaultFragment)
+                .commit();
     }
 
     private void refresh() {
-        Log.d(TAG, "MainActivity: Refresh started");
+
     }
 
     private Drawer getDrawer() {
@@ -298,63 +304,55 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
         final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         //Regardless of update going on in the background start the settings activity
-        if (drawerItem.getIdentifier() == SETTINGS_ID) {
+        int identifier = (int) drawerItem.getIdentifier();
+        if (identifier == SETTINGS_ID) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return false;
-        }
-        //check if there is an update in the background
-        if (updateService.isLoading()) {
-            //display loading currentFragment
-            currentFragment = LoadingFragment.newInstance();
-            //add selected currentFragment as pending
-            switch ((int) drawerItem.getIdentifier()) {
-                case FRAGMENT_TIMETABLE_ID:
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                    pendingFragment = preferences.getBoolean("useTabs", false) ? timetableTabFragment : timetableFragment;
-                    break;
-                case FRAGMENT_GRADES_ID:
-                    pendingFragment = gradesFragment;
-                    break;
-                case FRAGMENT_ATTENDANCES_ID:
-                    pendingFragment = attendanceFragment;
-                    break;
-                default:
-                    pendingFragment = new PlaceholderFragment();
-                    break;
-            }
-            //add callback to switch to the pending fragment when update completes
-            updateService.addOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
-                @Override
-                public void onUpdateComplete() {
-                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    if (pendingFragment != null)
-                        transaction
-                                .replace(R.id.content_main, pendingFragment)
-                                .commit();
-                }
-            });
+        } else if (identifier == LUCKY_NUMBER_ID) {
+            //TODO
         } else {
-            switch ((int) drawerItem.getIdentifier()) {
-                case FRAGMENT_TIMETABLE_ID:
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                    currentFragment = preferences.getBoolean("useTabs", false) ? timetableTabFragment : timetableFragment;
-                    break;
-                case FRAGMENT_GRADES_ID:
-                    currentFragment = gradesFragment;
-                    break;
-                case FRAGMENT_ATTENDANCES_ID:
-                    currentFragment = attendanceFragment;
-                    break;
-                default:
-                    currentFragment = new PlaceholderFragment();
+            if (updateService.isLoading()) {
+                currentFragment = LoadingFragment.newInstance();
+                pendingFragment = getFragmentForId(identifier);
+                updateService.setOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
+                    @Override
+                    public void onUpdateComplete() {
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        if (pendingFragment != null)
+                            transaction
+                                    .replace(R.id.content_main, (Fragment) pendingFragment)
+                                    .commit();
+                    }
+                });
+            } else {
+                currentFragment = getFragmentForId(identifier);
             }
+            transaction
+                    .replace(R.id.content_main, (Fragment) currentFragment)
+                    .commit();
         }
-        transaction
-                .replace(R.id.content_main, currentFragment)
-                .commit();
-
         return false;
+    }
+
+
+    private MainFragment getFragmentForId(int id) {
+        MainFragment result;
+        switch (id) {
+            case FRAGMENT_TIMETABLE_ID:
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                result = preferences.getBoolean("useTabs", false) ? timetableTabFragment : timetableFragment;
+                break;
+            case FRAGMENT_GRADES_ID:
+                result = gradesFragment;
+                break;
+            case FRAGMENT_ATTENDANCES_ID:
+                result = attendanceFragment;
+                break;
+            default:
+                result = new PlaceholderFragment();
+        }
+        return result;
     }
 
     @Override

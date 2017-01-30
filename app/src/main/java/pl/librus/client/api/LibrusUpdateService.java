@@ -39,8 +39,8 @@ import pl.librus.client.timetable.TimetableUtils;
 
 public class LibrusUpdateService {
     private final Context context;
-    private List<OnUpdateCompleteListener> onUpdateCompleteListeners = new ArrayList<>();
-    private List<OnProgressListener> onProgressListeners = new ArrayList<>();
+    private OnUpdateCompleteListener onUpdateCompleteListener = null;
+    private OnProgressListener onProgressListener = null;
     private boolean loading = false;
     private int progress = 100;
     private List<Promise> tasks = new ArrayList<>();
@@ -82,9 +82,12 @@ public class LibrusUpdateService {
                 LibrusUtils.log("Update completed in " + (currentTimeMillis - startTime) + " ms");
                 editor.putLong("last_update", currentTimeMillis);
                 editor.apply();
-                for (OnUpdateCompleteListener listener : onUpdateCompleteListeners) {
-                    listener.onUpdateComplete();
+                if (onUpdateCompleteListener != null) {         //if there is a listener hooked, run it
+                    onUpdateCompleteListener.onUpdateComplete();
+                    onUpdateCompleteListener = null;            //reset listener after update is complete
                 }
+                ;
+
                 deferred.resolve(null);
             }
         });
@@ -381,11 +384,11 @@ public class LibrusUpdateService {
     }
 
     public void addOnProgressListener(OnProgressListener listener) {
-        onProgressListeners.add(listener);
+        this.onProgressListener = listener;
     }
 
-    public void addOnUpdateCompleteListener(OnUpdateCompleteListener listener) {
-        onUpdateCompleteListeners.add(listener);
+    public void setOnUpdateCompleteListener(OnUpdateCompleteListener listener) {
+        this.onUpdateCompleteListener = listener;
     }
 
     public boolean isLoading() {

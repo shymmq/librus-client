@@ -6,4 +6,12 @@ package pl.librus.client.ui;
 
 public interface MainFragment {
     void refresh();
+
+    interface OnSetupCompleteListener {
+        public void run();
+    }
+
+    void setOnSetupCompleteLister(OnSetupCompleteListener listener);
+
+    void removeListener();
 }

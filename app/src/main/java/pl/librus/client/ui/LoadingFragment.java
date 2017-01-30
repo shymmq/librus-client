@@ -29,4 +29,14 @@ public class LoadingFragment extends Fragment implements MainFragment {
     @Override
     public void refresh() {
     }
+
+    @Override
+    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+
+    }
+
+    @Override
+    public void removeListener() {
+
+    }
 }

@@ -2,7 +2,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="Ogólne">
-
+        <ListPreference
+            android:defaultValue="@string/timetable_view_key"
+            android:entries="@array/default_view_entries"
+            android:entryValues="@array/default_view_entry_values"
+            android:key="@string/prefs_default_fragment"
+            android:title="@string/default_view"/>
         <SwitchPreference
             android:defaultValue="1"
             android:key="greyOutFinishedLessons"

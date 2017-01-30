@@ -37,6 +37,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
     LinearLayoutManager layoutManager;
     LocalDate startDate;
     int page = 0;
+    private OnSetupCompleteListener listener;
 
     public static TimetableFragment newInstance() {
         return new TimetableFragment();
@@ -182,11 +183,20 @@ public class TimetableFragment extends Fragment implements MainFragment {
         };
         recyclerView.setAdapter(adapter);
 
-        onSetupCompleted.run();
-
+        if (listener != null) listener.run();
     }
 
     @Override
     public void refresh() {
+    }
+
+    @Override
+    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void removeListener() {
+        this.listener = null;
     }
 }

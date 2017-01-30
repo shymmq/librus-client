@@ -31,6 +31,7 @@ import pl.librus.client.ui.MainFragment;
 public class AnnouncementsFragment extends Fragment implements MainFragment {
     private static final String ARG_DATA = "AnnouncementsFragment:data";
     private final String TAG = "librus-client-log";
+    private OnSetupCompleteListener listener;
 
     public AnnouncementsFragment() {
         // Required empty public constructor
@@ -115,6 +116,15 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
     @Override
     public void refresh() {
         Log.d(TAG, "AnnouncementsFragment refresh()");
+    }
 
+    @Override
+    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void removeListener() {
+        this.listener = null;
     }
 }

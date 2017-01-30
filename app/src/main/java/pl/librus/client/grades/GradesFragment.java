@@ -39,6 +39,7 @@ import pl.librus.client.ui.MainFragment;
 public class GradesFragment extends Fragment implements MainFragment, FlexibleAdapter.OnItemClickListener {
 
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
+    private OnSetupCompleteListener listener;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -147,7 +148,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
 //        FlexibleAdapter<GradeHeaderItem> adapter = new FlexibleAdapter<>(listItems);
 //        adapter.setAutoScrollOnExpand(true);
 //        recyclerView.setAdapter(adapter);
-//        if (listener != null) listener.onSetupComplete();
+        if (listener != null) listener.run();
         return root;
     }
 
@@ -210,5 +211,15 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             }
 
         return false;
+    }
+
+    @Override
+    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void removeListener() {
+        this.listener = null;
     }
 }

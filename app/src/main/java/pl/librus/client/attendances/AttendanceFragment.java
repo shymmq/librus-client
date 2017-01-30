@@ -30,6 +30,8 @@ import pl.librus.client.ui.MainFragment;
  */
 public class AttendanceFragment extends Fragment implements MainFragment {
 
+    private OnSetupCompleteListener listener;
+
     public AttendanceFragment() {
         // Required empty public constructor
     }
@@ -77,6 +79,7 @@ public class AttendanceFragment extends Fragment implements MainFragment {
         for (AttendanceHeaderItem headerItem : headers) {
             adapter.expand(adapter.addSection(headerItem));
         }
+        if (listener != null) listener.run();
         return root;
     }
 
@@ -85,4 +88,13 @@ public class AttendanceFragment extends Fragment implements MainFragment {
 
     }
 
+    @Override
+    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void removeListener() {
+        this.listener = null;
+    }
 }

@@ -28,6 +28,7 @@ public class TimetableTabFragment extends Fragment implements MainFragment {
 
     private final List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
     private final LocalDate firstWeekStart = TimetableUtils.getFirstFullWeekStart(LocalDate.now());
+    private OnSetupCompleteListener listener;
 
     public static TimetableTabFragment newInstance() {
         return new TimetableTabFragment();
@@ -48,11 +49,23 @@ public class TimetableTabFragment extends Fragment implements MainFragment {
 
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
+
+        if (listener != null) listener.run();
     }
 
     @Override
     public void refresh() {
 
+    }
+
+    @Override
+    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void removeListener() {
+        this.listener = null;
     }
 
     private class TabAdapter extends FragmentPagerAdapter {

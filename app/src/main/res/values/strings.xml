@@ -58,4 +58,27 @@
     <string name="lucky_number">"Szczęśliwy numerek"</string>
     <string name="lesson">lekcja</string>
     <string name="message_no_lessons">Brak lekcji. \n¯\\_(ツ)_/¯</string>
+
+    <string name="timetable_view_title">Plan lekcji</string>
+    <string name="grades_view_title">Oceny</string>
+    <string name="calendar_view_title">Terminarz</string>
+    <string name="announcements_view_title">Ogłoszenia</string>
+    <string name="messages_view_title">Wiadomości</string>
+    <string name="attendances_view_title">Nieobecności</string>
+
+    <string name="timetable_view_key">1</string>
+    <string name="grades_view_key">2</string>
+    <string name="calendar_view_key">3</string>
+    <string name="announcements_view_key">4</string>
+    <string name="messages_view_key">5</string>
+    <string name="attendances_view_key">6</string>
+
+    <string name="settings_title">Ustawienia</string>
+    <string name="lucky_number_title">Szczęśliwy numerek</string>
+
+    <string name="settings_key">7</string>
+    <string name="lucky_number_key">8</string>
+
+    <string name="prefs_default_fragment">default_fragment</string>
+    <string name="default_view">Domyślny widok</string>
 </resources>
