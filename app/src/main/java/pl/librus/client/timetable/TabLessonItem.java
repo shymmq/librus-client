@@ -1,12 +1,16 @@
 package pl.librus.client.timetable;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import java.util.List;
 
@@ -20,12 +24,12 @@ import pl.librus.client.api.Lesson;
  * Created by szyme on 26.12.2016. librus-client
  */
 
-public class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemViewHolder> implements Comparable<TabLessonItem> {
+class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemViewHolder> implements Comparable<TabLessonItem> {
 
     private Lesson lesson;
     private Context context;
 
-    public TabLessonItem(Lesson lesson, Context context) {
+    TabLessonItem(Lesson lesson, Context context) {
         this.lesson = lesson;
         this.context = context;
     }
@@ -67,14 +71,27 @@ public class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonI
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.canceled);
             holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_cancel_black_24dp));
-        } else if (lesson.isSubstitutionClass()) {
-            //substitution
-            holder.badge.setVisibility(View.VISIBLE);
-            holder.badgeText.setText("zastępstwo");
-            holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_swap_horiz_black_24dp));
+
         } else {
-            //normal lesson
-            holder.badge.setVisibility(View.GONE);
+
+            if (lesson.isSubstitutionClass()) {
+                //substitution
+                holder.badge.setVisibility(View.VISIBLE);
+                holder.badgeText.setText(R.string.substitution);
+                holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_swap_horiz_black_24dp));
+            } else {
+                //normal lesson
+                holder.badge.setVisibility(View.GONE);
+            }
+
+            LocalTime now = LocalTime.now();
+            if (LocalDate.now().isEqual(lesson.getDate()) &&
+                    now.isAfter(lesson.getStartTime()) &&
+                    now.isBefore(lesson.getEndTime())) {
+                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
+            } else {
+                holder.subject.setTypeface(null, Typeface.NORMAL);
+            }
         }
     }
 

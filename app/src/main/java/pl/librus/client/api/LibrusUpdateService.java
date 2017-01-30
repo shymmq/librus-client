@@ -86,7 +86,6 @@ public class LibrusUpdateService {
                     onUpdateCompleteListener.onUpdateComplete();
                     onUpdateCompleteListener = null;            //reset listener after update is complete
                 }
-                ;
 
                 deferred.resolve(null);
             }
@@ -114,6 +113,8 @@ public class LibrusUpdateService {
                             values.put(TimetableLessons.COLUMN_NAME_ID, lesson.getId());
                             values.put(TimetableLessons.COLUMN_NAME_UNIQUE_ID, lesson.getUniqueId());
                             values.put(TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
+                            values.put(TimetableLessons.COLUMN_NAME_START_TIME, lesson.getStartTime().getMillisOfDay());
+                            values.put(TimetableLessons.COLUMN_NAME_END_TIME, lesson.getEndTime().getMillisOfDay());
                             values.put(TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
                             values.put(TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
                             values.put(TimetableLessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
@@ -299,6 +300,8 @@ public class LibrusUpdateService {
                         values.put(TimetableLessons.COLUMN_NAME_ID, lesson.getId());
                         values.put(TimetableLessons.COLUMN_NAME_UNIQUE_ID, lesson.getUniqueId());
                         values.put(TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
+                        values.put(TimetableLessons.COLUMN_NAME_START_TIME, lesson.getStartTime().getMillisOfDay());
+                        values.put(TimetableLessons.COLUMN_NAME_END_TIME, lesson.getEndTime().getMillisOfDay());
                         values.put(TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
                         values.put(TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
                         values.put(TimetableLessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());

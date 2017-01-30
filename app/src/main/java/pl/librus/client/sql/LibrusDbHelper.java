@@ -120,16 +120,22 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
 
                 String id = cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ID));
 
+                LocalTime startTime = new LocalTime(
+                        cursor.getLong(
+                                cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_START_TIME)));
+                LocalTime endTime = new LocalTime(
+                        cursor.getLong(
+                                cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_END_TIME)));
                 Lesson lesson;
 
                 if (canceled) {
-                    lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher, true);
+                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher, true);
                 } else if (substitution) {
-                    lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher,
+                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher,
                             cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID)),
                             cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID)));
                 } else {
-                    lesson = new Lesson(id, lessonNumber, date, LocalTime.now(), LocalTime.now(), subject, teacher);
+                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher);
                 }
                 result.add(lesson);
             }
