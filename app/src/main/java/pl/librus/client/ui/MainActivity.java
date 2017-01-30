@@ -224,11 +224,12 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         drawer = drawerBuilder.build();
 
         //show the default fragment
-        final MainFragment defaultFragment = getFragmentForId(Integer.parseInt(prefs.
+        int id = Integer.parseInt(prefs.
                 getString(
                         getString(R.string.prefs_default_fragment),
                         getString(R.string.timetable_view_key)
-                )));
+                ));
+        final MainFragment defaultFragment = getFragmentForId(id);
         //when first fragment is set up, start the update
         defaultFragment.setOnSetupCompleteLister(new MainFragment.OnSetupCompleteListener() {
             @Override
@@ -237,10 +238,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 defaultFragment.removeListener();
             }
         });
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction
-                .replace(R.id.content_main, (Fragment) defaultFragment)
-                .commit();
+        drawer.setSelection(id);
     }
 
     private void refresh() {

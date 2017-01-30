@@ -7,27 +7,21 @@
             android:entries="@array/default_view_entries"
             android:entryValues="@array/default_view_entry_values"
             android:key="@string/prefs_default_fragment"
-            android:title="@string/default_view"/>
+            android:title="@string/default_view" />
+
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Plan lekcji">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/prefs_use_tabs"
+            android:title="Używaj zakładek zamiast listy" />
         <SwitchPreference
             android:defaultValue="1"
-            android:key="greyOutFinishedLessons"
+            android:key="@string/prefs_grey_out_finished_lessons"
             android:title="Wyszarzaj zakończone lekcje" />
         <SwitchPreference
             android:defaultValue="1"
-            android:key="currentLessonBold"
+            android:key="@string/prefs_currrent_lesson_bold"
             android:title="Pogrubiaj bieżącą lekcję" />
-
-        <SwitchPreference
-            android:defaultValue="1"
-            android:key="useRelativeTabNames"
-            android:title="Relatywne nazwy zakładek" />
-        <SwitchPreference
-            android:defaultValue="1"
-            android:key="displayDates"
-            android:title="Daty zamiast dni tygodnia" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="useTabs"
-            android:title="Używaj zakładek zamiast listy" />
     </PreferenceCategory>
 </PreferenceScreen>

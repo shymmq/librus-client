@@ -81,4 +81,7 @@
 
     <string name="prefs_default_fragment">default_fragment</string>
     <string name="default_view">Domyślny widok</string>
+    <string name="prefs_grey_out_finished_lessons">greyOutFinishedLessons</string>
+    <string name="prefs_use_tabs">useTabs</string>
+    <string name="prefs_currrent_lesson_bold">currentLessonBold</string>
 </resources>
