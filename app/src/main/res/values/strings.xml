@@ -84,4 +84,5 @@
     <string name="prefs_grey_out_finished_lessons">greyOutFinishedLessons</string>
     <string name="prefs_use_tabs">useTabs</string>
     <string name="prefs_currrent_lesson_bold">currentLessonBold</string>
+    <string name="close">Zamknij</string>
 </resources>

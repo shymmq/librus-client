@@ -132,6 +132,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/grade_details_add_date_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -143,7 +144,7 @@
             android:text="@string/add_date" />
 
         <TextView
-            android:id="@+id/grade_details_addDate"
+            android:id="@+id/grade_details_add_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/placeholder_datetime"

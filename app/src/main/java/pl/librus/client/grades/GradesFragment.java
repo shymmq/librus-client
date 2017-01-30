@@ -171,19 +171,25 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             TextView categoryTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_category);
             TextView subjectTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_subject);
             TextView dateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_date);
-            TextView addDateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_addDate);
             TextView addedByTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_addedBy);
             TextView weightTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_weight);
 
             View commentContainer = dialogLayout.findViewById(R.id.grade_details_comment_container);
             View weightContainer = dialogLayout.findViewById(R.id.grade_details_weight_container);
+            View addDateContainer = dialogLayout.findViewById(R.id.grade_details_add_date_container);
 
             gradeTextView.setText(grade.getGrade());
             categoryTextView.setText(gc.getName());
             subjectTextView.setText(header.getSubject().getName());
-            dateTextView.setText(grade.getDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
-            addDateTextView.setText(grade.getAddDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
             weightTextView.setText(String.valueOf(gc.getWeight()));
+            dateTextView.setText(grade.getDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
+            if (grade.getAddDate().toLocalDate().isEqual(grade.getDate())) {
+                addDateContainer.setVisibility(View.GONE);
+            } else {
+                addDateContainer.setVisibility(View.VISIBLE);
+                TextView addDateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_add_date);
+                addDateTextView.setText(grade.getAddDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
+            }
 
             Grade.Type type = grade.getType();
             weightContainer.setVisibility(type == Grade.Type.NORMAL ? View.VISIBLE : View.GONE);
@@ -203,7 +209,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             new MaterialDialog.Builder(getContext())
                     .title(header.getSubject().getName())
                     .customView(dialogLayout, true)
-                    .positiveText("Zamknij")
+                    .positiveText(R.string.close)
                     .show();
         } else //noinspection StatementWithEmptyBody
             if (item instanceof AverageItem) {
