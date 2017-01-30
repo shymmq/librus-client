@@ -84,11 +84,11 @@ public class Lesson implements Serializable, Comparable<Lesson> {
     }
 
     //moved
-    public Lesson(String id,
-                  int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-                  Subject subject, Teacher teacher,
-                  String newSubjectId, String newTeacherId,
-                  int newLessonNo, LocalDate newDate) {
+    Lesson(String id,
+           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
+           Subject subject, Teacher teacher,
+           String newSubjectId, String newTeacherId,
+           int newLessonNo, LocalDate newDate) {
         this.id = id;
         this.lessonNumber = lessonNumber;
         this.subject = subject;
@@ -150,7 +150,7 @@ public class Lesson implements Serializable, Comparable<Lesson> {
     }
 
     public String getUniqueId() {
-        return id + lessonNumber + date.getWeekOfWeekyear();
+        return id + "-" + lessonNumber + "-" + date.getDayOfMonth() + "-" + date.getYearOfCentury();
     }
 
     @Override
@@ -160,13 +160,14 @@ public class Lesson implements Serializable, Comparable<Lesson> {
 
         Lesson lesson = (Lesson) o;
 
-        return id.equals(lesson.id) && date.equals(lesson.date);
+        return lessonNumber == lesson.lessonNumber && id.equals(lesson.id) && date.equals(lesson.date);
 
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
+        int result = lessonNumber;
+        result = 31 * result + id.hashCode();
         result = 31 * result + date.hashCode();
         return result;
     }

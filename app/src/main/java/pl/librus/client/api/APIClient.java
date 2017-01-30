@@ -543,7 +543,7 @@ public class APIClient {
                         for (int i = 0; i < rawSchoolDay.length(); i++) {
                             if (rawSchoolDay.getJSONArray(i).length() != 0) {
                                 JSONObject rawLesson = rawSchoolDay.getJSONArray(i).getJSONObject(0);
-                                String id = rawLesson.getJSONObject("Lesson").getString("Id") + date.toString();
+                                String id = rawLesson.getJSONObject("Lesson").getString("Id");
                                 boolean isCanceled = rawLesson.getBoolean("IsCanceled");
                                 boolean isSubstitutionClass = rawLesson.getBoolean("IsSubstitutionClass");
                                 int lessonNumber = rawLesson.getInt("LessonNo");

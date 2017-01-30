@@ -3,12 +3,12 @@ package pl.librus.client.sql;
 import android.provider.BaseColumns;
 
 /**
- * CClass containing constants for creating the database like table names, column names, data types, db version etc.
+ * Class containing constants for creating the database like table names, column names, data types, db version etc.
  */
 
 public class LibrusDbContract {
 
-    static final int DB_VERSION = 21;
+    static final int DB_VERSION = 23;
     static final String DB_NAME = "database.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
