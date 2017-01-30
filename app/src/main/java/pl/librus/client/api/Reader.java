@@ -13,6 +13,7 @@ import java.util.Set;
 
 public class Reader {
     static public final String TYPE_ANNOUNCEMENT = "ReadAnnouncements";
+    static public final String TYPE_GRADE = "ReadGrades";
 
     public static boolean isRead(String type, String id, Context c) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
@@ -33,7 +34,7 @@ public class Reader {
         SharedPreferences.Editor editor = prefs.edit();
         Set<String> read = prefs.getStringSet(type, new HashSet<String>());
         editor.remove(type);
-        editor.commit();
+        editor.apply();
         if (mode) read.add(id);
         else read.remove(id);
         editor.putStringSet(type, read);

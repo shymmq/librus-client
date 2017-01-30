@@ -2,6 +2,7 @@ package pl.librus.client.grades;
 
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import pl.librus.client.R;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
 import pl.librus.client.api.GradeComment;
+import pl.librus.client.api.Reader;
 import pl.librus.client.api.Subject;
 import pl.librus.client.api.Teacher;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
@@ -158,7 +160,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
     }
 
     @Override
-    public boolean onItemClick(int position) {
+    public boolean onItemClick(final int position) {
         AbstractFlexibleItem item = adapter.getItem(position);
         if (item instanceof GradeItem) {
             GradeItem gradeItem = (GradeItem) item;
@@ -210,7 +212,15 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
                     .title(header.getSubject().getName())
                     .customView(dialogLayout, true)
                     .positiveText(R.string.close)
+                    .dismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            adapter.notifyItemChanged(position);
+                        }
+                    })
                     .show();
+            Reader.read(Reader.TYPE_GRADE, grade.getId(), getContext());
+
         } else //noinspection StatementWithEmptyBody
             if (item instanceof AverageItem) {
                 //TODO

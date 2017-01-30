@@ -14,6 +14,7 @@ import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.Grade;
 import pl.librus.client.api.GradeCategory;
+import pl.librus.client.api.Reader;
 
 class GradeItem extends GradeEntryItem<GradeItem.ViewHolder, GradeHeaderItem> {
     private final Grade grade;
@@ -47,7 +48,8 @@ class GradeItem extends GradeEntryItem<GradeItem.ViewHolder, GradeHeaderItem> {
         holder.grade.setText(grade.getGrade());
         holder.title.setText(gc.getName());
         holder.subtitle.setText(grade.getDate().toString("EEEE, d MMMM", new Locale("pl")));
-        holder.commentBadge.setVisibility(grade.getCommentId() == null ? View.GONE : View.VISIBLE);
+        holder.unreadBadge.setVisibility(
+                Reader.isRead(Reader.TYPE_GRADE, grade.getId(), holder.itemView.getContext()) ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -71,7 +73,7 @@ class GradeItem extends GradeEntryItem<GradeItem.ViewHolder, GradeHeaderItem> {
 
     class ViewHolder extends FlexibleViewHolder {
 
-        private final ImageView commentBadge;
+        private final ImageView unreadBadge;
         private final TextView grade, title, subtitle;
 
         ViewHolder(View view, FlexibleAdapter adapter) {
@@ -79,7 +81,7 @@ class GradeItem extends GradeEntryItem<GradeItem.ViewHolder, GradeHeaderItem> {
             grade = (TextView) itemView.findViewById(R.id.grade_item_grade);
             title = (TextView) itemView.findViewById(R.id.grade_item_title);
             subtitle = (TextView) itemView.findViewById(R.id.grade_item_subtitle);
-            commentBadge = (ImageView) itemView.findViewById(R.id.grade_item_comment_badge);
+            unreadBadge = (ImageView) itemView.findViewById(R.id.grade_item_unread_badge);
         }
     }
 }

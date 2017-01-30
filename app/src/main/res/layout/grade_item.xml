@@ -21,7 +21,7 @@
         android:layout_alignBottom="@+id/grade_item_grade"
         android:layout_below="@+id/space"
         android:layout_toEndOf="@+id/grade_item_grade"
-        android:layout_toStartOf="@+id/grade_item_comment_badge"
+        android:layout_toStartOf="@+id/grade_item_unread_badge"
         android:gravity="center_vertical"
         android:text=""
         android:textColor="?android:attr/textColorSecondary"
@@ -34,7 +34,7 @@
         android:layout_above="@+id/space"
         android:layout_alignTop="@+id/grade_item_grade"
         android:layout_toEndOf="@+id/grade_item_grade"
-        android:layout_toStartOf="@+id/grade_item_comment_badge"
+        android:layout_toStartOf="@+id/grade_item_unread_badge"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
@@ -61,15 +61,15 @@
         android:textSize="16sp" />
 
     <ImageView
-        android:id="@+id/grade_item_comment_badge"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:id="@+id/grade_item_unread_badge"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:contentDescription="@string/comment"
-        android:tint="@color/iconDark"
-        app:srcCompat="@drawable/ic_message_black_48dp" />
+        android:tint="@color/md_deep_orange_500"
+        app:srcCompat="@drawable/ic_new_releases_black_48dp" />
 
 </RelativeLayout>
