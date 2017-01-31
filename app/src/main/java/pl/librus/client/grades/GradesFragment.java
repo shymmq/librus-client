@@ -25,12 +25,11 @@ import java.util.Map;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
-import pl.librus.client.api.Grade;
-import pl.librus.client.api.GradeCategory;
-import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.Reader;
-import pl.librus.client.api.Subject;
-import pl.librus.client.api.Teacher;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
@@ -89,10 +88,10 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
 
         for (Grade grade : grades) {
             GradeItem item = new GradeItem(
-                    headers.get(grade.getSubjectId()),
+                    headers.get(grade.getSubject().getId()),
                     grade,
-                    dbHelper.getGradeCategory(grade.getCategoryId()));
-            headers.get(grade.getSubjectId()).addSubItem(item);
+                    dbHelper.getGradeCategory(grade.getCategory().getId()));
+            headers.get(grade.getSubject().getId()).addSubItem(item);
         }
 //        for (Average average : gradeCache.getAverages()) {
 //            AverageItem item = new AverageItem(
@@ -197,17 +196,17 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             weightContainer.setVisibility(type == Grade.Type.NORMAL ? View.VISIBLE : View.GONE);
             LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
 
-            Teacher addedBy = dbHelper.getTeacher(grade.getAddedById());
+            Teacher addedBy = dbHelper.getTeacher(grade.getAddedBy().getId());
             addedByTextView.setText(addedBy.getName());
-            //If comment != null, retrieve it from the database by its id.
-            if (grade.getCommentId() != null) {
-                commentContainer.setVisibility(View.VISIBLE);
-                GradeComment comment = dbHelper.getGradeComment(grade.getCommentId());
-                TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
-                commentTextView.setText(comment.getText());
-            } else {
-                commentContainer.setVisibility(View.GONE);
-            }
+//            //If comment != null, retrieve it from the database by its id.
+//            if (grade.getCommentId() != null) {
+//                commentContainer.setVisibility(View.VISIBLE);
+//                GradeComment comment = dbHelper.getGradeComment(grade.getCommentId());
+//                TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
+//                commentTextView.setText(comment.getText());
+//            } else {
+//                commentContainer.setVisibility(View.GONE);
+//            }
             new MaterialDialog.Builder(getContext())
                     .title(header.getSubject().getName())
                     .customView(dialogLayout, true)

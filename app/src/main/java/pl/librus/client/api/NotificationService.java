@@ -16,6 +16,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import pl.librus.client.R;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -99,7 +101,7 @@ public class NotificationService {
         int size = grades.size();
         if (size == 1) {
             Grade grade = grades.get(0);
-            String subject = data.getSubjectMap().get(grade.getSubjectId()).getName();
+            String subject = data.getSubjectMap().get(grade.getSubject().getId()).getName();
             sendNotification("Nowa ocena", subject + " " + grade.getGrade(), R.drawable.ic_assignment_black_48dp, null, null, MainActivity.FRAGMENT_GRADES_ID);
         } else if (size > 1) {
             String title;
@@ -112,7 +114,7 @@ public class NotificationService {
                     .setSummaryText(data.getAccount().getLogin() + " - " + data.getAccount().getName());
             for (Grade g : grades) {
 //                String category = data.getGradeCategoriesMap().get(g.getCategoryId()).getName();
-                String subject = data.getSubjectMap().get(g.getSubjectId()).getName();
+                String subject = data.getSubjectMap().get(g.getSubject().getId()).getName();
                 style.addLine(g.getGrade() + " " + subject);
                 if (!subjects.contains(subject))
                     subjects.add(subject);

@@ -138,19 +138,19 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         //Drawer setup
         LuckyNumber luckyNumber = dbHelper.getLastLuckyNumber();
         Cursor cursor = db.query(
-                LibrusDbContract.Account.TABLE_NAME,
+                LibrusDbContract.MeTable.TABLE_NAME,
                 new String[]{
-                        LibrusDbContract.Account.COLUMN_NAME_USERNAME,
-                        LibrusDbContract.Account.COLUMN_NAME_FIRST_NAME,
-                        LibrusDbContract.Account.COLUMN_NAME_LAST_NAME},
+                        LibrusDbContract.MeTable.COLUMN_NAME_USERNAME,
+                        LibrusDbContract.MeTable.COLUMN_NAME_FIRST_NAME,
+                        LibrusDbContract.MeTable.COLUMN_NAME_LAST_NAME},
                 null, null, null, null, null, null);
         String name, username;
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
-            name = cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.Account.COLUMN_NAME_FIRST_NAME)) +
+            name = cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.MeTable.COLUMN_NAME_FIRST_NAME)) +
                     ' ' +
-                    cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.Account.COLUMN_NAME_LAST_NAME));
-            username = cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.Account.COLUMN_NAME_USERNAME));
+                    cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.MeTable.COLUMN_NAME_LAST_NAME));
+            username = cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.MeTable.COLUMN_NAME_USERNAME));
         } else {
             name = "";
             username = "";

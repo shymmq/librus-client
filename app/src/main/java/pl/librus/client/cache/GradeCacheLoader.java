@@ -15,9 +15,9 @@ import java.util.List;
 
 import pl.librus.client.api.APIClient;
 import pl.librus.client.api.Average;
-import pl.librus.client.api.Grade;
-import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.TextGrade;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.GradeComment;
 
 /**
  * Created by szyme on 21.01.2017.

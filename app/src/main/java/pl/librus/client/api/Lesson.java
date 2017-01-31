@@ -2,28 +2,34 @@ package pl.librus.client.api;
 
 import android.support.annotation.NonNull;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
-import java.io.Serializable;
+import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.Teacher;
 
 
-public class Lesson implements Serializable, Comparable<Lesson> {
+public class Lesson implements Comparable<Lesson> {
 
 
-    private static final long serialVersionUID = 3925316087529938003L;
-    private final int lessonNumber;
-    private final Subject subject;
-    private final Teacher teacher;
-    private final String id, orgSubjectId, orgTeacherId;
-    private final boolean isSubstitutionClass, isCanceled;
-    private final LocalDate date;
-    private final LocalTime startTime, endTime;
+    @JsonProperty("LessonNo")
+    private int lessonNumber;
+    private Subject subject;
+    private Teacher teacher;
+    private String id, orgSubjectId, orgTeacherId;
+    private boolean isSubstitutionClass, isCanceled;
+    private LocalDate date;
+    private LocalTime startTime, endTime;
 
     //for moved lessons
-    private final String newSubjectId, newTeacherId;
-    private final LocalDate newDate;
-    private final int newLessonNo;
+    private String newSubjectId, newTeacherId;
+    private LocalDate newDate;
+    private int newLessonNo;
+
+    public Lesson() {
+    }
 
     //normal lesson
     public Lesson(String id,
@@ -191,5 +197,26 @@ public class Lesson implements Serializable, Comparable<Lesson> {
     @Override
     public int compareTo(@NonNull Lesson o) {
         return Integer.compare(lessonNumber, o.lessonNumber);
+    }
+
+    @Override
+    public String toString() {
+        return "Lesson{" +
+                "lessonNumber=" + lessonNumber +
+                ", subject=" + subject +
+                ", teacher=" + teacher +
+                ", id='" + id + '\'' +
+                ", orgSubjectId='" + orgSubjectId + '\'' +
+                ", orgTeacherId='" + orgTeacherId + '\'' +
+                ", isSubstitutionClass=" + isSubstitutionClass +
+                ", isCanceled=" + isCanceled +
+                ", date=" + date +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", newSubjectId='" + newSubjectId + '\'' +
+                ", newTeacherId='" + newTeacherId + '\'' +
+                ", newDate=" + newDate +
+                ", newLessonNo=" + newLessonNo +
+                '}';
     }
 }

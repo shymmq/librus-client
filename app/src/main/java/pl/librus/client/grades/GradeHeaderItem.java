@@ -6,21 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.Collections;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractExpandableHeaderItem;
+import eu.davidea.flexibleadapter.items.ISectionable;
 import eu.davidea.viewholders.ExpandableViewHolder;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
-import pl.librus.client.api.Subject;
+import pl.librus.client.datamodel.Subject;
 
 /**
  * Created by szyme on 01.01.2017.
  */
 
-class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewHolder, GradeEntryItem> implements Comparable<GradeHeaderItem> {
+class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewHolder, ISectionable> implements Comparable<GradeHeaderItem> {
 
     private static final String TAG = "librus-client-log";
     private Subject subject;
@@ -49,14 +49,14 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
     }
 
     @Override
-    public void addSubItem(GradeEntryItem subItem) {
+    public void addSubItem(ISectionable subItem) {
         super.addSubItem(subItem);
         if (subItem instanceof GradeItem)
             gradeCount++;
     }
 
     GradeHeaderItem sort() {
-        if (mSubItems != null) Collections.sort(mSubItems, Collections.reverseOrder());
+//        if (mSubItems != null) Collections.sort(mSubItems, Collections.reverseOrder());
         return this;
     }
 

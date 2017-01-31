@@ -12,17 +12,17 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
-import pl.librus.client.api.Attendance;
-import pl.librus.client.api.AttendanceCategory;
-import pl.librus.client.api.PlainLesson;
-import pl.librus.client.api.Subject;
+import pl.librus.client.datamodel.Attendance;
+import pl.librus.client.datamodel.AttendanceType;
+import pl.librus.client.datamodel.PlainLesson;
+import pl.librus.client.datamodel.Subject;
 import pl.librus.client.sql.LibrusDbHelper;
 
 class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, AttendanceHeaderItem> {
+    private final AttendanceType category;
     private Attendance attendance;
-    private final AttendanceCategory category;
 
-    AttendanceItem(AttendanceHeaderItem header, Attendance attendance, AttendanceCategory category) {
+    AttendanceItem(AttendanceHeaderItem header, Attendance attendance, AttendanceType category) {
         super(header);
         this.attendance = attendance;
         this.category = category;
@@ -43,8 +43,8 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
         holder.shortName.setText(category.getShortName());
         Context context = holder.itemView.getContext();
         LibrusDbHelper helper = new LibrusDbHelper(context);
-        PlainLesson lesson = helper.getLesson(attendance.getLessonId());
-        Subject subject = helper.getSubject(lesson.getSubjectId());
+        PlainLesson lesson = helper.getLesson(attendance.getLesson().getId());
+        Subject subject = helper.getSubject(lesson.getSubject().getId());
         holder.subject.setText(subject.getName());
         String lessonNumber = context.getString(R.string.lesson) + " " + attendance.getLessonNumber();
         holder.lesson.setText(lessonNumber);
@@ -70,7 +70,7 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
         return attendance;
     }
 
-    public AttendanceCategory getCategory() {
+    public AttendanceType getCategory() {
         return category;
     }
 

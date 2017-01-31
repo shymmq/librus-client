@@ -19,13 +19,21 @@ import java.util.List;
 import java.util.Map;
 
 import pl.librus.client.LibrusUtils;
+import pl.librus.client.datamodel.Attendance;
+import pl.librus.client.datamodel.AttendanceType;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.PlainLesson;
+import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.sql.LibrusDbContract;
-import pl.librus.client.sql.LibrusDbContract.Account;
 import pl.librus.client.sql.LibrusDbContract.AttendanceCategories;
 import pl.librus.client.sql.LibrusDbContract.Attendances;
 import pl.librus.client.sql.LibrusDbContract.GradeCategories;
 import pl.librus.client.sql.LibrusDbContract.GradeComments;
 import pl.librus.client.sql.LibrusDbContract.Grades;
+import pl.librus.client.sql.LibrusDbContract.MeTable;
 import pl.librus.client.sql.LibrusDbContract.PlainLessons;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
 import pl.librus.client.sql.LibrusDbContract.Teachers;
@@ -71,7 +79,7 @@ public class LibrusUpdateService {
         tasks.add(updateSchoolWeeks());
         tasks.add(updateAttendances());
         tasks.add(updatePlainLessons());
-        tasks.add(updateAccount());
+        tasks.add(updateMe());
         new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
@@ -146,15 +154,18 @@ public class LibrusUpdateService {
                     ContentValues values = new ContentValues();
                     values.put(Grades.COLUMN_NAME_ID, g.getId());
                     values.put(Grades.COLUMN_NAME_GRADE, g.getGrade());
-                    values.put(Grades.COLUMN_NAME_SUBJECT_ID, g.getSubjectId());
-                    values.put(Grades.COLUMN_NAME_LESSON_ID, g.getLessonId());
-                    values.put(Grades.COLUMN_NAME_CATEGORY_ID, g.getCategoryId());
-                    values.put(Grades.COLUMN_NAME_COMMENT_ID, g.getCommentId());
-                    values.put(Grades.COLUMN_NAME_ADDED_BY_ID, g.getAddedById());
+                    values.put(Grades.COLUMN_NAME_STUDENT_ID, g.getStudent().getId());
+                    values.put(Grades.COLUMN_NAME_SUBJECT_ID, g.getSubject().getId());
+                    values.put(Grades.COLUMN_NAME_LESSON_ID, g.getLesson().getId());
+                    values.put(Grades.COLUMN_NAME_CATEGORY_ID, g.getCategory().getId());
+                    values.put(Grades.COLUMN_NAME_ADDED_BY_ID, g.getAddedBy().getId());
                     values.put(Grades.COLUMN_NAME_SEMESTER, g.getSemester());
                     values.put(Grades.COLUMN_NAME_DATE, g.getDate().toDateTimeAtStartOfDay().getMillis());
                     values.put(Grades.COLUMN_NAME_ADD_DATE, g.getAddDate().toDateTime().getMillis());
-                    values.put(Grades.COLUMN_NAME_TYPE, g.getType().ordinal());
+                    values.put(Grades.COLUMN_NAME_SEMESTER_TYPE, g.isSemesterType());
+                    values.put(Grades.COLUMN_NAME_SEMESTER_PROPOSITION_TYPE, g.isSemesterPropositionType());
+                    values.put(Grades.COLUMN_NAME_FINAL_TYPE, g.isFinalType());
+                    values.put(Grades.COLUMN_NAME_FINAL_PROPOSITION_TYPE, g.isFinalPropositionType());
                     db.insert(Grades.TABLE_NAME, null, values);
                 }
                 db.setTransactionSuccessful();
@@ -228,8 +239,8 @@ public class LibrusUpdateService {
                 for (GradeComment gc : result) {
                     ContentValues values = new ContentValues();
                     values.put(GradeComments.COLUMN_NAME_ID, gc.getId());
-                    values.put(GradeComments.COLUMN_NAME_ADDED_BY_ID, gc.getAddedById());
-                    values.put(GradeComments.COLUMN_NAME_GRADE_ID, gc.getGradeId());
+                    values.put(GradeComments.COLUMN_NAME_ADDED_BY_ID, gc.getAddedBy().getId());
+                    values.put(GradeComments.COLUMN_NAME_GRADE_ID, gc.getGrade().getId());
                     values.put(GradeComments.COLUMN_NAME_TEXT, gc.getText());
                     db.insert(GradeComments.TABLE_NAME, null, values);
                 }
@@ -239,14 +250,14 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<List<AttendanceCategory>, ?, ?> updateAttendanceCategories() {
-        return client.getAttendanceCategories().done(new DoneCallback<List<AttendanceCategory>>() {
+    private Promise<List<AttendanceType>, ?, ?> updateAttendanceCategories() {
+        return client.getAttendanceTypes().done(new DoneCallback<List<AttendanceType>>() {
             @Override
-            public void onDone(List<AttendanceCategory> result) {
+            public void onDone(List<AttendanceType> result) {
                 LibrusUtils.log("Saving " + result.size() + " attendance categories to database");
                 db.beginTransaction();
                 db.delete(AttendanceCategories.TABLE_NAME, null, null);
-                for (AttendanceCategory ac : result) {
+                for (AttendanceType ac : result) {
                     ContentValues values = new ContentValues();
                     values.put(AttendanceCategories.COLUMN_NAME_ID, ac.getId());
                     values.put(AttendanceCategories.COLUMN_NAME_NAME, ac.getName());
@@ -331,12 +342,12 @@ public class LibrusUpdateService {
                     ContentValues values = new ContentValues();
                     values.put(Attendances.COLUMN_NAME_ID, a.getId());
                     values.put(Attendances.COLUMN_NAME_ADD_DATE, a.getAddDate().toDateTime().getMillis());
-                    values.put(Attendances.COLUMN_NAME_ADDED_BY_ID, a.getAddedById());
+                    values.put(Attendances.COLUMN_NAME_ADDED_BY_ID, a.getAddedBy().getId());
                     values.put(Attendances.COLUMN_NAME_DATE, a.getDate().toDateTimeAtStartOfDay().getMillis());
-                    values.put(Attendances.COLUMN_NAME_LESSON_ID, a.getLessonId());
+                    values.put(Attendances.COLUMN_NAME_LESSON_ID, a.getLesson().getId());
                     values.put(Attendances.COLUMN_NAME_LESSON_NUMBER, a.getLessonNumber());
-                    values.put(Attendances.COLUMN_NAME_SEMESTER, a.getSemesterNumber());
-                    values.put(Attendances.COLUMN_NAME_TYPE_ID, a.getTypeId());
+                    values.put(Attendances.COLUMN_NAME_SEMESTER, a.getSemester());
+                    values.put(Attendances.COLUMN_NAME_TYPE_ID, a.getType().getId());
                     db.insert(Attendances.TABLE_NAME, null, values);
                 }
                 db.setTransactionSuccessful();
@@ -355,7 +366,7 @@ public class LibrusUpdateService {
                 for (PlainLesson pl : result) {
                     ContentValues values = new ContentValues();
                     values.put(PlainLessons.COLUMN_NAME_ID, pl.getId());
-                    values.put(PlainLessons.COLUMN_NAME_SUBJECT_ID, pl.getSubjectId());
+                    values.put(PlainLessons.COLUMN_NAME_SUBJECT_ID, pl.getSubject().getId());
                     values.put(PlainLessons.COLUMN_NAME_TEACHER_ID, pl.getId());
                     db.insert(PlainLessons.TABLE_NAME, null, values);
                 }
@@ -365,21 +376,21 @@ public class LibrusUpdateService {
         });
     }
 
-    private Promise<LibrusAccount, ?, ?> updateAccount() {
-        return client.getAccount().done(new DoneCallback<LibrusAccount>() {
+    private Promise<Me, ?, ?> updateMe() {
+        return client.getMe().done(new DoneCallback<Me>() {
             @Override
-            public void onDone(LibrusAccount result) {
+            public void onDone(Me result) {
                 LibrusUtils.log("Saving account to database");
                 db.beginTransaction();
-                db.delete(Account.TABLE_NAME, null, null);
+                db.delete(LibrusDbContract.MeTable.TABLE_NAME, null, null);
                 ContentValues values = new ContentValues();
-                values.put(Account.COLUMN_NAME_ID, result.getId());
-                values.put(Account.COLUMN_NAME_CLASS_ID, result.getClassId());
-                values.put(Account.COLUMN_NAME_FIRST_NAME, result.getFirstName());
-                values.put(Account.COLUMN_NAME_LAST_NAME, result.getLastName());
-                values.put(Account.COLUMN_NAME_USERNAME, result.getLogin());
-                values.put(Account.COLUMN_NAME_EMAIL, result.getEmail());
-                db.insert(Account.TABLE_NAME, null, values);
+                values.put(MeTable.COLUMN_NAME_ID, result.getAccount().getId());
+                values.put(LibrusDbContract.MeTable.COLUMN_NAME_CLASS_ID, result.getLibrusClass().getId());
+                values.put(LibrusDbContract.MeTable.COLUMN_NAME_FIRST_NAME, result.getAccount().getFirstName());
+                values.put(MeTable.COLUMN_NAME_LAST_NAME, result.getAccount().getLastName());
+                values.put(LibrusDbContract.MeTable.COLUMN_NAME_USERNAME, result.getAccount().getLogin());
+                values.put(LibrusDbContract.MeTable.COLUMN_NAME_EMAIL, result.getAccount().getEmail());
+                db.insert(MeTable.TABLE_NAME, null, values);
                 db.setTransactionSuccessful();
                 db.endTransaction();
             }

@@ -12,7 +12,7 @@ import java.util.Locale;
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
 import pl.librus.client.api.Reader;
-import pl.librus.client.api.Teacher;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
 
 /**
@@ -41,7 +41,7 @@ public class AnnouncementDetailsFragment extends Fragment {
         AnnouncementDetailsFragment fragment = new AnnouncementDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ANNOUNCEMENT, announcement);
-        args.putSerializable(ARG_AUTHOR, author);
+//        args.putSerializable(ARG_AUTHOR, author);
         fragment.setArguments(args);
         return fragment;
     }

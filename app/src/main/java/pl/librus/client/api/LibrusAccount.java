@@ -8,16 +8,17 @@ import java.io.Serializable;
 public class LibrusAccount implements Serializable {
     private static final long serialVersionUID = 432189466589507680L;
     private String id,
-            classId,
             firstName,
             lastName,
             login,
             email;
 
+    public LibrusAccount() {
+    }
+
     LibrusAccount(JSONObject data) throws JSONException {
-        JSONObject me = data.getJSONObject("Me");
-        this.classId = me.getJSONObject("Class").getString("Id");
-        JSONObject accountJSON = me.getJSONObject("Account");
+        JSONObject me = data.getJSONObject("MeTable");
+        JSONObject accountJSON = me.getJSONObject("MeTable");
         this.id = accountJSON.getString("Id");
         this.firstName = accountJSON.getString("FirstName");
         this.lastName = accountJSON.getString("LastName");
@@ -31,10 +32,6 @@ public class LibrusAccount implements Serializable {
 
     public String getId() {
         return id;
-    }
-
-    public String getClassId() {
-        return classId;
     }
 
     public String getFirstName() {
@@ -51,5 +48,16 @@ public class LibrusAccount implements Serializable {
 
     public String getEmail() {
         return email;
+    }
+
+    @Override
+    public String toString() {
+        return "LibrusAccount{" +
+                "id='" + id + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", login='" + login + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }

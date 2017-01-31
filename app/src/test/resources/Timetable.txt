@@ -1,0 +1,1370 @@
+{
+  "Timetable": {
+    "2017-01-30": [
+      [],
+      [
+        {
+          "Lesson": {
+            "Id": "2714865",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714865"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "1",
+          "TimetableEntry": {
+            "Id": "1023295",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023295"
+          },
+          "DayNo": "1",
+          "Subject": {
+            "Id": "44561",
+            "Name": "Godzina wychowawcza",
+            "Short": "gw",
+            "Url": "https://api.librus.pl/2.0/Subjects/44561"
+          },
+          "Teacher": {
+            "Id": "1235088",
+            "FirstName": "Grażyna",
+            "LastName": "Kołtuniak",
+            "Url": "https://api.librus.pl/2.0/Users/1235088"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:00",
+          "HourTo": "08:45",
+		  "NewDate": "2017-03-14"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "1822337",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822337"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "2",
+          "TimetableEntry": {
+            "Id": "1023876",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023876"
+          },
+          "DayNo": "1",
+          "Subject": {
+            "Id": "44565",
+            "Name": "Język angielski",
+            "Short": "jang",
+            "Url": "https://api.librus.pl/2.0/Subjects/44565"
+          },
+          "Teacher": {
+            "Id": "1235090",
+            "FirstName": "Katarzyna",
+            "LastName": "Krajewska",
+            "Url": "https://api.librus.pl/2.0/Users/1235090"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:55",
+          "HourTo": "09:40",
+          "VirtualClass": {
+            "Id": 720845,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/720845"
+          },
+          "VirtualClassName": "3e, 3f a2"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2729460",
+            "Url": "https://api.librus.pl/2.0/Lessons/2729460"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "3",
+          "TimetableEntry": {
+            "Id": "1024143",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024143"
+          },
+          "DayNo": "1",
+          "Subject": {
+            "Id": "44711",
+            "Name": "Edukacja dla bezpieczeństwa",
+            "Short": "edb",
+            "Url": "https://api.librus.pl/2.0/Subjects/44711"
+          },
+          "Teacher": {
+            "Id": "1235145",
+            "FirstName": "Krzysztof",
+            "LastName": "Tomaszewski",
+            "Url": "https://api.librus.pl/2.0/Users/1235145"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "09:50",
+          "HourTo": "10:35"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "1822374",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822374"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "4",
+          "TimetableEntry": {
+            "Id": "1023739",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023739"
+          },
+          "DayNo": "1",
+          "Subject": {
+            "Id": "44581",
+            "Name": "Wychowanie fizyczne",
+            "Short": "wf",
+            "Url": "https://api.librus.pl/2.0/Subjects/44581"
+          },
+          "Teacher": {
+            "Id": "1235058",
+            "FirstName": "Andrzej",
+            "LastName": "Długoszek",
+            "Url": "https://api.librus.pl/2.0/Users/1235058"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "10:45",
+          "HourTo": "11:30",
+          "VirtualClass": {
+            "Id": 720950,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/720950"
+          },
+          "VirtualClassName": "3d, 3e w2"
+        }
+      ],
+      [],
+      [
+        {
+          "Lesson": {
+            "Id": "2732545",
+            "Url": "https://api.librus.pl/2.0/Lessons/2732545"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "6",
+          "TimetableEntry": {
+            "Id": "1024284",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024284"
+          },
+          "DayNo": "1",
+          "Subject": {
+            "Id": "44569",
+            "Name": "Język polski",
+            "Short": "pol",
+            "Url": "https://api.librus.pl/2.0/Subjects/44569"
+          },
+          "Teacher": {
+            "Id": "1235106",
+            "FirstName": "Elżbieta",
+            "LastName": "Miłobędzka",
+            "Url": "https://api.librus.pl/2.0/Users/1235106"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "12:55",
+          "HourTo": "13:40"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2714334",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714334"
+          },
+          "DateFrom": "2017-01-30",
+          "DateTo": "2017-08-31",
+          "LessonNo": "7",
+          "TimetableEntry": {
+            "Id": "1070769",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1070769"
+          },
+          "DayNo": "1",
+          "Subject": {
+            "Id": "44908",
+            "Name": "Matematyka i media",
+            "Short": "mmed",
+            "Url": "https://api.librus.pl/2.0/Subjects/44908"
+          },
+          "Teacher": {
+            "Id": "1235065",
+            "FirstName": "Ewa",
+            "LastName": "Główka",
+            "Url": "https://api.librus.pl/2.0/Users/1235065"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "13:50",
+          "HourTo": "14:35"
+        }
+      ],
+      [],
+      []
+    ],
+    "2017-01-31": [
+      [],
+      [
+        {
+          "Lesson": {
+            "Id": "2728378",
+            "Url": "https://api.librus.pl/2.0/Lessons/2728378"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "1",
+          "TimetableEntry": {
+            "Id": "1024255",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024255"
+          },
+          "DayNo": "2",
+          "Subject": {
+            "Id": "44579",
+            "Name": "Wiedza o społeczeństwie",
+            "Short": "wos",
+            "Url": "https://api.librus.pl/2.0/Subjects/44579"
+          },
+          "Teacher": {
+            "Id": "1306848",
+            "FirstName": "Bartłomiej",
+            "LastName": "Pędzich",
+            "Url": "https://api.librus.pl/2.0/Users/1306848"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:00",
+          "HourTo": "08:45"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2714330",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714330"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "2",
+          "TimetableEntry": {
+            "Id": "1023269",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023269"
+          },
+          "DayNo": "2",
+          "Subject": {
+            "Id": "44570",
+            "Name": "Matematyka",
+            "Short": "mat",
+            "Url": "https://api.librus.pl/2.0/Subjects/44570"
+          },
+          "Teacher": {
+            "Id": "1235065",
+            "FirstName": "Ewa",
+            "LastName": "Główka",
+            "Url": "https://api.librus.pl/2.0/Users/1235065"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:55",
+          "HourTo": "09:40"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "1822337",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822337"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "3",
+          "TimetableEntry": {
+            "Id": "1023877",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023877"
+          },
+          "DayNo": "2",
+          "Subject": {
+            "Id": "44565",
+            "Name": "Język angielski",
+            "Short": "jang",
+            "Url": "https://api.librus.pl/2.0/Subjects/44565"
+          },
+          "Teacher": {
+            "Id": "1235090",
+            "FirstName": "Katarzyna",
+            "LastName": "Krajewska",
+            "Url": "https://api.librus.pl/2.0/Users/1235090"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "09:50",
+          "HourTo": "10:35",
+          "VirtualClass": {
+            "Id": 720845,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/720845"
+          },
+          "VirtualClassName": "3e, 3f a2"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "1822374",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822374"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "4",
+          "TimetableEntry": {
+            "Id": "1023740",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023740"
+          },
+          "DayNo": "2",
+          "Subject": {
+            "Id": "44581",
+            "Name": "Wychowanie fizyczne",
+            "Short": "wf",
+            "Url": "https://api.librus.pl/2.0/Subjects/44581"
+          },
+          "Teacher": {
+            "Id": "1235058",
+            "FirstName": "Andrzej",
+            "LastName": "Długoszek",
+            "Url": "https://api.librus.pl/2.0/Users/1235058"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "10:45",
+          "HourTo": "11:30",
+          "VirtualClass": {
+            "Id": 720950,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/720950"
+          },
+          "VirtualClassName": "3d, 3e w2"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "1822374",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822374"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "5",
+          "TimetableEntry": {
+            "Id": "1023741",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023741"
+          },
+          "DayNo": "2",
+          "Subject": {
+            "Id": "44581",
+            "Name": "Wychowanie fizyczne",
+            "Short": "wf",
+            "Url": "https://api.librus.pl/2.0/Subjects/44581"
+          },
+          "Teacher": {
+            "Id": "1235058",
+            "FirstName": "Andrzej",
+            "LastName": "Długoszek",
+            "Url": "https://api.librus.pl/2.0/Users/1235058"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "11:50",
+          "HourTo": "12:35",
+          "VirtualClass": {
+            "Id": 720950,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/720950"
+          },
+          "VirtualClassName": "3d, 3e w2"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2732545",
+            "Url": "https://api.librus.pl/2.0/Lessons/2732545"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "6",
+          "TimetableEntry": {
+            "Id": "1024286",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024286"
+          },
+          "DayNo": "2",
+          "Subject": {
+            "Id": "44569",
+            "Name": "Język polski",
+            "Short": "pol",
+            "Url": "https://api.librus.pl/2.0/Subjects/44569"
+          },
+          "Teacher": {
+            "Id": "1235106",
+            "FirstName": "Elżbieta",
+            "LastName": "Miłobędzka",
+            "Url": "https://api.librus.pl/2.0/Users/1235106"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "12:55",
+          "HourTo": "13:40"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2732545",
+            "Url": "https://api.librus.pl/2.0/Lessons/2732545"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "7",
+          "TimetableEntry": {
+            "Id": "1024287",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024287"
+          },
+          "DayNo": "2",
+          "Subject": {
+            "Id": "44569",
+            "Name": "Język polski",
+            "Short": "pol",
+            "Url": "https://api.librus.pl/2.0/Subjects/44569"
+          },
+          "Teacher": {
+            "Id": "1235106",
+            "FirstName": "Elżbieta",
+            "LastName": "Miłobędzka",
+            "Url": "https://api.librus.pl/2.0/Users/1235106"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "13:50",
+          "HourTo": "14:35"
+        }
+      ],
+      [],
+      []
+    ],
+    "2017-02-01": [
+      [],
+      [
+        {
+          "Lesson": {
+            "Id": "2729216",
+            "Url": "https://api.librus.pl/2.0/Lessons/2729216"
+          },
+          "DateFrom": "2017-01-30",
+          "DateTo": "2017-08-31",
+          "LessonNo": "1",
+          "TimetableEntry": {
+            "Id": "1070767",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1070767"
+          },
+          "DayNo": "3",
+          "Subject": {
+            "Id": "44555",
+            "Name": "Biologia",
+            "Short": "bio",
+            "Url": "https://api.librus.pl/2.0/Subjects/44555"
+          },
+          "Teacher": {
+            "Id": "1235135",
+            "FirstName": "Renata",
+            "LastName": "Sidoruk-Sołoducha",
+            "Url": "https://api.librus.pl/2.0/Users/1235135"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:00",
+          "HourTo": "08:45"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2714330",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714330"
+          },
+          "DateFrom": "2017-01-30",
+          "DateTo": "2017-08-31",
+          "LessonNo": "2",
+          "TimetableEntry": {
+            "Id": "1070768",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1070768"
+          },
+          "DayNo": "3",
+          "Subject": {
+            "Id": "44570",
+            "Name": "Matematyka",
+            "Short": "mat",
+            "Url": "https://api.librus.pl/2.0/Subjects/44570"
+          },
+          "Teacher": {
+            "Id": "1235065",
+            "FirstName": "Ewa",
+            "LastName": "Główka",
+            "Url": "https://api.librus.pl/2.0/Users/1235065"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:55",
+          "HourTo": "09:40"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2714330",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714330"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "3",
+          "TimetableEntry": {
+            "Id": "1023268",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023268"
+          },
+          "DayNo": "3",
+          "Subject": {
+            "Id": "44570",
+            "Name": "Matematyka",
+            "Short": "mat",
+            "Url": "https://api.librus.pl/2.0/Subjects/44570"
+          },
+          "Teacher": {
+            "Id": "1235065",
+            "FirstName": "Ewa",
+            "LastName": "Główka",
+            "Url": "https://api.librus.pl/2.0/Users/1235065"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "09:50",
+          "HourTo": "10:35"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2729348",
+            "Url": "https://api.librus.pl/2.0/Lessons/2729348"
+          },
+          "DateFrom": "2017-01-30",
+          "DateTo": "2017-08-31",
+          "LessonNo": "4",
+          "TimetableEntry": {
+            "Id": "1070760",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1070760"
+          },
+          "DayNo": "3",
+          "Subject": {
+            "Id": "44562",
+            "Name": "Historia",
+            "Short": "his",
+            "Url": "https://api.librus.pl/2.0/Subjects/44562"
+          },
+          "Teacher": {
+            "Id": "1235144",
+            "FirstName": "Małgorzata",
+            "LastName": "Szulc",
+            "Url": "https://api.librus.pl/2.0/Users/1235144"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "10:45",
+          "HourTo": "11:30"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2732545",
+            "Url": "https://api.librus.pl/2.0/Lessons/2732545"
+          },
+          "DateFrom": "2017-01-30",
+          "DateTo": "2017-08-31",
+          "LessonNo": "5",
+          "TimetableEntry": {
+            "Id": "1070761",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1070761"
+          },
+          "DayNo": "3",
+          "Subject": {
+            "Id": "44569",
+            "Name": "Język polski",
+            "Short": "pol",
+            "Url": "https://api.librus.pl/2.0/Subjects/44569"
+          },
+          "Teacher": {
+            "Id": "1235106",
+            "FirstName": "Elżbieta",
+            "LastName": "Miłobędzka",
+            "Url": "https://api.librus.pl/2.0/Users/1235106"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "11:50",
+          "HourTo": "12:35"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "1822374",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822374"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "6",
+          "TimetableEntry": {
+            "Id": "1023742",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023742"
+          },
+          "DayNo": "3",
+          "Subject": {
+            "Id": "44581",
+            "Name": "Wychowanie fizyczne",
+            "Short": "wf",
+            "Url": "https://api.librus.pl/2.0/Subjects/44581"
+          },
+          "Teacher": {
+            "Id": "1235058",
+            "FirstName": "Andrzej",
+            "LastName": "Długoszek",
+            "Url": "https://api.librus.pl/2.0/Users/1235058"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "12:55",
+          "HourTo": "13:40",
+          "VirtualClass": {
+            "Id": 720950,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/720950"
+          },
+          "VirtualClassName": "3d, 3e w2"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2714334",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714334"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "7",
+          "TimetableEntry": {
+            "Id": "1024385",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024385"
+          },
+          "DayNo": "3",
+          "Subject": {
+            "Id": "44908",
+            "Name": "Matematyka i media",
+            "Short": "mmed",
+            "Url": "https://api.librus.pl/2.0/Subjects/44908"
+          },
+          "Teacher": {
+            "Id": "1235065",
+            "FirstName": "Ewa",
+            "LastName": "Główka",
+            "Url": "https://api.librus.pl/2.0/Users/1235065"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "13:50",
+          "HourTo": "14:35"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "1825437",
+            "Url": "https://api.librus.pl/2.0/Lessons/1825437"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "8",
+          "TimetableEntry": {
+            "Id": "1024020",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024020"
+          },
+          "DayNo": "3",
+          "Subject": {
+            "Id": "44580",
+            "Name": "Wychowanie do życia w rodzinie",
+            "Short": "rodz",
+            "Url": "https://api.librus.pl/2.0/Subjects/44580"
+          },
+          "Teacher": {
+            "Id": "1235055",
+            "FirstName": "Magdalena",
+            "LastName": "Czerepko",
+            "Url": "https://api.librus.pl/2.0/Users/1235055"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "14:45",
+          "HourTo": "15:30",
+          "VirtualClass": {
+            "Id": 774622,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/774622"
+          },
+          "VirtualClassName": "3e, 3f, 3g"
+        }
+      ],
+      []
+    ],
+    "2017-02-02": [
+      [],
+      [
+        {
+          "Lesson": {
+            "Id": "2714863",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714863"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "1",
+          "TimetableEntry": {
+            "Id": "1024499",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024499"
+          },
+          "DayNo": "4",
+          "Subject": {
+            "Id": "44558",
+            "Name": "Fizyka",
+            "Short": "fiz",
+            "Url": "https://api.librus.pl/2.0/Subjects/44558"
+          },
+          "Teacher": {
+            "Id": "1235088",
+            "FirstName": "Grażyna",
+            "LastName": "Kołtuniak",
+            "Url": "https://api.librus.pl/2.0/Users/1235088"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:00",
+          "HourTo": "08:45"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2727123",
+            "Url": "https://api.librus.pl/2.0/Lessons/2727123"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "2",
+          "TimetableEntry": {
+            "Id": "1023561",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023561"
+          },
+          "DayNo": "4",
+          "Subject": {
+            "Id": "44560",
+            "Name": "Geografia",
+            "Short": "geo",
+            "Url": "https://api.librus.pl/2.0/Subjects/44560"
+          },
+          "Teacher": {
+            "Id": "1235110",
+            "FirstName": "Paweł",
+            "LastName": "Orzechowski",
+            "Url": "https://api.librus.pl/2.0/Users/1235110"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:55",
+          "HourTo": "09:40"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "1822337",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822337"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "3",
+          "TimetableEntry": {
+            "Id": "1023878",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023878"
+          },
+          "DayNo": "4",
+          "Subject": {
+            "Id": "44565",
+            "Name": "Język angielski",
+            "Short": "jang",
+            "Url": "https://api.librus.pl/2.0/Subjects/44565"
+          },
+          "Teacher": {
+            "Id": "1235090",
+            "FirstName": "Katarzyna",
+            "LastName": "Krajewska",
+            "Url": "https://api.librus.pl/2.0/Users/1235090"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "09:50",
+          "HourTo": "10:35",
+          "VirtualClass": {
+            "Id": 720845,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/720845"
+          },
+          "VirtualClassName": "3e, 3f a2"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2729348",
+            "Url": "https://api.librus.pl/2.0/Lessons/2729348"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "4",
+          "TimetableEntry": {
+            "Id": "1023477",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023477"
+          },
+          "DayNo": "4",
+          "Subject": {
+            "Id": "44562",
+            "Name": "Historia",
+            "Short": "his",
+            "Url": "https://api.librus.pl/2.0/Subjects/44562"
+          },
+          "Teacher": {
+            "Id": "1235144",
+            "FirstName": "Małgorzata",
+            "LastName": "Szulc",
+            "Url": "https://api.librus.pl/2.0/Users/1235144"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "10:45",
+          "HourTo": "11:30"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2714330",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714330"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "5",
+          "TimetableEntry": {
+            "Id": "1023266",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023266"
+          },
+          "DayNo": "4",
+          "Subject": {
+            "Id": "44570",
+            "Name": "Matematyka",
+            "Short": "mat",
+            "Url": "https://api.librus.pl/2.0/Subjects/44570"
+          },
+          "Teacher": {
+            "Id": "1235065",
+            "FirstName": "Ewa",
+            "LastName": "Główka",
+            "Url": "https://api.librus.pl/2.0/Users/1235065"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "11:50",
+          "HourTo": "12:35"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2729193",
+            "Url": "https://api.librus.pl/2.0/Lessons/2729193"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "6",
+          "TimetableEntry": {
+            "Id": "1024295",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024295"
+          },
+          "DayNo": "4",
+          "Subject": {
+            "Id": "44576",
+            "Name": "Religia",
+            "Short": "rel",
+            "Url": "https://api.librus.pl/2.0/Subjects/44576"
+          },
+          "Teacher": {
+            "Id": "1575835",
+            "FirstName": "Katarzyna",
+            "LastName": "Rzeplińska",
+            "Url": "https://api.librus.pl/2.0/Users/1575835"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "12:55",
+          "HourTo": "13:40",
+          "VirtualClass": {
+            "Id": 721270,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/721270"
+          },
+          "VirtualClassName": "3e"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2714373",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714373"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "7",
+          "TimetableEntry": {
+            "Id": "1024498",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024498"
+          },
+          "DayNo": "4",
+          "Subject": {
+            "Id": "44556",
+            "Name": "Chemia",
+            "Short": "che",
+            "Url": "https://api.librus.pl/2.0/Subjects/44556"
+          },
+          "Teacher": {
+            "Id": "1235072",
+            "FirstName": "Beata",
+            "LastName": "Jaszczak-Figiel",
+            "Url": "https://api.librus.pl/2.0/Users/1235072"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "13:50",
+          "HourTo": "14:35"
+        }
+      ],
+      [],
+      []
+    ],
+    "2017-02-03": [
+      [],
+      [
+        {
+          "Lesson": {
+            "Id": "1822337",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822337"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "1",
+          "TimetableEntry": {
+            "Id": "1023879",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023879"
+          },
+          "DayNo": "5",
+          "Subject": {
+            "Id": "44565",
+            "Name": "Język angielski",
+            "Short": "jang",
+            "Url": "https://api.librus.pl/2.0/Subjects/44565"
+          },
+          "Teacher": {
+            "Id": "1235090",
+            "FirstName": "Katarzyna",
+            "LastName": "Krajewska",
+            "Url": "https://api.librus.pl/2.0/Users/1235090"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:00",
+          "HourTo": "08:45",
+          "VirtualClass": {
+            "Id": 720845,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/720845"
+          },
+          "VirtualClassName": "3e, 3f a2"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2729216",
+            "Url": "https://api.librus.pl/2.0/Lessons/2729216"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "2",
+          "TimetableEntry": {
+            "Id": "1023558",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023558"
+          },
+          "DayNo": "5",
+          "Subject": {
+            "Id": "44555",
+            "Name": "Biologia",
+            "Short": "bio",
+            "Url": "https://api.librus.pl/2.0/Subjects/44555"
+          },
+          "Teacher": {
+            "Id": "1235135",
+            "FirstName": "Renata",
+            "LastName": "Sidoruk-Sołoducha",
+            "Url": "https://api.librus.pl/2.0/Users/1235135"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "08:55",
+          "HourTo": "09:40"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2714330",
+            "Url": "https://api.librus.pl/2.0/Lessons/2714330"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "3",
+          "TimetableEntry": {
+            "Id": "1023270",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023270"
+          },
+          "DayNo": "5",
+          "Subject": {
+            "Id": "44570",
+            "Name": "Matematyka",
+            "Short": "mat",
+            "Url": "https://api.librus.pl/2.0/Subjects/44570"
+          },
+          "Teacher": {
+            "Id": "1235065",
+            "FirstName": "Ewa",
+            "LastName": "Główka",
+            "Url": "https://api.librus.pl/2.0/Users/1235065"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "09:50",
+          "HourTo": "10:35"
+        }
+      ],
+      [],
+      [
+        {
+          "Lesson": {
+            "Id": "2729193",
+            "Url": "https://api.librus.pl/2.0/Lessons/2729193"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "5",
+          "TimetableEntry": {
+            "Id": "1024296",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024296"
+          },
+          "DayNo": "5",
+          "Subject": {
+            "Id": "44576",
+            "Name": "Religia",
+            "Short": "rel",
+            "Url": "https://api.librus.pl/2.0/Subjects/44576"
+          },
+          "Teacher": {
+            "Id": "1575835",
+            "FirstName": "Katarzyna",
+            "LastName": "Rzeplińska",
+            "Url": "https://api.librus.pl/2.0/Users/1575835"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "11:50",
+          "HourTo": "12:35",
+          "VirtualClass": {
+            "Id": 721270,
+            "Url": "https://api.librus.pl/2.0/VirtualClasses/721270"
+          },
+          "VirtualClassName": "3e"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2732545",
+            "Url": "https://api.librus.pl/2.0/Lessons/2732545"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "6",
+          "TimetableEntry": {
+            "Id": "1024288",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024288"
+          },
+          "DayNo": "5",
+          "Subject": {
+            "Id": "44569",
+            "Name": "Język polski",
+            "Short": "pol",
+            "Url": "https://api.librus.pl/2.0/Subjects/44569"
+          },
+          "Teacher": {
+            "Id": "1235106",
+            "FirstName": "Elżbieta",
+            "LastName": "Miłobędzka",
+            "Url": "https://api.librus.pl/2.0/Users/1235106"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "12:55",
+          "HourTo": "13:40"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2727123",
+            "Url": "https://api.librus.pl/2.0/Lessons/2727123"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "7",
+          "TimetableEntry": {
+            "Id": "1023560",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1023560"
+          },
+          "DayNo": "5",
+          "Subject": {
+            "Id": "44560",
+            "Name": "Geografia",
+            "Short": "geo",
+            "Url": "https://api.librus.pl/2.0/Subjects/44560"
+          },
+          "Teacher": {
+            "Id": "1235110",
+            "FirstName": "Paweł",
+            "LastName": "Orzechowski",
+            "Url": "https://api.librus.pl/2.0/Users/1235110"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "13:50",
+          "HourTo": "14:35"
+        }
+      ],
+      [
+        {
+          "Lesson": {
+            "Id": "2729409",
+            "Url": "https://api.librus.pl/2.0/Lessons/2729409"
+          },
+          "DateFrom": "2017-01-23",
+          "DateTo": "2017-08-31",
+          "LessonNo": "8",
+          "TimetableEntry": {
+            "Id": "1024167",
+            "Url": "https://api.librus.pl/2.0/TimetableEntries/1024167"
+          },
+          "DayNo": "5",
+          "Subject": {
+            "Id": "44572",
+            "Name": "Plastyka",
+            "Short": "plas",
+            "Url": "https://api.librus.pl/2.0/Subjects/44572"
+          },
+          "Teacher": {
+            "Id": "1406771",
+            "FirstName": "Bożena",
+            "LastName": "Śniecikowska",
+            "Url": "https://api.librus.pl/2.0/Users/1406771"
+          },
+          "Class": {
+            "Id": 56790,
+            "Url": "https://api.librus.pl/2.0/Classes/56790"
+          },
+          "IsSubstitutionClass": false,
+          "IsCanceled": false,
+          "SubstitutionNote": null,
+          "HourFrom": "14:45",
+          "HourTo": "15:30"
+        }
+      ],
+      []
+    ],
+    "2017-02-04": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    "2017-02-05": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  "Pages": {
+    "Next": "https://api.librus.pl/2.0/Timetables?weekStart=2017-02-06",
+    "Prev": "https://api.librus.pl/2.0/Timetables?weekStart=2017-01-23"
+  },
+  "Resources": {
+    "..": {
+      "Url": "https://api.librus.pl/2.0/Root"
+    }
+  },
+  "Url": "https://api.librus.pl/2.0/Timetables"
+}

@@ -6,6 +6,14 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.google.common.collect.Lists;
+
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
@@ -20,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +42,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import pl.librus.client.LibrusUtils;
+import pl.librus.client.datamodel.Attendance;
+import pl.librus.client.datamodel.AttendanceType;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.PlainLesson;
+import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.Teacher;
 
 import static pl.librus.client.LibrusUtils.log;
 
@@ -42,13 +59,15 @@ public class APIClient {
     private static final String TAG = "librus-client-log";
     private final Context context;
     private final OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(9, java.util.concurrent.TimeUnit.DAYS)
-            .writeTimeout(9, TimeUnit.DAYS)
-            .readTimeout(9, TimeUnit.DAYS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
             .build();
 
     public APIClient(Context _context) {
         context = _context;
+
+
     }
 
     public static Promise<String, Integer, Void> login(String username, String password, final Context c) {
@@ -104,6 +123,46 @@ public class APIClient {
             }
         });
         return deferred.promise();
+    }
+
+    private static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
+        ObjectMapper mapper = createMapper();
+        try {
+            JsonNode root = mapper.readTree(input);
+            TreeNode node = root.at("/" + topLevelName);
+            //noinspection unchecked
+            return Lists.newArrayList(mapper.treeToValue(node, getArrayClass(clazz)));
+        } catch (IOException e) {
+            LibrusUtils.log("Error parsing " + topLevelName, Log.ERROR);
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static <T> T parseObject(String input, String topLevelName, Class<T> clazz) {
+        ObjectMapper mapper = createMapper();
+        try {
+            JsonNode root = mapper.readTree(input);
+            TreeNode node = root.at("/" + topLevelName);
+            //noinspection unchecked
+            return mapper.treeToValue(node, clazz);
+        } catch (IOException e) {
+            LibrusUtils.log("Error parsing " + topLevelName, Log.ERROR);
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Class<? extends T[]> getArrayClass(Class<T> clazz) {
+        return (Class<? extends T[]>) Array.newInstance(clazz, 0).getClass();
+    }
+
+    private static ObjectMapper createMapper() {
+        return new ObjectMapper()
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .registerModule(new JodaModule());
     }
 
     private Promise<JSONObject, Integer, Void> APIRequest(final String endpoint) {
@@ -345,110 +404,89 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<List<Teacher>, Void, Void> getTeachers() {
-        final Deferred<List<Teacher>, Void, Void> deferred = new DeferredObject<>();
-
-        APIRequest("/Users").then(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                try {
-                    ArrayList<Teacher> res = new ArrayList<>();
-                    JSONArray rawTeachers = result.getJSONArray("Users");
-                    for (int i = 0; i < rawTeachers.length(); i++) {
-                        JSONObject rawTeacher = rawTeachers.getJSONObject(i);
-                        Teacher teacher = new Teacher(rawTeacher.getString("Id"), rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
-                        res.add(teacher);
-
-                    }
-                    deferred.resolve(res);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    deferred.reject(null);
-                }
-            }
-        });
-
-        return deferred.promise();
+    Promise<List<Teacher>, Void, Void> getTeachers() {
+        return getList("/Users", "Users", Teacher.class);
     }
 
-    public Promise<List<Subject>, Void, Void> getSubjects() {
-        final Deferred<List<Subject>, Void, Void> deferred = new DeferredObject<>();
+//    Promise<LibrusAccount, Void, Void> getAccount() {
+//        final Deferred<LibrusAccount, Void, Void> deferred = new DeferredObject<>();
+//        APIRequest("/MeTable").done(new DoneCallback<JSONObject>() {
+//            @Override
+//            public void onDone(JSONObject result) {
+//                try {
+//                    deferred.resolve(new LibrusAccount(result));
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).fail(new FailCallback<Integer>() {
+//            @Override
+//            public void onFail(Integer result) {
+//                deferred.reject(null);
+//            }
+//        });
+//        return deferred.promise();
+//    }
 
-        APIRequest("/Subjects").then(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                try {
-                    ArrayList<Subject> res = new ArrayList<>();
-                    JSONArray rawSubjects = result.getJSONArray("Subjects");
-                    for (int i = 0; i < rawSubjects.length(); i++) {
-                        JSONObject rawSubject = rawSubjects.getJSONObject(i);
-                        Subject subject = new Subject(rawSubject.getString("Id"), rawSubject.getString("Name"));
-                        res.add(subject);
-                    }
-                    deferred.resolve(res);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    deferred.reject(null);
-                }
-            }
-        });
-
-        return deferred.promise();
+    Promise<List<Subject>, Void, Void> getSubjects() {
+        return getList("/Subjects", "Subjects", Subject.class);
     }
 
     Promise<List<PlainLesson>, Void, Void> getPlainLessons() {
         final Deferred<List<PlainLesson>, Void, Void> deferred = new DeferredObject<>();
 
-        APIRequest("/Lessons").then(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                try {
-                    List<PlainLesson> res = new ArrayList<>();
-                    JSONArray rawPlainLessons = result.getJSONArray("Lessons");
-                    for (int i = 0; i < rawPlainLessons.length(); i++) {
-                        JSONObject rawLesson = rawPlainLessons.getJSONObject(i);
-                        JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
-                        JSONObject rawSubject = rawLesson.getJSONObject("Subject");
-                        res.add(new PlainLesson(
-                                rawLesson.getString("Id"),
-                                rawTeacher.getString("Id"),
-                                rawSubject.getString("Id")));
-                    }
-                    deferred.resolve(res);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    deferred.reject(null);
-                }
-            }
-        });
-
-        return deferred.promise();
+//        APIRequest("/Lessons").then(new DoneCallback<JSONObject>() {
+//            @Override
+//            public void onDone(JSONObject result) {
+//                try {
+//                    List<PlainLesson> res = new ArrayList<>();
+//                    JSONArray rawPlainLessons = result.getJSONArray("Lessons");
+//                    for (int i = 0; i < rawPlainLessons.length(); i++) {
+//                        JSONObject rawLesson = rawPlainLessons.getJSONObject(i);
+//                        JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
+//                        JSONObject rawSubject = rawLesson.getJSONObject("Subject");
+//                        res.add(new PlainLesson(
+//                                rawLesson.getString("Id"),
+//                                rawTeacher.getString("Id"),
+//                                rawSubject.getString("Id")));
+//                    }
+//                    deferred.resolve(res);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                    deferred.reject(null);
+//                }
+//            }
+//        });
+//
+//        return deferred.promise();
+        return getList("/Lessons", "Lessons", PlainLesson.class);
     }
 
-    public Promise<List<GradeCategory>, Void, Void> getGradeCategories() {
-        final Deferred<List<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
-        APIRequest("/Grades/Categories").done(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                try {
-                    ArrayList<GradeCategory> res = new ArrayList<>();
-                    JSONArray rawGradeCategories = result.getJSONArray("Categories");
-                    for (int i = 0; i < rawGradeCategories.length(); i++) {
-                        JSONObject rawGradeCategory = rawGradeCategories.getJSONObject(i);
-                        int weight = rawGradeCategory.has("Weight") ? rawGradeCategory.getInt("Weight") : 0;
-                        res.add(new GradeCategory(
-                                rawGradeCategory.getString("Id"),
-                                rawGradeCategory.getString("Name"),
-                                weight));
-                    }
-                    deferred.resolve(res);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    deferred.reject(null);
-                }
-            }
-        });
-        return deferred.promise();
+    Promise<List<GradeCategory>, Void, Void> getGradeCategories() {
+//        final Deferred<List<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
+//        APIRequest("/Grades/Categories").done(new DoneCallback<JSONObject>() {
+//            @Override
+//            public void onDone(JSONObject result) {
+//                try {
+//                    ArrayList<GradeCategory> res = new ArrayList<>();
+//                    JSONArray rawGradeCategories = result.getJSONArray("Categories");
+//                    for (int i = 0; i < rawGradeCategories.length(); i++) {
+//                        JSONObject rawGradeCategory = rawGradeCategories.getJSONObject(i);
+//                        int weight = rawGradeCategory.has("Weight") ? rawGradeCategory.getInt("Weight") : 0;
+//                        res.add(new GradeCategory(
+//                                rawGradeCategory.getString("Id"),
+//                                rawGradeCategory.getString("Name"),
+//                                weight));
+//                    }
+//                    deferred.resolve(res);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                    deferred.reject(null);
+//                }
+//            }
+//        });
+//        return deferred.promise();
+        return getList("/Grades/Categories", "Categories", GradeCategory.class);
     }
 
     Promise<List<Announcement>, Void, Void> getAnnouncements() {
@@ -481,24 +519,8 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<LibrusAccount, Void, Void> getAccount() {
-        final Deferred<LibrusAccount, Void, Void> deferred = new DeferredObject<>();
-        APIRequest("/Me").done(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                try {
-                    deferred.resolve(new LibrusAccount(result));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).fail(new FailCallback<Integer>() {
-            @Override
-            public void onFail(Integer result) {
-                deferred.reject(null);
-            }
-        });
-        return deferred.promise();
+    Promise<Me, Void, Void> getMe() {
+        return getObject("/Me", "Me", Me.class);
     }
 
     Promise<LuckyNumber, Void, Void> getLuckyNumber() {
@@ -591,48 +613,7 @@ public class APIClient {
     }
 
     public Promise<List<Grade>, Void, Void> getGrades() {
-        final Deferred<List<Grade>, Void, Void> deferred = new DeferredObject<>();
-        APIRequest("/Grades").then(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                try {
-                    List<Grade> res = new ArrayList<>();
-                    JSONArray rawGrades = result.getJSONArray("Grades");
-                    for (int i = 0; i < rawGrades.length(); i++) {
-                        JSONObject rawGrade = rawGrades.getJSONObject(i);
-                        Grade.Type type;
-                        if (rawGrade.getBoolean("IsSemester"))
-                            type = Grade.Type.SEMESTER;
-                        else if (rawGrade.getBoolean("IsSemesterProposition"))
-                            type = Grade.Type.SEMESTER_PROPOSITION;
-                        else if (rawGrade.getBoolean("IsFinal"))
-                            type = Grade.Type.FINAL;
-                        else if (rawGrade.getBoolean("IsFinalProposition"))
-                            type = Grade.Type.FINAL_PROPOSITION;
-                        else
-                            type = Grade.Type.NORMAL;
-                        res.add(new Grade(
-                                rawGrade.getString("Id"),
-                                rawGrade.getString("Grade"),
-                                rawGrade.getJSONObject("Lesson").getString("Id"),
-                                rawGrade.getJSONObject("Subject").getString("Id"),
-                                rawGrade.getJSONObject("Category").getString("Id"),
-                                rawGrade.getJSONObject("AddedBy").getString("Id"),
-                                rawGrade.has("Comments") ? rawGrade.getJSONArray("Comments").getJSONObject(0).getString("Id") : null,
-                                rawGrade.getInt("Semester"),
-                                LocalDate.parse(rawGrade.getString("Date")),
-                                LocalDateTime.parse(rawGrade.getString("AddDate"), DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")),
-                                type
-                        ));
-                    }
-                    deferred.resolve(res);
-                } catch (Exception e) {
-                    deferred.reject(null);
-                    e.printStackTrace();
-                }
-            }
-        });
-        return deferred.promise();
+        return getList("/Grades", "Grades", Grade.class);
     }
 
     public Promise<List<Average>, Void, Void> getAverages() {
@@ -705,94 +686,36 @@ public class APIClient {
     }
 
     public Promise<List<GradeComment>, Void, Void> getComments() {
-        final Deferred<List<GradeComment>, Void, Void> deferred = new DeferredObject<>();
-        APIRequest("/Grades/Comments").done(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                try {
-                    List<GradeComment> res = new ArrayList<>();
-                    JSONArray rawComments = result.getJSONArray("Comments");
-                    for (int i = 0; i < rawComments.length(); i++) {
-                        JSONObject rawComment = rawComments.getJSONObject(i);
-                        res.add(new GradeComment(rawComment.getString("Id"),
-                                rawComment.getJSONObject("AddedBy").getString("Id"),
-                                rawComment.getJSONObject("Grade").getString("Id"),
-                                rawComment.getString("Text")));
-                    }
-                    deferred.resolve(res);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    deferred.reject(null);
-                }
-            }
-        });
-        return deferred.promise();
+        return getList("/Grades/Comments", "Comments", GradeComment.class);
     }
 
     Promise<List<Attendance>, Void, Void> getAttendances() {
-        final Deferred<List<Attendance>, Void, Void> deferred = new DeferredObject<>();
+        return getList("/Attendances", "Attendances", Attendance.class);
+    }
 
-        APIRequest("/Attendances").then(new DoneCallback<JSONObject>() {
+    Promise<List<AttendanceType>, Void, Void> getAttendanceTypes() {
+        return getList("/Attendances/Types", "Types", AttendanceType.class);
+    }
+
+    private <T> Promise<T, Void, Void> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
+        final Deferred<T, Void, Void> deferred = new DeferredObject<>();
+        APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
-                List<Attendance> res = new ArrayList<>();
-                try {
-                    JSONArray rawAttendances = result.getJSONArray("Attendances");
-                    for (int i = 0; i < rawAttendances.length(); i++) {
-                        JSONObject attendance = rawAttendances.getJSONObject(i);
-                        res.add(new Attendance(
-                                attendance.getString("Id"),
-                                attendance.getJSONObject("Lesson").getString("Id"),
-                                LocalDate.parse(attendance.getString("Date"), DateTimeFormat.forPattern("yyyy-MM-dd")),
-                                LocalDateTime.parse(attendance.getString("AddDate"), DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")),
-                                attendance.getInt("LessonNo"),
-                                attendance.getInt("Semester"),
-                                attendance.getJSONObject("Type").getString("Id"),
-                                attendance.getJSONObject("AddedBy").getString("Id")));
-                    }
-                    deferred.resolve(res);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    deferred.reject(null);
-                }
+                deferred.resolve(parseObject(result.toString(), topLevelName, clazz));
             }
         });
-
         return deferred.promise();
     }
 
-    Promise<List<AttendanceCategory>, Void, Void> getAttendanceCategories() {
-        final Deferred<List<AttendanceCategory>, Void, Void> deferred = new DeferredObject<>();
-
-        APIRequest("/Attendances/Types").then(new DoneCallback<JSONObject>() {
+    private <T> Promise<List<T>, Void, Void> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
+        final Deferred<List<T>, Void, Void> deferred = new DeferredObject<>();
+        APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
-                try {
-                    List<AttendanceCategory> res = new ArrayList<>();
-                    JSONArray rawAttendanceCategories = result.getJSONArray("Types");
-                    for (int i = 0; i < rawAttendanceCategories.length(); i++) {
-                        JSONObject attendanceCategory = rawAttendanceCategories.getJSONObject(i);
-                        boolean hasColorRGB = attendanceCategory.has("ColorRGB");
-                        if (!hasColorRGB) {
-                            LibrusUtils.log("ColorRGB missing");
-                        }
-                        res.add(new AttendanceCategory(
-                                String.valueOf(attendanceCategory.getInt("Id")),
-                                attendanceCategory.getString("Name"),
-                                attendanceCategory.getString("Short"),
-                                attendanceCategory.getBoolean("Standard"),
-                                hasColorRGB ? attendanceCategory.getString("ColorRGB") : "",
-                                attendanceCategory.getBoolean("IsPresenceKind"),
-                                attendanceCategory.getInt("Order")));
-                    }
-                    deferred.resolve(res);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    deferred.reject(null);
-                }
+                deferred.resolve(parseList(result.toString(), topLevelName, clazz));
             }
         });
-
         return deferred.promise();
     }
 }

@@ -20,8 +20,8 @@ import java.util.Map;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
-import pl.librus.client.api.Attendance;
-import pl.librus.client.api.AttendanceCategory;
+import pl.librus.client.datamodel.Attendance;
+import pl.librus.client.datamodel.AttendanceType;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
@@ -56,12 +56,11 @@ public class AttendanceFragment extends Fragment implements MainFragment {
 
         LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
         List<Attendance> attendances = dbHelper.getAttendances();
-        Collections.sort(attendances);
         Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
         for (Attendance attendance : attendances) {
             LocalDate date = attendance.getDate();
 
-            AttendanceCategory category = dbHelper.getAttendanceCategory(attendance.getTypeId());
+            AttendanceType category = dbHelper.getAttendanceCategory(attendance.getType().getId());
 
             if (headerItemMap.get(date) == null) {
                 headerItemMap.put(date, new AttendanceHeaderItem(date));

@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 
 public class LibrusDbContract {
 
-    static final int DB_VERSION = 23;
+    static final int DB_VERSION = 27;
     static final String DB_NAME = "database.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -62,7 +62,7 @@ public class LibrusDbContract {
         static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static abstract class Account implements BaseColumns {
+    public static abstract class MeTable implements BaseColumns {
 
         public static final String TABLE_NAME = "account";
 
@@ -124,16 +124,19 @@ public class LibrusDbContract {
         public static final String TABLE_NAME = "grades";
 
         public static final String COLUMN_NAME_ID = "id";
-        public static final String COLUMN_NAME_GRADE = "grade";
-        public static final String COLUMN_NAME_SUBJECT_ID = "subject_id";
         public static final String COLUMN_NAME_LESSON_ID = "lesson_id";
+        public static final String COLUMN_NAME_SUBJECT_ID = "subject_id";
+        public static final String COLUMN_NAME_STUDENT_ID = "student_id";
+        public static final String COLUMN_NAME_GRADE = "grade";
         public static final String COLUMN_NAME_CATEGORY_ID = "category_id";
-        public static final String COLUMN_NAME_COMMENT_ID = "comment_id";
         public static final String COLUMN_NAME_ADDED_BY_ID = "added_by_id";
         public static final String COLUMN_NAME_SEMESTER = "semester";
         public static final String COLUMN_NAME_DATE = "date";
         public static final String COLUMN_NAME_ADD_DATE = "add_date";
-        public static final String COLUMN_NAME_TYPE = "type";
+        public static final String COLUMN_NAME_SEMESTER_TYPE = "semester_type";
+        public static final String COLUMN_NAME_SEMESTER_PROPOSITION_TYPE = "semester_proposition_type";
+        public static final String COLUMN_NAME_FINAL_TYPE = "final_type";
+        public static final String COLUMN_NAME_FINAL_PROPOSITION_TYPE = "final_proposition_type";
 
         static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
@@ -141,13 +144,16 @@ public class LibrusDbContract {
                 COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_SUBJECT_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_LESSON_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_STUDENT_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_CATEGORY_ID + TEXT_TYPE + COMMA_SEP +
-                COLUMN_NAME_COMMENT_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_ADDED_BY_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_SEMESTER + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_DATE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_ADD_DATE + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_TYPE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_SEMESTER_TYPE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_SEMESTER_PROPOSITION_TYPE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_FINAL_TYPE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_FINAL_PROPOSITION_TYPE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_GRADE + TEXT_TYPE + " )";
 
         static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -212,6 +218,7 @@ public class LibrusDbContract {
 
         public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_LESSON_ID = "lesson_id";
+        public static final String COLUMN_NAME_STUDENT_ID = "student_id";
         public static final String COLUMN_NAME_DATE = "date";
         public static final String COLUMN_NAME_ADD_DATE = "add_date";
         public static final String COLUMN_NAME_LESSON_NUMBER = "lesson_number";
@@ -224,6 +231,7 @@ public class LibrusDbContract {
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_ID + TEXT_TYPE + UNIQUE + NOT_NULL + COMMA_SEP +
                 COLUMN_NAME_LESSON_ID + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_STUDENT_ID + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_DATE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_ADD_DATE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_LESSON_NUMBER + INTEGER_TYPE + COMMA_SEP +

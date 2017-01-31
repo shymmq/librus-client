@@ -1,4 +1,4 @@
-package pl.librus.client.api;
+package pl.librus.client.datamodel;
 
 import java.io.Serializable;
 
@@ -6,6 +6,9 @@ public class Subject implements Serializable {
     private static final long serialVersionUID = 6430596135265744363L;
     private String name;
     private String id;
+
+    public Subject() {
+    }
 
     public Subject(String id, String name) {
         this.name = name;
@@ -36,5 +39,10 @@ public class Subject implements Serializable {
         return id.hashCode();
     }
 
-
+    @Override
+    public String toString() {
+        return "Subject{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

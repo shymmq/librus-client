@@ -7,6 +7,7 @@ import org.joda.time.LocalDateTime;
 
 import java.io.Serializable;
 
+import pl.librus.client.datamodel.Grade;
 import pl.librus.client.grades.GradeEntry;
 
 /**
