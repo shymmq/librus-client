@@ -2,7 +2,6 @@ package pl.librus.client.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -23,6 +22,9 @@ import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.field.DataPersisterManager;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -32,14 +34,19 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import pl.librus.client.LibrusUtils;
+import org.joda.time.LocalDate;
+
+import java.sql.SQLException;
+
 import pl.librus.client.R;
-import pl.librus.client.api.LibrusUpdateService;
-import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.attendances.AttendanceFragment;
+import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.grades.GradesFragment;
-import pl.librus.client.sql.LibrusDbContract;
 import pl.librus.client.sql.LibrusDbHelper;
+import pl.librus.client.sql.LocalDateType;
+import pl.librus.client.sql.LocalTimeType;
+import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.timetable.TimetableFragment;
 import pl.librus.client.timetable.TimetableTabFragment;
 
@@ -65,16 +72,25 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private Drawer drawer;
     private Toolbar toolbar;
 
-    private LibrusUpdateService updateService;
+    private UpdateHelper updateHelper;
 
     private MainFragment currentFragment;
     private MainFragment pendingFragment;
+
+    private LibrusAccount account;
+    private LuckyNumber luckyNumber;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         FirebaseAnalytics.getInstance(getApplicationContext());
+        DataPersisterManager.registerDataPersisters(
+                new LocalDateType(),
+                new LocalTimeType()
+        );
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean logged_in = prefs.getBoolean("logged_in", false);
         if (!logged_in) {
@@ -83,11 +99,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             finish();
         } else {
             dbHelper = new LibrusDbHelper(this);
-            db = dbHelper.getReadableDatabase();
 
-            LibrusUpdateService updateService = new LibrusUpdateService(getApplicationContext());
+            UpdateHelper updateHelper = new UpdateHelper(getApplicationContext());
 
             if (prefs.getLong(getString(R.string.last_update), -1) < 0) {
+//            if (true != false && false != true) {
                 //database empty or null update and then setup()
 
                 final MaterialDialog dialog = new MaterialDialog.Builder(MainActivity.this)
@@ -96,72 +112,60 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                         .progress(false, 100)
                         .show();
 
-                updateService.addOnProgressListener(new LibrusUpdateService.OnProgressListener() {
-                    @Override
-                    public void onProgress(final int progress) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                LibrusUtils.log("Progress: " + progress + "%");
-                                dialog.setProgress(progress);
-                            }
-                        });
-                    }
-                });
-                updateService.setOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
+//                updateService.addOnProgressListener(new LibrusUpdateService.OnProgressListener() {
+//                    @Override
+//                    public void onProgress(final int progress) {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                LibrusUtils.log("Progress: " + progress + "%");
+//                                dialog.setProgress(progress);
+//                            }
+//                        });
+//                    }
+//                });
+                updateHelper.setOnUpdateCompleteListener(new UpdateHelper.OnUpdateCompleteListener() {
                     @Override
                     public void onUpdateComplete() {
                         dialog.dismiss();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                setup(savedInstanceState);
+                                setup();
                             }
                         });
                     }
                 });
-                updateService.updateAll();
+                updateHelper.updateAll();
             } else {
-                setup(savedInstanceState);
+                setup();
             }
         }
     }
 
-    private void setup(Bundle savedInstanceState) {
+    private void setup() {
         //LibrusAccount account = librusData.getAccount();
         //luckyNumber = librusData.getLuckyNumber();
         dbHelper = new LibrusDbHelper(this);
-        db = dbHelper.getReadableDatabase();
-        updateService = new LibrusUpdateService(this);
+        updateHelper = new UpdateHelper(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //Drawer setup
-        LuckyNumber luckyNumber = dbHelper.getLastLuckyNumber();
-        Cursor cursor = db.query(
-                LibrusDbContract.MeTable.TABLE_NAME,
-                new String[]{
-                        LibrusDbContract.MeTable.COLUMN_NAME_USERNAME,
-                        LibrusDbContract.MeTable.COLUMN_NAME_FIRST_NAME,
-                        LibrusDbContract.MeTable.COLUMN_NAME_LAST_NAME},
-                null, null, null, null, null, null);
-        String name, username;
-        if (cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            name = cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.MeTable.COLUMN_NAME_FIRST_NAME)) +
-                    ' ' +
-                    cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.MeTable.COLUMN_NAME_LAST_NAME));
-            username = cursor.getString(cursor.getColumnIndexOrThrow(LibrusDbContract.MeTable.COLUMN_NAME_USERNAME));
-        } else {
-            name = "";
-            username = "";
+        LuckyNumber luckyNumber = null;
+        try {
+            Dao<LuckyNumber, LocalDate> luckyNumberDao = dbHelper.getLuckyNumberDao();
+            luckyNumber = luckyNumberDao.queryForId(LocalDate.now());
+            Dao<LibrusAccount, String> librusAccountDao = dbHelper.getLibrusAccountDao();
+            account = librusAccountDao.queryForAll().get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        cursor.close();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         ProfileDrawerItem profile = new ProfileDrawerItem()
-                .withName(name)
-                .withEmail(username)
+                .withName(account.getName())
+                .withEmail(account.getLogin())
                 .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withIdentifier(LUCKY_NUMBER_ID)
@@ -234,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         defaultFragment.setOnSetupCompleteLister(new MainFragment.OnSetupCompleteListener() {
             @Override
             public void run() {
-                updateService.updateAll();
+                updateHelper.updateAll();
                 defaultFragment.removeListener();
             }
         });
@@ -310,10 +314,10 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         } else if (identifier == LUCKY_NUMBER_ID) {
             //TODO
         } else {
-            if (updateService.isLoading()) {
+            if (updateHelper.isLoading()) {
                 currentFragment = LoadingFragment.newInstance();
                 pendingFragment = getFragmentForId(identifier);
-                updateService.setOnUpdateCompleteListener(new LibrusUpdateService.OnUpdateCompleteListener() {
+                updateHelper.setOnUpdateCompleteListener(new UpdateHelper.OnUpdateCompleteListener() {
                     @Override
                     public void onUpdateComplete() {
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -359,5 +363,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             outState = drawer.saveInstanceState(outState);
         }
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        OpenHelperManager.releaseHelper();
     }
 }

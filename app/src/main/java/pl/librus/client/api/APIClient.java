@@ -47,6 +47,7 @@ import pl.librus.client.datamodel.AttendanceType;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -408,84 +409,16 @@ public class APIClient {
         return getList("/Users", "Users", Teacher.class);
     }
 
-//    Promise<LibrusAccount, Void, Void> getAccount() {
-//        final Deferred<LibrusAccount, Void, Void> deferred = new DeferredObject<>();
-//        APIRequest("/MeTable").done(new DoneCallback<JSONObject>() {
-//            @Override
-//            public void onDone(JSONObject result) {
-//                try {
-//                    deferred.resolve(new LibrusAccount(result));
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).fail(new FailCallback<Integer>() {
-//            @Override
-//            public void onFail(Integer result) {
-//                deferred.reject(null);
-//            }
-//        });
-//        return deferred.promise();
-//    }
-
-    Promise<List<Subject>, Void, Void> getSubjects() {
+    public Promise<List<Subject>, Void, Void> getSubjects() {
         return getList("/Subjects", "Subjects", Subject.class);
     }
 
     Promise<List<PlainLesson>, Void, Void> getPlainLessons() {
         final Deferred<List<PlainLesson>, Void, Void> deferred = new DeferredObject<>();
-
-//        APIRequest("/Lessons").then(new DoneCallback<JSONObject>() {
-//            @Override
-//            public void onDone(JSONObject result) {
-//                try {
-//                    List<PlainLesson> res = new ArrayList<>();
-//                    JSONArray rawPlainLessons = result.getJSONArray("Lessons");
-//                    for (int i = 0; i < rawPlainLessons.length(); i++) {
-//                        JSONObject rawLesson = rawPlainLessons.getJSONObject(i);
-//                        JSONObject rawTeacher = rawLesson.getJSONObject("Teacher");
-//                        JSONObject rawSubject = rawLesson.getJSONObject("Subject");
-//                        res.add(new PlainLesson(
-//                                rawLesson.getString("Id"),
-//                                rawTeacher.getString("Id"),
-//                                rawSubject.getString("Id")));
-//                    }
-//                    deferred.resolve(res);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                    deferred.reject(null);
-//                }
-//            }
-//        });
-//
-//        return deferred.promise();
         return getList("/Lessons", "Lessons", PlainLesson.class);
     }
 
     Promise<List<GradeCategory>, Void, Void> getGradeCategories() {
-//        final Deferred<List<GradeCategory>, Void, Void> deferred = new DeferredObject<>();
-//        APIRequest("/Grades/Categories").done(new DoneCallback<JSONObject>() {
-//            @Override
-//            public void onDone(JSONObject result) {
-//                try {
-//                    ArrayList<GradeCategory> res = new ArrayList<>();
-//                    JSONArray rawGradeCategories = result.getJSONArray("Categories");
-//                    for (int i = 0; i < rawGradeCategories.length(); i++) {
-//                        JSONObject rawGradeCategory = rawGradeCategories.getJSONObject(i);
-//                        int weight = rawGradeCategory.has("Weight") ? rawGradeCategory.getInt("Weight") : 0;
-//                        res.add(new GradeCategory(
-//                                rawGradeCategory.getString("Id"),
-//                                rawGradeCategory.getString("Name"),
-//                                weight));
-//                    }
-//                    deferred.resolve(res);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                    deferred.reject(null);
-//                }
-//            }
-//        });
-//        return deferred.promise();
         return getList("/Grades/Categories", "Categories", GradeCategory.class);
     }
 
@@ -519,28 +452,12 @@ public class APIClient {
         return deferred.promise();
     }
 
-    Promise<Me, Void, Void> getMe() {
+    public Promise<Me, Void, Void> getMe() {
         return getObject("/Me", "Me", Me.class);
     }
 
     Promise<LuckyNumber, Void, Void> getLuckyNumber() {
-        final Deferred<LuckyNumber, Void, Void> deferred = new DeferredObject<>();
-        APIRequest("/LuckyNumbers").done(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                try {
-                    deferred.resolve(new LuckyNumber(result));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).fail(new FailCallback<Integer>() {
-            @Override
-            public void onFail(Integer result) {
-                deferred.reject(null);
-            }
-        });
-        return deferred.promise();
+        return getObject("/LuckyNumbers", "LuckyNumber", LuckyNumber.class);
     }
 
     public Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
@@ -575,26 +492,35 @@ public class APIClient {
                                 Teacher teacher = new Teacher(rawTeacher.getString("Id"), rawTeacher.getString("FirstName"), rawTeacher.getString("LastName"));
                                 LocalTime hourFrom = LocalTime.parse(rawLesson.getString("HourFrom"), DateTimeFormat.forPattern("HH:mm"));
                                 LocalTime hourTo = LocalTime.parse(rawLesson.getString("HourTo"), DateTimeFormat.forPattern("HH:mm"));
-                                if (isCanceled && isSubstitutionClass) {
-                                    //lesson moved
-                                    String newTeacherId = rawLesson.getJSONObject("NewTeacher").getString("Id");
-                                    String newSubjectId = rawLesson.getJSONObject("NewSubject").getString("Id");
-                                    LocalDate newDate = LocalDate.parse(rawLesson.getString("NewDate"));
-                                    int newLessonNo = rawLesson.getInt("NewLessonNo");
-                                    schoolDay.setLesson(lessonNumber,
-                                            new Lesson(id, lessonNumber, date, hourFrom, hourTo, subject, teacher, newSubjectId, newTeacherId, newLessonNo, newDate));
-                                } else if (isCanceled) {
-                                    schoolDay.setLesson(lessonNumber,
-                                            new Lesson(id, lessonNumber, date, hourFrom, hourTo, subject, teacher, true));
-                                } else if (isSubstitutionClass) {
-                                    String orgSubjectId = rawLesson.getJSONObject("OrgSubject").getString("Id");
-                                    String orgTeacherId = rawLesson.getJSONObject("OrgTeacher").getString("Id");
-                                    schoolDay.setLesson(lessonNumber,
-                                            new Lesson(id, lessonNumber, date, hourFrom, hourTo, subject, teacher, orgSubjectId, orgTeacherId));
-                                } else {
-                                    schoolDay.setLesson(lessonNumber,
-                                            new Lesson(id, lessonNumber, date, hourFrom, hourTo, subject, teacher));
-                                }
+                                String orgSubjectId = isSubstitutionClass ?
+                                        rawLesson.getJSONObject("OrgSubject").getString("Id") : null;
+                                String orgTeacherId = isSubstitutionClass ?
+                                        rawLesson.getJSONObject("OrgTeacher").getString("Id") : null;
+                                String newTeacherId = isCanceled && isSubstitutionClass ?
+                                        rawLesson.getJSONObject("NewTeacher").getString("Id") : null;
+                                String newSubjectId = isCanceled && isSubstitutionClass ?
+                                        rawLesson.getJSONObject("NewSubject").getString("Id") : null;
+                                LocalDate newDate = isCanceled && isSubstitutionClass ?
+                                        LocalDate.parse(rawLesson.getString("NewDate")) : null;
+                                int newLessonNo = isCanceled && isSubstitutionClass ?
+                                        rawLesson.getInt("NewLessonNo") : -1;
+                                schoolDay.setLesson(lessonNumber, new Lesson(
+                                        lessonNumber,
+                                        subject,
+                                        teacher,
+                                        id,
+                                        orgSubjectId,
+                                        orgTeacherId,
+                                        isSubstitutionClass,
+                                        isCanceled,
+                                        date,
+                                        hourFrom,
+                                        hourTo,
+                                        newSubjectId,
+                                        newTeacherId,
+                                        newDate,
+                                        newLessonNo
+                                ));
                                 schoolDay.setEmpty(false);
                             }
                         }
@@ -697,7 +623,7 @@ public class APIClient {
         return getList("/Attendances/Types", "Types", AttendanceType.class);
     }
 
-    private <T> Promise<T, Void, Void> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
+    public <T> Promise<T, Void, Void> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
         final Deferred<T, Void, Void> deferred = new DeferredObject<>();
         APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
             @Override
@@ -708,7 +634,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    private <T> Promise<List<T>, Void, Void> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
+    public <T> Promise<List<T>, Void, Void> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
         final Deferred<List<T>, Void, Void> deferred = new DeferredObject<>();
         APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
             @Override

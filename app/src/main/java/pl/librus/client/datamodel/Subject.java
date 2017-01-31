@@ -1,18 +1,19 @@
 package pl.librus.client.datamodel;
 
-import java.io.Serializable;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-public class Subject implements Serializable {
-    private static final long serialVersionUID = 6430596135265744363L;
+@DatabaseTable(tableName = "subjects")
+public class Subject extends HasId {
+    @DatabaseField
     private String name;
-    private String id;
 
     public Subject() {
     }
 
     public Subject(String id, String name) {
+        super(id);
         this.name = name;
-        this.id = id;
     }
 
     public String getId() {

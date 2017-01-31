@@ -4,27 +4,32 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.Lesson;
-import pl.librus.client.api.LuckyNumber;
+import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceType;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.HasId;
+import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -32,117 +37,158 @@ import pl.librus.client.sql.LibrusDbContract.AttendanceCategories;
 import pl.librus.client.sql.LibrusDbContract.Attendances;
 import pl.librus.client.sql.LibrusDbContract.GradeCategories;
 import pl.librus.client.sql.LibrusDbContract.GradeComments;
-import pl.librus.client.sql.LibrusDbContract.LuckyNumbers;
 import pl.librus.client.sql.LibrusDbContract.PlainLessons;
 
-import static pl.librus.client.sql.LibrusDbContract.DB_NAME;
-import static pl.librus.client.sql.LibrusDbContract.DB_VERSION;
 import static pl.librus.client.sql.LibrusDbContract.Grades;
 import static pl.librus.client.sql.LibrusDbContract.Subjects;
 import static pl.librus.client.sql.LibrusDbContract.Teachers;
-import static pl.librus.client.sql.LibrusDbContract.TimetableLessons;
 
-public class LibrusDbHelper extends SQLiteOpenHelper {
+public class LibrusDbHelper extends OrmLiteSqliteOpenHelper {
+    private static final String DB_NAME = "librus-client";
+    private static final int DB_VERSION = 9;
     private final Context context;
+
+    private Class[] tables = {
+            Subject.class,
+            LuckyNumber.class,
+            LibrusAccount.class,
+            Lesson.class,
+            Teacher.class
+    };
 
     public LibrusDbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.context = context;
     }
 
-    // Method is called during creation of the database
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(TimetableLessons.CREATE_TABLE);
-        db.execSQL(LibrusDbContract.MeTable.CREATE_TABLE);
-        db.execSQL(Teachers.CREATE_TABLE);
-        db.execSQL(Subjects.CREATE_TABLE);
-        db.execSQL(Grades.CREATE_TABLE);
-        db.execSQL(GradeCategories.CREATE_TABLE);
-        db.execSQL(LuckyNumbers.CREATE_TABLE);
-        db.execSQL(GradeComments.CREATE_TABLE);
-        db.execSQL(Attendances.CREATE_TABLE);
-        db.execSQL(AttendanceCategories.CREATE_TABLE);
-        db.execSQL(PlainLessons.CREATE_TABLE);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putLong(context.getString(R.string.last_update), -1L);   //reset last update to indicate that database is empty
-        editor.apply();
-    }
-
-    // Method is called during an upgrade of the database
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(TimetableLessons.DELETE_TABLE);
-        db.execSQL(LibrusDbContract.MeTable.DELETE_TABLE);
-        db.execSQL(Teachers.DELETE_TABLE);
-        db.execSQL(Subjects.DELETE_TABLE);
-        db.execSQL(Grades.DELETE_TABLE);
-        db.execSQL(GradeCategories.DELETE_TABLE);
-        db.execSQL(LuckyNumbers.DELETE_TABLE);
-        db.execSQL(GradeComments.DELETE_TABLE);
-        db.execSQL(Attendances.DELETE_TABLE);
-        db.execSQL(AttendanceCategories.DELETE_TABLE);
-        db.execSQL(PlainLessons.DELETE_TABLE);
-        onCreate(db);
-    }
-
-    public List<Lesson> getLessonsForDate(LocalDate date) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        List<Lesson> result = new ArrayList<>();
-        final long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
-        Cursor cursor = db.query(
-                TimetableLessons.TABLE_NAME,
-                null,
-                TimetableLessons.COLUMN_NAME_DATE + " = " + dateMillis,
-                null,
-                null,
-                null,
-                TimetableLessons.COLUMN_NAME_LESSON_NUMBER
-        );
-        if (cursor.getCount() == 0) {
-            return null;
-        } else {
-            while (cursor.moveToNext()) {
-
-                int lessonNumber = cursor.getInt(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_LESSON_NUMBER));
-                boolean substitution = cursor.getInt(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_SUBSTITUTION)) > 0;
-                boolean canceled = cursor.getInt(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_CANCELED)) > 0;
-
-                Subject subject = new Subject(
-                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_SUBJECT_ID)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_SUBJECT_NAME)));
-
-                Teacher teacher = new Teacher(
-                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_TEACHER_ID)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME)));
-
-                String id = cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ID));
-
-                LocalTime startTime = new LocalTime(
-                        cursor.getLong(
-                                cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_START_TIME)));
-                LocalTime endTime = new LocalTime(
-                        cursor.getLong(
-                                cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_END_TIME)));
-                Lesson lesson;
-
-                if (canceled) {
-                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher, true);
-                } else if (substitution) {
-                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher,
-                            cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID)));
-                } else {
-                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher);
-                }
-                result.add(lesson);
+    public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
+        try {
+            for (Class c : tables) {
+                TableUtils.createTable(connectionSource, c);
             }
-            cursor.close();
-            return result;
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putLong(context.getString(R.string.last_update), -1L);   //reset last update to indicate that database is empty
+            editor.apply();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
+        try {
+            for (Class c : tables) {
+                TableUtils.dropTable(connectionSource, c, true);
+            }
+            onCreate(db, connectionSource);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Dao<LuckyNumber, LocalDate> getLuckyNumberDao() throws SQLException {
+        return getDao(LuckyNumber.class);
+    }
+
+    public Dao<LibrusAccount, String> getLibrusAccountDao() throws SQLException {
+        return getDao(LibrusAccount.class);
+    }
+//    // Method is called during creation of the database
+//    @Override
+//    public void onCreate(SQLiteDatabase db) {
+//        db.execSQL(TimetableLessons.CREATE_TABLE);
+//        db.execSQL(LibrusDbContract.MeTable.CREATE_TABLE);
+//        db.execSQL(Teachers.CREATE_TABLE);
+//        db.execSQL(Subjects.CREATE_TABLE);
+//        db.execSQL(Grades.CREATE_TABLE);
+//        db.execSQL(GradeCategories.CREATE_TABLE);
+//        db.execSQL(LuckyNumbers.CREATE_TABLE);
+//        db.execSQL(GradeComments.CREATE_TABLE);
+//        db.execSQL(Attendances.CREATE_TABLE);
+//        db.execSQL(AttendanceCategories.CREATE_TABLE);
+//        db.execSQL(PlainLessons.CREATE_TABLE);
+//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+//        SharedPreferences.Editor editor = preferences.edit();
+//        editor.putLong(context.getString(R.string.last_update), -1L);   //reset last update to indicate that database is empty
+//        editor.apply();
+//
+//    }
+//
+//    // Method is called during an upgrade of the database
+//    @Override
+//    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+//        db.execSQL(TimetableLessons.DELETE_TABLE);
+//        db.execSQL(LibrusDbContract.MeTable.DELETE_TABLE);
+//        db.execSQL(Teachers.DELETE_TABLE);
+//        db.execSQL(Subjects.DELETE_TABLE);
+//        db.execSQL(Grades.DELETE_TABLE);
+//        db.execSQL(GradeCategories.DELETE_TABLE);
+//        db.execSQL(LuckyNumbers.DELETE_TABLE);
+//        db.execSQL(GradeComments.DELETE_TABLE);
+//        db.execSQL(Attendances.DELETE_TABLE);
+//        db.execSQL(AttendanceCategories.DELETE_TABLE);
+//        db.execSQL(PlainLessons.DELETE_TABLE);
+//        onCreate(db);
+//    }
+
+//    public List<Lesson> getLessonsForDate(LocalDate date) {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        List<Lesson> result = new ArrayList<>();
+//        final long dateMillis = date.toDateTimeAtStartOfDay().getMillis();
+//        Cursor cursor = db.query(
+//                TimetableLessons.TABLE_NAME,
+//                null,
+//                TimetableLessons.COLUMN_NAME_DATE + " = " + dateMillis,
+//                null,
+//                null,
+//                null,
+//                TimetableLessons.COLUMN_NAME_LESSON_NUMBER
+//        );
+//        if (cursor.getCount() == 0) {
+//            return null;
+//        } else {
+//            while (cursor.moveToNext()) {
+//
+//                int lessonNumber = cursor.getInt(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_LESSON_NUMBER));
+//                boolean substitution = cursor.getInt(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_SUBSTITUTION)) > 0;
+//                boolean canceled = cursor.getInt(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_CANCELED)) > 0;
+//
+//                Subject subject = new Subject(
+//                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_SUBJECT_ID)),
+//                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_SUBJECT_NAME)));
+//
+//                Teacher teacher = new Teacher(
+//                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_TEACHER_ID)),
+//                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME)),
+//                        cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME)));
+//
+//                String id = cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ID));
+//
+//                LocalTime startTime = new LocalTime(
+//                        cursor.getLong(
+//                                cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_START_TIME)));
+//                LocalTime endTime = new LocalTime(
+//                        cursor.getLong(
+//                                cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_END_TIME)));
+//                Lesson lesson;
+//
+//                if (canceled) {
+//                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher, true);
+//                } else if (substitution) {
+//                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher,
+//                            cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID)),
+//                            cursor.getString(cursor.getColumnIndexOrThrow(TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID)));
+//                } else {
+//                    lesson = new Lesson(id, lessonNumber, date, startTime, endTime, subject, teacher);
+//                }
+//                result.add(lesson);
+//            }
+//            cursor.close();
+//            return result;
+//        }
+//    }
 
     public GradeComment getGradeComment(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -274,29 +320,6 @@ public class LibrusDbHelper extends SQLiteOpenHelper {
             cursor.close();
             return category;
         }
-    }
-
-    public LuckyNumber getLastLuckyNumber() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(LuckyNumbers.TABLE_NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                LuckyNumbers.COLUMN_NAME_DATE);
-        if (cursor.getCount() == 0) {
-            return null;
-        } else {
-            cursor.moveToFirst();
-            LuckyNumber luckyNumber = new LuckyNumber(
-                    cursor.getInt(cursor.getColumnIndexOrThrow(LuckyNumbers.COLUMN_NAME_LUCKY_NUMBER)),
-                    new LocalDate(cursor.getLong(cursor.getColumnIndexOrThrow(LuckyNumbers.COLUMN_NAME_DATE)))
-            );
-            cursor.close();
-            return luckyNumber;
-        }
-
     }
 
     public Teacher getTeacher(String id) {

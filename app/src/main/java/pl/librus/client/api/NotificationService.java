@@ -17,6 +17,7 @@ import java.util.Map;
 
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
 

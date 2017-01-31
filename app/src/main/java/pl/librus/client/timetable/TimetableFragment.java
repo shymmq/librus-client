@@ -9,9 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.j256.ormlite.dao.Dao;
+
 import org.jdeferred.DoneCallback;
 import org.joda.time.LocalDate;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +41,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
     LocalDate startDate;
     int page = 0;
     private OnSetupCompleteListener listener;
+    private Dao<Lesson, ?> dao;
 
     public static TimetableFragment newInstance() {
         return new TimetableFragment();
@@ -116,28 +120,36 @@ public class TimetableFragment extends Fragment implements MainFragment {
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        final LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
-
         startDate = TimetableUtils.getLastFullWeekStart(LocalDate.now()).plusWeeks(1);
         List<IFlexible> initialElements = new ArrayList<>();
         List<LocalDate> initialWeekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
 
-        for (LocalDate weekStart : initialWeekStarts) {
-            for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
+        final LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
 
-                LessonHeaderItem header = new LessonHeaderItem(date);
-                List<Lesson> lessons = dbHelper.getLessonsForDate(date);
-                if (lessons == null) {
-                    initialElements.add(new EmptyLessonItem(header, date));
-                } else {
-                    for (Lesson l : lessons) {
-                        LessonItem lessonItem = new LessonItem(header, l, getContext());
-                        initialElements.add(lessonItem);
+        try {
+
+            dao = dbHelper.getDao(Lesson.class);
+
+            for (LocalDate weekStart : initialWeekStarts) {
+                for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
+
+                    LessonHeaderItem header = new LessonHeaderItem(date);
+                    List<Lesson> lessons = dao.queryForEq(Lesson.COLUMN_NAME_DATE, date);
+                    if (lessons == null || lessons.isEmpty()) {
+                        initialElements.add(new EmptyLessonItem(header, date));
+                    } else {
+                        Collections.sort(lessons);
+                        for (Lesson l : lessons) {
+                            LessonItem lessonItem = new LessonItem(header, l, getContext());
+                            initialElements.add(lessonItem);
+                        }
                     }
                 }
             }
-        }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         adapter = new TimetableAdapter(initialElements);
 
         adapter.setDisplayHeadersAtStartUp(true);

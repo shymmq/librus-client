@@ -1,15 +1,20 @@
 package pl.librus.client.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import pl.librus.client.datamodel.HasId;
 
 /**
  * Created by szyme on 30.01.2017.
  */
-
+@DatabaseTable(tableName = "me")
 public class Me {
+    @DatabaseField(foreign = true)
     private LibrusAccount account;
+
+    @DatabaseField
     @JsonProperty("Class")
     private HasId librusClass;
 

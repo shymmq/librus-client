@@ -1,29 +1,26 @@
 package pl.librus.client.api;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import java.io.Serializable;
+@DatabaseTable(tableName = "accounts")
+public class LibrusAccount {
+    @DatabaseField
+    private String id;
 
-public class LibrusAccount implements Serializable {
-    private static final long serialVersionUID = 432189466589507680L;
-    private String id,
-            firstName,
-            lastName,
-            login,
-            email;
+    @DatabaseField
+    private String firstName;
+
+    @DatabaseField
+    private String lastName;
+
+    @DatabaseField(id = true)
+    private String login;
+
+    @DatabaseField
+    private String email;
 
     public LibrusAccount() {
-    }
-
-    LibrusAccount(JSONObject data) throws JSONException {
-        JSONObject me = data.getJSONObject("MeTable");
-        JSONObject accountJSON = me.getJSONObject("MeTable");
-        this.id = accountJSON.getString("Id");
-        this.firstName = accountJSON.getString("FirstName");
-        this.lastName = accountJSON.getString("LastName");
-        this.login = accountJSON.getString("Login");
-        this.email = accountJSON.getString("Email");
     }
 
     public String getName() {

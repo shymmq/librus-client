@@ -3,6 +3,8 @@ package pl.librus.client.api;
 import android.support.annotation.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -10,125 +12,66 @@ import org.joda.time.LocalTime;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 
-
+@DatabaseTable(tableName = "timetable_lessons")
 public class Lesson implements Comparable<Lesson> {
-
+    public static final String COLUMN_NAME_DATE = "date";
 
     @JsonProperty("LessonNo")
+    @DatabaseField
     private int lessonNumber;
+    @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
     private Subject subject;
+    @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
     private Teacher teacher;
-    private String id, orgSubjectId, orgTeacherId;
-    private boolean isSubstitutionClass, isCanceled;
+    @DatabaseField
+    private String id;
+    @DatabaseField(id = true)
+    private String uniqueId;
+    @DatabaseField
+    private String orgSubjectId;
+    @DatabaseField
+    private String orgTeacherId;
+    @DatabaseField
+    private boolean isSubstitutionClass;
+    @DatabaseField
+    private boolean isCanceled;
+    @DatabaseField(columnName = COLUMN_NAME_DATE)
     private LocalDate date;
-    private LocalTime startTime, endTime;
+    @DatabaseField
+    private LocalTime startTime;
+    @DatabaseField
+    private LocalTime endTime;
 
     //for moved lessons
-    private String newSubjectId, newTeacherId;
+    @DatabaseField
+    private String newSubjectId;
+    @DatabaseField
+    private String newTeacherId;
+    @DatabaseField
     private LocalDate newDate;
+    @DatabaseField
     private int newLessonNo;
 
     public Lesson() {
     }
 
-    //normal lesson
-    public Lesson(String id,
-                  int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-                  Subject subject, Teacher teacher) {
-        this.id = id;
+    public Lesson(int lessonNumber, Subject subject, Teacher teacher, String id, String orgSubjectId, String orgTeacherId, boolean isSubstitutionClass, boolean isCanceled, LocalDate date, LocalTime startTime, LocalTime endTime, String newSubjectId, String newTeacherId, LocalDate newDate, int newLessonNo) {
         this.lessonNumber = lessonNumber;
         this.subject = subject;
         this.teacher = teacher;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.isSubstitutionClass = false;
-        this.isCanceled = false;
-        this.orgSubjectId = this.orgTeacherId = this.newSubjectId = this.newTeacherId = null;
-        this.newDate = null;
-        this.newLessonNo = -1;
-    }
-
-    //substitution
-    public Lesson(String id,
-                  int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-                  Subject subject, Teacher teacher,
-                  String orgSubjectId, String orgTeacherId) {
         this.id = id;
-        this.lessonNumber = lessonNumber;
-        this.subject = subject;
-        this.teacher = teacher;
         this.orgSubjectId = orgSubjectId;
         this.orgTeacherId = orgTeacherId;
-        this.isSubstitutionClass = true;
-        this.isCanceled = false;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.newSubjectId = this.newTeacherId = null;
-        this.newDate = null;
-        this.newLessonNo = -1;
-    }
-
-    //canceled
-    public Lesson(String id,
-                  int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-                  Subject subject, Teacher teacher,
-                  boolean isCanceled) {
-        this.id = id;
-        this.lessonNumber = lessonNumber;
-        this.subject = subject;
-        this.teacher = teacher;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.isSubstitutionClass = false;
+        this.isSubstitutionClass = isSubstitutionClass;
         this.isCanceled = isCanceled;
-        this.orgSubjectId = this.orgTeacherId = this.newSubjectId = this.newTeacherId = null;
-        this.newDate = null;
-        this.newLessonNo = -1;
-    }
-
-    //moved
-    Lesson(String id,
-           int lessonNumber, LocalDate date, LocalTime startTime, LocalTime endTime,
-           Subject subject, Teacher teacher,
-           String newSubjectId, String newTeacherId,
-           int newLessonNo, LocalDate newDate) {
-        this.id = id;
-        this.lessonNumber = lessonNumber;
-        this.subject = subject;
-        this.teacher = teacher;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.isSubstitutionClass = false;
-        this.isCanceled = false;
-        this.orgSubjectId = this.orgTeacherId = null;
-        this.newDate = newDate;
-        this.newLessonNo = newLessonNo;
         this.newSubjectId = newSubjectId;
         this.newTeacherId = newTeacherId;
-    }
-
-    public String getOrgSubjectId() {
-        return orgSubjectId;
-    }
-
-    public String getOrgTeacherId() {
-        return orgTeacherId;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
+        this.newDate = newDate;
+        this.newLessonNo = newLessonNo;
+        this.uniqueId = id + "-" + lessonNumber + "-" + date.getDayOfMonth() + "-" + date.getYearOfCentury();
     }
 
     public int getLessonNumber() {
@@ -143,6 +86,22 @@ public class Lesson implements Comparable<Lesson> {
         return teacher;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public String getUniqueId() {
+        return uniqueId;
+    }
+
+    public String getOrgSubjectId() {
+        return orgSubjectId;
+    }
+
+    public String getOrgTeacherId() {
+        return orgTeacherId;
+    }
+
     public boolean isSubstitutionClass() {
         return isSubstitutionClass;
     }
@@ -151,12 +110,32 @@ public class Lesson implements Comparable<Lesson> {
         return isCanceled;
     }
 
-    public String getId() {
-        return id;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public String getUniqueId() {
-        return id + "-" + lessonNumber + "-" + date.getDayOfMonth() + "-" + date.getYearOfCentury();
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public String getNewSubjectId() {
+        return newSubjectId;
+    }
+
+    public String getNewTeacherId() {
+        return newTeacherId;
+    }
+
+    public LocalDate getNewDate() {
+        return newDate;
+    }
+
+    public int getNewLessonNo() {
+        return newLessonNo;
     }
 
     @Override
@@ -176,22 +155,6 @@ public class Lesson implements Comparable<Lesson> {
         result = 31 * result + id.hashCode();
         result = 31 * result + date.hashCode();
         return result;
-    }
-
-    public int getNewLessonNo() {
-        return newLessonNo;
-    }
-
-    public LocalDate getNewDate() {
-        return newDate;
-    }
-
-    public String getNewSubjectId() {
-        return newSubjectId;
-    }
-
-    public String getNewTeacherId() {
-        return newTeacherId;
     }
 
     @Override

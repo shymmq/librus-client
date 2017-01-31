@@ -1,16 +1,22 @@
 package pl.librus.client.datamodel;
 
-public class Teacher {
-    private String id;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable(tableName = "teachers")
+public class Teacher extends HasId {
+    @DatabaseField
     private String firstName;
+    @DatabaseField
     private String lastName;
+    @DatabaseField
     private boolean isSchoolAdministrator;
 
     public Teacher() {
     }
 
     public Teacher(String id, String firstName, String lastName) {
-        this.id = id;
+        super(id);
         this.firstName = firstName;
         this.lastName = lastName;
     }
