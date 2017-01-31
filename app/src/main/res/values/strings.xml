@@ -78,7 +78,7 @@
 
     <string name="settings_key">7</string>
     <string name="lucky_number_key">8</string>
-
+    <string name="prefs_select_theme">selectTheme</string>
     <string name="prefs_default_fragment">default_fragment</string>
     <string name="default_view">Domyślny widok</string>
     <string name="prefs_grey_out_finished_lessons">greyOutFinishedLessons</string>

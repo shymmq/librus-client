@@ -8,6 +8,11 @@
             android:entryValues="@array/default_view_entry_values"
             android:key="@string/prefs_default_fragment"
             android:title="@string/default_view" />
+        <SwitchPreference
+            android:defaultValue="0"
+            android:key="@string/prefs_select_theme"
+            android:id="@+id/Theme"
+            android:title="Ciemny motyw" />
 
     </PreferenceCategory>
     <PreferenceCategory android:title="Plan lekcji">
