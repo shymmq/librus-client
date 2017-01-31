@@ -1,17 +1,11 @@
 package pl.librus.client.ui;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
-
 import pl.librus.client.R;
-import pl.librus.client.timetable.TimetableFragment;
 
 /**
  * Created by Adam on 06.11.16
@@ -20,6 +14,11 @@ import pl.librus.client.timetable.TimetableFragment;
 public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean Theme = prefs.getBoolean("selectTheme", false);
+        if (Theme){
+            setTheme(R.style.AppTheme_Dark);
+        }
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment()).commit();
     }
