@@ -1,22 +1,36 @@
 package pl.librus.client.datamodel;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
 /**
  * Created by szyme on 12.12.2016. librus-client
  */
+@DatabaseTable(tableName = "grade_comments")
+public class GradeComment {
+    public static final String COLUMN_NAME_GRADE_ID = "grade";
 
-public class GradeComment extends HasId {
-
-    private HasId addedBy, grade;
+    @DatabaseField(id = true)
+    private String id;
+    @DatabaseField
+    private HasId addedBy;
+    @DatabaseField(columnName = COLUMN_NAME_GRADE_ID)
+    private HasId grade;
+    @DatabaseField
     private String text;
 
     public GradeComment() {
     }
 
     public GradeComment(String id, String addedById, String gradeId, String text) {
-        super(id);
+        this.id = id;
         this.addedBy = new HasId(addedById);
         this.grade = new HasId(gradeId);
         this.text = text;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public HasId getAddedBy() {

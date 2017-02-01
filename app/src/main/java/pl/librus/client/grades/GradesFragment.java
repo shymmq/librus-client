@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
 import java.util.Comparator;
@@ -27,6 +28,8 @@ import pl.librus.client.R;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.HasId;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.sql.LibrusDbHelper;
@@ -80,11 +83,13 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
 
             List<Grade> grades = dbHelper.getDao(Grade.class).queryForAll();
 
+            Dao<GradeCategory, String> gcDao = dbHelper.getDao(GradeCategory.class);
+
             for (Grade grade : grades) {
                 GradeItem item = new GradeItem(
                         headers.get(grade.getSubject().getId()),
                         grade,
-                        dbHelper.getGradeCategory(grade.getCategory().getId()));
+                        gcDao.queryForId(grade.getCategory().getId()));
                 headers.get(grade.getSubject().getId()).addSubItem(item);
             }
 //        for (Average average : gradeCache.getAverages()) {
@@ -193,17 +198,23 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             weightContainer.setVisibility(type == Grade.Type.NORMAL ? View.VISIBLE : View.GONE);
             LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
 
-            Teacher addedBy = dbHelper.getTeacher(grade.getAddedBy().getId());
-            addedByTextView.setText(addedBy.getName());
-//            //If comment != null, retrieve it from the database by its id.
-//            if (grade.getCommentId() != null) {
-//                commentContainer.setVisibility(View.VISIBLE);
-//                GradeComment comment = dbHelper.getGradeComment(grade.getCommentId());
-//                TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
-//                commentTextView.setText(comment.getText());
-//            } else {
-//                commentContainer.setVisibility(View.GONE);
-//            }
+            try {
+                Dao<Teacher, String> teacherDao = dbHelper.getDao(Teacher.class);
+                Teacher addedBy = teacherDao.queryForId(grade.getAddedBy().getId());
+                addedByTextView.setText(addedBy.getName());
+
+                Dao<GradeComment, String> commentDao = dbHelper.getDao(GradeComment.class);
+                List<GradeComment> comments = commentDao.queryForEq(GradeComment.COLUMN_NAME_GRADE_ID, new HasId(grade.getId()));
+                if (comments != null && !comments.isEmpty()) {
+                    commentContainer.setVisibility(View.VISIBLE);
+                    TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
+                    commentTextView.setText(comments.get(0).getText());
+                } else {
+                    commentContainer.setVisibility(View.GONE);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             new MaterialDialog.Builder(getContext())
                     .title(header.getSubject().getName())
                     .customView(dialogLayout, true)

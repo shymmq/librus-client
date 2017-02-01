@@ -25,9 +25,11 @@ import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
+import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.SchoolDay;
 import pl.librus.client.datamodel.SchoolWeek;
 import pl.librus.client.datamodel.Subject;
@@ -63,6 +65,8 @@ public class UpdateHelper {
         tasks.add(updateList("/Users", "Users", Teacher.class));
         tasks.add(updateList("/Grades", "Grades", Grade.class));
         tasks.add(updateList("/Grades/Categories", "Categories", GradeCategory.class));
+        tasks.add(updateList("/Grades/Comments", "Comments", GradeComment.class));
+        tasks.add(updateList("/Lessons", "Lessons", PlainLesson.class));
         tasks.add(updateObject("/LuckyNumbers", "LuckyNumber", LuckyNumber.class));
         tasks.add(updateAccount());
         tasks.add(updateTimetable());
@@ -139,8 +143,6 @@ public class UpdateHelper {
                                     return null;
                                 }
                             });
-
-
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -158,7 +160,6 @@ public class UpdateHelper {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-
             }
         });
     }
