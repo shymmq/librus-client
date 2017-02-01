@@ -82,7 +82,7 @@ public class AttendanceFragment extends Fragment implements MainFragment {
             List<AttendanceHeaderItem> headers = new ArrayList<>(headerItemMap.values());
             Collections.sort(headers);
             for (AttendanceHeaderItem headerItem : headers) {
-                adapter.expand(adapter.addSection(headerItem));
+                adapter.addSection(headerItem);
             }
             if (listener != null) listener.run();
         } catch (SQLException e) {

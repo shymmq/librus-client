@@ -85,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        boolean Theme = prefs.getBoolean("selectTheme", false);
-        if (Theme){
+        boolean theme = prefs.getBoolean("selectTheme", false);
+        if (theme){
             setTheme(R.style.AppTheme_Dark);
         }
         super.onCreate(savedInstanceState);
@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 new HasIdType()
         );
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean logged_in = prefs.getBoolean("logged_in", false);
         if (!logged_in) {
             Intent i = new Intent(getApplicationContext(), LoginActivity.class);
