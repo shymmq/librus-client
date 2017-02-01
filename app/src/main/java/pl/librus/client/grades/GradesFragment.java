@@ -3,8 +3,6 @@ package pl.librus.client.grades;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,7 +13,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.j256.ormlite.dao.Dao;
 
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -25,13 +25,13 @@ import java.util.Map;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
-import pl.librus.client.api.Grade;
-import pl.librus.client.api.GradeCategory;
-import pl.librus.client.api.GradeComment;
 import pl.librus.client.api.Reader;
-import pl.librus.client.api.Subject;
-import pl.librus.client.api.Teacher;
-import pl.librus.client.sql.LibrusDbContract.Subjects;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.HasId;
+import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
@@ -55,68 +55,66 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
-        //Setup RecyclerView
-        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        adapter = new FlexibleAdapter<>(null, this);
-        adapter.setAutoCollapseOnExpand(true)
-                .setAutoScrollOnExpand(true);
-
-        recyclerView.setAdapter(adapter);
-        //Load all necessary data from cache
-        LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        final Map<String, GradeHeaderItem> headers = new HashMap<>();
+        try {
 
 
-        //Load subjects and make a header for each subject
-        Cursor subjectCursor = db.query(Subjects.TABLE_NAME, null, null, null, null, null, null);
-        while (subjectCursor.moveToNext()) {
-            Subject s = new Subject(
-                    subjectCursor.getString(subjectCursor.getColumnIndexOrThrow(Subjects.COLUMN_NAME_ID)),
-                    subjectCursor.getString(subjectCursor.getColumnIndexOrThrow(Subjects.COLUMN_NAME_NAME))
-            );
-            headers.put(s.getId(), new GradeHeaderItem(s));
-        }
-        subjectCursor.close();
+            //Setup RecyclerView
+            RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        List<Grade> grades = dbHelper.getGrades();
+            adapter = new FlexibleAdapter<>(null, this);
+            adapter.setAutoCollapseOnExpand(true)
+                    .setAutoScrollOnExpand(true);
 
-        for (Grade grade : grades) {
-            GradeItem item = new GradeItem(
-                    headers.get(grade.getSubjectId()),
-                    grade,
-                    dbHelper.getGradeCategory(grade.getCategoryId()));
-            headers.get(grade.getSubjectId()).addSubItem(item);
-        }
+            recyclerView.setAdapter(adapter);
+            //Load all necessary data from cache
+            LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
+
+            final Map<String, GradeHeaderItem> headers = new HashMap<>();
+
+
+            //Load subjects and make a header for each subject
+            List<Subject> subjects = dbHelper.getDao(Subject.class).queryForAll();
+            for (Subject s : subjects) {
+                headers.put(s.getId(), new GradeHeaderItem(s));
+            }
+
+            List<Grade> grades = dbHelper.getDao(Grade.class).queryForAll();
+
+            Dao<GradeCategory, String> gcDao = dbHelper.getDao(GradeCategory.class);
+
+            for (Grade grade : grades) {
+                GradeItem item = new GradeItem(
+                        headers.get(grade.getSubject().getId()),
+                        grade,
+                        gcDao.queryForId(grade.getCategory().getId()));
+                headers.get(grade.getSubject().getId()).addSubItem(item);
+            }
 //        for (Average average : gradeCache.getAverages()) {
 //            AverageItem item = new AverageItem(
 //                    headers.get(average.getSubjectId()),
 //                    average);
 //            headers.get(average.getSubjectId()).addSubItem(item);
 //        }
-        final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
-            @Override
-            public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
-                return o1.compareTo(o2);
-            }
-        };
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (GradeHeaderItem header : headers.values()) {
-                    adapter.addSection(header.sort(), headerComparator);
+            final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
+                @Override
+                public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
+                    return o1.compareTo(o2);
                 }
-                adapter.showAllHeaders()
-                        .collapseAll();
-            }
-        });
+            };
+
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (GradeHeaderItem header : headers.values()) {
+                        adapter.addSection(header.sort(), headerComparator);
+                    }
+                    adapter.showAllHeaders()
+                            .collapseAll();
+                }
+            });
 
 //        for (Average a : data.getAverages()) {
 //            if (gradeSubjectItemMap.get(a.getSubjectId()) == null) {
@@ -150,7 +148,10 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
 //        FlexibleAdapter<GradeHeaderItem> adapter = new FlexibleAdapter<>(listItems);
 //        adapter.setAutoScrollOnExpand(true);
 //        recyclerView.setAdapter(adapter);
-        if (listener != null) listener.run();
+            if (listener != null) listener.run();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return root;
     }
 
@@ -197,16 +198,22 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             weightContainer.setVisibility(type == Grade.Type.NORMAL ? View.VISIBLE : View.GONE);
             LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
 
-            Teacher addedBy = dbHelper.getTeacher(grade.getAddedById());
-            addedByTextView.setText(addedBy.getName());
-            //If comment != null, retrieve it from the database by its id.
-            if (grade.getCommentId() != null) {
-                commentContainer.setVisibility(View.VISIBLE);
-                GradeComment comment = dbHelper.getGradeComment(grade.getCommentId());
-                TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
-                commentTextView.setText(comment.getText());
-            } else {
-                commentContainer.setVisibility(View.GONE);
+            try {
+                Dao<Teacher, String> teacherDao = dbHelper.getDao(Teacher.class);
+                Teacher addedBy = teacherDao.queryForId(grade.getAddedBy().getId());
+                addedByTextView.setText(addedBy.getName());
+
+                Dao<GradeComment, String> commentDao = dbHelper.getDao(GradeComment.class);
+                List<GradeComment> comments = commentDao.queryForEq(GradeComment.COLUMN_NAME_GRADE_ID, new HasId(grade.getId()));
+                if (comments != null && !comments.isEmpty()) {
+                    commentContainer.setVisibility(View.VISIBLE);
+                    TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
+                    commentTextView.setText(comments.get(0).getText());
+                } else {
+                    commentContainer.setVisibility(View.GONE);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
             new MaterialDialog.Builder(getContext())
                     .title(header.getSubject().getName())

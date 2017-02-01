@@ -1,15 +1,11 @@
 package pl.librus.client.api;
 
-import java.io.Serializable;
-
-import pl.librus.client.grades.GradeEntry;
-
 /**
  * Created by szyme on 08.12.2016. librus-client
  */
 
-public class Average extends GradeEntry<Average> implements Serializable {
-    private static final long serialVersionUID = 6054144699190921436L;
+public class Average {
+
     private double semester1, semester2, fullYear;
     private String subjectId;
 
@@ -35,7 +31,6 @@ public class Average extends GradeEntry<Average> implements Serializable {
     public String getSubjectId() {
         return subjectId;
     }
-
 
 
     @Override
@@ -66,8 +61,4 @@ public class Average extends GradeEntry<Average> implements Serializable {
         return result;
     }
 
-    @Override
-    public int compareTo(Average o) {
-        return 0;
-    }
 }

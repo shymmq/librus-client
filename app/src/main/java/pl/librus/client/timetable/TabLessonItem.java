@@ -2,7 +2,6 @@ package pl.librus.client.timetable;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -11,16 +10,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
-import pl.librus.client.api.Lesson;
+import pl.librus.client.datamodel.Lesson;
 
 /**
  * Created by szyme on 26.12.2016. librus-client
@@ -66,7 +62,7 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
 
         holder.subject.setText(lesson.getSubject().getName());
         holder.teacher.setText(lesson.getTeacher().getName());
-        holder.lessonNumber.setText(String.valueOf(lesson.getLessonNumber()));
+        holder.lessonNumber.setText(String.valueOf(lesson.getLessonNo()));
 
         if (lesson.isCanceled()) {
             //lesson canceled
@@ -76,7 +72,7 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
 
         } else {
 
-            if (lesson.isSubstitutionClass()) {
+            if (lesson.isSubstitution()) {
                 //substitution
                 holder.badge.setVisibility(View.VISIBLE);
                 holder.badgeText.setText(R.string.substitution);
@@ -88,29 +84,30 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-            LocalTime timeNow = LocalTime.now();
-            if (preferences.getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
-                    LocalDate.now().isEqual(lesson.getDate()) &&
-                    timeNow.isAfter(lesson.getStartTime()) &&
-                    timeNow.isBefore(lesson.getEndTime())) {
-                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
-            } else {
-                holder.subject.setTypeface(null, Typeface.NORMAL);
-            }
-
-            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
-                    !lesson.getDate().isAfter(LocalDate.now()) &&
-                    timeNow.isAfter(lesson.getEndTime())) {
-                holder.itemView.setAlpha(0.57f);
-            } else {
-                holder.itemView.setAlpha(1.0f);
-            }
+//            LocalTime timeNow = LocalTime.now();
+//            if (preferences.getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
+//                    LocalDate.now().isEqual(lesson.getDate()) &&
+//                    timeNow.isAfter(lesson.getStartTime()) &&
+//                    timeNow.isBefore(lesson.getEndTime())) {
+//                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
+//            } else {
+//                holder.subject.setTypeface(null, Typeface.NORMAL);
+//            }
+//
+//            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
+//                    !lesson.getDate().isAfter(LocalDate.now()) &&
+//                    timeNow.isAfter(lesson.getEndTime())) {
+//                holder.itemView.setAlpha(0.57f);
+//            } else {
+//                holder.itemView.setAlpha(1.0f);
+//            }
+            //TODO
         }
     }
 
     @Override
     public int compareTo(@NonNull TabLessonItem tabLessonItem) {
-        return Integer.compare(lesson.getLessonNumber(), tabLessonItem.lesson.getLessonNumber());
+        return Integer.compare(lesson.getLessonNo(), tabLessonItem.lesson.getLessonNo());
     }
 
     /**

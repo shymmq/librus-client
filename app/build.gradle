@@ -18,6 +18,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
 }
 
 dependencies {
@@ -48,6 +52,10 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.5.0'
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
     compile 'com.github.boxme:asyncmanager:1.0.0'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-joda:2.8.6'
+    compile 'com.j256.ormlite:ormlite-android:5.0'
+
 
     compile 'eu.davidea:flexible-adapter:5.0.0-rc1'
 

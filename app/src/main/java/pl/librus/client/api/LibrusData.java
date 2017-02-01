@@ -11,6 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pl.librus.client.datamodel.Attendance;
+import pl.librus.client.datamodel.AttendanceType;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.LibrusAccount;
+import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.datamodel.PlainLesson;
+import pl.librus.client.datamodel.SchoolDay;
+import pl.librus.client.datamodel.SchoolWeek;
+import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.Teacher;
+
 public class LibrusData implements Serializable {
     private static final long serialVersionUID = 9103658319690261655L;
 
@@ -29,7 +42,7 @@ public class LibrusData implements Serializable {
 
     private List<Announcement> announcements = new ArrayList<>();//other
     private List<Attendance> attendances;
-    private List<AttendanceCategory> attendanceCategories;
+    private List<AttendanceType> attendanceCategories;
     private LuckyNumber luckyNumber;
 
     //Persistent data:
@@ -121,11 +134,11 @@ public class LibrusData implements Serializable {
         this.attendances = attendances;
     }
 
-    public List<AttendanceCategory> getAttendanceCategories() {
+    public List<AttendanceType> getAttendanceCategories() {
         return attendanceCategories;
     }
 
-    public void setAttendanceCategories(List<AttendanceCategory> attendanceCategories) {
+    public void setAttendanceCategories(List<AttendanceType> attendanceCategories) {
         this.attendanceCategories = attendanceCategories;
     }
 
@@ -185,9 +198,9 @@ public class LibrusData implements Serializable {
         this.account = account;
     }
 
-    public Map<String, AttendanceCategory> getAttendanceCategoryMap() {
-        Map<String, AttendanceCategory> res = new HashMap<>();
-        for (AttendanceCategory ac : attendanceCategories) {
+    public Map<String, AttendanceType> getAttendanceCategoryMap() {
+        Map<String, AttendanceType> res = new HashMap<>();
+        for (AttendanceType ac : attendanceCategories) {
             res.put(ac.getId(), ac);
         }
         return res;
@@ -210,7 +223,7 @@ public class LibrusData implements Serializable {
     public Map<String, String> getLessonMap() {
         Map<String, String> res = new HashMap<>();
         for (PlainLesson pl : plainLessons) {
-            res.put(String.valueOf(pl.getId()), String.valueOf(pl.getSubjectId()));
+            res.put(String.valueOf(pl.getId()), String.valueOf(pl.getSubject().getId()));
         }
         return res;
     }
@@ -235,7 +248,7 @@ public class LibrusData implements Serializable {
 
     public Map<String, String> getLessonSubjectMap() {
         Map<String, String> res = new HashMap<>();
-        for (PlainLesson pl : plainLessons) res.put(pl.getId(), pl.getSubjectId());
+        for (PlainLesson pl : plainLessons) res.put(pl.getId(), pl.getSubject().getId());
         return res;
     }
 

@@ -1,0 +1,27 @@
+
+{
+"Users": [
+{
+"Id": 666,
+"FirstName": "Ala",
+"LastName": "Makota",
+"IsSchoolAdministrator": true
+},
+  {
+"Id": 12345,
+"FirstName": "Tomasz",
+"LastName": "Problem"
+}],
+"Resources": {
+"Users\\IndividualEducationPeriods": {
+"Url": "https://api.librus.pl/2.0/Users/IndividualEducationPeriods"
+},
+"Users\\CrossedOutStudents": {
+"Url": "https://api.librus.pl/2.0/Users/CrossedOutStudents"
+},
+"..": {
+"Url": "https://api.librus.pl/2.0/Root"
+}
+},
+"Url": "https://api.librus.pl/2.0/Users"
+}

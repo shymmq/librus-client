@@ -24,7 +24,7 @@ import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.Teacher;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainFragment;
 

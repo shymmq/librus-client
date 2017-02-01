@@ -20,7 +20,7 @@ import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
-import pl.librus.client.api.Teacher;
+import pl.librus.client.datamodel.Teacher;
 
 /**
  * Created by szyme on 28.12.2016. librus-client
@@ -56,10 +56,6 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
 
     public Announcement getAnnouncement() {
         return announcement;
-    }
-
-    public void setRead(boolean read) {
-        this.read = read;
     }
 
     @Override
@@ -112,6 +108,10 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
 
     public boolean isRead() {
         return read;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
     }
 
     public TextView getTitle() {
