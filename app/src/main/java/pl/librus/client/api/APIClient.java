@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Lists;
 
@@ -48,6 +49,7 @@ import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
+import pl.librus.client.datamodel.SchoolWeek;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 
@@ -159,10 +161,14 @@ public class APIClient {
     }
 
     private static ObjectMapper createMapper() {
+
+        SimpleModule schoolWeekModule = new SimpleModule();
+        schoolWeekModule.addDeserializer(SchoolWeek.class, new SchoolWeekDeserializer());
         return new ObjectMapper()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .registerModule(new JodaModule());
+                .registerModule(new JodaModule())
+                .registerModule(schoolWeekModule);
     }
 
     private Promise<JSONObject, Integer, Void> APIRequest(final String endpoint) {
@@ -461,18 +467,9 @@ public class APIClient {
 
     public Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
 
-        final Deferred<SchoolWeek, Void, Void> deferred = new DeferredObject<>();
-
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
 
-        APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
-            @Override
-            public void onDone(JSONObject result) {
-                RawSchoolWeek rawSchoolWeek = parseObject(result.toString(), "Timetable", RawSchoolWeek.class);
-                deferred.resolve(rawSchoolWeek.toSchoolWeek());
-            }
-        });
-        return deferred.promise();
+        return getObject(endpoint, "Timetable", SchoolWeek.class);
     }
 
     public Promise<List<Grade>, Void, Void> getGrades() {

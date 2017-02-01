@@ -44,8 +44,8 @@ import static pl.librus.client.sql.LibrusDbContract.Subjects;
 import static pl.librus.client.sql.LibrusDbContract.Teachers;
 
 public class LibrusDbHelper extends OrmLiteSqliteOpenHelper {
-    private static final String DB_NAME = "librus-client";
-    private static final int DB_VERSION = 9;
+    private static final String DB_NAME = "librus-client.db";
+    private static final int DB_VERSION = 12;
     private final Context context;
 
     private Class[] tables = {

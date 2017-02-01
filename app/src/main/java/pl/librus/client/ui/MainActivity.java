@@ -43,6 +43,7 @@ import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.grades.GradesFragment;
+import pl.librus.client.sql.HasIdType;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.sql.LocalDateType;
 import pl.librus.client.sql.LocalTimeType;
@@ -88,7 +89,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         FirebaseAnalytics.getInstance(getApplicationContext());
         DataPersisterManager.registerDataPersisters(
                 new LocalDateType(),
-                new LocalTimeType()
+                new LocalTimeType(),
+                new HasIdType()
         );
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

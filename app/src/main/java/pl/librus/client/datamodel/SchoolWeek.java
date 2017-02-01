@@ -1,22 +1,20 @@
-package pl.librus.client.api;
+package pl.librus.client.datamodel;
 
 import android.support.annotation.NonNull;
 
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import pl.librus.client.api.SchoolDay;
 
 public class SchoolWeek implements Comparable<SchoolWeek> {
 
     private final List<SchoolDay> schoolDays = new ArrayList<>();
-    private final LocalDate weekStart;
 
-    SchoolWeek(LocalDate weekStart) {
-        this.weekStart = weekStart;
-    }
-
-    void addSchoolDay(SchoolDay schoolDay) {
+    public void addSchoolDay(SchoolDay schoolDay) {
         schoolDays.add(schoolDay);
     }
 
@@ -25,11 +23,11 @@ public class SchoolWeek implements Comparable<SchoolWeek> {
     }
 
     public LocalDate getWeekStart() {
-        return weekStart;
+        return Collections.min(schoolDays).getDate();
     }
 
     @Override
     public int compareTo(@NonNull SchoolWeek week) {
-        return weekStart.compareTo(week.getWeekStart());
+        return getWeekStart().compareTo(week.getWeekStart());
     }
 }

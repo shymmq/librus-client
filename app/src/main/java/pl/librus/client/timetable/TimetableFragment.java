@@ -11,19 +11,14 @@ import android.view.ViewGroup;
 
 import com.j256.ormlite.dao.Dao;
 
-import org.jdeferred.DoneCallback;
 import org.joda.time.LocalDate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
-import pl.librus.client.api.LibrusUpdateService;
-import pl.librus.client.api.SchoolDay;
-import pl.librus.client.api.SchoolWeek;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
@@ -138,7 +133,6 @@ public class TimetableFragment extends Fragment implements MainFragment {
                     if (lessons == null || lessons.isEmpty()) {
                         initialElements.add(new EmptyLessonItem(header, date));
                     } else {
-                        Collections.sort(lessons);
                         for (Lesson l : lessons) {
                             LessonItem lessonItem = new LessonItem(header, l, getContext());
                             initialElements.add(lessonItem);
@@ -163,34 +157,34 @@ public class TimetableFragment extends Fragment implements MainFragment {
                 adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
 
                 //additional pages, load from server
-                new LibrusUpdateService(getContext()).getSchoolWeek(startDate.plusWeeks(page)).done(new DoneCallback<SchoolWeek>() {
-                    @Override
-                    public void onDone(SchoolWeek result) {
-                        for (SchoolDay schoolDay : result.getSchoolDays()) {
-                            LocalDate date = schoolDay.getDate();
-                            LessonHeaderItem header = new LessonHeaderItem(date);
-                            if (schoolDay.isEmpty()) {
-                                newElements.add(new EmptyLessonItem(header, date));
-                            } else {
-                                List<Lesson> lessons = new ArrayList<>(schoolDay.getLessons().values());
-                                Collections.sort(lessons);
-                                for (Lesson l : lessons) {
-                                    LessonItem lessonItem = new LessonItem(header, l, getContext());
-                                    newElements.add(lessonItem);
-                                }
-                            }
-                        }
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressItem.setStatus(ProgressItem.IDLE);
-                                adapter.onLoadMoreComplete(newElements);
-                                onSetupCompleted.run();
-                                page++;
-                            }
-                        });
-                    }
-                });
+//                new LibrusUpdateService(getContext()).getSchoolWeek(startDate.plusWeeks(page)).done(new DoneCallback<SchoolWeek>() {
+//                    @Override
+//                    public void onDone(SchoolWeek result) {
+//                        for (SchoolDay schoolDay : result.getSchoolDays()) {
+//                            LocalDate date = schoolDay.getDate();
+//                            LessonHeaderItem header = new LessonHeaderItem(date);
+//                            if (schoolDay.isEmpty()) {
+//                                newElements.add(new EmptyLessonItem(header, date));
+//                            } else {
+//                                List<Lesson> lessons = new ArrayList<>(schoolDay.getLessons().values());
+//                                Collections.sort(lessons);
+//                                for (Lesson l : lessons) {
+//                                    LessonItem lessonItem = new LessonItem(header, l, getContext());
+//                                    newElements.add(lessonItem);
+//                                }
+//                            }
+//                        }
+//                        getActivity().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                progressItem.setStatus(ProgressItem.IDLE);
+//                                adapter.onLoadMoreComplete(newElements);
+//                                onSetupCompleted.run();
+//                                page++;
+//                            }
+//                        });
+//                    }
+//                });
             }
         };
         recyclerView.setAdapter(adapter);

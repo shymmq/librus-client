@@ -12,11 +12,9 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MultipleResults;
-import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.datamodel.Attendance;
@@ -24,7 +22,6 @@ import pl.librus.client.datamodel.AttendanceType;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
-import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
@@ -40,9 +37,7 @@ import pl.librus.client.sql.LibrusDbContract.MeTable;
 import pl.librus.client.sql.LibrusDbContract.PlainLessons;
 import pl.librus.client.sql.LibrusDbContract.Subjects;
 import pl.librus.client.sql.LibrusDbContract.Teachers;
-import pl.librus.client.sql.LibrusDbContract.TimetableLessons;
 import pl.librus.client.sql.LibrusDbHelper;
-import pl.librus.client.timetable.TimetableUtils;
 
 /**
  * This class allows to update all data asynchronously and save it to the database
@@ -79,7 +74,6 @@ public class LibrusUpdateService {
         tasks.add(updateGradeComments());
         tasks.add(updateAttendanceCategories());
         tasks.add(updateTeachers());
-        tasks.add(updateSchoolWeeks());
         tasks.add(updateAttendances());
         tasks.add(updatePlainLessons());
         tasks.add(updateMe());
@@ -104,47 +98,6 @@ public class LibrusUpdateService {
         return deferred.promise();
     }
 
-    private Promise updateSchoolWeeks() {
-        List<Promise> tasks = new ArrayList<>();
-        List<LocalDate> nextFullWeekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
-        db.delete(TimetableLessons.TABLE_NAME, null, null);
-        for (LocalDate weekStart : nextFullWeekStarts) {
-            tasks.add(client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
-                @Override
-                public void onDone(SchoolWeek result) {
-                    LibrusUtils.log("Saving " + result.getWeekStart() + " school week to database");
-                    db.beginTransaction();
-                    for (SchoolDay schoolDay : result.getSchoolDays()) {
-                        LocalDate day = schoolDay.getDate();
-                        long dayMillis = day.toDateTimeAtStartOfDay().getMillis();
-                        for (Map.Entry<Integer, Lesson> entry : schoolDay.getLessons().entrySet()) {
-                            Lesson lesson = entry.getValue();
-                            ContentValues values = new ContentValues();
-                            values.put(TimetableLessons.COLUMN_NAME_DATE, dayMillis);
-                            values.put(TimetableLessons.COLUMN_NAME_ID, lesson.getId());
-                            values.put(TimetableLessons.COLUMN_NAME_UNIQUE_ID, lesson.getUniqueId());
-                            values.put(TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
-                            values.put(TimetableLessons.COLUMN_NAME_START_TIME, lesson.getStartTime().getMillisOfDay());
-                            values.put(TimetableLessons.COLUMN_NAME_END_TIME, lesson.getEndTime().getMillisOfDay());
-                            values.put(TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
-                            values.put(TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
-                            values.put(TimetableLessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
-                            values.put(TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME, lesson.getTeacher().getFirstName());
-                            values.put(TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME, lesson.getTeacher().getLastName());
-                            values.put(TimetableLessons.COLUMN_NAME_SUBSTITUTION, lesson.isSubstitutionClass() ? 1 : 0);
-                            values.put(TimetableLessons.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
-                            values.put(TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
-                            values.put(TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
-                            db.insert(TimetableLessons.TABLE_NAME, null, values);
-                        }
-                    }
-                    db.setTransactionSuccessful();
-                    db.endTransaction();
-                }
-            }));
-        }
-        return new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()]));
-    }
 
     private Promise<List<Grade>, ?, ?> updateGrades() {
         return client.getGrades().done(new DoneCallback<List<Grade>>() {
@@ -291,42 +244,6 @@ public class LibrusUpdateService {
                     values.put(Teachers.COLUMN_NAME_FIRST_NAME, t.getFirstName());
                     values.put(Teachers.COLUMN_NAME_LAST_NAME, t.getLastName());
                     db.insert(Teachers.TABLE_NAME, null, values);
-                }
-                db.setTransactionSuccessful();
-                db.endTransaction();
-            }
-        });
-    }
-
-    public Promise<SchoolWeek, ?, ?> getSchoolWeek(final LocalDate weekStart) {
-        return client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
-            @Override
-            public void onDone(SchoolWeek result) {
-                LibrusUtils.log("Saving " + result.getWeekStart() + " school week to database");
-                db.beginTransaction();
-                for (SchoolDay schoolDay : result.getSchoolDays()) {
-                    LocalDate day = schoolDay.getDate();
-                    long dayMillis = day.toDateTimeAtStartOfDay().getMillis();
-                    for (Map.Entry<Integer, Lesson> entry : schoolDay.getLessons().entrySet()) {
-                        Lesson lesson = entry.getValue();
-                        ContentValues values = new ContentValues();
-                        values.put(TimetableLessons.COLUMN_NAME_DATE, dayMillis);
-                        values.put(TimetableLessons.COLUMN_NAME_ID, lesson.getId());
-                        values.put(TimetableLessons.COLUMN_NAME_UNIQUE_ID, lesson.getUniqueId());
-                        values.put(TimetableLessons.COLUMN_NAME_LESSON_NUMBER, lesson.getLessonNumber());
-                        values.put(TimetableLessons.COLUMN_NAME_START_TIME, lesson.getStartTime().getMillisOfDay());
-                        values.put(TimetableLessons.COLUMN_NAME_END_TIME, lesson.getEndTime().getMillisOfDay());
-                        values.put(TimetableLessons.COLUMN_NAME_SUBJECT_ID, lesson.getSubject().getId());
-                        values.put(TimetableLessons.COLUMN_NAME_SUBJECT_NAME, lesson.getSubject().getName());
-                        values.put(TimetableLessons.COLUMN_NAME_TEACHER_ID, lesson.getTeacher().getId());
-                        values.put(TimetableLessons.COLUMN_NAME_TEACHER_FIRST_NAME, lesson.getTeacher().getFirstName());
-                        values.put(TimetableLessons.COLUMN_NAME_TEACHER_LAST_NAME, lesson.getTeacher().getLastName());
-                        values.put(TimetableLessons.COLUMN_NAME_SUBSTITUTION, lesson.isSubstitutionClass() ? 1 : 0);
-                        values.put(TimetableLessons.COLUMN_NAME_CANCELED, lesson.isCanceled() ? 1 : 0);
-                        values.put(TimetableLessons.COLUMN_NAME_ORG_SUBJECT_ID, lesson.getOrgSubjectId());
-                        values.put(TimetableLessons.COLUMN_NAME_ORG_TEACHER_ID, lesson.getOrgTeacherId());
-                        db.insert(TimetableLessons.TABLE_NAME, null, values);
-                    }
                 }
                 db.setTransactionSuccessful();
                 db.endTransaction();

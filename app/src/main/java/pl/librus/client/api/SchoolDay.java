@@ -1,55 +1,37 @@
 package pl.librus.client.api;
 
-import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 
 import org.joda.time.LocalDate;
 
-import java.io.Serializable;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import pl.librus.client.datamodel.Lesson;
 
-public class SchoolDay implements Serializable, Comparable<SchoolDay> {
-    private static final long serialVersionUID = -8357220840792654725L;
-    private LocalDate date = LocalDate.now();
-    private boolean empty = true;
-    @SuppressLint("UseSparseArrays")
-    private HashMap<Integer, Lesson> lessons = new HashMap<>();
-    private int lastLesson = 0;
+public class SchoolDay implements Comparable<SchoolDay> {
 
-    public SchoolDay(LocalDate date) {
+    private LocalDate date;
+    private List<Lesson> lessons = new ArrayList<>();
+
+    SchoolDay(LocalDate date) {
         this.date = date;
     }
 
-    void setLesson(int number, Lesson lesson) {
-        lessons.put(number, lesson);
-        empty = false;
-        lastLesson = number > lastLesson ? number : lastLesson;
-    }
-
-    public HashMap<Integer, Lesson> getLessons() {
-        return lessons;
+    void addLesson(Lesson lesson) {
+        lessons.add(lesson);
     }
 
     public LocalDate getDate() {
         return date;
     }
 
-    public Lesson getLesson(int i) {
-        return lessons.get(i);
-    }
-
-    public int getLastLesson() {
-        return lastLesson;
-    }
-
     public boolean isEmpty() {
-        return empty;
+        return lessons.isEmpty();
     }
 
-    void setEmpty(boolean empty) {
-        this.empty = empty;
+    public List<Lesson> getLessons() {
+        return lessons;
     }
 
     @Override

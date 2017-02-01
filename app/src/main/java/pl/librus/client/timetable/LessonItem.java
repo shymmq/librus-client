@@ -1,15 +1,11 @@
 package pl.librus.client.timetable;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 
 import java.io.Serializable;
 import java.util.List;
@@ -81,7 +77,7 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
 
         holder.subject.setText(lesson.getSubject().getName());
         holder.teacher.setText(lesson.getTeacher().getName());
-        holder.lessonNumber.setText(String.valueOf(lesson.getLessonNumber()));
+        holder.lessonNumber.setText(String.valueOf(lesson.getLessonNo()));
 
         if (lesson.isCanceled()) {
             //lesson canceled
@@ -91,7 +87,7 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
 
         } else {
 
-            if (lesson.isSubstitutionClass()) {
+            if (lesson.isSubstitution()) {
                 //substitution
                 holder.badge.setVisibility(View.VISIBLE);
                 holder.badgeText.setText(R.string.substitution);
@@ -101,14 +97,15 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
                 holder.badge.setVisibility(View.GONE);
             }
 
-            LocalTime now = LocalTime.now();
-            if (LocalDate.now().isEqual(lesson.getDate()) &&
-                    now.isAfter(lesson.getStartTime()) &&
-                    now.isBefore(lesson.getEndTime())) {
-                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
-            } else {
-                holder.subject.setTypeface(null, Typeface.NORMAL);
-            }
+//            LocalTime now = LocalTime.now();
+//            if (LocalDate.now().isEqual(lesson.getDate()) &&
+//                    now.isAfter(lesson.getStartTime()) &&
+//                    now.isBefore(lesson.getEndTime())) {
+//                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
+//            } else {
+//                holder.subject.setTypeface(null, Typeface.NORMAL);
+//            }
+            //TODO
         }
     }
 
