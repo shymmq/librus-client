@@ -1,19 +1,17 @@
 package pl.librus.client.api;
 
-import java.io.Serializable;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Created by szyme on 07.12.2016. librus-client
  */
-public class EventCategory implements Serializable {
-    private static final long serialVersionUID = 8913346963576362939L;
+@DatabaseTable(tableName = "event_categories")
+public class EventCategory {
+    @DatabaseField
     private String name;
+    @DatabaseField(id = true)
     private String id;
-
-    EventCategory(String id, String name) {
-        this.name = name;
-        this.id = id;
-    }
 
     public String getName() {
         return name;

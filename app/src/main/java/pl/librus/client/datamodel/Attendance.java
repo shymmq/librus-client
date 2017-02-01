@@ -2,6 +2,8 @@ package pl.librus.client.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -10,35 +12,29 @@ import org.joda.time.LocalDateTime;
  * Created by Adam on 13.12.2016.
  */
 
-public class Attendance extends HasId {
+@DatabaseTable(tableName = "attendances")
+public class Attendance {
+    @DatabaseField(id = true)
+    private String id;
 
+    @DatabaseField
     private HasId lesson, student, type, addedBy;
 
+    @DatabaseField
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate date;
 
+    @DatabaseField
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime addDate;
 
+    @DatabaseField
     @JsonProperty("LessonNo")
     private int lessonNumber;
+    @DatabaseField
     private int semester;
 
     public Attendance() {
-    }
-
-    public Attendance(String id, String lessonId, String studentId, LocalDate date, LocalDateTime addDate, int lessonNumber, int semester, String typeId, String addedById) {
-        this.id = id;
-
-        this.lesson = new HasId(lessonId);
-        this.student = new HasId(studentId);
-        this.type = new HasId(typeId);
-        this.addedBy = new HasId(addedById);
-
-        this.date = date;
-        this.addDate = addDate;
-        this.lessonNumber = lessonNumber;
-        this.semester = semester;
     }
 
     public HasId getLesson() {
@@ -71,5 +67,9 @@ public class Attendance extends HasId {
 
     public int getSemester() {
         return semester;
+    }
+
+    public String getId() {
+        return id;
     }
 }

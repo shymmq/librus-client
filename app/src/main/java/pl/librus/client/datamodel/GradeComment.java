@@ -22,13 +22,6 @@ public class GradeComment {
     public GradeComment() {
     }
 
-    public GradeComment(String id, String addedById, String gradeId, String text) {
-        this.id = id;
-        this.addedBy = new HasId(addedById);
-        this.grade = new HasId(gradeId);
-        this.text = text;
-    }
-
     public String getId() {
         return id;
     }

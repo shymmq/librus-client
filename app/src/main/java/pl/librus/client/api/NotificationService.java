@@ -134,7 +134,7 @@ public class NotificationService {
         if (size == 1) {
             Event event = events.get(0);
             sendNotification("Nowe wydarzenie",
-                    event.getDescription(),
+                    event.getContent(),
                     R.drawable.ic_event_black_24dp,
                     event.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")),
                     null,
@@ -151,8 +151,8 @@ public class NotificationService {
                     .setSummaryText(data.getAccount().getLogin() + " - " + data.getAccount().getName());
             Map<String, Teacher> teacherMap = data.getTeacherMap();
             for (Event e : events) {
-                style.addLine(e.getDescription());
-                String name = teacherMap.get(e.getAddedById()).getName();
+                style.addLine(e.getContent());
+                String name = teacherMap.get(e.getAddedBy().getId()).getName();
                 if (!authorNames.contains(name)) authorNames.add(name);
             }
 

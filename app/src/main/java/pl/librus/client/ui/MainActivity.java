@@ -157,9 +157,9 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         //Drawer setup
         LuckyNumber luckyNumber = null;
         try {
-            Dao<LuckyNumber, LocalDate> luckyNumberDao = dbHelper.getLuckyNumberDao();
+            Dao<LuckyNumber, LocalDate> luckyNumberDao = dbHelper.getDao(LuckyNumber.class);
             luckyNumber = luckyNumberDao.queryForId(LocalDate.now());
-            Dao<LibrusAccount, String> librusAccountDao = dbHelper.getLibrusAccountDao();
+            Dao<LibrusAccount, String> librusAccountDao = dbHelper.getDao(LibrusAccount.class);
             account = librusAccountDao.queryForAll().get(0);
         } catch (SQLException e) {
             e.printStackTrace();

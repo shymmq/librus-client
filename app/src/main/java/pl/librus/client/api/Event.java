@@ -1,53 +1,51 @@
 package pl.librus.client.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
 import org.joda.time.LocalDate;
 
-import java.io.Serializable;
-import java.util.Objects;
+import pl.librus.client.datamodel.HasId;
 
-public class Event implements Serializable {
-
-    private static final long serialVersionUID = -5781381587858850733L;
-    private String id, categoryId, addedById, description;
+@DatabaseTable(tableName = "events")
+public class Event {
+    @DatabaseField(id = true)
+    @JsonProperty("Id")
+    private String id;
+    @DatabaseField
+    private String content;
+    @DatabaseField
     private LocalDate date;
-    private int lessonNumber;
+    @DatabaseField
+    private HasId category;
+    @DatabaseField
+    private int lessonNo;
+    @DatabaseField
+    @JsonProperty("CreatedBy")
+    private HasId addedBy;
 
-    Event(String id, String categoryId, String description, LocalDate date, String addedById, int lessonNumber) {
-        this.id = id;
-        this.description = description;
-        this.categoryId = categoryId;
-        this.date = date;
-        this.addedById = addedById;
-        this.lessonNumber = lessonNumber;
+    public Event() {
     }
 
-    public String getAddedById() {
-        return addedById;
-    }
-
-    public String getCategoryId() {
-        return categoryId;
-    }
-
-    public String getDescription() {
-        return description;
+    public String getContent() {
+        return content;
     }
 
     public LocalDate getDate() {
         return date;
     }
 
-    public int getLessonNumber() {
-        return lessonNumber;
+    public HasId getCategory() {
+        return category;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof Event && Objects.equals(((Event) obj).getId(), id);
+    public int getLessonNo() {
+        return lessonNo;
     }
 
-    public int getChanges(Event event) {
-        return 0;
+    public HasId getAddedBy() {
+        return addedBy;
     }
 
     public String getId() {

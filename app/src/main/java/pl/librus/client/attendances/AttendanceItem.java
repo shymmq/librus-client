@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.j256.ormlite.dao.Dao;
+
+import java.sql.SQLException;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
@@ -42,12 +45,18 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         holder.shortName.setText(category.getShortName());
         Context context = holder.itemView.getContext();
-        LibrusDbHelper helper = new LibrusDbHelper(context);
-        PlainLesson lesson = helper.getLesson(attendance.getLesson().getId());
-        Subject subject = helper.getSubject(lesson.getSubject().getId());
-        holder.subject.setText(subject.getName());
         String lessonNumber = context.getString(R.string.lesson) + " " + attendance.getLessonNumber();
         holder.lesson.setText(lessonNumber);
+        LibrusDbHelper helper = new LibrusDbHelper(context);
+        try {
+            Dao<PlainLesson, String> lessonDao = helper.getDao(PlainLesson.class);
+            Dao<Subject, String> subjectDao = helper.getDao(Subject.class);
+            PlainLesson lesson = lessonDao.queryForId(attendance.getLesson().getId());
+            Subject subject = subjectDao.queryForId(lesson.getSubject().getId());
+            holder.subject.setText(subject.getName());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

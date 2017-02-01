@@ -1,36 +1,35 @@
 package pl.librus.client.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.j256.ormlite.field.DatabaseField;
 
 /**
  * Created by Adam on 16.12.2016.
  */
 
-public class AttendanceType extends HasId {
+public class AttendanceType {
+    @DatabaseField(id = true)
+    private String id;
+    @DatabaseField
     @JsonProperty("Name")
     private String name;
+    @DatabaseField
     @JsonProperty("ColorRGB")
     private String colorRGB;
+    @DatabaseField
     @JsonProperty("Short")
     private String shortName;
+    @DatabaseField
     @JsonProperty("Standard")
     private boolean standard;
+    @DatabaseField
     @JsonProperty("IsPresenceKind")
     private boolean presenceKind;
+    @DatabaseField
     @JsonProperty("Order")
     private int order;
 
     public AttendanceType() {
-    }
-
-    public AttendanceType(String id, String name, String colorRGB, String shortName, boolean standard, boolean presenceKind, int order) {
-        super(id);
-        this.name = name;
-        this.colorRGB = colorRGB;
-        this.shortName = shortName;
-        this.standard = standard;
-        this.presenceKind = presenceKind;
-        this.order = order;
     }
 
     public String getName() {
@@ -55,5 +54,9 @@ public class AttendanceType extends HasId {
 
     public int getOrder() {
         return order;
+    }
+
+    public String getId() {
+        return id;
     }
 }
