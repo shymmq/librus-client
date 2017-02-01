@@ -20,7 +20,7 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
-import pl.librus.client.api.Lesson;
+import pl.librus.client.datamodel.Lesson;
 
 /**
  * Created by szyme on 26.12.2016. librus-client

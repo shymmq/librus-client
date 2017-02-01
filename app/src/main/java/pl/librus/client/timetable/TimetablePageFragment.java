@@ -20,7 +20,7 @@ import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import pl.librus.client.R;
-import pl.librus.client.api.Lesson;
+import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.sql.LibrusDbHelper;
 
 /**

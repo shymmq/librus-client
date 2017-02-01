@@ -21,11 +21,11 @@ import java.util.List;
 
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
-import pl.librus.client.api.Lesson;
-import pl.librus.client.api.Me;
 import pl.librus.client.api.SchoolDay;
 import pl.librus.client.api.SchoolWeek;
+import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.timetable.TimetableUtils;

@@ -1,4 +1,4 @@
-package pl.librus.client.api;
+package pl.librus.client.datamodel;
 
 import android.support.annotation.NonNull;
 
@@ -8,9 +8,6 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-
-import pl.librus.client.datamodel.Subject;
-import pl.librus.client.datamodel.Teacher;
 
 @DatabaseTable(tableName = "timetable_lessons")
 public class Lesson implements Comparable<Lesson> {

@@ -21,14 +21,14 @@ import java.util.List;
 
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
-import pl.librus.client.api.Lesson;
-import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceType;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.HasId;
+import pl.librus.client.datamodel.Lesson;
+import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;

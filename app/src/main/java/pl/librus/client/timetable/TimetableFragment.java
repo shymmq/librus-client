@@ -21,10 +21,10 @@ import java.util.List;
 
 import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
-import pl.librus.client.api.Lesson;
 import pl.librus.client.api.LibrusUpdateService;
 import pl.librus.client.api.SchoolDay;
 import pl.librus.client.api.SchoolWeek;
+import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 

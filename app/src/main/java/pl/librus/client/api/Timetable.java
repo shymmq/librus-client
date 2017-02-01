@@ -5,6 +5,8 @@ import org.joda.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 
+import pl.librus.client.datamodel.Lesson;
+
 /**
  * Created by szyme on 30.01.2017.
  */

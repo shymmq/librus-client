@@ -8,6 +8,8 @@ import org.joda.time.LocalDate;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import pl.librus.client.datamodel.Lesson;
+
 public class SchoolDay implements Serializable, Comparable<SchoolDay> {
     private static final long serialVersionUID = -8357220840792654725L;
     private LocalDate date = LocalDate.now();

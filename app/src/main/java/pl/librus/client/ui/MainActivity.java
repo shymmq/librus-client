@@ -39,8 +39,8 @@ import org.joda.time.LocalDate;
 import java.sql.SQLException;
 
 import pl.librus.client.R;
-import pl.librus.client.api.LibrusAccount;
 import pl.librus.client.attendances.AttendanceFragment;
+import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.sql.LibrusDbHelper;

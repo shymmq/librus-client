@@ -1,10 +1,8 @@
-package pl.librus.client.api;
+package pl.librus.client.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-
-import pl.librus.client.datamodel.HasId;
 
 /**
  * Created by szyme on 30.01.2017.

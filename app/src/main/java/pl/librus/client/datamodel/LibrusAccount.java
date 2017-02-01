@@ -1,4 +1,4 @@
-package pl.librus.client.api;
+package pl.librus.client.datamodel;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;

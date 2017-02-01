@@ -4,14 +4,11 @@ import android.support.annotation.NonNull;
 
 import org.joda.time.LocalDate;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SchoolWeek implements Serializable, Comparable<SchoolWeek> {
+public class SchoolWeek implements Comparable<SchoolWeek> {
 
-    private static final long serialVersionUID = -1448021508657217605L;
-    private final String TAG = "librus-client-log";
     private final List<SchoolDay> schoolDays = new ArrayList<>();
     private final LocalDate weekStart;
 
