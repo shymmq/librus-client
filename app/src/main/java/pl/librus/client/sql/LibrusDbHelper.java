@@ -45,7 +45,7 @@ import static pl.librus.client.sql.LibrusDbContract.Teachers;
 
 public class LibrusDbHelper extends OrmLiteSqliteOpenHelper {
     private static final String DB_NAME = "librus-client.db";
-    private static final int DB_VERSION = 12;
+    private static final int DB_VERSION = 13;
     private final Context context;
 
     private Class[] tables = {
@@ -53,7 +53,9 @@ public class LibrusDbHelper extends OrmLiteSqliteOpenHelper {
             LuckyNumber.class,
             LibrusAccount.class,
             Lesson.class,
-            Teacher.class
+            Teacher.class,
+            Grade.class,
+            GradeCategory.class
     };
 
     public LibrusDbHelper(Context context) {

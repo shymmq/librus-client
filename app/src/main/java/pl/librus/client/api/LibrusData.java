@@ -19,6 +19,7 @@ import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.PlainLesson;
+import pl.librus.client.datamodel.SchoolDay;
 import pl.librus.client.datamodel.SchoolWeek;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;

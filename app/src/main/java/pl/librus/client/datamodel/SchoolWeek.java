@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import pl.librus.client.api.SchoolDay;
-
 public class SchoolWeek implements Comparable<SchoolWeek> {
 
     private final List<SchoolDay> schoolDays = new ArrayList<>();

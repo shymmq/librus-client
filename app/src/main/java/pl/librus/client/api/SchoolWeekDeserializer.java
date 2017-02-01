@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import pl.librus.client.datamodel.Lesson;
+import pl.librus.client.datamodel.SchoolDay;
 import pl.librus.client.datamodel.SchoolWeek;
 
 /**

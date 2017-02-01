@@ -45,6 +45,7 @@ import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.sql.HasIdType;
 import pl.librus.client.sql.LibrusDbHelper;
+import pl.librus.client.sql.LocalDateTimeType;
 import pl.librus.client.sql.LocalDateType;
 import pl.librus.client.sql.LocalTimeType;
 import pl.librus.client.sql.UpdateHelper;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         DataPersisterManager.registerDataPersisters(
                 new LocalDateType(),
                 new LocalTimeType(),
+                new LocalDateTimeType(),
                 new HasIdType()
         );
 

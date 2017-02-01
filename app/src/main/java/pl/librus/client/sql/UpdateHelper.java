@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.misc.TransactionManager;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
@@ -18,13 +19,16 @@ import org.joda.time.LocalDate;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
-import pl.librus.client.api.SchoolDay;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
+import pl.librus.client.datamodel.SchoolDay;
 import pl.librus.client.datamodel.SchoolWeek;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -57,6 +61,8 @@ public class UpdateHelper {
 
         tasks.add(updateList("/Subjects", "Subjects", Subject.class));
         tasks.add(updateList("/Users", "Users", Teacher.class));
+        tasks.add(updateList("/Grades", "Grades", Grade.class));
+        tasks.add(updateList("/Grades/Categories", "Categories", GradeCategory.class));
         tasks.add(updateObject("/LuckyNumbers", "LuckyNumber", LuckyNumber.class));
         tasks.add(updateAccount());
         tasks.add(updateTimetable());
@@ -121,12 +127,20 @@ public class UpdateHelper {
     private <T> Promise updateList(String endpoint, String topLevelName, final Class<T> clazz) {
         return client.getList(endpoint, topLevelName, clazz).done(new DoneCallback<List<T>>() {
             @Override
-            public void onDone(List<T> result) {
+            public void onDone(final List<T> result) {
                 try {
-                    Dao<T, ?> dao = helper.getDao(clazz);
-                    for (T item : result) {
-                        dao.createOrUpdate(item);
-                    }
+                    final Dao<T, ?> dao = helper.getDao(clazz);
+                    TransactionManager.callInTransaction(helper.getConnectionSource(),
+                            new Callable<Void>() {
+                                public Void call() throws Exception {
+                                    for (T item : result) {
+                                        dao.createOrUpdate(item);
+                                    }
+                                    return null;
+                                }
+                            });
+
+
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

@@ -1,4 +1,4 @@
-package pl.librus.client.api;
+package pl.librus.client.datamodel;
 
 import android.support.annotation.NonNull;
 
@@ -7,18 +7,16 @@ import org.joda.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.librus.client.datamodel.Lesson;
-
 public class SchoolDay implements Comparable<SchoolDay> {
 
     private LocalDate date;
     private List<Lesson> lessons = new ArrayList<>();
 
-    SchoolDay(LocalDate date) {
+    public SchoolDay(LocalDate date) {
         this.date = date;
     }
 
-    void addLesson(Lesson lesson) {
+    public void addLesson(Lesson lesson) {
         lessons.add(lesson);
     }
 
