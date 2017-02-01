@@ -67,17 +67,17 @@ public class AttendanceFragment extends Fragment implements MainFragment {
 
                 Dao<AttendanceType, String> dao = dbHelper.getDao(AttendanceType.class);
                 AttendanceType category = dao.queryForId(attendance.getType().getId());
-
-                if (headerItemMap.get(date) == null) {
-                    headerItemMap.put(date, new AttendanceHeaderItem(date));
+                if (!category.isPresenceKind()) {
+                    if (headerItemMap.get(date) == null) {
+                        headerItemMap.put(date, new AttendanceHeaderItem(date));
+                    }
+                    AttendanceItem subItem = new AttendanceItem(
+                            headerItemMap.get(date),
+                            attendance,
+                            category);
+                    headerItemMap.get(date)
+                            .addSubItem(subItem);
                 }
-                AttendanceItem subItem = new AttendanceItem(
-                        headerItemMap.get(date),
-                        attendance,
-                        category);
-                headerItemMap.get(date)
-                        .addSubItem(subItem);
-
             }
             List<AttendanceHeaderItem> headers = new ArrayList<>(headerItemMap.values());
             Collections.sort(headers);
