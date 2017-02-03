@@ -113,7 +113,7 @@ public class APIClient {
         return deferred.promise();
     }
 
-    private static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
+    public static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
         ObjectMapper mapper = createMapper();
         try {
             JsonNode root = mapper.readTree(input);
@@ -127,7 +127,7 @@ public class APIClient {
         }
     }
 
-    private static <T> T parseObject(String input, String topLevelName, Class<T> clazz) {
+    public static <T> T parseObject(String input, String topLevelName, Class<T> clazz) {
         ObjectMapper mapper = createMapper();
         try {
             JsonNode root = mapper.readTree(input);
