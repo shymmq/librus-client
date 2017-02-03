@@ -12,6 +12,7 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 
 import pl.librus.client.R;
+import pl.librus.client.api.Average;
 import pl.librus.client.api.Event;
 import pl.librus.client.api.EventCategory;
 import pl.librus.client.datamodel.Attendance;
@@ -28,7 +29,7 @@ import pl.librus.client.datamodel.Teacher;
 
 public class LibrusDbHelper extends OrmLiteSqliteOpenHelper {
     private static final String DB_NAME = "librus-client.db";
-    private static final int DB_VERSION = 17;
+    private static final int DB_VERSION = 19;
     private final Context context;
 
     private Class[] tables = {
@@ -44,7 +45,8 @@ public class LibrusDbHelper extends OrmLiteSqliteOpenHelper {
             Event.class,
             EventCategory.class,
             Attendance.class,
-            AttendanceType.class
+            AttendanceType.class,
+            Average.class
     };
 
     public LibrusDbHelper(Context context) {

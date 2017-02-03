@@ -23,6 +23,7 @@ import java.util.concurrent.Callable;
 
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
+import pl.librus.client.api.Average;
 import pl.librus.client.api.Event;
 import pl.librus.client.api.EventCategory;
 import pl.librus.client.datamodel.Attendance;
@@ -76,6 +77,7 @@ public class UpdateHelper {
         tasks.add(updateList("/HomeWorks/Categories", "Categories", EventCategory.class));
         tasks.add(updateList("/Attendances", "Attendances", Attendance.class));
         tasks.add(updateList("/Attendances/Types", "Types", AttendanceType.class));
+        tasks.add(updateList("/Grades/Averages", "Averages", Average.class));
         tasks.add(updateObject("/LuckyNumbers", "LuckyNumber", LuckyNumber.class));
         tasks.add(updateAccount());
         tasks.add(updateTimetable());

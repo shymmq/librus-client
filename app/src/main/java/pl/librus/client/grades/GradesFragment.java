@@ -26,6 +26,7 @@ import java.util.Map;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import pl.librus.client.R;
+import pl.librus.client.api.Average;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
@@ -90,9 +91,12 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             final Map<String, GradeHeaderItem> headers = new HashMap<>();
 
             List<Subject> subjects = dbHelper.getDao(Subject.class).queryForAll();
+            Dao<Average, HasId> averageDao = dbHelper.getDao(Average.class);
 
             for (Subject s : subjects) {
-                headers.put(s.getId(), new GradeHeaderItem(s));
+                headers.put(s.getId(),
+                        new GradeHeaderItem(s,
+                                averageDao.queryForId(new HasId(s.getId()))));
             }
 
             //Load grades and sort them by their date

@@ -8,21 +8,10 @@
 
     <Space
         android:id="@+id/space"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="false"
         android:layout_centerVertical="true" />
-
-    <TextView
-        android:id="@+id/grade_header_item_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/space"
-        android:layout_marginStart="16dp"
-        android:layout_toStartOf="@+id/grade_header_item_arrow"
-        android:text="TextView"
-        android:textColor="?android:attr/textColorSecondary" />
 
     <TextView
         android:id="@+id/grade_header_item_title"
@@ -32,7 +21,7 @@
         android:layout_alignParentStart="true"
         android:layout_marginStart="16dp"
         android:layout_toStartOf="@+id/grade_header_item_arrow"
-        android:text="Title"
+        android:text="@string/details_subject_placeholder"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="16sp" />
 
@@ -54,5 +43,25 @@
         android:alpha="0.38"
         android:padding="4dp"
         app:srcCompat="@drawable/ic_expand_more_black_48dp" />
+
+    <TextView
+        android:id="@+id/grade_header_item_content_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/grade_header_item_arrow"
+        android:layout_alignStart="@+id/grade_header_item_title"
+        android:layout_below="@+id/space"
+        android:layout_toStartOf="@+id/grade_header_item_arrow"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/grade_header_item_content_2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/grade_header_item_arrow"
+        android:layout_alignStart="@+id/grade_header_item_title"
+        android:layout_below="@+id/space"
+        android:layout_toStartOf="@+id/grade_header_item_arrow"
+        android:text="" />
 
 </RelativeLayout>

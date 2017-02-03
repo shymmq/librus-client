@@ -1,6 +1,11 @@
 package pl.librus.client.grades;
 
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,11 +14,13 @@ import android.widget.TextView;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
+import eu.davidea.flexibleadapter.Payload;
 import eu.davidea.flexibleadapter.items.AbstractExpandableHeaderItem;
 import eu.davidea.flexibleadapter.items.ISectionable;
 import eu.davidea.viewholders.ExpandableViewHolder;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
+import pl.librus.client.api.Average;
 import pl.librus.client.datamodel.Subject;
 
 /**
@@ -24,11 +31,13 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
 
     private static final String TAG = "librus-client-log";
     private Subject subject;
+    private final Average average;
     private int gradeCount = 0;
 
-    GradeHeaderItem(Subject subject) {
+    GradeHeaderItem(Subject subject, Average average) {
         super();
         this.subject = subject;
+        this.average = average;
         setExpanded(false);
     }
 
@@ -62,13 +71,21 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
+        setEnabled(gradeCount > 0);
+        boolean expanded = payloads.contains(Payload.EXPANDED);
         holder.subject.setText(subject.getName());
-        if (gradeCount == 0) {
-            holder.gradeCount.setText("Brak ocen");
-            holder.background.setAlpha(0.5f);
-        } else {
-            holder.gradeCount.setText(String.valueOf(gradeCount) + ' ' + LibrusUtils.getPluralForm(gradeCount, "ocena", "oceny", "ocen"));
-            holder.background.setAlpha(1.0f);
+        holder.averageSummary.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        holder.gradeCountView.setVisibility(expanded ? View.GONE : View.VISIBLE);
+        holder.background.setAlpha(gradeCount > 0 ? 1f : 0.5f);
+        holder.arrow.animate().rotation(expanded ? 180f : 0f).start();
+        holder.gradeCountView.setText("Brak ocen");
+        holder.gradeCountView.setText(String.valueOf(gradeCount) + ' ' + LibrusUtils.getPluralForm(gradeCount, "ocena", "oceny", "ocen"));
+
+        if (average != null) {
+            String s = "Średnia: ";
+            Spannable averageSummaryText = new SpannableString(s + average.getFullYear());
+            averageSummaryText.setSpan(new StyleSpan(Typeface.BOLD), s.length(), averageSummaryText.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+            holder.averageSummary.setText(averageSummaryText);
         }
     }
 
@@ -99,27 +116,21 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
     }
 
     class ViewHolder extends ExpandableViewHolder {
-        final private TextView subject, gradeCount;
+        final private TextView subject, gradeCountView, averageSummary;
         final private View background, arrow;
 
         ViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);
             background = view.findViewById(R.id.grade_category_item_root);
             arrow = view.findViewById(R.id.grade_header_item_arrow);
-            gradeCount = (TextView) view.findViewById(R.id.grade_header_item_content);
+            gradeCountView = (TextView) view.findViewById(R.id.grade_header_item_content_1);
+            averageSummary = (TextView) view.findViewById(R.id.grade_header_item_content_2);
             subject = (TextView) view.findViewById(R.id.grade_header_item_title);
         }
 
         @Override
-        protected void expandView(int position) {
-            super.expandView(position);
-            arrow.animate().rotation(180).start();
-        }
-
-        @Override
-        protected void collapseView(int position) {
-            super.collapseView(position);
-            arrow.animate().rotation(0).start();
+        protected boolean shouldNotifyParentOnClick() {
+            return true;
         }
     }
 }

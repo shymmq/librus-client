@@ -4,6 +4,4 @@
     <color name="colorPrimaryDark">#303f9f</color>
     <color name="colorAccent">#FF4081</color>
     <color name="iconDark">#89ffffff</color>
-    <color name="list_subheader_text_color">?android:attr/textColorPrimary</color>
-
 </resources>

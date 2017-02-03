@@ -1,35 +1,35 @@
 package pl.librus.client.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+import pl.librus.client.datamodel.HasId;
+
 /**
  * Created by szyme on 08.12.2016. librus-client
  */
-
+@DatabaseTable(tableName = "averages")
 public class Average {
 
-    private double semester1, semester2, fullYear;
-    private String subjectId;
+    @DatabaseField
+    @JsonProperty("Semester1")
+    private double semester1;
+    @DatabaseField
+    @JsonProperty("Semester2")
+    private double semester2;
+    @DatabaseField
+    @JsonProperty("FullYear")
+    private double fullYear;
+    @DatabaseField(id = true)
+    @JsonProperty("Subject")
+    private HasId subject;
 
-    Average(String subjectId, double semester1, double semester2, double fullYear) {
-        this.semester1 = semester1;
-        this.semester2 = semester2;
-        this.fullYear = fullYear;
-        this.subjectId = subjectId;
-    }
-
-    public double getSemester1() {
-        return semester1;
-    }
-
-    public double getSemester2() {
-        return semester2;
+    public Average() {
     }
 
     public double getFullYear() {
         return fullYear;
-    }
-
-    public String getSubjectId() {
-        return subjectId;
     }
 
 
@@ -37,13 +37,12 @@ public class Average {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Average average = (Average) o;
 
         return Double.compare(average.semester1, semester1) == 0 &&
                 Double.compare(average.semester2, semester2) == 0 &&
                 Double.compare(average.fullYear, fullYear) == 0 &&
-                subjectId.equals(average.subjectId);
+                subject.equals(average.subject);
 
     }
 
@@ -57,7 +56,7 @@ public class Average {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(fullYear);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + subjectId.hashCode();
+        result = 31 * result + subject.hashCode();
         return result;
     }
 
