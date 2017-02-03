@@ -8,17 +8,6 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" parent="AppTheme">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowSharedElementsUseOverlay">false</item>
-        <item name="colorControlHighlight">@color/colorPrimary</item>
-        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-    </style>
-
     <style name="TabLayoutTheme" parent="AppTheme.AppBarOverlay">
         <item name="android:windowContentOverlay">@null</item>
     </style>
@@ -34,7 +23,13 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme.Dark" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <item name="listSubheaderColorBackground">@color/md_dark_background</item>
+        <item name="lessonItemElevation">0dp</item>
+
         <!-- MaterialDrawer specific values -->
         <item name="material_drawer_background">@color/material_drawer_dark_background</item>
         <item name="material_drawer_primary_text">@color/material_drawer_dark_primary_text</item>
@@ -46,6 +41,19 @@
         <item name="material_drawer_selected">@color/material_drawer_dark_selected</item>
         <item name="material_drawer_selected_text">@color/material_drawer_dark_selected_text</item>
         <item name="material_drawer_header_selection_text">
-            @color/material_drawer_dark_header_selection_text</item>
+            @color/material_drawer_dark_header_selection_text
+        </item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <item name="lessonItemElevation">2dp</item>
+        <item name="listSubheaderColorBackground">@color/md_grey_200</item>
     </style>
 </resources>

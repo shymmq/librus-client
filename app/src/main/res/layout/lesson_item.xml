@@ -4,7 +4,8 @@
     android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:elevation="1dp"
+    android:background="?android:attr/colorBackground"
+    android:elevation="?attr/lessonItemElevation"
     android:foreground="?attr/selectableItemBackground"
     android:orientation="horizontal">
 

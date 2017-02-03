@@ -13,14 +13,13 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.NoActionBar"
+        android:theme="@style/AppTheme.Light"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
             android:name="pl.librus.client.ui.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize">>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

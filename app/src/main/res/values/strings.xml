@@ -85,4 +85,5 @@
     <string name="prefs_use_tabs">useTabs</string>
     <string name="prefs_currrent_lesson_bold">currentLessonBold</string>
     <string name="close">Zamknij</string>
+    <string name="prefs_dark_theme">selectTheme</string>
 </resources>

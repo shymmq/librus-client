@@ -54,7 +54,7 @@ class LessonHeaderItem extends AbstractHeaderItem<LessonHeaderItem.LessonHeaderI
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, LessonHeaderItemViewHolder holder, int position, List payloads) {
-        holder.done.setVisibility(View.GONE);
+//        holder.done.setVisibility(View.GONE);
         String title;
         String subtitle = date.toString("d.M");
         //determine if day is today or tomorrow
@@ -77,12 +77,12 @@ class LessonHeaderItem extends AbstractHeaderItem<LessonHeaderItem.LessonHeaderI
 
     class LessonHeaderItemViewHolder extends FlexibleViewHolder {
         TextView title;
-        View done;
+//        View done;
 
         LessonHeaderItemViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);
             this.title = (TextView) view.findViewById(R.id.list_subheader_title);
-            this.done = view.findViewById(R.id.list_subheader_done);
+//            this.done = view.findViewById(R.id.list_subheader_done);
         }
     }
 }

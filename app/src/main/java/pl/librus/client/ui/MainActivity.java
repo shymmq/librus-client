@@ -2,7 +2,6 @@ package pl.librus.client.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -67,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
     private TimetableTabFragment timetableTabFragment = TimetableTabFragment.newInstance();
 
-    private SQLiteDatabase db;
     private LibrusDbHelper dbHelper;
 
     private ActionMenuView amv;
@@ -85,9 +83,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        boolean theme = prefs.getBoolean("selectTheme", false);
-        if (theme){
+        boolean theme = prefs.getBoolean(getString(R.string.prefs_dark_theme), false);
+        if (theme) {
             setTheme(R.style.AppTheme_Dark);
+        } else {
+            setTheme(R.style.AppTheme_Light);
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
