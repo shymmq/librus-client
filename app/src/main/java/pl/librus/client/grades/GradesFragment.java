@@ -16,6 +16,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,18 @@ import pl.librus.client.ui.MainFragment;
  */
 public class GradesFragment extends Fragment implements MainFragment, FlexibleAdapter.OnItemClickListener {
 
+    final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
+        @Override
+        public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
+            return o1.compareTo(o2);
+        }
+    };
+    Comparator<Grade> gradeComparator = new Comparator<Grade>() {
+        @Override
+        public int compare(Grade o1, Grade o2) {
+            return o2.getDate().compareTo(o1.getDate());
+        }
+    };
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private OnSetupCompleteListener listener;
 
@@ -69,19 +82,23 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
                     .setAutoScrollOnExpand(true);
 
             recyclerView.setAdapter(adapter);
-            //Load all necessary data from cache
+
             LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
+
+            //Load subjects and make a header for each subject
 
             final Map<String, GradeHeaderItem> headers = new HashMap<>();
 
-
-            //Load subjects and make a header for each subject
             List<Subject> subjects = dbHelper.getDao(Subject.class).queryForAll();
+
             for (Subject s : subjects) {
                 headers.put(s.getId(), new GradeHeaderItem(s));
             }
 
+            //Load grades and sort them by their date
             List<Grade> grades = dbHelper.getDao(Grade.class).queryForAll();
+
+            Collections.sort(grades, gradeComparator);
 
             Dao<GradeCategory, String> gcDao = dbHelper.getDao(GradeCategory.class);
 
@@ -92,18 +109,13 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
                         gcDao.queryForId(grade.getCategory().getId()));
                 headers.get(grade.getSubject().getId()).addSubItem(item);
             }
+
 //        for (Average average : gradeCache.getAverages()) {
 //            AverageItem item = new AverageItem(
 //                    headers.get(average.getSubjectId()),
 //                    average);
 //            headers.get(average.getSubjectId()).addSubItem(item);
-//        }
-            final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
-                @Override
-                public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
-                    return o1.compareTo(o2);
-                }
-            };
+//        }//TODO
 
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -116,38 +128,6 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
                 }
             });
 
-//        for (Average a : data.getAverages()) {
-//            if (gradeSubjectItemMap.get(a.getSubjectId()) == null) {
-//                //first appearance: add new subjectitem to map
-//                gradeSubjectItemMap.put(
-//                        a.getSubjectId(),
-//                        new GradeHeaderItem(data.getSubjectMap().get(a.getSubjectId())));
-//            }
-//            GradeHeaderItem gradeSubjectItem = gradeSubjectItemMap.get(a.getSubjectId());
-//            gradeSubjectItem.addSubItem(new AverageItem(gradeSubjectItem, a));
-//        }
-//        Map<String, List<TextGrade>> textGradeSubjectMap = new HashMap<>();
-//        for (TextGrade t : data.getTextGrades()) {
-//            String subjectId = t.getSubjectId();
-//            if (!textGradeSubjectMap.containsKey(subjectId))
-//                textGradeSubjectMap.put(subjectId, new ArrayList<TextGrade>());
-//            textGradeSubjectMap.get(subjectId).add(t);
-//        }
-//        for (Map.Entry<String, List<TextGrade>> entry : textGradeSubjectMap.entrySet()) {
-//            String subjectId = entry.getKey();
-//            List<TextGrade> grades = entry.getValue();
-//            GradeHeaderItem gradeSubjectItem = gradeSubjectItemMap.get(subjectId);
-//            TextGradeSummaryItem summaryItem = new TextGradeSummaryItem(gradeSubjectItem);
-//            for (TextGrade grade : grades) {
-//                summaryItem.addSubItem(new TextGradeItem(grade));
-//            }
-//            gradeSubjectItem.addSubItem(summaryItem);
-//        }
-//
-//        ArrayList<GradeHeaderItem> listItems = new ArrayList<>(gradeSubjectItemMap.values());
-//        FlexibleAdapter<GradeHeaderItem> adapter = new FlexibleAdapter<>(listItems);
-//        adapter.setAutoScrollOnExpand(true);
-//        recyclerView.setAdapter(adapter);
             if (listener != null) listener.run();
         } catch (SQLException e) {
             e.printStackTrace();
