@@ -1,9 +1,9 @@
 package pl.librus.client.timetable;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
+import eu.davidea.flexibleadapter.common.TopSnappedSmoothScroller;
 import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
 import pl.librus.client.api.APIClient;
@@ -38,43 +40,19 @@ public class TimetableFragment extends Fragment implements MainFragment {
         }
     };
     TimetableAdapter adapter;
-    LinearLayoutManager layoutManager;
+    SmoothScrollLinearLayoutManager layoutManager;
     LocalDate startDate;
     int page = 0;
+    IFlexible defaultHeader;
     private OnSetupCompleteListener listener;
-    private Dao<Lesson, ?> dao;
 
     public static TimetableFragment newInstance() {
         return new TimetableFragment();
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-//        LibrusCacheLoader cacheLoader = new LibrusCacheLoader(getContext());
-//        final LocalDate weekStart = LocalDate.now().withDayOfWeek(MONDAY);
-//        cacheLoader.load(TimetableUtils.getFilenameForDate(weekStart)).done(new DoneCallback<LibrusCache>() {
-//            @Override
-//            public void onDone(LibrusCache result) {
-//                SchoolWeek w = ((TimetableCache) result).getSchoolWeek();
-//                addSchoolWeek(w);
-//            }
-//        }).fail(new FailCallback<String>() {
-//            @Override
-//            public void onFail(String result) {
-//                APIClient client = new APIClient(getContext());
-//                client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
-//                    @Override
-//                    public void onDone(SchoolWeek result) {
-//                        addSchoolWeek(result);
-//                    }
-//                });
-//            }
-//        });
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        TopSnappedSmoothScroller.MILLISECONDS_PER_INCH = 15f;
         return inflater.inflate(R.layout.fragment_timetable, container, false);
     }
 
@@ -82,11 +60,11 @@ public class TimetableFragment extends Fragment implements MainFragment {
     public void onViewCreated(View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_timetable_recycler);
+        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_timetable_recycler);
 
         recyclerView.setVisibility(View.VISIBLE);
 
-        layoutManager = new LinearLayoutManager(getContext());
+        layoutManager = new SmoothScrollLinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
         startDate = TimetableUtils.getLastFullWeekStart(LocalDate.now()).plusWeeks(1);
@@ -97,7 +75,7 @@ public class TimetableFragment extends Fragment implements MainFragment {
 
         try {
 
-            dao = dbHelper.getDao(Lesson.class);
+            Dao<Lesson, ?> dao = dbHelper.getDao(Lesson.class);
 
             for (LocalDate weekStart : initialWeekStarts) {
                 for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
@@ -111,6 +89,9 @@ public class TimetableFragment extends Fragment implements MainFragment {
                             LessonItem lessonItem = new LessonItem(header, l, getContext());
                             initialElements.add(lessonItem);
                         }
+                    }
+                    if (date.equals(LocalDate.now())) {
+                        defaultHeader = header;
                     }
                 }
             }
@@ -167,6 +148,14 @@ public class TimetableFragment extends Fragment implements MainFragment {
         };
         recyclerView.setAdapter(adapter);
 
+        //Scroll to default position after a delay to let recyclerview complete layout
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (defaultHeader != null)
+                    recyclerView.smoothScrollToPosition(adapter.getGlobalPositionOf(defaultHeader));
+            }
+        }, 50);
         if (listener != null) listener.run();
     }
 
