@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -31,6 +32,7 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.joda.time.LocalDate;
@@ -60,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     public static final int FRAGMENT_ATTENDANCES_ID = 6;
     public static final int LUCKY_NUMBER_ID = 7;
     public static final int SETTINGS_ID = 8;
+    public static final int PROFILE_SETTING = 0;
+    public static final int PROFILE_SETTING_LOGOUT = 0;
 
     private TimetableFragment timetableFragment = TimetableFragment.newInstance();
     private GradesFragment gradesFragment = GradesFragment.newInstance();
@@ -184,7 +188,26 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withSelectionListEnabledForSingleProfile(true)
                 .withHeaderBackground(R.drawable.background_nav)
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
-                .addProfiles(profile)
+                .addProfiles(profile,
+                        new ProfileSettingDrawerItem().withName("Dodaj konto").withIdentifier(PROFILE_SETTING).withIcon(R.drawable.plus),
+                        //TODO: Add  support for multi profiles
+                        new ProfileSettingDrawerItem().withName("Wyloguj").withIdentifier(PROFILE_SETTING_LOGOUT).withIcon(R.drawable.logout).withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                            @Override
+                            public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                SharedPreferences.Editor editor = prefs.edit();
+                                boolean logged_in = prefs.getBoolean("logged_in", true);
+                                if (logged_in) {
+                                    Toast.makeText(MainActivity.this, "Wylogowano", Toast.LENGTH_SHORT).show();
+                                    editor.clear();
+                                    editor.apply();
+                                    Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                                    startActivity(i);
+                                    finish();
+                                }
+                                return false;
+                            }
+                        }))
                 .build();
 
         final DrawerBuilder drawerBuilder = new DrawerBuilder()
