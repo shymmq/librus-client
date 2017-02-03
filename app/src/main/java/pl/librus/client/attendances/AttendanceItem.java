@@ -23,7 +23,7 @@ import pl.librus.client.sql.LibrusDbHelper;
 
 class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, AttendanceHeaderItem> {
     private final AttendanceType category;
-    private Attendance attendance;
+    private final Attendance attendance;
 
     AttendanceItem(AttendanceHeaderItem header, Attendance attendance, AttendanceType category) {
         super(header);
@@ -84,7 +84,9 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
     }
 
     class ViewHolder extends FlexibleViewHolder {
-        TextView subject, lesson, shortName;
+        final TextView subject;
+        final TextView lesson;
+        final TextView shortName;
 
         public ViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);

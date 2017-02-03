@@ -8,6 +8,7 @@ import org.joda.time.LocalDate;
 
 /**
  * Created by Adam on 2016-11-06.
+ * Class representing /LuckyNumbers result
  */
 
 @DatabaseTable(tableName = "lucky_numbers")

@@ -15,12 +15,12 @@ import pl.librus.client.api.Reader;
  */
 
 class AnnouncementUtils {
-    private static AnnouncementHeaderItem unread = new AnnouncementHeaderItem("Nieprzeczytane", 0, true);
-    private static AnnouncementHeaderItem today = new AnnouncementHeaderItem("Dzisiaj", 1);
-    private static AnnouncementHeaderItem yesterday = new AnnouncementHeaderItem("Wczoraj", 2);
-    private static AnnouncementHeaderItem thisWeek = new AnnouncementHeaderItem("Ten tydzień", 3);
-    private static AnnouncementHeaderItem thisMonth = new AnnouncementHeaderItem("Ten miesiąc", 4);
-    private static AnnouncementHeaderItem older = new AnnouncementHeaderItem("Starsze", 5);
+    private static final AnnouncementHeaderItem unread = new AnnouncementHeaderItem("Nieprzeczytane", 0);
+    private static final AnnouncementHeaderItem today = new AnnouncementHeaderItem("Dzisiaj", 1);
+    private static final AnnouncementHeaderItem yesterday = new AnnouncementHeaderItem("Wczoraj", 2);
+    private static final AnnouncementHeaderItem thisWeek = new AnnouncementHeaderItem("Ten tydzień", 3);
+    private static final AnnouncementHeaderItem thisMonth = new AnnouncementHeaderItem("Ten miesiąc", 4);
+    private static final AnnouncementHeaderItem older = new AnnouncementHeaderItem("Starsze", 5);
 
     static AnnouncementHeaderItem getHeaderOf(Announcement a, Context c) {
         LocalDate date = a.getStartDate();

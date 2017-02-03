@@ -17,16 +17,14 @@
         android:backgroundTint="@color/colorPrimaryDark"
         android:fontFamily="sans-serif"
         android:gravity="center"
-        android:text="5.28"
         android:textColor="?android:attr/textColorPrimaryInverse" />
 
     <TextView
-        android:id="@+id/textView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@+id/average_item_average"
-        android:text="Średnia"
+        android:text="@string/average"
         android:textColor="?android:attr/textColorPrimary"
         android:textStyle="normal|bold" />
 

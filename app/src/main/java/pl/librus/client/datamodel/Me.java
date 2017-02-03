@@ -6,6 +6,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Created by szyme on 30.01.2017.
+ * Class representing /Me endpoint
  */
 @DatabaseTable(tableName = "me")
 public class Me {

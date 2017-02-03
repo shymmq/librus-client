@@ -15,10 +15,11 @@ import pl.librus.client.api.Average;
 
 /**
  * Created by szyme on 01.01.2017.
+ * Subitem for grades fragment
  */
 
 class AverageItem extends AbstractSectionableItem<AverageItem.ViewHolder, GradeHeaderItem> {
-    private Average average;
+    private final Average average;
 
     AverageItem(GradeHeaderItem header, Average average) {
         super(header);

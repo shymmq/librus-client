@@ -4,6 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 /**
  * Created by szyme on 31.01.2017.
+ * A class representing an id value wrapped in a JSONObject; for use with Jackson
  */
 
 public class HasId {

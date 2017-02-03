@@ -8,16 +8,16 @@ import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
-import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.TextGrade;
 
 /**
  * Created by szyme on 01.01.2017.
+ * Class representing /TextGrades item
  */
 class TextGradeItem extends AbstractFlexibleItem<TextGradeItem.ViewHolder> {
-    private TextGrade textGrade;
+    private final TextGrade textGrade;
 
     public TextGradeItem(TextGrade textGrade) {
         this.textGrade = textGrade;

@@ -11,8 +11,8 @@ import pl.librus.client.api.TextGrade;
  */
 
 public class TextGradeSummary extends GradeEntry {
-    private String subjectId;
-    private List<TextGrade> grades;
+    private final String subjectId;
+    private final List<TextGrade> grades;
     private boolean isExpanded = false;
 
     TextGradeSummary(String subjectId, List<TextGrade> grades) {
@@ -44,8 +44,7 @@ public class TextGradeSummary extends GradeEntry {
 
         TextGradeSummary that = (TextGradeSummary) o;
 
-        if (!subjectId.equals(that.subjectId)) return false;
-        return grades != null ? grades.equals(that.grades) : that.grades == null;
+        return subjectId.equals(that.subjectId) && (grades != null ? grades.equals(that.grades) : that.grades == null);
 
     }
 

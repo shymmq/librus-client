@@ -32,18 +32,18 @@ import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
 public class TimetableFragment extends Fragment implements MainFragment {
-    final ProgressItem progressItem = new ProgressItem();
-    public Runnable onSetupCompleted = new Runnable() {
+    private final ProgressItem progressItem = new ProgressItem();
+    private final Runnable onSetupCompleted = new Runnable() {
         @Override
         public void run() {
 
         }
     };
-    TimetableAdapter adapter;
-    SmoothScrollLinearLayoutManager layoutManager;
-    LocalDate startDate;
-    int page = 0;
-    IFlexible defaultHeader;
+    private TimetableAdapter adapter;
+    private SmoothScrollLinearLayoutManager layoutManager;
+    private LocalDate startDate;
+    private int page = 0;
+    private IFlexible defaultHeader;
     private OnSetupCompleteListener listener;
 
     public static TimetableFragment newInstance() {

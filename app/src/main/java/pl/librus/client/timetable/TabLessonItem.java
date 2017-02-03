@@ -1,8 +1,6 @@
 package pl.librus.client.timetable;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +22,8 @@ import pl.librus.client.datamodel.Lesson;
 
 class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemViewHolder> implements Comparable<TabLessonItem> {
 
-    private Lesson lesson;
-    private Context context;
+    private final Lesson lesson;
+    private final Context context;
 
     TabLessonItem(Lesson lesson, Context context) {
         this.lesson = lesson;
@@ -82,8 +80,6 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
                 holder.badge.setVisibility(View.GONE);
             }
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
 //            LocalTime timeNow = LocalTime.now();
 //            if (preferences.getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
 //                    LocalDate.now().isEqual(lesson.getDate()) &&
@@ -118,7 +114,7 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
     class TabLessonItemViewHolder extends FlexibleViewHolder {
         final TextView subject, teacher, badgeText, lessonNumber;
         final ImageView badgeIcon;
-        View badge;
+        final View badge;
 
         TabLessonItemViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);

@@ -14,6 +14,7 @@ import pl.librus.client.R;
 
 /**
  * Created by szyme on 01.01.2017.
+ * Flexible adapter item for use with text grades
  */
 
 public class TextGradeSummaryItem extends AbstractExpandableItem<TextGradeSummaryItem.ViewHolder, TextGradeItem> implements ISectionable<TextGradeSummaryItem.ViewHolder, GradeHeaderItem> {

@@ -10,6 +10,7 @@ import pl.librus.client.datamodel.HasId;
 
 /**
  * Created by szyme on 01.02.2017.
+ * Needed to properly serialize and deserialize HasId class
  */
 
 public class HasIdType extends StringType {

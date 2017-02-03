@@ -29,7 +29,7 @@ import pl.librus.client.sql.LibrusDbHelper;
 
 public class TimetablePageFragment extends Fragment {
     private static final String ARG_DATE = "TimetablePageFragment:date";
-    private final String TAG = "librus-client-log";
+    private final String TAG = "librus-client-logError";
 
     public static TimetablePageFragment newInstance(LocalDate date) {
 

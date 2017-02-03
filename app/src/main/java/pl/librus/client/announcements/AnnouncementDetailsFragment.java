@@ -68,7 +68,6 @@ public class AnnouncementDetailsFragment extends Fragment {
         TextView authorTextView = (TextView) root.findViewById(R.id.two_line_list_item_title);
         TextView dateTextView = (TextView) root.findViewById(R.id.two_line_list_item_content);
         View background = root.findViewById(R.id.fragment_announcement_details);
-        View info = root.findViewById(R.id.fragment_announcement_details_info);
         titleTextView.setText(announcement.getSubject());
         contentTextView.setText(announcement.getContent());
         authorTextView.setText(author.getName());

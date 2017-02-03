@@ -9,8 +9,8 @@ import java.util.List;
 
 public class SchoolDay implements Comparable<SchoolDay> {
 
-    private LocalDate date;
-    private List<Lesson> lessons = new ArrayList<>();
+    private final LocalDate date;
+    private final List<Lesson> lessons = new ArrayList<>();
 
     public SchoolDay(LocalDate date) {
         this.date = date;

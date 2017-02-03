@@ -27,11 +27,11 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * Created by szyme on 17.12.2016. librus-client
  */
 
-public class NotificationService {
-    public static final String DEFAULT_POSITION = "NotificationService:redirect_fragment";
-    private static final String TAG = "librus-client-log";
-    private Context context;
-    private LibrusData data;
+class NotificationService {
+    private static final String DEFAULT_POSITION = "NotificationService:redirect_fragment";
+    private static final String TAG = "librus-client-logError";
+    private final Context context;
+    private final LibrusData data;
 
 
     NotificationService(Context context, LibrusData data) {

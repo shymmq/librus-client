@@ -1,6 +1,7 @@
 package pl.librus.client.announcements;
 
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +29,7 @@ import pl.librus.client.datamodel.Teacher;
 
 class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> implements Comparable<AnnouncementItem> {
     private final LibrusData data;
-    private Announcement announcement;
-    private AnnouncementHeaderItem header;
+    private final Announcement announcement;
     private View backgroundView;
     private TextView title;
     private boolean read;
@@ -38,7 +38,6 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         super(header);
         this.announcement = announcement;
         this.data = data;
-        this.header = header;
         this.read = Reader.isRead(Reader.TYPE_ANNOUNCEMENT, announcement.getId(), data.getContext());
 
     }
@@ -94,19 +93,19 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         return announcement.hashCode();
     }
 
-    public View getBackgroundView() {
+    View getBackgroundView() {
         return backgroundView;
     }
 
     @Override
-    public int compareTo(AnnouncementItem o) {
+    public int compareTo(@NonNull AnnouncementItem o) {
         int a = Boolean.compare(read, o.isRead());
         if (a == 0)
             return o.getAnnouncement().getStartDate().compareTo(announcement.getStartDate());
         else return a;
     }
 
-    public boolean isRead() {
+    private boolean isRead() {
         return read;
     }
 

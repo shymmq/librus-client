@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+
 import pl.librus.client.R;
 
 /**
@@ -31,7 +32,7 @@ public class SettingsActivity extends PreferenceActivity {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("settings_changed", true);
-            editor.commit();
+            editor.apply();
         }
     }
 }

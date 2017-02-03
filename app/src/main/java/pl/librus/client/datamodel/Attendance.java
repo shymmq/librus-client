@@ -10,6 +10,7 @@ import org.joda.time.LocalDateTime;
 
 /**
  * Created by Adam on 13.12.2016.
+ * Class representing /Attendances item
  */
 
 @DatabaseTable(tableName = "attendances")

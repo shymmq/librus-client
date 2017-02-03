@@ -12,12 +12,12 @@ import java.io.Serializable;
 
 public class Announcement implements Serializable, Comparable<Announcement> {
     private static final long serialVersionUID = -3384390935483292393L;
-    private String id;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private String subject;
-    private String content;
-    private String authorId;
+    private final String id;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
+    private final String subject;
+    private final String content;
+    private final String authorId;
     private Integer category = 4; //given by AnnouncementAdapter
 
     Announcement(String id, LocalDate startDate, LocalDate endDate, String subject, String content, String authorId) {
@@ -29,7 +29,7 @@ public class Announcement implements Serializable, Comparable<Announcement> {
         this.content = content;
     }
 
-    public Integer getCategory() {
+    private Integer getCategory() {
         return category;
     }
 

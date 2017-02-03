@@ -20,19 +20,12 @@ import pl.librus.client.R;
 
 class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.ViewHolder> implements Comparable<AnnouncementHeaderItem> {
 
-    private String title;
-    private int order;
-    private boolean dismissable = false;
+    private final String title;
+    private final int order;
 
     AnnouncementHeaderItem(String title, int order) {
         this.title = title;
         this.order = order;
-    }
-
-    AnnouncementHeaderItem(String title, int order, boolean dismissable) {
-        this.title = title;
-        this.order = order;
-        this.dismissable = dismissable;
     }
 
     @Override
@@ -44,26 +37,6 @@ class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.V
     public void bindViewHolder(final FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         holder.title.setText(title);
         holder.title.setTypeface(holder.title.getTypeface(), Typeface.BOLD);
-        final AnnouncementHeaderItem header = this;
-//        if (dismissable) {
-//            holder.done.setVisibility(View.VISIBLE);
-//            holder.done.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    List children = adapter.getSectionItems(header);
-//                    adapter.removeRange(adapter.getGlobalPositionOf(header), children.size() + 1);
-//                    for (Object c : children) {
-//                        AnnouncementItem a = (AnnouncementItem) c;
-//                        a.setRead(true);
-//                        Reader.read(Reader.TYPE_ANNOUNCEMENT, a.getAnnouncement().getId(), v.getContext());
-//                        adapter.addItemToSection(a, AnnouncementUtils.getHeaderOf(a.getAnnouncement(), v.getContext()), AnnouncementUtils.getItemComparator());
-//                    }
-//                }
-//            });
-//        } else {
-//            holder.done.setVisibility(View.GONE);
-//        }
-
     }
 
     @Override
@@ -93,7 +66,7 @@ class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.V
     }
 
     class ViewHolder extends FlexibleViewHolder {
-        TextView title;
+        final TextView title;
 
         ViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);

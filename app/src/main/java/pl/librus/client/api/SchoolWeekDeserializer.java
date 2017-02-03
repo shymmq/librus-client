@@ -22,7 +22,7 @@ import pl.librus.client.datamodel.SchoolDay;
 import pl.librus.client.datamodel.SchoolWeek;
 
 /**
- * Created by szyme on 01.02.2017.
+ * Used to deserialize incoming jsons to SchollWeek class
  */
 
 class SchoolWeekDeserializer extends StdDeserializer<SchoolWeek> {
@@ -34,7 +34,7 @@ class SchoolWeekDeserializer extends StdDeserializer<SchoolWeek> {
     }
 
     private SchoolWeekDeserializer(Class<?> vc) {
-        super(vc);
+        super((Class<?>) null);
     }
 
     @Override

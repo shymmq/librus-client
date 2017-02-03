@@ -54,21 +54,21 @@ import pl.librus.client.timetable.TimetableFragment;
 import pl.librus.client.timetable.TimetableTabFragment;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
-    public static final int FRAGMENT_TIMETABLE_ID = 1;
     public static final int FRAGMENT_GRADES_ID = 2;
-    public static final int FRAGMENT_CALENDAR_ID = 3;
     public static final int FRAGMENT_ANNOUNCEMENTS_ID = 4;
-    public static final int FRAGMENT_MESSAGES_ID = 5;
-    public static final int FRAGMENT_ATTENDANCES_ID = 6;
-    public static final int LUCKY_NUMBER_ID = 7;
-    public static final int SETTINGS_ID = 8;
-    public static final int PROFILE_SETTING = 0;
-    public static final int PROFILE_SETTING_LOGOUT = 0;
+    private static final int FRAGMENT_TIMETABLE_ID = 1;
+    private static final int FRAGMENT_CALENDAR_ID = 3;
+    private static final int FRAGMENT_MESSAGES_ID = 5;
+    private static final int FRAGMENT_ATTENDANCES_ID = 6;
+    private static final int LUCKY_NUMBER_ID = 7;
+    private static final int SETTINGS_ID = 8;
+    private static final int PROFILE_SETTING = 0;
+    private static final int PROFILE_SETTING_LOGOUT = 0;
 
-    private TimetableFragment timetableFragment = TimetableFragment.newInstance();
-    private GradesFragment gradesFragment = GradesFragment.newInstance();
-    private AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
-    private TimetableTabFragment timetableTabFragment = TimetableTabFragment.newInstance();
+    private final TimetableFragment timetableFragment = TimetableFragment.newInstance();
+    private final GradesFragment gradesFragment = GradesFragment.newInstance();
+    private final AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
+    private final TimetableTabFragment timetableTabFragment = TimetableTabFragment.newInstance();
 
     private LibrusDbHelper dbHelper;
 
@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
 
     private UpdateHelper updateHelper;
 
-    private MainFragment currentFragment;
     private MainFragment pendingFragment;
 
     private LibrusAccount account;
@@ -130,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
 //                        runOnUiThread(new Runnable() {
 //                            @Override
 //                            public void run() {
-//                                LibrusUtils.log("Progress: " + progress + "%");
+//                                LibrusUtils.logError("Progress: " + progress + "%");
 //                                dialog.setProgress(progress);
 //                            }
 //                        });
@@ -276,10 +275,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         drawer.setSelection(id);
     }
 
-    private void refresh() {
-
-    }
-
     private Drawer getDrawer() {
         return drawer;
     }
@@ -311,7 +306,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 RotateAnimation rotateAnimation = new RotateAnimation(30, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 rotateAnimation.setDuration(10000);
                 amv.getChildAt(amv.getChildCount() - 1).startAnimation(r);
-                refresh();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -342,9 +336,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return false;
-        } else if (identifier == LUCKY_NUMBER_ID) {
+        } else //noinspection StatementWithEmptyBody
+            if (identifier == LUCKY_NUMBER_ID) {
             //TODO
         } else {
+                MainFragment currentFragment;
             if (updateHelper.isLoading()) {
                 currentFragment = LoadingFragment.newInstance();
                 pendingFragment = getFragmentForId(identifier);

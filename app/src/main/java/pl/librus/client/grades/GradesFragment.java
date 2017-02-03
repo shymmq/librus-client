@@ -42,13 +42,13 @@ import pl.librus.client.ui.MainFragment;
  */
 public class GradesFragment extends Fragment implements MainFragment, FlexibleAdapter.OnItemClickListener {
 
-    final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
+    private final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
         @Override
         public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
             return o1.compareTo(o2);
         }
     };
-    Comparator<Grade> gradeComparator = new Comparator<Grade>() {
+    private final Comparator<Grade> gradeComparator = new Comparator<Grade>() {
         @Override
         public int compare(Grade o1, Grade o2) {
             return o2.getDate().compareTo(o1.getDate());

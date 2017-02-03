@@ -5,6 +5,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 /**
  * Created by Adam on 16.12.2016.
+ * Class representing /Attendances/Types item
  */
 
 public class AttendanceType {

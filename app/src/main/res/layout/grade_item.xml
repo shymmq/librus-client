@@ -25,7 +25,7 @@
         android:gravity="center_vertical"
         android:text=""
         android:textColor="?android:attr/textColorSecondary"
-        tools:text="@string/details_date_placeholder" />
+        tools:text="@string/placeholder_date" />
 
     <TextView
         android:id="@+id/grade_item_title"
@@ -38,10 +38,10 @@
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:text="Ocena"
+        android:text="@string/grade"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="16sp"
-        tools:text="@string/details_event_description_placeholder" />
+        tools:text="@string/placeholder_grade" />
 
     <TextView
         android:id="@+id/grade_item_grade"
@@ -56,7 +56,7 @@
         android:backgroundTint="@color/cardview_dark_background"
         android:fontFamily="sans-serif"
         android:gravity="center"
-        android:text="np"
+        android:text="@string/np"
         android:textColor="?android:attr/textColorPrimaryInverse"
         android:textSize="16sp" />
 

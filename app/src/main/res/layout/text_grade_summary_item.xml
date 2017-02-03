@@ -6,7 +6,6 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/text_grade_summary"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackground"
@@ -14,13 +13,13 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/text_grade_summary_item_count"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_vertical"
+            android:paddingEnd="16dp"
             android:paddingStart="72dp"
-            android:text="+1 ocena tekstowa..."
+            android:text="@string/_1_more_text_grade"
             android:textStyle="normal|italic" />
 
         <!--<ImageView-->
@@ -40,11 +39,8 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/text_grade_item_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentStart="false"
         android:orientation="vertical">
 
     </LinearLayout>

@@ -32,7 +32,7 @@ public class LibrusDbHelper extends OrmLiteSqliteOpenHelper {
     private static final int DB_VERSION = 19;
     private final Context context;
 
-    private Class[] tables = {
+    private final Class[] tables = {
             Subject.class,
             LuckyNumber.class,
             LibrusAccount.class,

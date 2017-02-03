@@ -1,45 +1,22 @@
 <resources>
     <string name="app_name">Dziennik</string>
 
-    <string name="timetable_empty_page">Brak lekcji.\n\n¯\\_(ツ)_/¯</string>
     <string name="lesson_empty">Okienko</string>
     <string name="placeholder_lesson_number">3</string>
     <string name="placeholder_teacher_name">Andrzej Długoszek</string>
     <string name="placeholder_subject">Wychowanie fizyczne</string>
     <string name="placeholder_badge_text">badgeText</string>
-    <string name="details_teacher_title">Nauczyciel</string>
-    <string name="details_teacher_placeholder"><![CDATA[ktośtam jakiśtam ->]]></string>
-    <string name="details_subject_title">Przedmiot</string>
-    <string name="details_org_subject_placeholder"><![CDATA[Fizyka ->]]></string>
     <string name="details_subject_placeholder">Matematyka</string>
-    <string name="details_date_title">Data</string>
-    <string name="details_date_placeholder">23 października 2016</string>
-    <string name="details_time_title">Godzina</string>
-    <string name="details_end_time_placeholder">- 9:40</string>
-    <string name="details_lesson_number_placeholder">2. lekcja</string>
-    <string name="details_event_count_title">1 wydarzenie :</string>
-    <string name="details_event_category_title">Kategoria</string>
-    <string name="details_event_category_placeholder">klasówka</string>
-    <string name="details_event_description_title">Opis</string>
-    <string name="details_event_description_placeholder">Przykładowy opis</string>
-    <string name="details_start_time_placeholder">8:45</string>
     <string name="username">Nazwa użytkownika</string>
     <string name="password">Hasło</string>
     <string name="log_in">Zaloguj się</string>
     <string name="announcement">Ogłoszenie</string>
     <string name="placeholder_announcement">Darmowe audiobooki w bibliotece Wolne Lektury Fundacja Nowoczesna Polska zaprasza do korzystania z darmowych audiobooków opublikowanych w bibliotece internetowej WolneLektury.pl Z audioteki można korzystać bezpłatnie i bez ograniczeń. Wszystkie nagrania udostępnione zostały na wolnej licencji Creative Commons. Audiobooki dostępne są w trzech formatach: MP3, Ogg Vorbis oraz DAISY (dostosowany do potrzeb osób słabowidzących, niewidomych i wszystkich mających poważne trudności z czytaniem). Wszystkie nagrania znajdują się na stronie internetowej projektu: https://wolnelektury.pl/katalog/audiobooki/</string>
     <string name="placeholder_date">4 lis.</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="comment">Komentarz</string>
     <string name="canceled">odwołane</string>
-    <string name="isSubstitutionClass">zastępstwo</string>
     <string name="substitution">zastępstwo</string>
-    <string name="grade_final">Roczna</string>
-    <string name="grade_final_proposition">Proponowana roczna</string>
-    <string name="grade_semester">Śródroczna</string>
-    <string name="grade_semester_proposition">Proponowana śródroczna</string>
     <string name="date_format_no_year">EEEE, d MMMM</string>
-    <string name="type">Typ</string>
     <string name="grade">Ocena</string>
     <string name="placeholder_grade">5</string>
     <string name="weight">Waga</string>
@@ -74,10 +51,7 @@
     <string name="attendances_view_key">6</string>
 
     <string name="settings_title">Ustawienia</string>
-    <string name="lucky_number_title">Szczęśliwy numerek</string>
 
-    <string name="settings_key">7</string>
-    <string name="lucky_number_key">8</string>
     <string name="prefs_select_theme">selectTheme</string>
     <string name="prefs_default_fragment">default_fragment</string>
     <string name="default_view">Domyślny widok</string>
@@ -86,4 +60,16 @@
     <string name="prefs_currrent_lesson_bold">currentLessonBold</string>
     <string name="close">Zamknij</string>
     <string name="prefs_dark_theme">selectTheme</string>
+    <string name="refresh">Synchronizuj</string>
+    <string name="nb">nb</string>
+    <string name="average">Średnia</string>
+    <string name="np">np</string>
+    <string name="shrug">Brak lekcji. \n ¯\\_(ツ)_/¯</string>
+    <string name="today">Dzisiaj</string>
+    <string name="show_more">pokaż więcej...</string>
+    <string name="placeholder_text_grade">Egzamin próbny</string>
+    <string name="placeholder_text_grade_content">Przyroda całość - 82% Fizyka :całość - 100% Fizyka : zrealizowane tematy - 100%</string>
+    <string name="_1_more_text_grade">+1 ocena tekstowa...</string>
+    <string name="no_grades">Brak ocen</string>
+    <string name="average_">"Średnia: "</string>
 </resources>

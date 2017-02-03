@@ -44,7 +44,7 @@ import static pl.librus.client.LibrusUtils.log;
 public class APIClient {
     private static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
-    private static final String TAG = "librus-client-log";
+    private static final String TAG = "librus-client-logError";
     private final Context context;
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
@@ -121,7 +121,7 @@ public class APIClient {
             //noinspection unchecked
             return Lists.newArrayList(mapper.treeToValue(node, getArrayClass(clazz)));
         } catch (IOException e) {
-            LibrusUtils.log("Error parsing " + topLevelName, Log.ERROR);
+            LibrusUtils.logError("Error parsing " + topLevelName, Log.ERROR);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -135,7 +135,7 @@ public class APIClient {
             //noinspection unchecked
             return mapper.treeToValue(node, clazz);
         } catch (IOException e) {
-            LibrusUtils.log("Error parsing " + topLevelName, Log.ERROR);
+            LibrusUtils.logError("Error parsing " + topLevelName, Log.ERROR);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -188,7 +188,7 @@ public class APIClient {
                         e.printStackTrace();
                     }
                 } else {
-                    log("API Request failed\n" +
+                    LibrusUtils.logError("API Request failed\n" +
                                     "Edpoint: " + endpoint + "\n" +
                                     "Access_token: " + access_token + "\n" +
                                     "Response code: " + response.code() + " " + response.message() + "\n" +
@@ -215,7 +215,7 @@ public class APIClient {
                                 public void onFail(Integer result) {
 
                                     //second attempt failed
-                                    log("Second attempt failed. Code " + result,
+                                    LibrusUtils.logError("Second attempt failed. Code " + result,
                                             Log.ERROR);
 
                                     deferred.reject(result);
@@ -227,7 +227,7 @@ public class APIClient {
                         public void onFail(Response result) {
 
                             //refresh failed
-                            log("Refresh failed \n" +
+                            LibrusUtils.logError("Refresh failed \n" +
                                             "Response code: " + result + " " + response.message(),
                                     Log.ERROR);
 
@@ -269,7 +269,7 @@ public class APIClient {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    log("Refresh token request failed: \n" +
+                    LibrusUtils.logError("Refresh token request failed: \n" +
                                     "code: " + response.code() + "\n" +
                                     "response: " + response.body().string(),
                             Log.ERROR);
@@ -291,7 +291,7 @@ public class APIClient {
                         deferred.resolve(access_token);
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        log("Refresh token request failed: \n" +
+                        LibrusUtils.logError("Refresh token request failed: \n" +
                                         "code: " + response.code() + "\n" +
                                         "response: " + (responseJSON == null ? "null" : responseJSON.toString()),
                                 Log.ERROR);

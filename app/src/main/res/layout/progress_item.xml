@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:text="pokaż więcej..."
+        android:text="@string/show_more"
         android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button.Borderless.Colored" />
 
     <ProgressBar

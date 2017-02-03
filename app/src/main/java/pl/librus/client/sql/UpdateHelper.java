@@ -8,11 +8,9 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
 
-import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
-import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MultipleResults;
 import org.joda.time.LocalDate;
 
@@ -44,13 +42,14 @@ import pl.librus.client.timetable.TimetableUtils;
 
 /**
  * Created by szyme on 31.01.2017.
+ * Contains methods to update data from server
  */
 
 public class UpdateHelper {
     private final LibrusDbHelper helper;
     private final APIClient client;
     private final Context context;
-    private List<Promise> tasks = new ArrayList<>();
+    private final List<Promise> tasks = new ArrayList<>();
     private boolean loading = false;
     private OnUpdateCompleteListener onUpdateCompleteListener;
 
@@ -60,8 +59,7 @@ public class UpdateHelper {
         this.context = context;
     }
 
-    public Promise<Void, Void, Void> updateAll() {
-        final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
+    public void updateAll() {
         LibrusUtils.log("Starting update...");
         tasks.clear();
         loading = true;
@@ -95,11 +93,8 @@ public class UpdateHelper {
                     onUpdateCompleteListener.onUpdateComplete();
                     onUpdateCompleteListener = null;            //reset listener after update is complete
                 }
-
-                deferred.resolve(null);
             }
         });
-        return deferred.promise();
     }
 
     private Promise updateTimetable() {

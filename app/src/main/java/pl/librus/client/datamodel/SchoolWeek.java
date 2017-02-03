@@ -20,7 +20,7 @@ public class SchoolWeek implements Comparable<SchoolWeek> {
         return schoolDays;
     }
 
-    public LocalDate getWeekStart() {
+    private LocalDate getWeekStart() {
         return Collections.min(schoolDays).getDate();
     }
 

@@ -22,8 +22,9 @@ import pl.librus.client.ui.MainFragment;
 
 /**
  * Created by szyme on 29.01.2017.
+ * Variation of TimetableFragment with tabs instead of a list
  */
-
+@Deprecated
 public class TimetableTabFragment extends Fragment implements MainFragment {
 
     private final List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());

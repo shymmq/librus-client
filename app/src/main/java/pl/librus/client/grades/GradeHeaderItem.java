@@ -25,12 +25,13 @@ import pl.librus.client.datamodel.Subject;
 
 /**
  * Created by szyme on 01.01.2017.
+ * Header item for grades fragment
  */
 
 class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewHolder, ISectionable> implements Comparable<GradeHeaderItem> {
 
-    private static final String TAG = "librus-client-log";
-    private Subject subject;
+    private static final String TAG = "librus-client-logError";
+    private final Subject subject;
     private final Average average;
     private int gradeCount = 0;
 
@@ -78,11 +79,11 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
         holder.gradeCountView.setVisibility(expanded ? View.GONE : View.VISIBLE);
         holder.background.setAlpha(gradeCount > 0 ? 1f : 0.5f);
         holder.arrow.animate().rotation(expanded ? 180f : 0f).start();
-        holder.gradeCountView.setText("Brak ocen");
+        holder.gradeCountView.setText(R.string.no_grades);
         holder.gradeCountView.setText(String.valueOf(gradeCount) + ' ' + LibrusUtils.getPluralForm(gradeCount, "ocena", "oceny", "ocen"));
 
         if (average != null) {
-            String s = "Średnia: ";
+            String s = holder.itemView.getContext().getString(R.string.average_);
             Spannable averageSummaryText = new SpannableString(s + average.getFullYear());
             averageSummaryText.setSpan(new StyleSpan(Typeface.BOLD), s.length(), averageSummaryText.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
             holder.averageSummary.setText(averageSummaryText);
