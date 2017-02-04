@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //Drawer setup
-        LuckyNumber luckyNumber = null;
+        luckyNumber = null;
         try {
             Dao<LuckyNumber, LocalDate> luckyNumberDao = dbHelper.getDao(LuckyNumber.class);
             luckyNumber = luckyNumberDao.queryForId(LocalDate.now());
@@ -336,9 +336,13 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return false;
-        } else //noinspection StatementWithEmptyBody
-            if (identifier == LUCKY_NUMBER_ID) {
-            //TODO
+        } else if (identifier == LUCKY_NUMBER_ID){
+            if (luckyNumber != null) {
+                String luckyDate = luckyNumber.getLuckyNumberDay().toString("EEEE, d MMMM");
+                Toast.makeText(getApplicationContext(), luckyDate, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Brak danych", Toast.LENGTH_LONG).show();
+            }
         } else {
                 MainFragment currentFragment;
             if (updateHelper.isLoading()) {
