@@ -62,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private static final int FRAGMENT_ATTENDANCES_ID = 6;
     private static final int LUCKY_NUMBER_ID = 7;
     private static final int SETTINGS_ID = 8;
-    private static final int PROFILE_SETTING = 0;
-    private static final int PROFILE_SETTING_LOGOUT = 0;
+    private static final int PROFILE_SETTING = 9;
+    private static final int PROFILE_SETTING_LOGOUT = 10;
 
     private final TimetableFragment timetableFragment = TimetableFragment.newInstance();
     private final GradesFragment gradesFragment = GradesFragment.newInstance();
