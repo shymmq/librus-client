@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import pl.librus.client.R;
+import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Teacher;
@@ -73,7 +74,7 @@ public class NotificationService {
             Notification.BigTextStyle style = new Notification.BigTextStyle()
                     .setBigContentTitle(announcement.getSubject())
                     .bigText(announcement.getContent())
-                    .setSummaryText(data.getAccount().getLogin() + " - " + data.getAccount().getName());
+                    .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
             sendNotification(announcement.getSubject(), announcement.getContent(), R.drawable.ic_announcement_black_48dp, null, style, MainActivity.FRAGMENT_ANNOUNCEMENTS_ID);
         } else if (size > 1) {
             String title;
@@ -84,12 +85,12 @@ public class NotificationService {
             else title = "Nowe ogłoszenia: " + size;
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title)
-                    .setSummaryText(data.getAccount().getLogin() + " - " + data.getAccount().getName());
+                    .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
             for (Announcement a : announcements) {
                 style.addLine(a.getSubject());
                 Teacher author = data.getTeacherMap().get(a.getAuthorId());
-                if (authorsLength + author.getName().length() < 40) {
-                    authors.add(author.getName());
+                if (authorsLength + author.name().length() < 40) {
+                    authors.add(author.name());
                 }
             }
             sendNotification(title, TextUtils.join(", ", authors), R.drawable.ic_announcement_black_48dp, null, style, MainActivity.FRAGMENT_ANNOUNCEMENTS_ID);
@@ -102,8 +103,8 @@ public class NotificationService {
         int size = grades.size();
         if (size == 1) {
             Grade grade = grades.get(0);
-            String subject = data.getSubjectMap().get(grade.getSubject().getId()).getName();
-            sendNotification("Nowa ocena", subject + " " + grade.getGrade(), R.drawable.ic_assignment_black_48dp, null, null, MainActivity.FRAGMENT_GRADES_ID);
+            String subject = data.getSubjectMap().get(grade.subject().id()).name();
+            sendNotification("Nowa ocena", subject + " " + grade.grade(), R.drawable.ic_assignment_black_48dp, null, null, MainActivity.FRAGMENT_GRADES_ID);
         } else if (size > 1) {
             String title;
             List<String> subjects = new ArrayList<>();
@@ -112,11 +113,11 @@ public class NotificationService {
             else title = "Nowe oceny: " + size;
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title)
-                    .setSummaryText(data.getAccount().getLogin() + " - " + data.getAccount().getName());
+                    .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
             for (Grade g : grades) {
-//                String category = data.getGradeCategoriesMap().get(g.getCategoryId()).getName();
-                String subject = data.getSubjectMap().get(g.getSubject().getId()).getName();
-                style.addLine(g.getGrade() + " " + subject);
+//                String category = data.getGradeCategoriesMap().get(g.getCategoryId()).name();
+                String subject = data.getSubjectMap().get(g.subject().id()).name();
+                style.addLine(g.grade() + " " + subject);
                 if (!subjects.contains(subject))
                     subjects.add(subject);
             }
@@ -134,9 +135,9 @@ public class NotificationService {
         if (size == 1) {
             Event event = events.get(0);
             sendNotification("Nowe wydarzenie",
-                    event.getContent(),
+                    event.content(),
                     R.drawable.ic_event_black_24dp,
-                    event.getDate().toString("EEEE, d MMMM yyyy", new Locale("pl")),
+                    event.date().toString("EEEE, d MMMM yyyy", new Locale("pl")),
                     null,
                     -1);
         } else if (size > 1) {
@@ -148,11 +149,11 @@ public class NotificationService {
 
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title)
-                    .setSummaryText(data.getAccount().getLogin() + " - " + data.getAccount().getName());
+                    .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
             Map<String, Teacher> teacherMap = data.getTeacherMap();
             for (Event e : events) {
-                style.addLine(e.getContent());
-                String name = teacherMap.get(e.getAddedBy().getId()).getName();
+                style.addLine(e.content());
+                String name = teacherMap.get(e.addedBy()).name();
                 if (!authorNames.contains(name)) authorNames.add(name);
             }
 
@@ -168,8 +169,8 @@ public class NotificationService {
     NotificationService addLuckyNumber(LuckyNumber ln) {
         if (ln == null) return this;
         sendNotification(
-                "Szczęśliwy numerek: " + ln.getLuckyNumber(),
-                ln.getLuckyNumberDay().toString("EEEE, d MMMM yyyy", new Locale("pl")),
+                "Szczęśliwy numerek: " + ln.luckyNumber(),
+                ln.day().toString("EEEE, d MMMM yyyy", new Locale("pl")),
                 R.drawable.ic_sentiment_very_satisfied_black_24dp,
                 null, null, -1);
         return this;

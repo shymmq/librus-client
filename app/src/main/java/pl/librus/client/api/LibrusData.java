@@ -12,15 +12,17 @@ import java.util.List;
 import java.util.Map;
 
 import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceType;
+import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.Event;
+import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.SchoolDay;
-import pl.librus.client.datamodel.SchoolWeek;
+import pl.librus.client.timetable.SchoolDay;
+import pl.librus.client.timetable.SchoolWeek;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 
@@ -42,7 +44,7 @@ public class LibrusData implements Serializable {
 
     private List<Announcement> announcements = new ArrayList<>();//other
     private List<Attendance> attendances;
-    private List<AttendanceType> attendanceCategories;
+    private List<AttendanceCategory> attendanceCategories;
     private LuckyNumber luckyNumber;
 
     //Persistent data:
@@ -134,11 +136,11 @@ public class LibrusData implements Serializable {
         this.attendances = attendances;
     }
 
-    public List<AttendanceType> getAttendanceCategories() {
+    public List<AttendanceCategory> getAttendanceCategories() {
         return attendanceCategories;
     }
 
-    public void setAttendanceCategories(List<AttendanceType> attendanceCategories) {
+    public void setAttendanceCategories(List<AttendanceCategory> attendanceCategories) {
         this.attendanceCategories = attendanceCategories;
     }
 
@@ -198,24 +200,24 @@ public class LibrusData implements Serializable {
         this.account = account;
     }
 
-    public Map<String, AttendanceType> getAttendanceCategoryMap() {
-        Map<String, AttendanceType> res = new HashMap<>();
-        for (AttendanceType ac : attendanceCategories) {
-            res.put(ac.getId(), ac);
+    public Map<String, AttendanceCategory> getAttendanceCategoryMap() {
+        Map<String, AttendanceCategory> res = new HashMap<>();
+        for (AttendanceCategory ac : attendanceCategories) {
+            res.put(ac.id(), ac);
         }
         return res;
     }
 
     public Map<String, Teacher> getTeacherMap() {
         Map<String, Teacher> res = new HashMap<>(teachers.size());
-        for (Teacher t : teachers) res.put(t.getId(), t);
+        for (Teacher t : teachers) res.put(t.id(), t);
         return res;
     }
 
     public Map<String, Subject> getSubjectMap() {
         Map<String, Subject> res = new HashMap<>();
         for (Subject s : subjects) {
-            res.put(s.getId(), s);
+            res.put(s.id(), s);
         }
         return res;
     }
@@ -223,7 +225,7 @@ public class LibrusData implements Serializable {
     public Map<String, String> getLessonMap() {
         Map<String, String> res = new HashMap<>();
         for (PlainLesson pl : plainLessons) {
-            res.put(String.valueOf(pl.getId()), String.valueOf(pl.getSubject().getId()));
+            res.put(String.valueOf(pl.id()), String.valueOf(pl.subject().id()));
         }
         return res;
     }
@@ -236,19 +238,19 @@ public class LibrusData implements Serializable {
 
     public Map<String, GradeCategory> getGradeCategoriesMap() {
         Map<String, GradeCategory> res = new HashMap<>(gradeCategories.size());
-        for (GradeCategory gc : gradeCategories) res.put(gc.getId(), gc);
+        for (GradeCategory gc : gradeCategories) res.put(gc.id(), gc);
         return res;
     }
 
     public Map<String, GradeComment> getCommentMap() {
         Map<String, GradeComment> res = new HashMap<>(gradeComments.size());
-        for (GradeComment gc : gradeComments) res.put(gc.getId(), gc);
+        for (GradeComment gc : gradeComments) res.put(gc.id(), gc);
         return res;
     }
 
     public Map<String, String> getLessonSubjectMap() {
         Map<String, String> res = new HashMap<>();
-        for (PlainLesson pl : plainLessons) res.put(pl.getId(), pl.getSubject().getId());
+        for (PlainLesson pl : plainLessons) res.put(pl.id(), pl.subject().id());
         return res;
     }
 

@@ -9,11 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.j256.ormlite.dao.Dao;
-
 import org.joda.time.LocalDate;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,10 +19,12 @@ import java.util.Map;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
+import io.requery.Persistable;
+import io.requery.sql.EntityDataStore;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceType;
-import pl.librus.client.sql.LibrusDbHelper;
+import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
 
 /**
@@ -57,37 +56,35 @@ public class AttendanceFragment extends Fragment implements MainFragment {
         adapter.expandItemsAtStartUp();
         recyclerView.setAdapter(adapter);
 
+        EntityDataStore<Persistable> data = MainApplication.getData();
 
-        try {
-            LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
-            List<Attendance> attendances = dbHelper.getDao(Attendance.class).queryForAll();
-            Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
-            for (Attendance attendance : attendances) {
-                LocalDate date = attendance.getDate();
+        List<Attendance> attendances = data.select(Attendance.class).get().toList();
+        Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
+        for (Attendance attendance : attendances) {
+            LocalDate date = attendance.date();
 
-                Dao<AttendanceType, String> dao = dbHelper.getDao(AttendanceType.class);
-                AttendanceType category = dao.queryForId(attendance.getType().getId());
-                if (!category.isPresenceKind()) {
-                    if (headerItemMap.get(date) == null) {
-                        headerItemMap.put(date, new AttendanceHeaderItem(date));
-                    }
-                    AttendanceItem subItem = new AttendanceItem(
-                            headerItemMap.get(date),
-                            attendance,
-                            category);
-                    headerItemMap.get(date)
-                            .addSubItem(subItem);
+            AttendanceCategory category = MainApplication.getData()
+                    .findByKey(AttendanceCategory.class, attendance.type().id());
+
+            if (!category.presenceKind()) {
+                if (headerItemMap.get(date) == null) {
+                    headerItemMap.put(date, new AttendanceHeaderItem(date));
                 }
+                AttendanceItem subItem = new AttendanceItem(
+                        headerItemMap.get(date),
+                        attendance,
+                        category);
+                headerItemMap.get(date)
+                        .addSubItem(subItem);
             }
-            List<AttendanceHeaderItem> headers = new ArrayList<>(headerItemMap.values());
-            Collections.sort(headers);
-            for (AttendanceHeaderItem headerItem : headers) {
-                adapter.addSection(headerItem);
-            }
-            if (listener != null) listener.run();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
+        List<AttendanceHeaderItem> headers = new ArrayList<>(headerItemMap.values());
+        Collections.sort(headers);
+        for (AttendanceHeaderItem headerItem : headers) {
+            adapter.addSection(headerItem);
+        }
+        if (listener != null) listener.run();
+
 
         return root;
     }

@@ -29,15 +29,20 @@ public class LibrusUtils {
     }
 
     public static void log(String s, int level, boolean trim) {
-        if (DBG) {
-            if (trim) {
-                Log.println(level, TAG, s);
-            } else {
-                final int chunkSize = 1000;
-                if (s.length() > chunkSize) log("Splitting log into chunks. Length: " + s.length());
-                for (int i = 0; i < s.length(); i += chunkSize)
-                    Log.println(level, TAG, s.substring(i, Math.min(s.length(), i + chunkSize)));
+        try {
+            if (DBG) {
+                if (trim) {
+                    Log.println(level, TAG, s);
+                } else {
+                    final int chunkSize = 1000;
+                    if (s.length() > chunkSize)
+                        log("Splitting log into chunks. Length: " + s.length());
+                    for (int i = 0; i < s.length(); i += chunkSize)
+                        Log.println(level, TAG, s.substring(i, Math.min(s.length(), i + chunkSize)));
+                }
             }
+        } catch (Exception e) {
+            System.out.println(s);
         }
     }
 

@@ -22,9 +22,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.field.DataPersisterManager;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -39,16 +36,16 @@ import org.joda.time.LocalDate;
 
 import java.sql.SQLException;
 
+import io.requery.Persistable;
+import io.requery.reactivex.ReactiveEntityStore;
+import io.requery.sql.EntityDataStore;
 import pl.librus.client.R;
 import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.datamodel.LibrusAccount;
+import pl.librus.client.datamodel.LibrusAccountType;
 import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.datamodel.LuckyNumberType;
 import pl.librus.client.grades.GradesFragment;
-import pl.librus.client.sql.HasIdType;
-import pl.librus.client.sql.LibrusDbHelper;
-import pl.librus.client.sql.LocalDateTimeType;
-import pl.librus.client.sql.LocalDateType;
-import pl.librus.client.sql.LocalTimeType;
 import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.timetable.TimetableFragment;
 import pl.librus.client.timetable.TimetableTabFragment;
@@ -69,8 +66,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private GradesFragment gradesFragment = GradesFragment.newInstance();
     private AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
     private TimetableTabFragment timetableTabFragment = TimetableTabFragment.newInstance();
-
-    private LibrusDbHelper dbHelper;
 
     private ActionMenuView amv;
     private Drawer drawer;
@@ -97,12 +92,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         setContentView(R.layout.activity_main);
 
         FirebaseAnalytics.getInstance(getApplicationContext());
-        DataPersisterManager.registerDataPersisters(
-                new LocalDateType(),
-                new LocalTimeType(),
-                new LocalDateTimeType(),
-                new HasIdType()
-        );
+
 
         boolean logged_in = prefs.getBoolean("logged_in", false);
         if (!logged_in) {
@@ -110,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             startActivity(i);
             finish();
         } else {
-            dbHelper = new LibrusDbHelper(this);
 
             UpdateHelper updateHelper = new UpdateHelper(getApplicationContext());
 
@@ -156,32 +145,37 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     }
 
     private void setup() {
-        //LibrusAccount account = librusData.getAccount();
-        //luckyNumber = librusData.getLuckyNumber();
-        dbHelper = new LibrusDbHelper(this);
+        EntityDataStore<Persistable> data = MainApplication.getData();
+
         updateHelper = new UpdateHelper(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //Drawer setup
         LuckyNumber luckyNumber = null;
-        try {
-            Dao<LuckyNumber, LocalDate> luckyNumberDao = dbHelper.getDao(LuckyNumber.class);
-            luckyNumber = luckyNumberDao.queryForId(LocalDate.now());
-            Dao<LibrusAccount, String> librusAccountDao = dbHelper.getDao(LibrusAccount.class);
-            account = librusAccountDao.queryForAll().get(0);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
+        account = data.select(LibrusAccount.class).get().firstOr(new LibrusAccount.Builder()
+            .email("FIXME")
+            .firstName("FIXME")
+            .lastName("FIXME")
+            .login("FIXME")
+            .build());
+
+        luckyNumber = data.select(LuckyNumber.class)
+                .where(LuckyNumberType.DAY.lte(LocalDate.now()))
+                .orderBy(LuckyNumberType.DAY.desc())
+                .limit(1)
+                .get()
+                .firstOrNull();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         ProfileDrawerItem profile = new ProfileDrawerItem()
-                .withName(account.getName())
-                .withEmail(account.getLogin())
+                .withName(account.name())
+                .withEmail(account.login())
                 .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withIdentifier(LUCKY_NUMBER_ID)
-                .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.getLuckyNumber()))
+                .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.luckyNumber()))
                 .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
         AccountHeader header = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -399,6 +393,5 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        OpenHelperManager.releaseHelper();
     }
 }

@@ -7,18 +7,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
 
-import io.requery.Column;
+import javax.persistence.Embeddable;
+
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 
-@Entity
+@Embeddable
 @Value.Immutable
 @Value.Style(builder = "new")
-@JsonDeserialize(as = ImmutableTeacher.class)
-public abstract class Teacher implements Persistable {
+@JsonDeserialize(as = ImmutableLessonTeacher.class)
+public abstract class LessonTeacher {
 
-    @Key
     public abstract String id();
 
     public abstract String firstName();
@@ -29,7 +29,7 @@ public abstract class Teacher implements Persistable {
     @JsonProperty("IsSchoolAdministrator")
     public abstract Boolean schoolAdministrator();
 
-    public static class Builder extends ImmutableTeacher.Builder {
+    public static class Builder extends ImmutableLessonTeacher.Builder {
 
     }
 

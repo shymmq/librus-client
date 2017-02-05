@@ -1,35 +1,31 @@
 package pl.librus.client.datamodel;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import android.support.annotation.Nullable;
 
-@DatabaseTable(tableName = "grade_categories")
-public class GradeCategory {
-    @DatabaseField(id = true)
-    private String id;
-    @DatabaseField
-    private String name;
-    @DatabaseField
-    private int weight;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Optional;
 
-    public GradeCategory() {
-    }
+import org.immutables.value.Value;
 
-    public GradeCategory(String id, String name, int weight) {
-        this.id = id;
-        this.name = name;
-        this.weight = weight;
-    }
+import io.requery.Entity;
+import io.requery.Key;
+import io.requery.Persistable;
 
-    public int getWeight() {
-        return weight;
-    }
+@Entity
+@Value.Immutable
+@Value.Style(builder = "new")
+@JsonDeserialize(as = ImmutableGradeCategory.class)
+public abstract class GradeCategory implements Persistable{
 
-    public String getName() {
-        return name;
-    }
+    @Nullable
+    public abstract Integer weight();
 
-    public String getId() {
-        return id;
+    public abstract String name();
+
+    @Key
+    public abstract String id();
+
+    public static class Builder extends ImmutableGradeCategory.Builder {
+
     }
 }

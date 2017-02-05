@@ -46,11 +46,11 @@ class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeade
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
-        holder.grade.setText(grade.getGrade());
-        holder.title.setText(gc.getName());
-        holder.subtitle.setText(grade.getDate().toString("EEEE, d MMMM", new Locale("pl")));
+        holder.grade.setText(grade.grade());
+        holder.title.setText(gc.name());
+        holder.subtitle.setText(grade.date().toString("EEEE, d MMMM", new Locale("pl")));
         holder.unreadBadge.setVisibility(
-                Reader.isRead(Reader.TYPE_GRADE, grade.getId(), holder.itemView.getContext()) ? View.GONE : View.VISIBLE);
+                Reader.isRead(Reader.TYPE_GRADE, grade.id(), holder.itemView.getContext()) ? View.GONE : View.VISIBLE);
     }
 
     @Override

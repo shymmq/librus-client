@@ -13,10 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.j256.ormlite.dao.Dao;
 
-import java.sql.SQLException;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -25,15 +22,18 @@ import java.util.Map;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
+import io.requery.Persistable;
+import io.requery.sql.EntityDataStore;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
-import pl.librus.client.datamodel.HasId;
+import pl.librus.client.datamodel.GradeCommentType;
+import pl.librus.client.datamodel.GradeType;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.sql.LibrusDbHelper;
+import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
 
 /**
@@ -47,12 +47,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             return o1.compareTo(o2);
         }
     };
-    Comparator<Grade> gradeComparator = new Comparator<Grade>() {
-        @Override
-        public int compare(Grade o1, Grade o2) {
-            return o2.getDate().compareTo(o1.getDate());
-        }
-    };
+
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private OnSetupCompleteListener listener;
 
@@ -70,8 +65,6 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
 
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
-        try {
-
 
             //Setup RecyclerView
             RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
@@ -83,31 +76,29 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
 
             recyclerView.setAdapter(adapter);
 
-            LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
-
             //Load subjects and make a header for each subject
 
             final Map<String, GradeHeaderItem> headers = new HashMap<>();
+            EntityDataStore<Persistable> data = MainApplication.getData();
 
-            List<Subject> subjects = dbHelper.getDao(Subject.class).queryForAll();
-
+            List<Subject> subjects = data.select(Subject.class).get().toList();
             for (Subject s : subjects) {
-                headers.put(s.getId(), new GradeHeaderItem(s));
+                headers.put(s.id(), new GradeHeaderItem(s));
             }
 
             //Load grades and sort them by their date
-            List<Grade> grades = dbHelper.getDao(Grade.class).queryForAll();
-
-            Collections.sort(grades, gradeComparator);
-
-            Dao<GradeCategory, String> gcDao = dbHelper.getDao(GradeCategory.class);
+            List<Grade> grades = data.select(Grade.class)
+                    .orderBy(GradeType.DATE.desc())
+                    .get()
+                    .toList();
 
             for (Grade grade : grades) {
                 GradeItem item = new GradeItem(
-                        headers.get(grade.getSubject().getId()),
+                        headers.get(grade.subject().id()),
                         grade,
-                        gcDao.queryForId(grade.getCategory().getId()));
-                headers.get(grade.getSubject().getId()).addSubItem(item);
+                        data.findByKey(GradeCategory.class, grade.category().id())
+                );
+                headers.get(grade.subject().id()).addSubItem(item);
             }
 
 //        for (Average average : gradeCache.getAverages()) {
@@ -129,9 +120,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             });
 
             if (listener != null) listener.run();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
         return root;
     }
 
@@ -161,42 +150,40 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             View weightContainer = dialogLayout.findViewById(R.id.grade_details_weight_container);
             View addDateContainer = dialogLayout.findViewById(R.id.grade_details_add_date_container);
 
-            gradeTextView.setText(grade.getGrade());
-            categoryTextView.setText(gc.getName());
-            subjectTextView.setText(header.getSubject().getName());
-            weightTextView.setText(String.valueOf(gc.getWeight()));
-            dateTextView.setText(grade.getDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
-            if (grade.getAddDate().toLocalDate().isEqual(grade.getDate())) {
+            gradeTextView.setText(grade.grade());
+            categoryTextView.setText(gc.name());
+            subjectTextView.setText(header.getSubject().name());
+            weightTextView.setText(String.valueOf(gc.weight()));
+            dateTextView.setText(grade.date().toString(getString(R.string.date_format_no_year), new Locale("pl")));
+            if (grade.addDate().toLocalDate().isEqual(grade.date())) {
                 addDateContainer.setVisibility(View.GONE);
             } else {
                 addDateContainer.setVisibility(View.VISIBLE);
                 TextView addDateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_add_date);
-                addDateTextView.setText(grade.getAddDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
+                addDateTextView.setText(grade.addDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
             }
 
-            Grade.Type type = grade.getType();
-            weightContainer.setVisibility(type == Grade.Type.NORMAL ? View.VISIBLE : View.GONE);
-            LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
+            Grade.GradeType type = grade.type();
+            weightContainer.setVisibility(type == Grade.GradeType.NORMAL ? View.VISIBLE : View.GONE);
+            EntityDataStore<Persistable> data = MainApplication.getData();
 
-            try {
-                Dao<Teacher, String> teacherDao = dbHelper.getDao(Teacher.class);
-                Teacher addedBy = teacherDao.queryForId(grade.getAddedBy().getId());
-                addedByTextView.setText(addedBy.getName());
 
-                Dao<GradeComment, String> commentDao = dbHelper.getDao(GradeComment.class);
-                List<GradeComment> comments = commentDao.queryForEq(GradeComment.COLUMN_NAME_GRADE_ID, new HasId(grade.getId()));
+            Teacher addedBy = data.findByKey(Teacher.class, grade.addedBy().id());
+                addedByTextView.setText(addedBy.name());
+
+                List<GradeComment> comments = data.select(GradeComment.class)
+                        .where(GradeCommentType.GRADE_ID.eq(grade.id()))
+                        .get()
+                        .toList();
                 if (comments != null && !comments.isEmpty()) {
                     commentContainer.setVisibility(View.VISIBLE);
                     TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
-                    commentTextView.setText(comments.get(0).getText());
+                    commentTextView.setText(comments.get(0).text());
                 } else {
                     commentContainer.setVisibility(View.GONE);
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
             new MaterialDialog.Builder(getContext())
-                    .title(header.getSubject().getName())
+                    .title(header.getSubject().name())
                     .customView(dialogLayout, true)
                     .positiveText(R.string.close)
                     .dismissListener(new DialogInterface.OnDismissListener() {
@@ -206,7 +193,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
                         }
                     })
                     .show();
-            Reader.read(Reader.TYPE_GRADE, grade.getId(), getContext());
+            Reader.read(Reader.TYPE_GRADE, grade.id(), getContext());
 
         } else //noinspection StatementWithEmptyBody
             if (item instanceof AverageItem) {

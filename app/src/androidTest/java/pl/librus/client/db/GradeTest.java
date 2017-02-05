@@ -1,0 +1,58 @@
+package pl.librus.client.db;
+
+import android.support.test.runner.AndroidJUnit4;
+
+import org.hamcrest.Matchers;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import io.requery.meta.Attribute;
+import io.requery.proxy.CompositeKey;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.HasId;
+import pl.librus.client.datamodel.Lesson;
+import pl.librus.client.datamodel.LessonType;
+
+/**
+ * Created by robwys on 05/02/2017.
+ */
+@RunWith(AndroidJUnit4.class)
+public class GradeTest extends BaseDBTest {
+    @Test
+    public void shouldReadLesson() {
+        //given
+       String id = "abc";
+       Grade original = new Grade.Builder()
+               .date(LocalDate.now())
+               .addDate(LocalDateTime.now())
+               .addedBy(HasId.of("12"))
+               .category(HasId.of("34"))
+               .finalPropositionType(false)
+               .finalType(false)
+               .grade("4+")
+               .id(id)
+               .lesson(HasId.of("56"))
+               .semester(1)
+               .semesterPropositionType(false)
+               .semesterType(false)
+               .subject(HasId.of("78"))
+               .build();
+
+        data.insert(original);
+        clearCache();
+
+        //when
+        Grade result = data.findByKey(Grade.class, id);
+
+        //then
+        Assert.assertThat(result, Matchers.is(original));
+    }
+
+}

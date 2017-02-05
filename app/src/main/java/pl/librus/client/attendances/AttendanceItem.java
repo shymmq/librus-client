@@ -6,26 +6,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.j256.ormlite.dao.Dao;
-
-import java.sql.SQLException;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
+import io.requery.Persistable;
+import io.requery.sql.EntityDataStore;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceType;
+import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
-import pl.librus.client.sql.LibrusDbHelper;
+import pl.librus.client.ui.MainApplication;
 
 class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, AttendanceHeaderItem> {
-    private final AttendanceType category;
+    private final AttendanceCategory category;
     private Attendance attendance;
 
-    AttendanceItem(AttendanceHeaderItem header, Attendance attendance, AttendanceType category) {
+    AttendanceItem(AttendanceHeaderItem header, Attendance attendance, AttendanceCategory category) {
         super(header);
         this.attendance = attendance;
         this.category = category;
@@ -43,20 +42,16 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
-        holder.shortName.setText(category.getShortName());
+        holder.shortName.setText(category.shortName());
         Context context = holder.itemView.getContext();
-        String lessonNumber = context.getString(R.string.lesson) + " " + attendance.getLessonNumber();
+        String lessonNumber = context.getString(R.string.lesson) + " " + attendance.lessonNumber();
         holder.lesson.setText(lessonNumber);
-        LibrusDbHelper helper = new LibrusDbHelper(context);
-        try {
-            Dao<PlainLesson, String> lessonDao = helper.getDao(PlainLesson.class);
-            Dao<Subject, String> subjectDao = helper.getDao(Subject.class);
-            PlainLesson lesson = lessonDao.queryForId(attendance.getLesson().getId());
-            Subject subject = subjectDao.queryForId(lesson.getSubject().getId());
-            holder.subject.setText(subject.getName());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
+        EntityDataStore<Persistable> data = MainApplication.getData();
+        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson().id());
+        Subject subject = data.findByKey(Subject.class, lesson.subject().id());
+        holder.subject.setText(subject.name());
+
     }
 
     @Override
@@ -79,7 +74,7 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
         return attendance;
     }
 
-    public AttendanceType getCategory() {
+    public AttendanceCategory getCategory() {
         return category;
     }
 

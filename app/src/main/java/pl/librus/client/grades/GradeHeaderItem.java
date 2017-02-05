@@ -62,7 +62,7 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
-        holder.subject.setText(subject.getName());
+        holder.subject.setText(subject.name());
         if (gradeCount == 0) {
             holder.gradeCount.setText("Brak ocen");
             holder.background.setAlpha(0.5f);
@@ -91,7 +91,7 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
     public int compareTo(@NonNull GradeHeaderItem o) {
         int countCompare = Boolean.compare(o.gradeCount > 0, gradeCount > 0);
         if (countCompare != 0) return countCompare;
-        else return subject.getName().compareTo(o.getSubject().getName());
+        else return subject.name().compareTo(o.getSubject().name());
     }
 
     public Subject getSubject() {

@@ -9,18 +9,19 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import pl.librus.client.api.APIClient;
-import pl.librus.client.api.Event;
-import pl.librus.client.api.EventCategory;
+import pl.librus.client.datamodel.Event;
+import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceType;
+import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.SchoolWeek;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.Timetable;
 
 
 public class APIClientTest {
@@ -40,7 +41,8 @@ public class APIClientTest {
     @Test
     public void shouldParseTimetable() throws IOException {
         //given
-        SchoolWeek res = APIClient.parseObject(readFile("Timetable.json"), "Timetable", SchoolWeek.class);
+        Timetable res = APIClient.parseObject(readFile("Timetable.json"), "Timetable", Timetable.class);
+        System.out.println(res);
     }
 
     @Test
@@ -72,6 +74,7 @@ public class APIClientTest {
     public void shouldParseHomeWorks() throws IOException {
         //given
         List<Event> res = APIClient.parseList(readFile("HomeWorks.json"), "HomeWorks",Event.class);
+        System.out.println(res);
     }
 
     @Test
@@ -89,7 +92,7 @@ public class APIClientTest {
     @Test
     public void shouldParseAttendanceTypes() throws IOException {
         //given
-        List<AttendanceType> res = APIClient.parseList(readFile("AttendanceTypes.json"), "Types",AttendanceType.class);
+        List<AttendanceCategory> res = APIClient.parseList(readFile("AttendanceTypes.json"), "Types",AttendanceCategory.class);
     }
 
     @Test
@@ -97,6 +100,13 @@ public class APIClientTest {
         //given
         APIClient.parseList(readFile("Subjects.json"), "Subjects", Subject.class);
     }
+
+    @Test
+    public void shouldParseLuckyNumbers() throws IOException {
+        //given
+        LuckyNumber luckyNumber = APIClient.parseObject(readFile("LuckyNumbers.json"), "LuckyNumber", LuckyNumber.class);
+    }
+
     static String readFile(String fileName) {
         try {
             return Resources.toString(Resources.getResource(fileName), Charset.defaultCharset());

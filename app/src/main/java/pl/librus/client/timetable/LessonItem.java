@@ -75,11 +75,12 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
     public void bindViewHolder(FlexibleAdapter adapter, LessonItemViewHolder holder, int position,
                                List payloads) {
 
-        holder.subject.setText(lesson.getSubject().getName());
-        holder.teacher.setText(lesson.getTeacher().getName());
-        holder.lessonNumber.setText(String.valueOf(lesson.getLessonNo()));
 
-        if (lesson.isCanceled()) {
+        holder.subject.setText(lesson.subject().name());
+        holder.teacher.setText(lesson.teacher().name());
+        holder.lessonNumber.setText(String.valueOf(lesson.lessonNo()));
+
+        if (lesson.cancelled()) {
             //lesson canceled
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.canceled);
@@ -87,7 +88,7 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
 
         } else {
 
-            if (lesson.isSubstitution()) {
+            if (lesson.substitutionClass()) {
                 //substitution
                 holder.badge.setVisibility(View.VISIBLE);
                 holder.badgeText.setText(R.string.substitution);
@@ -98,7 +99,7 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
             }
 
 //            LocalTime now = LocalTime.now();
-//            if (LocalDate.now().isEqual(lesson.getDate()) &&
+//            if (LocalDate.now().isEqual(lesson.date()) &&
 //                    now.isAfter(lesson.getStartTime()) &&
 //                    now.isBefore(lesson.getEndTime())) {
 //                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);

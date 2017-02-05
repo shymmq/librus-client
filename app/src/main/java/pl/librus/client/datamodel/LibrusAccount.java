@@ -1,60 +1,38 @@
 package pl.librus.client.datamodel;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import android.database.Observable;
 
-@DatabaseTable(tableName = "accounts")
-public class LibrusAccount {
-    @DatabaseField
-    private String id;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.android.gms.common.data.DataBufferObserver;
 
-    @DatabaseField
-    private String firstName;
+import org.immutables.value.Value;
 
-    @DatabaseField
-    private String lastName;
+import io.requery.Entity;
+import io.requery.ForeignKey;
+import io.requery.Key;
+import io.requery.Persistable;
 
-    @DatabaseField(id = true)
-    private String login;
+@Entity
+@Value.Immutable
+@Value.Style(builder = "new")
+@JsonDeserialize(as=ImmutableLibrusAccount.class)
+public abstract class LibrusAccount implements Persistable{
 
-    @DatabaseField
-    private String email;
+    @Key
+    public abstract String login();
 
-    public LibrusAccount() {
+    public abstract String firstName();
+
+    public abstract String lastName();
+
+    public abstract String email();
+
+    public static class Builder extends ImmutableLibrusAccount.Builder {
+
     }
 
-    public String getName() {
-        return firstName + " " + lastName;
+    public String name() {
+        return firstName() + " " + lastName();
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String toString() {
-        return "LibrusAccount{" +
-                "id='" + id + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", login='" + login + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
 }

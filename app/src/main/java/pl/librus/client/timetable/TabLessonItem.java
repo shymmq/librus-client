@@ -60,11 +60,11 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
     public void bindViewHolder(FlexibleAdapter adapter, TabLessonItemViewHolder holder, int position,
                                List payloads) {
 
-        holder.subject.setText(lesson.getSubject().getName());
-        holder.teacher.setText(lesson.getTeacher().getName());
-        holder.lessonNumber.setText(String.valueOf(lesson.getLessonNo()));
+        holder.subject.setText(lesson.subject().name());
+        holder.teacher.setText(lesson.teacher().name());
+        holder.lessonNumber.setText(String.valueOf(lesson.lessonNo()));
 
-        if (lesson.isCanceled()) {
+        if (lesson.cancelled()) {
             //lesson canceled
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.canceled);
@@ -72,7 +72,7 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
 
         } else {
 
-            if (lesson.isSubstitution()) {
+            if (lesson.substitutionClass()) {
                 //substitution
                 holder.badge.setVisibility(View.VISIBLE);
                 holder.badgeText.setText(R.string.substitution);
@@ -86,7 +86,7 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
 
 //            LocalTime timeNow = LocalTime.now();
 //            if (preferences.getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
-//                    LocalDate.now().isEqual(lesson.getDate()) &&
+//                    LocalDate.now().isEqual(lesson.date()) &&
 //                    timeNow.isAfter(lesson.getStartTime()) &&
 //                    timeNow.isBefore(lesson.getEndTime())) {
 //                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
@@ -95,7 +95,7 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
 //            }
 //
 //            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
-//                    !lesson.getDate().isAfter(LocalDate.now()) &&
+//                    !lesson.date().isAfter(LocalDate.now()) &&
 //                    timeNow.isAfter(lesson.getEndTime())) {
 //                holder.itemView.setAlpha(0.57f);
 //            } else {
@@ -107,7 +107,7 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
 
     @Override
     public int compareTo(@NonNull TabLessonItem tabLessonItem) {
-        return Integer.compare(lesson.getLessonNo(), tabLessonItem.lesson.getLessonNo());
+        return Integer.compare(lesson.lessonNo(), tabLessonItem.lesson.lessonNo());
     }
 
     /**

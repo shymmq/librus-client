@@ -71,7 +71,7 @@ public class AnnouncementDetailsFragment extends Fragment {
         View info = root.findViewById(R.id.fragment_announcement_details_info);
         titleTextView.setText(announcement.getSubject());
         contentTextView.setText(announcement.getContent());
-        authorTextView.setText(author.getName());
+        authorTextView.setText(author.name());
         dateTextView.setText(announcement.getStartDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
 
         background.setTransitionName("announcement_background_" + announcement.getId());

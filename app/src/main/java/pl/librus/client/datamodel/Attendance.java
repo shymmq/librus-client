@@ -2,74 +2,51 @@ package pl.librus.client.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+
+import io.requery.Embedded;
+import io.requery.Entity;
+import io.requery.Key;
+import io.requery.ManyToOne;
+import io.requery.Persistable;
 
 /**
  * Created by Adam on 13.12.2016.
  */
 
-@DatabaseTable(tableName = "attendances")
-public class Attendance {
-    @DatabaseField(id = true)
-    private String id;
+@Entity
+@Value.Immutable
+@Value.Style(builder = "new")
+@JsonDeserialize(as = ImmutableAttendance.class)
+public abstract class Attendance implements Persistable{
+    @Key
+    public abstract String id();
 
-    @DatabaseField
-    private HasId lesson, student, type, addedBy;
+    @Embedded
+    public abstract HasId lesson();
 
-    @DatabaseField
+    @Embedded
+    public abstract HasId type();
+
+    @Embedded
+    public abstract HasId addedBy();
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate date;
+    public abstract LocalDate date();
 
-    @DatabaseField
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime addDate;
+    public abstract LocalDateTime addDate();
 
-    @DatabaseField
     @JsonProperty("LessonNo")
-    private int lessonNumber;
-    @DatabaseField
-    private int semester;
+    public abstract int lessonNumber();
 
-    public Attendance() {
+    public abstract int semester();
+
+    public static class Builder extends ImmutableAttendance.Builder{
     }
 
-    public HasId getLesson() {
-        return lesson;
-    }
-
-    public HasId getStudent() {
-        return student;
-    }
-
-    public HasId getType() {
-        return type;
-    }
-
-    public HasId getAddedBy() {
-        return addedBy;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public LocalDateTime getAddDate() {
-        return addDate;
-    }
-
-    public int getLessonNumber() {
-        return lessonNumber;
-    }
-
-    public int getSemester() {
-        return semester;
-    }
-
-    public String getId() {
-        return id;
-    }
 }

@@ -1,28 +1,33 @@
 package pl.librus.client.datamodel;
 
-import com.j256.ormlite.field.DatabaseField;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import org.immutables.value.Value;
+
+import javax.persistence.Embeddable;
+
+import io.requery.Embedded;
+import io.requery.Entity;
 
 /**
  * Created by szyme on 31.01.2017.
  */
 
-public class HasId {
+@Embeddable
+@Value.Immutable
+@Value.Style(builder = "new")
+@JsonDeserialize(as = ImmutableHasId.class)
+public abstract class HasId {
 
-    @DatabaseField(id = true)
-    public String id;
+    @Value.Parameter
+    public abstract String id();
 
-    public HasId() {
+    public static HasId of(String id) {
+        return ImmutableHasId.of(id);
     }
 
-    public HasId(String id) {
-        this.id = id;
+    public static class Builder extends ImmutableHasId.Builder{
+
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 }

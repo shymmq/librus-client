@@ -10,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.j256.ormlite.dao.Dao;
-
 import org.joda.time.LocalDate;
 
 import java.sql.SQLException;
@@ -21,7 +19,8 @@ import java.util.List;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Lesson;
-import pl.librus.client.sql.LibrusDbHelper;
+import pl.librus.client.datamodel.LessonType;
+import pl.librus.client.ui.MainApplication;
 
 /**
  * Created by szyme on 26.12.2016. librus-client
@@ -48,10 +47,11 @@ public class TimetablePageFragment extends Fragment {
         final RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_timetable_page_recycler);
         final TextView message = (TextView) root.findViewById(R.id.fragment_timetable_page_message);
         List<TabLessonItem> items = new ArrayList<>();
-        LibrusDbHelper dbHelper = new LibrusDbHelper(getContext());
-        try {
-            Dao<Lesson, ?> dao = dbHelper.getDao(Lesson.class);
-            List<Lesson> lessons = dao.queryForEq(Lesson.COLUMN_NAME_DATE, date);
+
+            List<Lesson> lessons = MainApplication.getData().select(Lesson.class)
+                    .where(LessonType.DATE.eq(date))
+                    .get()
+                    .toList();
             if (lessons == null) {
                 recyclerView.setVisibility(View.GONE);
                 message.setVisibility(View.VISIBLE);
@@ -61,9 +61,7 @@ public class TimetablePageFragment extends Fragment {
                 for (Lesson lesson : lessons)
                     items.add(new TabLessonItem(lesson, getContext()));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
         FlexibleAdapter<TabLessonItem> adapter = new FlexibleAdapter<>(items);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);

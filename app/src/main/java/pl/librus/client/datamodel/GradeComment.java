@@ -1,40 +1,38 @@
 package pl.librus.client.datamodel;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import org.immutables.value.Value;
+
+import io.requery.Embedded;
+import io.requery.Entity;
+import io.requery.ForeignKey;
+import io.requery.Key;
+import io.requery.ManyToOne;
+import io.requery.OneToOne;
+import io.requery.Persistable;
 
 /**
  * Created by szyme on 12.12.2016. librus-client
  */
-@DatabaseTable(tableName = "grade_comments")
-public class GradeComment {
-    public static final String COLUMN_NAME_GRADE_ID = "grade";
+@Entity
+@Value.Immutable
+@Value.Style(builder = "new")
+@JsonDeserialize(as = ImmutableGradeComment.class)
+public abstract class GradeComment implements Persistable{
 
-    @DatabaseField(id = true)
-    private String id;
-    @DatabaseField
-    private HasId addedBy;
-    @DatabaseField(columnName = COLUMN_NAME_GRADE_ID)
-    private HasId grade;
-    @DatabaseField
-    private String text;
+    @Key
+    public abstract String id();
 
-    public GradeComment() {
-    }
+    @Embedded
+    public abstract HasId addedBy() ;
 
-    public String getId() {
-        return id;
-    }
+    @Embedded
+    public abstract HasId grade() ;
 
-    public HasId getAddedBy() {
-        return addedBy;
-    }
+    public abstract String text() ;
 
-    public HasId getGrade() {
-        return grade;
-    }
+    public static class Builder extends ImmutableGradeComment.Builder {
 
-    public String getText() {
-        return text;
     }
 }

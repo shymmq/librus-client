@@ -91,7 +91,7 @@ public class TextGrade extends GradeEntry implements Serializable, Comparable {
         if (o instanceof Average) {
             return -1;
         } else if (o instanceof Grade) {
-            return date.compareTo(((Grade) o).getDate());
+            return date.compareTo(((Grade) o).date());
         } else if (o instanceof TextGrade) {
             return date.compareTo(((TextGrade) o).getDate());
         } else {

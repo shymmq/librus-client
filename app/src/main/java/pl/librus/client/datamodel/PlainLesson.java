@@ -1,35 +1,34 @@
 package pl.librus.client.datamodel;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "lessons")
-public class PlainLesson {
-    @DatabaseField(id = true)
-    private String id;
-    @DatabaseField
-    private HasId teacher;
-    @DatabaseField
-    private HasId subject;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-    public PlainLesson() {
+import org.immutables.value.Value;
+
+import io.requery.Embedded;
+import io.requery.Entity;
+import io.requery.Key;
+import io.requery.ManyToOne;
+import io.requery.OneToOne;
+import io.requery.Persistable;
+
+@Entity
+@Value.Immutable
+@Value.Style(builder = "new")
+@JsonDeserialize(as = ImmutablePlainLesson.class)
+public abstract class PlainLesson implements Persistable{
+    @Key
+    public abstract String id();
+
+    @Embedded
+    public abstract HasId teacher();
+
+    @Embedded
+    public abstract HasId subject();
+
+    public static class Builder extends ImmutablePlainLesson.Builder {
+
     }
 
-    public PlainLesson(String id, String teacherId, String subjectId) {
-        this.id = id;
-        this.teacher = new HasId(teacherId);
-        this.subject = new HasId(subjectId);
-    }
 
-    public String getId() {
-        return id;
-    }
-
-    public HasId getTeacher() {
-        return teacher;
-    }
-
-    public HasId getSubject() {
-        return subject;
-    }
 }

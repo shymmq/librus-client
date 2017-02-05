@@ -65,7 +65,7 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         Teacher teacher = data.getTeacherMap().get(announcement.getAuthorId());
         holder.announcementSubject.setText(announcement.getSubject());
         holder.background.setTransitionName("announcement_background_" + announcement.getId());
-        holder.announcementTeacherName.setText(teacher.getName());
+        holder.announcementTeacherName.setText(teacher.name());
         holder.announcementContent.setText(announcement.getContent());
 
         if (!read)

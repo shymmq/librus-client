@@ -1,33 +1,35 @@
 package pl.librus.client.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 
-/**
- * Created by Adam on 2016-11-06.
- */
+import io.requery.Convert;
+import io.requery.Entity;
+import io.requery.Key;
+import io.requery.Persistable;
+import pl.librus.client.sql.LocalDateConverter;
 
-@DatabaseTable(tableName = "lucky_numbers")
-public class LuckyNumber {
-    @JsonProperty("LuckyNumber")
-    @DatabaseField
-    private int luckyNumber;
+@Entity
+@Value.Immutable
+@Value.Style(
+        builder = "new"
+)
+@JsonDeserialize(as = ImmutableLuckyNumber.class)
+public abstract class LuckyNumber implements Persistable {
+
     @JsonProperty("LuckyNumberDay")
-    @DatabaseField(id = true)
-    private LocalDate luckyNumberDay;
+    @Key
+    @Value.Parameter
+    public abstract LocalDate day();
 
-    public LuckyNumber() {
-    }
+    @Value.Parameter
+    public abstract int luckyNumber();
 
-    public int getLuckyNumber() {
-        return luckyNumber;
-    }
+    public static class Builder extends ImmutableLuckyNumber.Builder {
 
-    public LocalDate getLuckyNumberDay() {
-        return luckyNumberDay;
     }
 
 }

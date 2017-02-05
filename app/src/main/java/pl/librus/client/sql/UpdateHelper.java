@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.misc.TransactionManager;
+import com.google.common.collect.Lists;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
@@ -16,37 +14,37 @@ import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MultipleResults;
 import org.joda.time.LocalDate;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Map;
 
+import io.requery.Persistable;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
-import pl.librus.client.api.Event;
-import pl.librus.client.api.EventCategory;
+import pl.librus.client.datamodel.Event;
+import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceType;
+import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.JsonLesson;
 import pl.librus.client.datamodel.Lesson;
-import pl.librus.client.datamodel.LibrusAccount;
+import pl.librus.client.datamodel.LessonType;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.SchoolDay;
-import pl.librus.client.datamodel.SchoolWeek;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.Timetable;
 import pl.librus.client.timetable.TimetableUtils;
+import pl.librus.client.ui.MainApplication;
 
 /**
  * Created by szyme on 31.01.2017.
  */
 
 public class UpdateHelper {
-    private final LibrusDbHelper helper;
     private final APIClient client;
     private final Context context;
     private List<Promise> tasks = new ArrayList<>();
@@ -54,7 +52,6 @@ public class UpdateHelper {
     private OnUpdateCompleteListener onUpdateCompleteListener;
 
     public UpdateHelper(Context context) {
-        helper = OpenHelperManager.getHelper(context, LibrusDbHelper.class);
         client = new APIClient(context);
         this.context = context;
     }
@@ -75,10 +72,10 @@ public class UpdateHelper {
         tasks.add(updateList("/HomeWorks", "HomeWorks", Event.class));
         tasks.add(updateList("/HomeWorks/Categories", "Categories", EventCategory.class));
         tasks.add(updateList("/Attendances", "Attendances", Attendance.class));
-        tasks.add(updateList("/Attendances/Types", "Types", AttendanceType.class));
+        tasks.add(updateList("/Attendances/Types", "Types", AttendanceCategory.class));
         tasks.add(updateObject("/LuckyNumbers", "LuckyNumber", LuckyNumber.class));
         tasks.add(updateAccount());
-        tasks.add(updateTimetable());
+        tasks.add(updateNearestTimetables());
         new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
@@ -100,76 +97,63 @@ public class UpdateHelper {
         return deferred.promise();
     }
 
-    private Promise updateTimetable() {
+    private Promise updateNearestTimetables() {
         List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
         List<Promise> tasks = new ArrayList<>(weekStarts.size());
         for (LocalDate weekStart : weekStarts) {
-            tasks.add(client.getSchoolWeek(weekStart).done(new DoneCallback<SchoolWeek>() {
-                @Override
-                public void onDone(SchoolWeek result) {
-                    try {
-                        Dao<Lesson, ?> dao = helper.getDao(Lesson.class);
-                        for (SchoolDay schoolDay : result.getSchoolDays()) {
-                            for (Lesson lesson : schoolDay.getLessons()) {
-                                dao.createOrUpdate(lesson);
-                            }
+            tasks.add(updateTimetable(weekStart));
+        }
+        return new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()]));
+    }
+
+    private Promise<List<Lesson>, Void, Void> updateTimetable(LocalDate weekStart){
+        final Deferred<List<Lesson>, Void, Void> deferred = new DeferredObject<>();
+
+        client.getTimetable(weekStart).done(new DoneCallback<Timetable>() {
+            @Override
+            public void onDone(Timetable timetable) {
+                List<Lesson> result = Lists.newArrayList();
+                for (Map.Entry<LocalDate, List<List<JsonLesson>>> e: timetable.entrySet()) {
+                    LocalDate date = e.getKey();
+                    for(List<JsonLesson> list : e.getValue()){
+                        if(list.size() > 0) {
+                            Lesson l = list.get(0).convert(date);
+                            result.add(l);
+                            MainApplication.getData()
+                                    .upsert(l);
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
                     }
 
                 }
-            }));
-        }
-        return new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()]));
+                deferred.resolve(result);
+            }
+        });
+        return deferred.promise();
     }
 
     private Promise updateAccount() {
         return client.getObject("/Me", "Me", Me.class).done(new DoneCallback<Me>() {
             @Override
             public void onDone(Me result) {
-                try {
-                    Dao<LibrusAccount, ?> dao = helper.getDao(LibrusAccount.class);
-                    dao.createOrUpdate(result.getAccount());
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            MainApplication.getData().upsert(result.account());
             }
         });
     }
 
-    private <T> Promise updateList(String endpoint, String topLevelName, final Class<T> clazz) {
+    private <T extends Persistable> Promise updateList(String endpoint, String topLevelName, final Class<T> clazz) {
         return client.getList(endpoint, topLevelName, clazz).done(new DoneCallback<List<T>>() {
             @Override
             public void onDone(final List<T> result) {
-                try {
-                    final Dao<T, ?> dao = helper.getDao(clazz);
-                    TransactionManager.callInTransaction(helper.getConnectionSource(),
-                            new Callable<Void>() {
-                                public Void call() throws Exception {
-                                    for (T item : result) {
-                                        dao.createOrUpdate(item);
-                                    }
-                                    return null;
-                                }
-                            });
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                MainApplication.getData().upsert(result);
             }
         });
     }
 
-    private <T> Promise updateObject(String endpoint, String topLevelName, final Class<T> clazz) {
+    private <T extends Persistable> Promise updateObject(String endpoint, String topLevelName, final Class<T> clazz) {
         return client.getObject(endpoint, topLevelName, clazz).done(new DoneCallback<T>() {
             @Override
             public void onDone(T result) {
-                try {
-                    Dao<T, ?> dao = helper.getDao(clazz);
-                    dao.createOrUpdate(result);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                MainApplication.getData().upsert(result);
             }
         });
     }
@@ -184,5 +168,21 @@ public class UpdateHelper {
 
     public interface OnUpdateCompleteListener {
         void onUpdateComplete();
+    }
+
+    public Promise<List<Lesson>, Void, Void> getLessonsForWeek(LocalDate weekStart) {
+        List<Lesson> cached = MainApplication.getData()
+                .select(Lesson.class)
+                .where(LessonType.DATE.gte(weekStart))
+                .and(LessonType.DATE.lt(weekStart.plusWeeks(1)))
+                .get()
+                .toList();
+
+        if(cached.isEmpty()) {
+            return updateTimetable(weekStart);
+        }else {
+            return new DeferredObject<List<Lesson>, Void, Void>().resolve(cached).promise();
+
+        }
     }
 }

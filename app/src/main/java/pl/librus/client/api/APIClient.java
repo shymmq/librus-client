@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Lists;
 
@@ -37,7 +38,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import pl.librus.client.LibrusUtils;
-import pl.librus.client.datamodel.SchoolWeek;
+import pl.librus.client.datamodel.Timetable;
 
 import static pl.librus.client.LibrusUtils.log;
 
@@ -149,11 +150,11 @@ public class APIClient {
     private static ObjectMapper createMapper() {
 
         SimpleModule schoolWeekModule = new SimpleModule();
-        schoolWeekModule.addDeserializer(SchoolWeek.class, new SchoolWeekDeserializer());
         return new ObjectMapper()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .registerModule(new JodaModule())
+                .registerModule(new GuavaModule())
                 .registerModule(schoolWeekModule);
     }
 
@@ -340,19 +341,20 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<SchoolWeek, Void, Void> getSchoolWeek(final LocalDate weekStart) {
+    public Promise<Timetable, Void, Void> getTimetable(final LocalDate weekStart) {
 
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
 
-        return getObject(endpoint, "Timetable", SchoolWeek.class);
+        return getObject(endpoint, "Timetable", Timetable.class);
     }
 
     public <T> Promise<T, Void, Void> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
         final Deferred<T, Void, Void> deferred = new DeferredObject<>();
         APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
             @Override
-            public void onDone(JSONObject result) {
-                deferred.resolve(parseObject(result.toString(), topLevelName, clazz));
+            public void onDone(JSONObject json) {
+                T result = parseObject(json.toString(), topLevelName, clazz);
+                deferred.resolve(result);
             }
         });
         return deferred.promise();
