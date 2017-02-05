@@ -31,7 +31,7 @@ import pl.librus.client.ui.MainFragment;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AttendanceFragment extends Fragment implements MainFragment {
+public class AttendanceFragment extends MainFragment {
 
     private OnSetupCompleteListener listener;
 
@@ -93,13 +93,9 @@ public class AttendanceFragment extends Fragment implements MainFragment {
     }
 
     @Override
-    public void refresh() {
-
-    }
-
-    @Override
-    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
         this.listener = listener;
+
     }
 
     @Override

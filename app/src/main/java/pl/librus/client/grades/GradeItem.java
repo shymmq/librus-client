@@ -50,7 +50,7 @@ class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeade
         holder.title.setText(gc.getName());
         holder.subtitle.setText(grade.getDate().toString("EEEE, d MMMM", new Locale("pl")));
         holder.unreadBadge.setVisibility(
-                Reader.isRead(Reader.TYPE_GRADE, grade.getId(), holder.itemView.getContext()) ? View.GONE : View.VISIBLE);
+                new Reader(holder.itemView.getContext()).isRead(grade) ? View.GONE : View.VISIBLE);
     }
 
     @Override

@@ -72,4 +72,5 @@
     <string name="_1_more_text_grade">+1 ocena tekstowa...</string>
     <string name="no_grades">Brak ocen</string>
     <string name="average_">"Średnia: "</string>
+    <string name="mark_all_as_read">Oznacz wszystkie jako przeczytane</string>
 </resources>

@@ -24,7 +24,7 @@ class AnnouncementUtils {
 
     static AnnouncementHeaderItem getHeaderOf(Announcement a, Context c) {
         LocalDate date = a.getStartDate();
-        if (!Reader.isRead(Reader.TYPE_ANNOUNCEMENT, a.getId(), c))
+        if (new Reader(c).isRead(a))
             return unread;
         else if (!date.isBefore(LocalDate.now()))
             return today;

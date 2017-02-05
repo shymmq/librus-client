@@ -12,7 +12,7 @@ import org.joda.time.LocalDateTime;
  * Created by szyme on 08.12.2016. librus-client
  */
 @DatabaseTable(tableName = "grades")
-public class Grade {
+public class Grade implements Identifiable {
     @DatabaseField(id = true)
     private String id;
     @DatabaseField

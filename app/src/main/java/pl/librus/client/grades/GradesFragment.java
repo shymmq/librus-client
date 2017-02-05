@@ -13,9 +13,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -36,11 +38,13 @@ import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
+import pl.librus.client.ui.MenuAction;
+import pl.librus.client.ui.ReadAllMenuAction;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GradesFragment extends Fragment implements MainFragment, FlexibleAdapter.OnItemClickListener {
+public class GradesFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener {
 
     private final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
         @Override
@@ -54,8 +58,10 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             return o2.getDate().compareTo(o1.getDate());
         }
     };
+    List<? extends MenuAction> actions = new ArrayList<>();
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private OnSetupCompleteListener listener;
+    private Reader reader;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -68,7 +74,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        reader = new Reader(getContext());
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
         try {
@@ -102,6 +108,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             //Load grades and sort them by their date
             List<Grade> grades = dbHelper.getDao(Grade.class).queryForAll();
 
+            actions = Lists.newArrayList(new ReadAllMenuAction(grades, getContext()));
             Collections.sort(grades, gradeComparator);
 
             Dao<GradeCategory, String> gcDao = dbHelper.getDao(GradeCategory.class);
@@ -113,13 +120,6 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
                         gcDao.queryForId(grade.getCategory().getId()));
                 headers.get(grade.getSubject().getId()).addSubItem(item);
             }
-
-//        for (Average average : gradeCache.getAverages()) {
-//            AverageItem item = new AverageItem(
-//                    headers.get(average.getSubjectId()),
-//                    average);
-//            headers.get(average.getSubjectId()).addSubItem(item);
-//        }//TODO
 
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -137,11 +137,6 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
             e.printStackTrace();
         }
         return root;
-    }
-
-    @Override
-    public void refresh() {
-
     }
 
     @Override
@@ -210,7 +205,7 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
                         }
                     })
                     .show();
-            Reader.read(Reader.TYPE_GRADE, grade.getId(), getContext());
+            reader.read(grade);
 
         } else //noinspection StatementWithEmptyBody
             if (item instanceof AverageItem) {
@@ -221,12 +216,17 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
     }
 
     @Override
-    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
         this.listener = listener;
     }
 
     @Override
     public void removeListener() {
         this.listener = null;
+    }
+
+    @Override
+    public List<? extends MenuAction> getMenuItems() {
+        return actions;
     }
 }

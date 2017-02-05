@@ -74,7 +74,7 @@ public class AnnouncementDetailsFragment extends Fragment {
         dateTextView.setText(announcement.getStartDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
 
         background.setTransitionName("announcement_background_" + announcement.getId());
-        Reader.read(Reader.TYPE_ANNOUNCEMENT, announcement.getId(), getContext());
+        new Reader(getContext()).read(announcement);
         return root;
     }
 

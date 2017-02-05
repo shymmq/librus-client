@@ -4,19 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -38,6 +33,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import org.joda.time.LocalDate;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import pl.librus.client.R;
 import pl.librus.client.attendances.AttendanceFragment;
@@ -69,19 +66,16 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private final GradesFragment gradesFragment = GradesFragment.newInstance();
     private final AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
     private final TimetableTabFragment timetableTabFragment = TimetableTabFragment.newInstance();
-
+    MainFragment currentFragment;
+    List<? extends MenuAction> actions = new ArrayList<>();
     private LibrusDbHelper dbHelper;
-
-    private ActionMenuView amv;
     private Drawer drawer;
     private Toolbar toolbar;
-
     private UpdateHelper updateHelper;
-
     private MainFragment pendingFragment;
-
     private LibrusAccount account;
     private LuckyNumber luckyNumber;
+    private Menu menu;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -122,19 +116,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                         .content("")
                         .progress(false, 100)
                         .show();
-
-//                updateService.addOnProgressListener(new LibrusUpdateService.OnProgressListener() {
-//                    @Override
-//                    public void onProgress(final int progress) {
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                LibrusUtils.logError("Progress: " + progress + "%");
-//                                dialog.setProgress(progress);
-//                            }
-//                        });
-//                    }
-//                });
                 updateHelper.setOnUpdateCompleteListener(new UpdateHelper.OnUpdateCompleteListener() {
                     @Override
                     public void onUpdateComplete() {
@@ -256,23 +237,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .withActionBarDrawerToggleAnimated(true)
                 .withToolbar(toolbar);
         drawer = drawerBuilder.build();
-
-        //show the default fragment
-        int id = Integer.parseInt(prefs.
-                getString(
-                        getString(R.string.prefs_default_fragment),
-                        getString(R.string.timetable_view_key)
-                ));
-        final MainFragment defaultFragment = getFragmentForId(id);
-        //when first fragment is set up, start the update
-        defaultFragment.setOnSetupCompleteLister(new MainFragment.OnSetupCompleteListener() {
-            @Override
-            public void run() {
-                updateHelper.updateAll();
-                defaultFragment.removeListener();
-            }
-        });
-        drawer.setSelection(id);
     }
 
     private Drawer getDrawer() {
@@ -281,35 +245,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
 
     public Toolbar getToolbar() {
         return toolbar;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
-        for (int i = 0; i < toolbar.getChildCount(); ++i) {
-            if (toolbar.getChildAt(i).getClass().getSimpleName().equals("ActionMenuView")) {
-                amv = (ActionMenuView) toolbar.getChildAt(i);
-                break;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.action_sync:
-                RotateAnimation r = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                r.setDuration(600);
-                RotateAnimation rotateAnimation = new RotateAnimation(30, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                rotateAnimation.setDuration(10000);
-                amv.getChildAt(amv.getChildCount() - 1).startAnimation(r);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     public void setBackArrow(boolean enable) {
@@ -336,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return false;
-        } else if (identifier == LUCKY_NUMBER_ID){
+        } else if (identifier == LUCKY_NUMBER_ID) {
             if (luckyNumber != null) {
                 String luckyDate = luckyNumber.getLuckyNumberDay().toString("EEEE, d MMMM");
                 Toast.makeText(getApplicationContext(), luckyDate, Toast.LENGTH_LONG).show();
@@ -344,7 +279,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 Toast.makeText(getApplicationContext(), "Brak danych", Toast.LENGTH_LONG).show();
             }
         } else {
-                MainFragment currentFragment;
             if (updateHelper.isLoading()) {
                 currentFragment = LoadingFragment.newInstance();
                 pendingFragment = getFragmentForId(identifier);
@@ -352,18 +286,32 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                     @Override
                     public void onUpdateComplete() {
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        if (pendingFragment != null)
+                        if (pendingFragment != null) {
                             transaction
-                                    .replace(R.id.content_main, (Fragment) pendingFragment)
+                                    .replace(R.id.content_main, pendingFragment)
                                     .commit();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateMenu();
+                                }
+                            });
+                        }
                     }
                 });
             } else {
                 currentFragment = getFragmentForId(identifier);
             }
             transaction
-                    .replace(R.id.content_main, (Fragment) currentFragment)
+                    .replace(R.id.content_main, currentFragment)
                     .commit();
+            currentFragment.setOnSetupCompleteListener(new MainFragment.OnSetupCompleteListener() {
+                @Override
+                public void run() {
+                    updateMenu();
+                    currentFragment.removeListener();
+                }
+            });
         }
         return false;
     }
@@ -386,6 +334,48 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 result = new PlaceholderFragment();
         }
         return result;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
+        //show the default fragment
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int id = Integer.parseInt(prefs.
+                getString(
+                        getString(R.string.prefs_default_fragment),
+                        getString(R.string.timetable_view_key)
+                ));
+        final MainFragment defaultFragment = getFragmentForId(id);
+        //when first fragment is set up, start the update
+        defaultFragment.setOnSetupCompleteListener(new MainFragment.OnSetupCompleteListener() {
+            @Override
+            public void run() {
+                updateHelper.updateAll();
+                defaultFragment.removeListener();
+            }
+        });
+        drawer.setSelection(id);
+        return true;
+    }
+
+    private void updateMenu() {
+        actions = currentFragment.getMenuItems();
+        menu.clear();
+        for (int id = 0; id < actions.size(); id++) {
+            MenuAction action = actions.get(id);
+            boolean enabled = action.isEnabled();
+            MenuItem menuItem = menu.add(Menu.NONE, id, Menu.NONE, action.getName());
+            menuItem.setEnabled(enabled);
+            menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        actions.get(item.getItemId()).run();
+        updateMenu();
+        return true;
     }
 
     @Override

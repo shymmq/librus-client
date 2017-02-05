@@ -6,12 +6,14 @@ import org.joda.time.LocalDate;
 
 import java.io.Serializable;
 
+import pl.librus.client.datamodel.Identifiable;
+
 /**
  * Created by Adam on 2016-10-31. librus-client
  */
 
-public class Announcement implements Serializable, Comparable<Announcement> {
-    private static final long serialVersionUID = -3384390935483292393L;
+public class Announcement implements Comparable<Announcement>, Identifiable, Serializable {
+    private static final long serialVersionUID = 1629075453055073488L;
     private final String id;
     private final LocalDate startDate;
     private final LocalDate endDate;

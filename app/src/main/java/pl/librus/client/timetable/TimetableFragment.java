@@ -3,7 +3,6 @@ package pl.librus.client.timetable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +30,7 @@ import pl.librus.client.datamodel.SchoolWeek;
 import pl.librus.client.sql.LibrusDbHelper;
 import pl.librus.client.ui.MainFragment;
 
-public class TimetableFragment extends Fragment implements MainFragment {
+public class TimetableFragment extends MainFragment {
     private final ProgressItem progressItem = new ProgressItem();
     private final Runnable onSetupCompleted = new Runnable() {
         @Override
@@ -160,12 +159,9 @@ public class TimetableFragment extends Fragment implements MainFragment {
     }
 
     @Override
-    public void refresh() {
-    }
-
-    @Override
-    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
         this.listener = listener;
+
     }
 
     @Override

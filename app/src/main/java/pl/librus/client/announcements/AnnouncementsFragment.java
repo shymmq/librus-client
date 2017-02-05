@@ -2,7 +2,6 @@ package pl.librus.client.announcements;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,7 +26,7 @@ import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainFragment;
 
-public class AnnouncementsFragment extends Fragment implements MainFragment {
+public class AnnouncementsFragment extends MainFragment {
     private static final String ARG_DATA = "AnnouncementsFragment:data";
 
     public AnnouncementsFragment() {
@@ -111,11 +110,8 @@ public class AnnouncementsFragment extends Fragment implements MainFragment {
     }
 
     @Override
-    public void refresh() {
-    }
+    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
 
-    @Override
-    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
     }
 
     @Override

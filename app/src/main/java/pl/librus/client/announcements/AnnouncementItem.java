@@ -20,7 +20,6 @@ import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.Announcement;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Teacher;
 
 /**
@@ -38,8 +37,6 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         super(header);
         this.announcement = announcement;
         this.data = data;
-        this.read = Reader.isRead(Reader.TYPE_ANNOUNCEMENT, announcement.getId(), data.getContext());
-
     }
 
     @Override
