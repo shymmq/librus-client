@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import pl.librus.client.R;
+import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
@@ -28,11 +29,11 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * Created by szyme on 17.12.2016. librus-client
  */
 
-public class NotificationService {
-    public static final String DEFAULT_POSITION = "NotificationService:redirect_fragment";
-    private static final String TAG = "librus-client-log";
-    private Context context;
-    private LibrusData data;
+class NotificationService {
+    private static final String DEFAULT_POSITION = "NotificationService:redirect_fragment";
+    private static final String TAG = "librus-client-logError";
+    private final Context context;
+    private final LibrusData data;
 
 
     NotificationService(Context context, LibrusData data) {
@@ -72,10 +73,10 @@ public class NotificationService {
         if (size == 1) {
             Announcement announcement = announcements.get(0);
             Notification.BigTextStyle style = new Notification.BigTextStyle()
-                    .setBigContentTitle(announcement.getSubject())
-                    .bigText(announcement.getContent())
+                    .setBigContentTitle(announcement.subject())
+                    .bigText(announcement.content())
                     .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
-            sendNotification(announcement.getSubject(), announcement.getContent(), R.drawable.ic_announcement_black_48dp, null, style, MainActivity.FRAGMENT_ANNOUNCEMENTS_ID);
+            sendNotification(announcement.subject(), announcement.content(), R.drawable.ic_announcement_black_48dp, null, style, MainActivity.FRAGMENT_ANNOUNCEMENTS_ID);
         } else if (size > 1) {
             String title;
             List<String> authors = new ArrayList<>();
@@ -87,8 +88,8 @@ public class NotificationService {
                     .setBigContentTitle(title)
                     .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
             for (Announcement a : announcements) {
-                style.addLine(a.getSubject());
-                Teacher author = data.getTeacherMap().get(a.getAuthorId());
+                style.addLine(a.subject());
+                Teacher author = data.getTeacherMap().get(a.authorId());
                 if (authorsLength + author.name().length() < 40) {
                     authors.add(author.name());
                 }

@@ -7,7 +7,7 @@ import org.joda.time.LocalDate;
 
 import java.util.Comparator;
 
-import pl.librus.client.api.Announcement;
+import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.api.Reader;
 
 /**
@@ -15,16 +15,16 @@ import pl.librus.client.api.Reader;
  */
 
 class AnnouncementUtils {
-    private static AnnouncementHeaderItem unread = new AnnouncementHeaderItem("Nieprzeczytane", 0, true);
-    private static AnnouncementHeaderItem today = new AnnouncementHeaderItem("Dzisiaj", 1);
-    private static AnnouncementHeaderItem yesterday = new AnnouncementHeaderItem("Wczoraj", 2);
-    private static AnnouncementHeaderItem thisWeek = new AnnouncementHeaderItem("Ten tydzień", 3);
-    private static AnnouncementHeaderItem thisMonth = new AnnouncementHeaderItem("Ten miesiąc", 4);
-    private static AnnouncementHeaderItem older = new AnnouncementHeaderItem("Starsze", 5);
+    private static final AnnouncementHeaderItem unread = new AnnouncementHeaderItem("Nieprzeczytane", 0);
+    private static final AnnouncementHeaderItem today = new AnnouncementHeaderItem("Dzisiaj", 1);
+    private static final AnnouncementHeaderItem yesterday = new AnnouncementHeaderItem("Wczoraj", 2);
+    private static final AnnouncementHeaderItem thisWeek = new AnnouncementHeaderItem("Ten tydzień", 3);
+    private static final AnnouncementHeaderItem thisMonth = new AnnouncementHeaderItem("Ten miesiąc", 4);
+    private static final AnnouncementHeaderItem older = new AnnouncementHeaderItem("Starsze", 5);
 
     static AnnouncementHeaderItem getHeaderOf(Announcement a, Context c) {
-        LocalDate date = a.getStartDate();
-        if (!Reader.isRead(Reader.TYPE_ANNOUNCEMENT, a.getId(), c))
+        LocalDate date = a.startDate();
+        if (new Reader(c).isRead(a))
             return unread;
         else if (!date.isBefore(LocalDate.now()))
             return today;
@@ -43,7 +43,7 @@ class AnnouncementUtils {
             @Override
             public int compare(Object o1, Object o2) {
                 if (o1 instanceof AnnouncementItem && o2 instanceof AnnouncementItem)
-                    return ((AnnouncementItem) o1).getAnnouncement().getStartDate().compareTo(((AnnouncementItem) o2).getAnnouncement().getStartDate());
+                    return ((AnnouncementItem) o1).getAnnouncement().startDate().compareTo(((AnnouncementItem) o2).getAnnouncement().startDate());
                 else return 0;
             }
         };

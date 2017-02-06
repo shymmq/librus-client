@@ -6,11 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 
-import io.requery.Convert;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
-import pl.librus.client.sql.LocalDateConverter;
 
 @Entity
 @Value.Immutable

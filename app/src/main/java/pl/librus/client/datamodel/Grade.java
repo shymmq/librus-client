@@ -20,7 +20,7 @@ import io.requery.Persistable;
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as=ImmutableGrade.class)
-public abstract class Grade implements Persistable {
+public abstract class Grade implements Persistable, Identifiable {
     @Key
     public abstract String id();
 
@@ -32,6 +32,9 @@ public abstract class Grade implements Persistable {
 
     @Embedded
     public abstract HasId category();
+
+    @Embedded
+    public abstract HasId student();
 
     @Embedded
     public abstract HasId addedBy();

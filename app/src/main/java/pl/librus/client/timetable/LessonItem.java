@@ -25,7 +25,7 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
 
     private static final long serialVersionUID = -7951416905429163498L;
     private transient final Context context;
-    private Lesson lesson;
+    private final Lesson lesson;
 
     LessonItem(LessonHeaderItem header, Lesson lesson, Context context) {
         super(header);
@@ -118,7 +118,7 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
     class LessonItemViewHolder extends FlexibleViewHolder {
         final TextView subject, teacher, badgeText, lessonNumber;
         final ImageView badgeIcon;
-        View badge;
+        final View badge;
 
         LessonItemViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);

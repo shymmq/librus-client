@@ -11,7 +11,6 @@
         <SwitchPreference
             android:defaultValue="0"
             android:key="@string/prefs_select_theme"
-            android:id="@+id/Theme"
             android:title="Ciemny motyw" />
 
     </PreferenceCategory>

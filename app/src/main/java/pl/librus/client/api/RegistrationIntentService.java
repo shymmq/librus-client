@@ -18,7 +18,7 @@ import java.io.IOException;
 
 public class RegistrationIntentService extends IntentService {
 
-    private static final String TAG = "librus-client-log";
+    private static final String TAG = "librus-client-logError";
 
     public RegistrationIntentService() {
         super("RegistrationService");

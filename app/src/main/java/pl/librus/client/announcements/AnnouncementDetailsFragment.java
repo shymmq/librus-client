@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.Locale;
 
 import pl.librus.client.R;
-import pl.librus.client.api.Announcement;
+import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
@@ -68,14 +68,13 @@ public class AnnouncementDetailsFragment extends Fragment {
         TextView authorTextView = (TextView) root.findViewById(R.id.two_line_list_item_title);
         TextView dateTextView = (TextView) root.findViewById(R.id.two_line_list_item_content);
         View background = root.findViewById(R.id.fragment_announcement_details);
-        View info = root.findViewById(R.id.fragment_announcement_details_info);
-        titleTextView.setText(announcement.getSubject());
-        contentTextView.setText(announcement.getContent());
+        titleTextView.setText(announcement.subject());
+        contentTextView.setText(announcement.content());
         authorTextView.setText(author.name());
-        dateTextView.setText(announcement.getStartDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
+        dateTextView.setText(announcement.startDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
 
-        background.setTransitionName("announcement_background_" + announcement.getId());
-        Reader.read(Reader.TYPE_ANNOUNCEMENT, announcement.getId(), getContext());
+        background.setTransitionName("announcement_background_" + announcement.id());
+        new Reader(getContext()).read(announcement);
         return root;
     }
 

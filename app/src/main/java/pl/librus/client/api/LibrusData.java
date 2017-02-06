@@ -11,8 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
@@ -29,7 +31,7 @@ import pl.librus.client.datamodel.Teacher;
 public class LibrusData implements Serializable {
     private static final long serialVersionUID = 9103658319690261655L;
 
-    private static final String TAG = "librus-client-log";
+    private static final String TAG = "librus-client-logError";
     private final long timestamp;
     transient private Context context;
     private boolean debug = true;

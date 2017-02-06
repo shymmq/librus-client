@@ -26,7 +26,7 @@ import pl.librus.client.R;
 
 class LessonHeaderItem extends AbstractHeaderItem<LessonHeaderItem.LessonHeaderItemViewHolder> implements Serializable {
     private static final long serialVersionUID = -7280842585284962070L;
-    private LocalDate date;
+    private final LocalDate date;
 
     LessonHeaderItem(LocalDate date) {
         this.date = date;
@@ -76,7 +76,7 @@ class LessonHeaderItem extends AbstractHeaderItem<LessonHeaderItem.LessonHeaderI
     }
 
     class LessonHeaderItemViewHolder extends FlexibleViewHolder {
-        TextView title;
+        final TextView title;
 //        View done;
 
         LessonHeaderItemViewHolder(View view, FlexibleAdapter adapter) {

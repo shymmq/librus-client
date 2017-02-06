@@ -56,12 +56,12 @@ class ProgressItem extends AbstractFlexibleItem<ProgressItem.ViewHolder> {
         }
 
 
-//        LibrusUtils.log("Progress item .bindViewHolder()");
+//        LibrusUtils.logError("Progress item .bindViewHolder()");
     }
 
     class ViewHolder extends FlexibleViewHolder {
-        View progressBar;
-        Button button;
+        final View progressBar;
+        final Button button;
 
         ViewHolder(View view, TimetableAdapter adapter) {
             super(view, adapter);

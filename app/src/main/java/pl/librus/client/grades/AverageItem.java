@@ -11,14 +11,15 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
-import pl.librus.client.api.Average;
+import pl.librus.client.datamodel.Average;
 
 /**
  * Created by szyme on 01.01.2017.
+ * Subitem for grades fragment
  */
 
 class AverageItem extends AbstractSectionableItem<AverageItem.ViewHolder, GradeHeaderItem> {
-    private Average average;
+    private final Average average;
 
     AverageItem(GradeHeaderItem header, Average average) {
         super(header);
@@ -53,7 +54,7 @@ class AverageItem extends AbstractSectionableItem<AverageItem.ViewHolder, GradeH
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
-        holder.average.setText(String.valueOf(average.getFullYear()));
+        holder.average.setText(String.valueOf(average.fullYear()));
     }
 
     class ViewHolder extends FlexibleViewHolder {

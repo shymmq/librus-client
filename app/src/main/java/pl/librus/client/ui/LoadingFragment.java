@@ -2,7 +2,6 @@ package pl.librus.client.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,7 @@ import android.view.ViewGroup;
 import pl.librus.client.R;
 
 
-public class LoadingFragment extends Fragment implements MainFragment {
+public class LoadingFragment extends MainFragment {
     public static LoadingFragment newInstance() {
 
         Bundle args = new Bundle();
@@ -27,11 +26,7 @@ public class LoadingFragment extends Fragment implements MainFragment {
     }
 
     @Override
-    public void refresh() {
-    }
-
-    @Override
-    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
 
     }
 

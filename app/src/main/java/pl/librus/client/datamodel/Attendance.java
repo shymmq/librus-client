@@ -16,6 +16,7 @@ import io.requery.Persistable;
 
 /**
  * Created by Adam on 13.12.2016.
+ * Class representing /Attendances item
  */
 
 @Entity

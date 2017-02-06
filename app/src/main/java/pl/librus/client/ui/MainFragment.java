@@ -1,17 +1,29 @@
 package pl.librus.client.ui;
 
+import android.support.v4.app.Fragment;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by szyme on 05.12.2016.
+ * Interface for all directly shown fragments
  */
 
-public interface MainFragment {
-    void refresh();
+public abstract class MainFragment extends Fragment {
 
-    interface OnSetupCompleteListener {
-        public void run();
+    void refresh() {
     }
 
-    void setOnSetupCompleteLister(OnSetupCompleteListener listener);
+    public abstract void setOnSetupCompleteListener(OnSetupCompleteListener listener);
 
-    void removeListener();
+    public abstract void removeListener();
+
+    public List<? extends MenuAction> getMenuItems() {
+        return new ArrayList<>();
+    }
+
+    public interface OnSetupCompleteListener {
+        void run();
+    }
 }

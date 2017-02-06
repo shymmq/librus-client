@@ -32,7 +32,7 @@ public class MainApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         StrictMode.enableDefaults();
-        DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, 4);
+        DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, 5);
         if (BuildConfig.DEBUG) {
             source.setLoggingEnabled(true);
             source.setTableCreationMode(TableCreationMode.DROP_CREATE);

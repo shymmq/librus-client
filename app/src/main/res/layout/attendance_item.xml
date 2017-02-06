@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_height="72dp"
     android:clickable="true"
-    android:foreground="?attr/selectableItemBackground"
-    android:layout_height="72dp">
+    android:foreground="?attr/selectableItemBackground">
 
     <Space
         android:id="@+id/space"
@@ -19,11 +17,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/space"
+        android:layout_marginEnd="16dp"
         android:layout_toEndOf="@+id/attendance_item_shortType"
         android:gravity="center_vertical"
         android:text="@string/placeholder_lesson_number"
-        android:textColor="?android:attr/textColorSecondary"
-        android:layout_marginEnd="16dp" />
+        android:textColor="?android:attr/textColorSecondary" />
 
     <TextView
         android:id="@+id/attendance_item_shortType"
@@ -38,7 +36,7 @@
         android:backgroundTint="@color/md_blue_grey_800"
         android:fontFamily="sans-serif"
         android:gravity="center"
-        android:text="nb"
+        android:text="@string/nb"
         android:textColor="?android:attr/textColorPrimaryInverse"
         android:textSize="16sp" />
 
@@ -47,13 +45,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/space"
+        android:layout_marginEnd="16dp"
         android:layout_toEndOf="@+id/attendance_item_shortType"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:text="Biologia"
+        android:text="@string/placeholder_subject"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="16sp"
-        android:layout_marginEnd="16dp" />
+        android:textSize="16sp" />
 
 </RelativeLayout>

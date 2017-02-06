@@ -14,7 +14,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
  */
 
 public class LibrusGcmListenerService extends GcmListenerService {
-    private static final String TAG = "librus-client-log";
+    private static final String TAG = "librus-client-logError";
 
     @Override
     public void onMessageReceived(String s, Bundle bundle) {

@@ -20,12 +20,13 @@ import pl.librus.client.R;
 
 /**
  * Created by szyme on 28.01.2017.
+ * Header item for FlexibleAdapter
  */
 
 class AttendanceHeaderItem extends AbstractExpandableHeaderItem<AttendanceHeaderItem.ViewHolder, AttendanceItem> implements Comparable<AttendanceHeaderItem> {
-    private LocalDate date;
-    int nbCount = 0;
-    int spCount = 0;
+    private final LocalDate date;
+    private int nbCount = 0;
+    private int spCount = 0;
 
     AttendanceHeaderItem(LocalDate date) {
         setHidden(false);

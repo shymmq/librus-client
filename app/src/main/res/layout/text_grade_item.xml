@@ -8,23 +8,21 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/text_grade_item_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="72dp"
         android:layout_marginTop="8dp"
-        android:text="Egzamin próbny"
+        android:text="@string/placeholder_text_grade"
         android:textAppearance="@android:style/TextAppearance.Material"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/text_grade_item_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="72dp"
-        android:text="Przyroda całość - 82% Fizyka :całość - 100% Fizyka : zrealizowane tematy - 100%" />
+        android:text="@string/placeholder_text_grade_content" />
 </LinearLayout>

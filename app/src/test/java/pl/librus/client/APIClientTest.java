@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import pl.librus.client.api.APIClient;
+import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Attendance;
@@ -105,6 +106,11 @@ public class APIClientTest {
     public void shouldParseLuckyNumbers() throws IOException {
         //given
         LuckyNumber luckyNumber = APIClient.parseObject(readFile("LuckyNumbers.json"), "LuckyNumber", LuckyNumber.class);
+    }
+
+    @Test
+    public void shouldParseAverages() {
+        List<Average> luckyNumber = APIClient.parseList(readFile("Averages.json"), "Averages", Average.class);
     }
 
     static String readFile(String fileName) {

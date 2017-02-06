@@ -1,6 +1,7 @@
 package pl.librus.client.announcements;
 
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +18,8 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
-import pl.librus.client.api.Announcement;
+import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Teacher;
 
 /**
@@ -28,8 +28,7 @@ import pl.librus.client.datamodel.Teacher;
 
 class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> implements Comparable<AnnouncementItem> {
     private final LibrusData data;
-    private Announcement announcement;
-    private AnnouncementHeaderItem header;
+    private final Announcement announcement;
     private View backgroundView;
     private TextView title;
     private boolean read;
@@ -38,9 +37,6 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         super(header);
         this.announcement = announcement;
         this.data = data;
-        this.header = header;
-        this.read = Reader.isRead(Reader.TYPE_ANNOUNCEMENT, announcement.getId(), data.getContext());
-
     }
 
     @Override
@@ -62,20 +58,20 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         this.backgroundView = holder.background;
         this.title = holder.announcementSubject;
-        Teacher teacher = data.getTeacherMap().get(announcement.getAuthorId());
-        holder.announcementSubject.setText(announcement.getSubject());
-        holder.background.setTransitionName("announcement_background_" + announcement.getId());
+        Teacher teacher = data.getTeacherMap().get(announcement.authorId());
+        holder.announcementSubject.setText(announcement.subject());
+        holder.background.setTransitionName("announcement_background_" + announcement.id());
         holder.announcementTeacherName.setText(teacher.name());
-        holder.announcementContent.setText(announcement.getContent());
+        holder.announcementContent.setText(announcement.content());
 
         if (!read)
             holder.announcementSubject.setTypeface(holder.announcementSubject.getTypeface(), Typeface.BOLD);
         else
             holder.announcementSubject.setTypeface(null, Typeface.NORMAL);
-        if (announcement.getStartDate().isBefore(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)))
-            holder.announcementDate.setText(announcement.getStartDate().toString("d MMM."));
+        if (announcement.startDate().isBefore(LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY)))
+            holder.announcementDate.setText(announcement.startDate().toString("d MMM."));
         else
-            holder.announcementDate.setText(announcement.getStartDate().dayOfWeek().getAsShortText(new Locale("pl")));
+            holder.announcementDate.setText(announcement.startDate().dayOfWeek().getAsShortText(new Locale("pl")));
     }
 
     @Override
@@ -94,19 +90,19 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         return announcement.hashCode();
     }
 
-    public View getBackgroundView() {
+    View getBackgroundView() {
         return backgroundView;
     }
 
     @Override
-    public int compareTo(AnnouncementItem o) {
+    public int compareTo(@NonNull AnnouncementItem o) {
         int a = Boolean.compare(read, o.isRead());
         if (a == 0)
-            return o.getAnnouncement().getStartDate().compareTo(announcement.getStartDate());
+            return o.getAnnouncement().startDate().compareTo(announcement.startDate());
         else return a;
     }
 
-    public boolean isRead() {
+    private boolean isRead() {
         return read;
     }
 

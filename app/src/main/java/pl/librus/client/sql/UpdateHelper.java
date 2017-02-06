@@ -21,10 +21,11 @@ import java.util.Map;
 import io.requery.Persistable;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
-import pl.librus.client.datamodel.Event;
-import pl.librus.client.datamodel.EventCategory;
+import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.Event;
+import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
@@ -42,12 +43,13 @@ import pl.librus.client.ui.MainApplication;
 
 /**
  * Created by szyme on 31.01.2017.
+ * Contains methods to update data from server
  */
 
 public class UpdateHelper {
     private final APIClient client;
     private final Context context;
-    private List<Promise> tasks = new ArrayList<>();
+    private final List<Promise> tasks = new ArrayList<>();
     private boolean loading = false;
     private OnUpdateCompleteListener onUpdateCompleteListener;
 
@@ -56,8 +58,7 @@ public class UpdateHelper {
         this.context = context;
     }
 
-    public Promise<Void, Void, Void> updateAll() {
-        final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
+    public void updateAll() {
         LibrusUtils.log("Starting update...");
         tasks.clear();
         loading = true;
@@ -73,6 +74,7 @@ public class UpdateHelper {
         tasks.add(updateList("/HomeWorks/Categories", "Categories", EventCategory.class));
         tasks.add(updateList("/Attendances", "Attendances", Attendance.class));
         tasks.add(updateList("/Attendances/Types", "Types", AttendanceCategory.class));
+        tasks.add(updateList("/Grades/Averages", "Averages", Average.class));
         tasks.add(updateObject("/LuckyNumbers", "LuckyNumber", LuckyNumber.class));
         tasks.add(updateAccount());
         tasks.add(updateNearestTimetables());
@@ -90,11 +92,8 @@ public class UpdateHelper {
                     onUpdateCompleteListener.onUpdateComplete();
                     onUpdateCompleteListener = null;            //reset listener after update is complete
                 }
-
-                deferred.resolve(null);
             }
         });
-        return deferred.promise();
     }
 
     private Promise updateNearestTimetables() {

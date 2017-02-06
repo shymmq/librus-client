@@ -4,40 +4,46 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.common.collect.Sets;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import pl.librus.client.datamodel.Identifiable;
 
 /**
  * Created by szyme on 16.12.2016. librus-client
  */
 
 public class Reader {
-    static public final String TYPE_ANNOUNCEMENT = "ReadAnnouncements";
-    static public final String TYPE_GRADE = "ReadGrades";
+    private final Context context;
 
-    public static boolean isRead(String type, String id, Context c) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
-        Set<String> read = prefs.getStringSet(type, new HashSet<String>());
-        return read.contains(id);
+    public Reader(Context c) {
+        this.context = c;
     }
 
-    public static void read(String type, String id, Context c) {
-        modify(type, id, true, c);
+    public boolean isRead(Identifiable object) {
+        return getRead(object.getClass())
+                .contains(object.id());
     }
 
-    static void forget(String type, String id, Context c) {
-        modify(type, id, false, c);
+    public void read(Identifiable object) {
+        modify(object, true);
     }
 
-    static private void modify(String type, String id, boolean mode, Context c) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+    private void modify(Identifiable object, boolean mode) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
-        Set<String> read = prefs.getStringSet(type, new HashSet<String>());
-        editor.remove(type);
+        Set<String> read = Sets.newHashSet(getRead(object.getClass()));
+        if (mode) read.add(object.id());
+        else read.remove(object.id());
+        editor.putStringSet(object.getClass().getCanonicalName(), read);
         editor.apply();
-        if (mode) read.add(id);
-        else read.remove(id);
-        editor.putStringSet(type, read);
-        editor.commit();
+    }
+
+    private Set<String> getRead(Class clazz) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getStringSet(clazz.getCanonicalName(), new HashSet<String>());
+
     }
 }

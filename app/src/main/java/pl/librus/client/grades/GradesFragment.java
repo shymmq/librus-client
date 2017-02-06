@@ -14,6 +14,9 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +28,7 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import io.requery.Persistable;
 import io.requery.sql.EntityDataStore;
 import pl.librus.client.R;
+import pl.librus.client.datamodel.Average;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
@@ -35,21 +39,25 @@ import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
+import pl.librus.client.ui.MenuAction;
+import pl.librus.client.ui.ReadAllMenuAction;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GradesFragment extends Fragment implements MainFragment, FlexibleAdapter.OnItemClickListener {
+public class GradesFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener {
 
-    final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
+    private final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
         @Override
         public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
             return o1.compareTo(o2);
         }
     };
 
+    List<? extends MenuAction> actions = new ArrayList<>();
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private OnSetupCompleteListener listener;
+    private Reader reader;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -62,71 +70,63 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        reader = new Reader(getContext());
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
 
-            //Setup RecyclerView
-            RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        //Setup RecyclerView
+        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-            adapter = new FlexibleAdapter<>(null, this);
-            adapter.setAutoCollapseOnExpand(true)
-                    .setAutoScrollOnExpand(true);
+        adapter = new FlexibleAdapter<>(null, this);
+        adapter.setAutoCollapseOnExpand(true)
+                .setAutoScrollOnExpand(true);
 
-            recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
-            //Load subjects and make a header for each subject
+        //Load subjects and make a header for each subject
 
-            final Map<String, GradeHeaderItem> headers = new HashMap<>();
-            EntityDataStore<Persistable> data = MainApplication.getData();
+        final Map<String, GradeHeaderItem> headers = new HashMap<>();
+        EntityDataStore<Persistable> data = MainApplication.getData();
 
-            List<Subject> subjects = data.select(Subject.class).get().toList();
-            for (Subject s : subjects) {
-                headers.put(s.id(), new GradeHeaderItem(s));
-            }
+        List<Subject> subjects = data.select(Subject.class).get().toList();
+        for (Subject s : subjects) {
+            //FIXEM:
+            Average average = null;
+            headers.put(s.id(), new GradeHeaderItem(s, average));
+        }
 
-            //Load grades and sort them by their date
-            List<Grade> grades = data.select(Grade.class)
-                    .orderBy(GradeType.DATE.desc())
-                    .get()
-                    .toList();
+        //Load grades and sort them by their date
+        List<Grade> grades = data.select(Grade.class)
+                .orderBy(GradeType.DATE.desc())
+                .get()
+                .toList();
+        actions = Lists.newArrayList(new ReadAllMenuAction(grades, getContext()));
 
-            for (Grade grade : grades) {
-                GradeItem item = new GradeItem(
-                        headers.get(grade.subject().id()),
-                        grade,
-                        data.findByKey(GradeCategory.class, grade.category().id())
-                );
-                headers.get(grade.subject().id()).addSubItem(item);
-            }
 
-//        for (Average average : gradeCache.getAverages()) {
-//            AverageItem item = new AverageItem(
-//                    headers.get(average.getSubjectId()),
-//                    average);
-//            headers.get(average.getSubjectId()).addSubItem(item);
-//        }//TODO
+        for (Grade grade : grades) {
+            GradeItem item = new GradeItem(
+                    headers.get(grade.subject().id()),
+                    grade,
+                    data.findByKey(GradeCategory.class, grade.category().id())
+            );
+            headers.get(grade.subject().id()).addSubItem(item);
+        }
 
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    for (GradeHeaderItem header : headers.values()) {
-                        adapter.addSection(header.sort(), headerComparator);
-                    }
-                    adapter.showAllHeaders()
-                            .collapseAll();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (GradeHeaderItem header : headers.values()) {
+                    adapter.addSection(header.sort(), headerComparator);
                 }
-            });
+                adapter.showAllHeaders()
+                        .collapseAll();
+            }
+        });
 
-            if (listener != null) listener.run();
+        if (listener != null) listener.run();
 
         return root;
-    }
-
-    @Override
-    public void refresh() {
-
     }
 
     @Override
@@ -169,19 +169,19 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
 
 
             Teacher addedBy = data.findByKey(Teacher.class, grade.addedBy().id());
-                addedByTextView.setText(addedBy.name());
+            addedByTextView.setText(addedBy.name());
 
-                List<GradeComment> comments = data.select(GradeComment.class)
-                        .where(GradeCommentType.GRADE_ID.eq(grade.id()))
-                        .get()
-                        .toList();
-                if (comments != null && !comments.isEmpty()) {
-                    commentContainer.setVisibility(View.VISIBLE);
-                    TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
-                    commentTextView.setText(comments.get(0).text());
-                } else {
-                    commentContainer.setVisibility(View.GONE);
-                }
+            List<GradeComment> comments = data.select(GradeComment.class)
+                    .where(GradeCommentType.GRADE_ID.eq(grade.id()))
+                    .get()
+                    .toList();
+            if (comments != null && !comments.isEmpty()) {
+                commentContainer.setVisibility(View.VISIBLE);
+                TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
+                commentTextView.setText(comments.get(0).text());
+            } else {
+                commentContainer.setVisibility(View.GONE);
+            }
             new MaterialDialog.Builder(getContext())
                     .title(header.getSubject().name())
                     .customView(dialogLayout, true)
@@ -193,7 +193,8 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
                         }
                     })
                     .show();
-            Reader.read(Reader.TYPE_GRADE, grade.id(), getContext());
+
+            reader.read(grade);
 
         } else //noinspection StatementWithEmptyBody
             if (item instanceof AverageItem) {
@@ -204,12 +205,17 @@ public class GradesFragment extends Fragment implements MainFragment, FlexibleAd
     }
 
     @Override
-    public void setOnSetupCompleteLister(OnSetupCompleteListener listener) {
+    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
         this.listener = listener;
     }
 
     @Override
     public void removeListener() {
         this.listener = null;
+    }
+
+    @Override
+    public List<? extends MenuAction> getMenuItems() {
+        return actions;
     }
 }

@@ -12,6 +12,7 @@ import io.requery.OneToOne;
 
 /**
  * Created by szyme on 30.01.2017.
+ * Class representing /Me endpoint
  */
 @Value.Immutable
 @JsonDeserialize(as=ImmutableMe.class)

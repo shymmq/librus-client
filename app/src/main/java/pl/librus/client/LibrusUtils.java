@@ -28,7 +28,7 @@ public class LibrusUtils {
         else return m;
     }
 
-    public static void log(String s, int level, boolean trim) {
+    private static void log(String s, int level, boolean trim) {
         try {
             if (DBG) {
                 if (trim) {
@@ -36,7 +36,7 @@ public class LibrusUtils {
                 } else {
                     final int chunkSize = 1000;
                     if (s.length() > chunkSize)
-                        log("Splitting log into chunks. Length: " + s.length());
+                        log("Splitting logError into chunks. Length: " + s.length());
                     for (int i = 0; i < s.length(); i += chunkSize)
                         Log.println(level, TAG, s.substring(i, Math.min(s.length(), i + chunkSize)));
                 }
@@ -50,8 +50,8 @@ public class LibrusUtils {
         log(text, Log.DEBUG, true);
     }
 
-    public static void log(String text, int level) {
-        log(text, level, true);
+    public static void logError(String text, int level) {
+        log(text, Log.ERROR, true);
     }
 
     public static void log(String text, boolean trim) {

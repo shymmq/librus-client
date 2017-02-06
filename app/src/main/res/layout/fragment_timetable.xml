@@ -6,7 +6,6 @@
     tools:context="pl.librus.client.ui.MainActivity"
     tools:showIn="@layout/content_main">
 <ProgressBar
-    android:id="@+id/fragment_timetable_progress"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"

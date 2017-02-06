@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:elevation="1dp"
-    android:foreground="?attr/selectableItemBackground"
-    android:orientation="vertical">
+    android:foreground="?attr/selectableItemBackground">
 
     <TextView
-        android:id="@+id/textView8"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="72dp"
         android:gravity="center"
-        android:text="Brak lekcji. \n ¯\\_(ツ)_/¯" />
-</LinearLayout>
+        android:text="@string/shrug" />
+</FrameLayout>

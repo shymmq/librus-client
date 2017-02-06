@@ -5,8 +5,7 @@ import android.support.annotation.NonNull;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import java.io.Serializable;
-
+import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.grades.GradeEntry;
 
@@ -14,15 +13,18 @@ import pl.librus.client.grades.GradeEntry;
  * Created by szyme on 11.12.2016. librus-client
  */
 
-public class TextGrade extends GradeEntry implements Serializable, Comparable {
+public class TextGrade extends GradeEntry implements Comparable {
 
-    private static final long serialVersionUID = 7711525769532900327L;
-
-    private String id, lessonId, subjectId, addedById, categoryId, grade;
-    private int semester;
-    private LocalDate date;
-    private LocalDateTime addDate;
-    private Type type;
+    private final String id;
+    private final String lessonId;
+    private final String subjectId;
+    private final String addedById;
+    private final String categoryId;
+    private final String grade;
+    private final int semester;
+    private final LocalDate date;
+    private final LocalDateTime addDate;
+    private final Type type;
 
     public TextGrade(String id,
                      String grade,
@@ -74,7 +76,7 @@ public class TextGrade extends GradeEntry implements Serializable, Comparable {
         return semester;
     }
 
-    public LocalDate getDate() {
+    private LocalDate getDate() {
         return date;
     }
 

@@ -12,8 +12,9 @@
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:gravity="center_vertical|start"
+        android:paddingEnd="16dp"
         android:paddingStart="16dp"
-        android:text="Dzisiaj"
+        android:text="@string/today"
         android:textAppearance="@android:style/TextAppearance.Material"
         android:textColor="?android:attr/textColorSecondary" />
 </RelativeLayout>
