@@ -8,10 +8,12 @@ import com.google.common.collect.Lists;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MultipleResults;
+import org.jdeferred.multiple.OneReject;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
@@ -93,6 +95,11 @@ public class UpdateHelper {
                     onUpdateCompleteListener = null;            //reset listener after update is complete
                 }
             }
+        }).fail(new FailCallback<OneReject>() {
+            @Override
+            public void onFail(OneReject result) {
+                LibrusUtils.logError(result.toString());
+            }
         });
     }
 
@@ -139,19 +146,21 @@ public class UpdateHelper {
         });
     }
 
-    private <T extends Persistable> Promise updateList(String endpoint, String topLevelName, final Class<T> clazz) {
+    private <T extends Persistable> Promise updateList(final String endpoint, String topLevelName, final Class<T> clazz) {
         return client.getList(endpoint, topLevelName, clazz).done(new DoneCallback<List<T>>() {
             @Override
             public void onDone(final List<T> result) {
+                LibrusUtils.log("upserting: " +  endpoint);
                 MainApplication.getData().upsert(result);
             }
         });
     }
 
-    private <T extends Persistable> Promise updateObject(String endpoint, String topLevelName, final Class<T> clazz) {
+    private <T extends Persistable> Promise updateObject(final String endpoint, String topLevelName, final Class<T> clazz) {
         return client.getObject(endpoint, topLevelName, clazz).done(new DoneCallback<T>() {
             @Override
             public void onDone(T result) {
+                LibrusUtils.log("upserting: ", endpoint);
                 MainApplication.getData().upsert(result);
             }
         });

@@ -50,7 +50,7 @@ public class LibrusUtils {
         log(text, Log.DEBUG, true);
     }
 
-    public static void logError(String text, int level) {
+    public static void logError(String text) {
         log(text, Log.ERROR, true);
     }
 

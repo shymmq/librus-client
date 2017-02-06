@@ -122,7 +122,7 @@ public class APIClient {
             //noinspection unchecked
             return Lists.newArrayList(mapper.treeToValue(node, getArrayClass(clazz)));
         } catch (IOException e) {
-            LibrusUtils.logError("Error parsing " + topLevelName, Log.ERROR);
+            LibrusUtils.logError("Error parsing " + topLevelName);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -136,7 +136,7 @@ public class APIClient {
             //noinspection unchecked
             return mapper.treeToValue(node, clazz);
         } catch (IOException e) {
-            LibrusUtils.logError("Error parsing " + topLevelName, Log.ERROR);
+            LibrusUtils.logError("Error parsing " + topLevelName);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -193,8 +193,7 @@ public class APIClient {
                                     "Edpoint: " + endpoint + "\n" +
                                     "Access_token: " + access_token + "\n" +
                                     "Response code: " + response.code() + " " + response.message() + "\n" +
-                                    "Response: " + response.body().string(),
-                            Log.ERROR);
+                                    "Response: " + response.body().string());
                     refreshAccess().then(new DoneCallback<String>() {
                         @Override
                         public void onDone(String result) {
@@ -216,8 +215,7 @@ public class APIClient {
                                 public void onFail(Integer result) {
 
                                     //second attempt failed
-                                    LibrusUtils.logError("Second attempt failed. Code " + result,
-                                            Log.ERROR);
+                                    LibrusUtils.logError("Second attempt failed. Code " + result);
 
                                     deferred.reject(result);
                                 }
@@ -229,8 +227,7 @@ public class APIClient {
 
                             //refresh failed
                             LibrusUtils.logError("Refresh failed \n" +
-                                            "Response code: " + result + " " + response.message(),
-                                    Log.ERROR);
+                                            "Response code: " + result + " " + response.message());
 
                             deferred.reject(result.code());
                         }
@@ -272,8 +269,7 @@ public class APIClient {
                 if (!response.isSuccessful()) {
                     LibrusUtils.logError("Refresh token request failed: \n" +
                                     "code: " + response.code() + "\n" +
-                                    "response: " + response.body().string(),
-                            Log.ERROR);
+                                    "response: " + response.body().string());
                     deferred.reject(response);
                 } else {
                     JSONObject responseJSON = null;
@@ -294,8 +290,7 @@ public class APIClient {
                         e.printStackTrace();
                         LibrusUtils.logError("Refresh token request failed: \n" +
                                         "code: " + response.code() + "\n" +
-                                        "response: " + (responseJSON == null ? "null" : responseJSON.toString()),
-                                Log.ERROR);
+                                        "response: " + (responseJSON == null ? "null" : responseJSON.toString()));
                         deferred.reject(response);
                     }
                 }
