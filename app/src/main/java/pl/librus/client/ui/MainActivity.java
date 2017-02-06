@@ -73,9 +73,12 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private LibrusAccount account;
     private LuckyNumber luckyNumber;
     private Menu menu;
+    private EntityDataStore<Persistable> data;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        MainApplication app = (MainApplication) getApplicationContext();
+        data = app.initData();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean theme = prefs.getBoolean(getString(R.string.prefs_dark_theme), false);
         if (theme) {
@@ -127,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     }
 
     private void setup() {
-        EntityDataStore<Persistable> data = MainApplication.getData();
 
         updateHelper = new UpdateHelper(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -382,5 +384,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        MainApplication app = (MainApplication) getApplicationContext();
+        app.closeData();
     }
 }
