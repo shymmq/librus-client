@@ -2,6 +2,10 @@ package pl.librus.client;
 
 import com.google.common.io.Resources;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,6 +21,10 @@ import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.ImmutableJsonLesson;
+import pl.librus.client.datamodel.JsonLesson;
+import pl.librus.client.datamodel.LessonSubject;
+import pl.librus.client.datamodel.LessonTeacher;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
@@ -43,7 +51,29 @@ public class APIClientTest {
     public void shouldParseTimetable() throws IOException {
         //given
         Timetable res = APIClient.parseObject(readFile("Timetable.json"), "Timetable", Timetable.class);
-        System.out.println(res);
+
+        //then
+        JsonLesson actual = res.get(LocalDate.parse("2017-01-30"))
+                .get(1).get(0);
+        JsonLesson expected = ImmutableJsonLesson.builder()
+                .cancelled(false)
+                .dayNo(1)
+                .hourFrom(LocalTime.parse("08:00"))
+                .hourTo(LocalTime.parse("08:45"))
+                .lessonNo(1)
+                .subject(new LessonSubject.Builder()
+                    .id("44561")
+                    .name("Godzina wychowawcza")
+                    .build())
+                .substitutionClass(true)
+                .teacher(new LessonTeacher.Builder()
+                    .id("1235088")
+                    .firstName("Tomasz")
+                    .lastName("Problem")
+                    .build())
+                .build();
+        Assert.assertEquals(expected, actual);
+
     }
 
     @Test

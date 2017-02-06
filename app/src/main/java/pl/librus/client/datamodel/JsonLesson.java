@@ -13,16 +13,6 @@ import org.joda.time.LocalDate;
 @JsonDeserialize(as = ImmutableJsonLesson.class)
 public abstract class JsonLesson extends BaseLesson {
 
-    @Value.Default
-    public boolean substitutionClass(){
-        return false;
-    };
-
-    @Value.Default
-    public boolean cancelled(){
-        return false;
-    };
-
     public Lesson convert(LocalDate date) {
         return new Lesson.Builder()
                 .from(this)

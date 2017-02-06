@@ -46,8 +46,8 @@ public class LessonTest extends BaseDBTest {
                     .build())
                 .hourFrom(LocalTime.parse("08:00"))
                 .hourTo(LocalTime.parse("08:45"))
-                .cancelled(false)
-                .substitutionClass(false)
+                .cancelled(true)
+                .substitutionClass(true)
                 .build();
 
         data.insert(original);

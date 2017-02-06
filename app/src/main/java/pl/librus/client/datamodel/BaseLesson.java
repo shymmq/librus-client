@@ -1,5 +1,7 @@
 package pl.librus.client.datamodel;
 
+import android.support.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -37,7 +39,7 @@ public abstract class BaseLesson {
     public abstract boolean substitutionClass();
 
     @Column
-    @JsonProperty("IsCancelled")
+    @JsonProperty("IsCanceled")
     public abstract boolean cancelled();
 
     @Convert(LocalTimeConverter.class)

@@ -24,15 +24,15 @@
           },
           "Teacher": {
             "Id": "1235088",
-            "FirstName": "Grażyna",
-            "LastName": "Kołtuniak",
+            "FirstName": "Tomasz",
+            "LastName": "Problem",
             "Url": "https://api.librus.pl/2.0/Users/1235088"
           },
           "Class": {
             "Id": 56790,
             "Url": "https://api.librus.pl/2.0/Classes/56790"
           },
-          "IsSubstitutionClass": false,
+          "IsSubstitutionClass": true,
           "IsCanceled": false,
           "SubstitutionNote": null,
           "HourFrom": "08:00",
