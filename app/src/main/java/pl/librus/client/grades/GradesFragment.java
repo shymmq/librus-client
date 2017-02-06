@@ -30,6 +30,7 @@ import io.requery.sql.EntityDataStore;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.api.Reader;
+import pl.librus.client.datamodel.AverageType;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
@@ -91,8 +92,11 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
 
         List<Subject> subjects = data.select(Subject.class).get().toList();
         for (Subject s : subjects) {
-            //FIXEM:
-            Average average = null;
+            Average average = MainApplication.getData()
+                    .select(Average.class)
+                    .where(AverageType.SUBJECT_ID.eq(s.id()))
+                    .get()
+                    .firstOrNull();
             headers.put(s.id(), new GradeHeaderItem(s, average));
         }
 

@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.DoneFilter;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
@@ -344,25 +345,20 @@ public class APIClient {
     }
 
     public <T> Promise<T, Void, Void> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
-        final Deferred<T, Void, Void> deferred = new DeferredObject<>();
-        APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
+        return APIRequest(endpoint).then(new DoneFilter<JSONObject, T>() {
             @Override
-            public void onDone(JSONObject json) {
-                T result = parseObject(json.toString(), topLevelName, clazz);
-                deferred.resolve(result);
+            public T filterDone(JSONObject json) {
+                return parseObject(json.toString(), topLevelName, clazz);
             }
         });
-        return deferred.promise();
     }
 
     public <T> Promise<List<T>, Void, Void> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
-        final Deferred<List<T>, Void, Void> deferred = new DeferredObject<>();
-        APIRequest(endpoint).done(new DoneCallback<JSONObject>() {
+        return APIRequest(endpoint).then(new DoneFilter<JSONObject, List<T>>() {
             @Override
-            public void onDone(JSONObject result) {
-                deferred.resolve(parseList(result.toString(), topLevelName, clazz));
+            public List<T> filterDone(JSONObject result) {
+                return parseList(result.toString(), topLevelName, clazz);
             }
         });
-        return deferred.promise();
     }
 }

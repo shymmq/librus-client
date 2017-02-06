@@ -4,23 +4,28 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.DoneFilter;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
+import org.jdeferred.multiple.MasterProgress;
 import org.jdeferred.multiple.MultipleResults;
 import org.jdeferred.multiple.OneReject;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import io.requery.Persistable;
+import io.requery.query.Scalar;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.datamodel.Average;
@@ -43,6 +48,8 @@ import pl.librus.client.datamodel.Timetable;
 import pl.librus.client.timetable.TimetableUtils;
 import pl.librus.client.ui.MainApplication;
 
+import static com.google.common.collect.Iterables.toArray;
+
 /**
  * Created by szyme on 31.01.2017.
  * Contains methods to update data from server
@@ -60,7 +67,7 @@ public class UpdateHelper {
         this.context = context;
     }
 
-    public void updateAll() {
+    public Promise<MultipleResults, OneReject, MasterProgress> updateAll() {
         LibrusUtils.log("Starting update...");
         tasks.clear();
         loading = true;
@@ -80,7 +87,7 @@ public class UpdateHelper {
         tasks.add(updateObject("/LuckyNumbers", "LuckyNumber", LuckyNumber.class));
         tasks.add(updateAccount());
         tasks.add(updateNearestTimetables());
-        new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()])).done(new DoneCallback<MultipleResults>() {
+        return new DefaultDeferredManager().when(toArray(tasks, Promise.class)).then(new DoneCallback<MultipleResults>() {
             @Override
             public void onDone(MultipleResults result) {
                 loading = false;
@@ -95,11 +102,6 @@ public class UpdateHelper {
                     onUpdateCompleteListener = null;            //reset listener after update is complete
                 }
             }
-        }).fail(new FailCallback<OneReject>() {
-            @Override
-            public void onFail(OneReject result) {
-                LibrusUtils.logError(result.toString());
-            }
         });
     }
 
@@ -109,55 +111,59 @@ public class UpdateHelper {
         for (LocalDate weekStart : weekStarts) {
             tasks.add(updateTimetable(weekStart));
         }
-        return new DefaultDeferredManager().when(tasks.toArray(new Promise[tasks.size()]));
+        return new DefaultDeferredManager().when(toArray(tasks, Promise.class));
     }
 
-    private Promise<List<Lesson>, Void, Void> updateTimetable(LocalDate weekStart){
-        final Deferred<List<Lesson>, Void, Void> deferred = new DeferredObject<>();
-
-        client.getTimetable(weekStart).done(new DoneCallback<Timetable>() {
+    private Promise<List<Lesson>, Throwable, Void> updateTimetable(LocalDate weekStart) {
+        return client.getTimetable(weekStart).then(new DoneFilter<Timetable, List<Lesson>>() {
             @Override
-            public void onDone(Timetable timetable) {
+            public List<Lesson> filterDone(Timetable timetable) {
                 List<Lesson> result = Lists.newArrayList();
-                for (Map.Entry<LocalDate, List<List<JsonLesson>>> e: timetable.entrySet()) {
+                for (Map.Entry<LocalDate, List<List<JsonLesson>>> e : timetable.entrySet()) {
                     LocalDate date = e.getKey();
-                    for(List<JsonLesson> list : e.getValue()){
-                        if(list.size() > 0) {
+                    for (List<JsonLesson> list : e.getValue()) {
+                        if (list.size() > 0) {
                             Lesson l = list.get(0).convert(date);
                             result.add(l);
                             MainApplication.getData()
                                     .upsert(l);
                         }
                     }
-
                 }
-                deferred.resolve(result);
+                return result;
             }
         });
-        return deferred.promise();
     }
 
     private Promise updateAccount() {
-        return client.getObject("/Me", "Me", Me.class).done(new DoneCallback<Me>() {
+        return client.getObject("/Me", "Me", Me.class).then(new DoneCallback<Me>() {
             @Override
             public void onDone(Me result) {
-            MainApplication.getData().upsert(result.account());
+                MainApplication.getData().upsert(result.account());
             }
         });
     }
 
     private <T extends Persistable> Promise updateList(final String endpoint, String topLevelName, final Class<T> clazz) {
-        return client.getList(endpoint, topLevelName, clazz).done(new DoneCallback<List<T>>() {
+
+        return client.getList(endpoint, topLevelName, clazz).then(new DoneCallback<List<T>>() {
             @Override
             public void onDone(final List<T> result) {
-                LibrusUtils.log("upserting: " +  endpoint);
-                MainApplication.getData().upsert(result);
+                try {
+                    LibrusUtils.log("upserting: " + endpoint + " of size: " + result.size());
+                    MainApplication.getData().upsert(result);
+                    Scalar<Integer> count = MainApplication.getData().count(clazz).get();
+                    LibrusUtils.log("count after: " + count.value());
+                } catch (Throwable e){
+                    LibrusUtils.logError(e.toString());
+                    e.printStackTrace();
+                }
             }
         });
     }
 
     private <T extends Persistable> Promise updateObject(final String endpoint, String topLevelName, final Class<T> clazz) {
-        return client.getObject(endpoint, topLevelName, clazz).done(new DoneCallback<T>() {
+        return client.getObject(endpoint, topLevelName, clazz).then(new DoneCallback<T>() {
             @Override
             public void onDone(T result) {
                 LibrusUtils.log("upserting: ", endpoint);
@@ -178,7 +184,7 @@ public class UpdateHelper {
         void onUpdateComplete();
     }
 
-    public Promise<List<Lesson>, Void, Void> getLessonsForWeek(LocalDate weekStart) {
+    public Promise<List<Lesson>, Throwable, Void> getLessonsForWeek(LocalDate weekStart) {
         List<Lesson> cached = MainApplication.getData()
                 .select(Lesson.class)
                 .where(LessonType.DATE.gte(weekStart))
@@ -186,10 +192,10 @@ public class UpdateHelper {
                 .get()
                 .toList();
 
-        if(cached.isEmpty()) {
+        if (cached.isEmpty()) {
             return updateTimetable(weekStart);
-        }else {
-            return new DeferredObject<List<Lesson>, Void, Void>().resolve(cached).promise();
+        } else {
+            return new DeferredObject<List<Lesson>, Throwable, Void>().resolve(cached).promise();
 
         }
     }

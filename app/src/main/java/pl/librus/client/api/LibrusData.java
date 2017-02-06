@@ -234,7 +234,7 @@ public class LibrusData implements Serializable {
 
     public Map<String, EventCategory> getEventCategoriesMap() {
         Map<String, EventCategory> res = new HashMap<>();
-        for (EventCategory e : eventCategories) res.put(e.getId(), e);
+        for (EventCategory e : eventCategories) res.put(e.id(), e);
         return res;
     }
 

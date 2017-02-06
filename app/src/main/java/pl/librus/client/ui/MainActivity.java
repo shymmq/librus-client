@@ -27,6 +27,10 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+import org.jdeferred.multiple.MultipleResults;
+import org.jdeferred.multiple.OneReject;
 import org.joda.time.LocalDate;
 
 import java.sql.SQLException;
@@ -36,6 +40,8 @@ import java.util.List;
 import io.requery.Persistable;
 import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.sql.EntityDataStore;
+import pl.librus.client.BuildConfig;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.datamodel.LibrusAccount;
@@ -101,8 +107,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
 
             UpdateHelper updateHelper = new UpdateHelper(getApplicationContext());
 
-            if (prefs.getLong(getString(R.string.last_update), -1) < 0) {
-//            if (true != false && false != true) {
+            if (BuildConfig.DEBUG || prefs.getLong(getString(R.string.last_update), -1) < 0) {
                 //database empty or null update and then setup()
 
                 final MaterialDialog dialog = new MaterialDialog.Builder(MainActivity.this)
@@ -110,19 +115,23 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                         .content("")
                         .progress(false, 100)
                         .show();
-                updateHelper.setOnUpdateCompleteListener(new UpdateHelper.OnUpdateCompleteListener() {
+                updateHelper.updateAll().done(new DoneCallback<MultipleResults>() {
                     @Override
-                    public void onUpdateComplete() {
-                        dialog.dismiss();
+                    public void onDone(MultipleResults result) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                dialog.dismiss();
                                 setup();
                             }
                         });
                     }
+                }).fail(new FailCallback<OneReject>() {
+                    @Override
+                    public void onFail(OneReject result) {
+                        LibrusUtils.logError(result.toString());
+                    }
                 });
-                updateHelper.updateAll();
             } else {
                 setup();
             }
@@ -130,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     }
 
     private void setup() {
-
+        LibrusUtils.log("setting up");
         updateHelper = new UpdateHelper(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

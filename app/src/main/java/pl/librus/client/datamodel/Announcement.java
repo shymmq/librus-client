@@ -14,7 +14,6 @@ import io.requery.Persistable;
  */
 
 @Value.Immutable
-
 public abstract class Announcement implements Comparable<Announcement>, Identifiable, Serializable, Persistable {
     public abstract String id();
     public abstract LocalDate startDate();

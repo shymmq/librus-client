@@ -7,7 +7,7 @@ package pl.librus.client;
 
 class LibrusConstants {
     //debug
-    public static final String TAG = "librus-client-logError";
+    public static final String TAG = "librus-client-log";
     public static final boolean DBG = true;
 
     //shared preferences

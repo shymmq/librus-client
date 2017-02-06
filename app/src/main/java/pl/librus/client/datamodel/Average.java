@@ -7,6 +7,7 @@ import org.immutables.value.Value;
 
 import io.requery.Embedded;
 import io.requery.Entity;
+import io.requery.Key;
 import io.requery.Persistable;
 
 /**
@@ -25,7 +26,7 @@ public abstract class Average implements Persistable {
     public abstract double fullYear();
 
     @Embedded
-    public abstract HasId subject();
+    public abstract EmbeddedId subject();
 
     public static class Builder extends ImmutableAverage.Builder {
 

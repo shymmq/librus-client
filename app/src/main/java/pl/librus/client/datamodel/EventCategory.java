@@ -1,5 +1,9 @@
 package pl.librus.client.datamodel;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import org.immutables.value.Value;
+
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
@@ -8,18 +12,17 @@ import io.requery.Persistable;
  * Created by szyme on 07.12.2016. librus-client
  */
 @Entity
-public class EventCategory implements Persistable{
-    public String name;
+@Value.Immutable
+@Value.Style(builder = "new")
+@JsonDeserialize(as = ImmutableEventCategory.class)
+public abstract class EventCategory implements Persistable{
+    public abstract String name();
 
     @Key
-    public String id;
+    public abstract String id();
 
-    public String getName() {
-        return name;
-    }
+    public static class Builder extends ImmutableEventCategory.Builder {
 
-    public String getId() {
-        return id;
     }
 
 }
