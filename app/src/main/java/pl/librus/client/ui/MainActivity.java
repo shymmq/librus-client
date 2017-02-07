@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -33,19 +32,16 @@ import org.jdeferred.multiple.MultipleResults;
 import org.jdeferred.multiple.OneReject;
 import org.joda.time.LocalDate;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.requery.Persistable;
-import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.sql.EntityDataStore;
 import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.datamodel.LibrusAccount;
-import pl.librus.client.datamodel.LibrusAccountType;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.LuckyNumberType;
 import pl.librus.client.grades.GradesFragment;
@@ -146,11 +142,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         //Drawer setup
 
         account = data.select(LibrusAccount.class).get().firstOr(new LibrusAccount.Builder()
-            .email("FIXME")
-            .firstName("FIXME")
-            .lastName("FIXME")
-            .login("FIXME")
-            .build());
+                .email("FIXME")
+                .firstName("FIXME")
+                .lastName("FIXME")
+                .login("FIXME")
+                .build());
 
         LuckyNumber luckyNumber = data.select(LuckyNumber.class)
                 .where(LuckyNumberType.DAY.lte(LocalDate.now()))
@@ -271,12 +267,12 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     @Override
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
         //Regardless of update going on in the background start the settings activity
-        int identifier = (int) drawerItem.getIdentifier();
-        if (identifier == SETTINGS_ID) {
+        int itemId = (int) drawerItem.getIdentifier();
+        if (itemId == SETTINGS_ID) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return false;
-        } else if (identifier == LUCKY_NUMBER_ID) {
+        } else if (itemId == LUCKY_NUMBER_ID) {
             if (luckyNumber != null) {
                 String luckyDate = luckyNumber.day().toString("EEEE, d MMMM");
                 Toast.makeText(getApplicationContext(), luckyDate, Toast.LENGTH_LONG).show();
@@ -284,9 +280,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 Toast.makeText(getApplicationContext(), "Brak danych", Toast.LENGTH_LONG).show();
             }
         } else {
+            //Set toolbar title to clicked frawer item title
+            getToolbar().setTitle(getTitleForId(itemId));
             if (updateHelper.isLoading()) {
                 currentFragment = LoadingFragment.newInstance();
-                pendingFragment = getFragmentForId(identifier);
+                pendingFragment = getFragmentForId(itemId);
                 updateHelper.setOnUpdateCompleteListener(new UpdateHelper.OnUpdateCompleteListener() {
                     @Override
                     public void onUpdateComplete() {
@@ -304,11 +302,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                     }
                 });
             } else {
-                currentFragment = getFragmentForId(identifier);
+                currentFragment = getFragmentForId(itemId);
             }
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_main, currentFragment)
-                .commit();
+                    .replace(R.id.content_main, currentFragment)
+                    .commit();
             currentFragment.setOnSetupCompleteListener(new MainFragment.OnSetupCompleteListener() {
                 @Override
                 public void run() {
@@ -338,6 +336,19 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 result = new PlaceholderFragment();
         }
         return result;
+    }
+
+    private String getTitleForId(int id) {
+        switch (id) {
+            case FRAGMENT_TIMETABLE_ID:
+                return getString(R.string.timetable_view_title);
+            case FRAGMENT_GRADES_ID:
+                return getString(R.string.grades_view_title);
+            case FRAGMENT_ATTENDANCES_ID:
+                return getString(R.string.attendances_view_title);
+            default:
+                return getString(R.string.app_name);
+        }
     }
 
     @Override
