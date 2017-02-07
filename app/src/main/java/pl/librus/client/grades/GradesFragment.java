@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -28,14 +27,15 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import io.requery.Persistable;
 import io.requery.sql.EntityDataStore;
 import pl.librus.client.R;
-import pl.librus.client.datamodel.Average;
 import pl.librus.client.api.Reader;
+import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.AverageType;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.GradeCommentType;
 import pl.librus.client.datamodel.GradeType;
+import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainApplication;
@@ -59,6 +59,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private OnSetupCompleteListener listener;
     private Reader reader;
+    private EntityDataStore<Persistable> data;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -88,7 +89,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
         //Load subjects and make a header for each subject
 
         final Map<String, GradeHeaderItem> headers = new HashMap<>();
-        EntityDataStore<Persistable> data = MainApplication.getData();
+        data = MainApplication.getData();
 
         List<Subject> subjects = data.select(Subject.class).get().toList();
         for (Subject s : subjects) {
@@ -109,11 +110,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
 
 
         for (Grade grade : grades) {
-            GradeItem item = new GradeItem(
-                    headers.get(grade.subject().id()),
-                    grade,
-                    data.findByKey(GradeCategory.class, grade.category().id())
-            );
+            GradeItem item = getGradeItem(headers.get(grade.subject().id()), grade);
             headers.get(grade.subject().id()).addSubItem(item);
         }
 
@@ -206,6 +203,23 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             }
 
         return false;
+    }
+
+    private GradeItem getGradeItem(GradeHeaderItem headerItem, Grade grade) {
+        GradeCategory category = data.findByKey(GradeCategory.class, grade.category().id());
+        LibrusColor color = category.color() != null ?
+                data.findByKey(LibrusColor.class, category.color().id()) :
+                new LibrusColor.Builder()
+                        .rawColor("00000000")
+                        .id("")
+                        .name("")
+                        .build();
+        return new GradeItem(
+                headerItem,
+                grade,
+                category,
+                color
+        );
     }
 
     @Override

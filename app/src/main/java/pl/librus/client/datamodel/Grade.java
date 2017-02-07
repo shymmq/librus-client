@@ -19,7 +19,7 @@ import io.requery.Persistable;
 @Entity
 @Value.Immutable
 @Value.Style(builder = "new")
-@JsonDeserialize(as=ImmutableGrade.class)
+@JsonDeserialize(as = ImmutableGrade.class)
 public abstract class Grade implements Persistable, Identifiable {
     @Key
     public abstract String id();
@@ -73,7 +73,7 @@ public abstract class Grade implements Persistable, Identifiable {
         NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
     }
 
-    public static class Builder extends ImmutableGrade.Builder{
+    public static class Builder extends ImmutableGrade.Builder {
 
     }
 }

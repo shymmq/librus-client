@@ -4,13 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.DoneFilter;
-import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
@@ -20,7 +17,6 @@ import org.jdeferred.multiple.OneReject;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,9 +24,9 @@ import io.requery.Persistable;
 import io.requery.query.Scalar;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
-import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
@@ -39,6 +35,7 @@ import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.JsonLesson;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LessonType;
+import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
@@ -84,6 +81,7 @@ public class UpdateHelper {
         tasks.add(updateList("/Attendances", "Attendances", Attendance.class));
         tasks.add(updateList("/Attendances/Types", "Types", AttendanceCategory.class));
         tasks.add(updateList("/Grades/Averages", "Averages", Average.class));
+        tasks.add(updateList("/Colors", "Colors", LibrusColor.class));
         tasks.add(updateObject("/LuckyNumbers", "LuckyNumber", LuckyNumber.class));
         tasks.add(updateAccount());
         tasks.add(updateNearestTimetables());
@@ -154,7 +152,7 @@ public class UpdateHelper {
                     MainApplication.getData().upsert(result);
                     Scalar<Integer> count = MainApplication.getData().count(clazz).get();
                     LibrusUtils.log("count after: " + count.value());
-                } catch (Throwable e){
+                } catch (Throwable e) {
                     LibrusUtils.logError(e.toString());
                     e.printStackTrace();
                 }
@@ -180,10 +178,6 @@ public class UpdateHelper {
         return loading;
     }
 
-    public interface OnUpdateCompleteListener {
-        void onUpdateComplete();
-    }
-
     public Promise<List<Lesson>, Throwable, Void> getLessonsForWeek(LocalDate weekStart) {
         List<Lesson> cached = MainApplication.getData()
                 .select(Lesson.class)
@@ -198,5 +192,9 @@ public class UpdateHelper {
             return new DeferredObject<List<Lesson>, Throwable, Void>().resolve(cached).promise();
 
         }
+    }
+
+    public interface OnUpdateCompleteListener {
+        void onUpdateComplete();
     }
 }

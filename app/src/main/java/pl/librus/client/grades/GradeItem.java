@@ -16,13 +16,16 @@ import pl.librus.client.R;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.LibrusColor;
 
 class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeaderItem> {
     private final Grade grade;
     private final GradeCategory gc;
+    private final LibrusColor color;
 
-    GradeItem(GradeHeaderItem header, Grade grade, GradeCategory gc) {
+    GradeItem(GradeHeaderItem header, Grade grade, GradeCategory gc, LibrusColor color) {
         super(header);
+        this.color = color;
         this.header = header;
         this.grade = grade;
         this.gc = gc;
@@ -49,9 +52,9 @@ class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeade
         holder.grade.setText(grade.grade());
         holder.title.setText(gc.name());
         holder.subtitle.setText(grade.date().toString("EEEE, d MMMM", new Locale("pl")));
+        holder.color.setBackgroundColor(color.colorInt());
         holder.unreadBadge.setVisibility(
-
-        new Reader(holder.itemView.getContext()).isRead(grade) ? View.GONE : View.VISIBLE);
+                new Reader(holder.itemView.getContext()).isRead(grade) ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -77,6 +80,7 @@ class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeade
 
         private final ImageView unreadBadge;
         private final TextView grade, title, subtitle;
+        private final View color;
 
         ViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);
@@ -84,6 +88,7 @@ class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeade
             title = (TextView) itemView.findViewById(R.id.grade_item_title);
             subtitle = (TextView) itemView.findViewById(R.id.grade_item_subtitle);
             unreadBadge = (ImageView) itemView.findViewById(R.id.grade_item_unread_badge);
+            color = itemView.findViewById(R.id.grade_item_color);
         }
     }
 }

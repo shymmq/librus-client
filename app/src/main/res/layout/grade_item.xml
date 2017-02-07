@@ -7,6 +7,14 @@
     android:clickable="true"
     android:foreground="?attr/selectableItemBackground">
 
+    <View
+        android:id="@+id/grade_item_color"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:alpha="0.57"
+        android:background="@color/md_blue_A700"
+        android:visibility="visible" />
+
     <Space
         android:id="@+id/space"
         android:layout_width="match_parent"
@@ -53,7 +61,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:background="@drawable/solid_circle"
-        android:backgroundTint="@color/cardview_dark_background"
+        android:backgroundTint="@color/md_blue_grey_800"
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="@string/np"
