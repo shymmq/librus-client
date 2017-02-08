@@ -98,7 +98,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                     .where(AverageType.SUBJECT_ID.eq(s.id()))
                     .get()
                     .firstOrNull();
-            headers.put(s.id(), new GradeHeaderItem(s, average));
+            headers.put(s.id(), new GradeHeaderItem(s, average, getContext()));
         }
 
         //Load grades and sort them by their date
