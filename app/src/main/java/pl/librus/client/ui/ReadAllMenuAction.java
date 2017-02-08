@@ -1,6 +1,7 @@
 package pl.librus.client.ui;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import java.util.List;
 
@@ -14,11 +15,13 @@ import pl.librus.client.datamodel.Identifiable;
 
 public class ReadAllMenuAction implements MenuAction {
     private final List<? extends Identifiable> items;
+    private final Runnable callback;
     private final Context context;
     private final Reader reader;
 
-    public ReadAllMenuAction(List<? extends Identifiable> items, Context context) {
+    public ReadAllMenuAction(List<? extends Identifiable> items, Context context, @Nullable Runnable callback) {
         this.items = items;
+        this.callback = callback;
         this.context = context;
         reader = new Reader(context);
 
@@ -34,6 +37,7 @@ public class ReadAllMenuAction implements MenuAction {
         for (Identifiable i : items) {
             reader.read(i);
         }
+        if (callback != null) callback.run();
     }
 
     @Override

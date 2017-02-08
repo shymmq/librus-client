@@ -79,7 +79,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
+        recyclerView.getItemAnimator().setChangeDuration(0);
         adapter = new FlexibleAdapter<>(null, this);
         adapter.setAutoCollapseOnExpand(true)
                 .setAutoScrollOnExpand(true);
@@ -106,7 +106,12 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                 .orderBy(GradeType.DATE.desc())
                 .get()
                 .toList();
-        actions = Lists.newArrayList(new ReadAllMenuAction(grades, getContext()));
+        actions = Lists.newArrayList(new ReadAllMenuAction(grades, getContext(), new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+            }
+        }));
 
 
         for (Grade grade : grades) {
