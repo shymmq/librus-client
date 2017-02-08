@@ -1,22 +1,18 @@
 package pl.librus.client.datamodel;
 
-import android.database.Observable;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.android.gms.common.data.DataBufferObserver;
 
 import org.immutables.value.Value;
 
-import io.requery.Entity;
-import io.requery.ForeignKey;
-import io.requery.Key;
-import io.requery.Persistable;
+import javax.persistence.Embeddable;
 
-@Entity
+import io.requery.Key;
+
+@Embeddable
 @Value.Immutable
 @Value.Style(builder = "new")
-@JsonDeserialize(as=ImmutableLibrusAccount.class)
-public abstract class LibrusAccount implements Persistable{
+@JsonDeserialize(as = ImmutableLibrusAccount.class)
+public abstract class LibrusAccount {
 
     @Key
     public abstract String login();
@@ -27,12 +23,12 @@ public abstract class LibrusAccount implements Persistable{
 
     public abstract String email();
 
-    public static class Builder extends ImmutableLibrusAccount.Builder {
-
-    }
-
     public String name() {
         return firstName() + " " + lastName();
+    }
+
+    public static class Builder extends ImmutableLibrusAccount.Builder {
+
     }
 
 }

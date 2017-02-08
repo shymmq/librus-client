@@ -1,5 +1,7 @@
 package pl.librus.client.datamodel;
 
+import android.support.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -48,6 +50,9 @@ public abstract class Grade implements Persistable, Identifiable {
     public abstract LocalDateTime addDate();
 
     public abstract int semester();
+
+    @Nullable
+    public abstract MultipleIds comments();
 
     @JsonProperty("IsSemester")
     public abstract boolean semesterType();

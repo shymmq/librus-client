@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -14,11 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
-import org.jdeferred.DoneFilter;
+import org.jdeferred.DonePipe;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
@@ -29,8 +29,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.requery.Persistable;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -39,14 +41,69 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import pl.librus.client.LibrusUtils;
+import pl.librus.client.datamodel.Announcement;
+import pl.librus.client.datamodel.Attendance;
+import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.Average;
+import pl.librus.client.datamodel.Event;
+import pl.librus.client.datamodel.EventCategory;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.LibrusColor;
+import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.datamodel.Me;
+import pl.librus.client.datamodel.PlainLesson;
+import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.datamodel.Timetable;
 
 import static pl.librus.client.LibrusUtils.log;
 
 public class APIClient {
+    public final static Map<Class<? extends Persistable>, EntityInfo> descriptions = new ImmutableMap.Builder<Class<? extends Persistable>, EntityInfo>()
+            .put(Announcement.class, EntityInfo.of("Announcement"))
+            .put(Attendance.class, EntityInfo.of("Attendance"))
+            .put(AttendanceCategory.class, EntityInfo.builder()
+                    .name("Type")
+                    .endpointPrefix("Attendances")
+                    .build())
+            .put(Average.class, EntityInfo.builder()
+                    .name("Average")
+                    .endpointPrefix("Grades")
+                    .build())
+            .put(Event.class, EntityInfo.of("HomeWork"))
+            .put(EventCategory.class, EntityInfo.builder()
+                    .name("Category")
+                    .pluralName("Categories")
+                    .endpointPrefix("HomeWorks")
+                    .build())
+            .put(Grade.class, EntityInfo.of("Grade"))
+            .put(GradeCategory.class, EntityInfo.builder()
+                    .name("Category")
+                    .pluralName("Categories")
+                    .endpointPrefix("Grades")
+                    .build())
+            .put(GradeComment.class, EntityInfo.builder()
+                    .name("Comment")
+                    .endpointPrefix("Grades")
+                    .build())
+            .put(Me.class, EntityInfo.builder()
+                    .name("Me")
+                    .single(true)
+                    .build())
+            .put(LibrusColor.class, EntityInfo.of("Color"))
+            .put(LuckyNumber.class, EntityInfo.builder()
+                    .name("LuckyNumbers")
+                    .topLevelName("LuckyNumber")
+                    .single(true)
+                    .build())
+            .put(PlainLesson.class, EntityInfo.of("Lesson"))
+            .put(Subject.class, EntityInfo.of("Subject"))
+            .put(Teacher.class, EntityInfo.of("User"))
+            .build();
     private static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
-    private static final String TAG = "librus-client-logError";
     private final Context context;
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
@@ -56,7 +113,6 @@ public class APIClient {
 
     public APIClient(Context _context) {
         context = _context;
-
 
     }
 
@@ -191,10 +247,10 @@ public class APIClient {
                     }
                 } else {
                     LibrusUtils.logError("API Request failed\n" +
-                                    "Edpoint: " + endpoint + "\n" +
-                                    "Access_token: " + access_token + "\n" +
-                                    "Response code: " + response.code() + " " + response.message() + "\n" +
-                                    "Response: " + response.body().string());
+                            "Edpoint: " + endpoint + "\n" +
+                            "Access_token: " + access_token + "\n" +
+                            "Response code: " + response.code() + " " + response.message() + "\n" +
+                            "Response: " + response.body().string());
                     refreshAccess().then(new DoneCallback<String>() {
                         @Override
                         public void onDone(String result) {
@@ -228,7 +284,7 @@ public class APIClient {
 
                             //refresh failed
                             LibrusUtils.logError("Refresh failed \n" +
-                                            "Response code: " + result + " " + response.message());
+                                    "Response code: " + result + " " + response.message());
 
                             deferred.reject(result.code());
                         }
@@ -269,8 +325,8 @@ public class APIClient {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     LibrusUtils.logError("Refresh token request failed: \n" +
-                                    "code: " + response.code() + "\n" +
-                                    "response: " + response.body().string());
+                            "code: " + response.code() + "\n" +
+                            "response: " + response.body().string());
                     deferred.reject(response);
                 } else {
                     JSONObject responseJSON = null;
@@ -290,8 +346,8 @@ public class APIClient {
                     } catch (JSONException e) {
                         e.printStackTrace();
                         LibrusUtils.logError("Refresh token request failed: \n" +
-                                        "code: " + response.code() + "\n" +
-                                        "response: " + (responseJSON == null ? "null" : responseJSON.toString()));
+                                "code: " + response.code() + "\n" +
+                                "response: " + (responseJSON == null ? "null" : responseJSON.toString()));
                         deferred.reject(response);
                     }
                 }
@@ -337,27 +393,29 @@ public class APIClient {
         return deferred.promise();
     }
 
-    public Promise<Timetable, Void, Void> getTimetable(final LocalDate weekStart) {
+    public Promise<Timetable, Throwable, Void> getTimetable(final LocalDate weekStart) {
 
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
 
         return getObject(endpoint, "Timetable", Timetable.class);
     }
 
-    public <T> Promise<T, Void, Void> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
-        return APIRequest(endpoint).then(new DoneFilter<JSONObject, T>() {
+    public <T> Promise<T, Throwable, Void> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
+        return APIRequest(endpoint).then(new DonePipe<JSONObject, T, Throwable, Void>() {
             @Override
-            public T filterDone(JSONObject json) {
-                return parseObject(json.toString(), topLevelName, clazz);
+            public Promise<T, Throwable, Void> pipeDone(JSONObject json) {
+                return new DeferredObject<T, Throwable, Void>()
+                        .resolve(parseObject(json.toString(), topLevelName, clazz));
             }
         });
     }
 
-    public <T> Promise<List<T>, Void, Void> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
-        return APIRequest(endpoint).then(new DoneFilter<JSONObject, List<T>>() {
+    public <T> Promise<List<T>, Throwable, Void> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
+        return APIRequest(endpoint).then(new DonePipe<JSONObject, List<T>, Throwable, Void>() {
             @Override
-            public List<T> filterDone(JSONObject result) {
-                return parseList(result.toString(), topLevelName, clazz);
+            public Promise<List<T>, Throwable, Void> pipeDone(JSONObject result) {
+                return new DeferredObject<List<T>, Throwable, Void>()
+                        .resolve(parseList(result.toString(), topLevelName, clazz));
             }
         });
     }

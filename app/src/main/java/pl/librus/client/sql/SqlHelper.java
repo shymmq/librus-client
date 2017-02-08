@@ -19,16 +19,17 @@ public class SqlHelper {
         Configuration configuration = new ConfigurationBuilder(source, Models.DEFAULT)
                 .setMapping(new MainMapping())
                 .build();
-        return new EntityDataStore<Persistable>(configuration);
+        return new EntityDataStore<>(configuration);
     }
 
     private static class MainMapping extends GenericMapping {
 
-        public MainMapping() {
+        MainMapping() {
             super(new SQLite());
             addConverter(new LocalDateConverter());
             addConverter(new LocalTimeConverter());
             addConverter(new LocalDateTimeConverter());
+            addConverter(new MultipleIdsConverter());
         }
     }
 }

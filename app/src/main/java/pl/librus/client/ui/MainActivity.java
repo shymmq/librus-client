@@ -28,9 +28,10 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
+import org.jdeferred.ProgressCallback;
+import org.jdeferred.multiple.MasterProgress;
 import org.jdeferred.multiple.MultipleResults;
 import org.jdeferred.multiple.OneReject;
-import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +42,9 @@ import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.attendances.AttendanceFragment;
-import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.LuckyNumberType;
+import pl.librus.client.datamodel.Me;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.timetable.TimetableFragment;
@@ -72,8 +73,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private Toolbar toolbar;
     private UpdateHelper updateHelper;
     private MainFragment pendingFragment;
-    private LibrusAccount account;
-    private LuckyNumber luckyNumber;
     private Menu menu;
     private EntityDataStore<Persistable> data;
 
@@ -81,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     protected void onCreate(final Bundle savedInstanceState) {
         MainApplication app = (MainApplication) getApplicationContext();
         data = app.initData();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean theme = prefs.getBoolean(getString(R.string.prefs_dark_theme), false);
         if (theme) {
             setTheme(R.style.AppTheme_Dark);
@@ -127,6 +126,16 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                     public void onFail(OneReject result) {
                         LibrusUtils.logError(result.toString());
                     }
+                }).progress(new ProgressCallback<MasterProgress>() {
+                    @Override
+                    public void onProgress(final MasterProgress progress) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.setProgress(100 * progress.getDone() / progress.getTotal());
+                            }
+                        });
+                    }
                 });
             } else {
                 setup();
@@ -141,25 +150,18 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         setSupportActionBar(toolbar);
         //Drawer setup
 
-        account = data.select(LibrusAccount.class).get().firstOr(new LibrusAccount.Builder()
-                .email("FIXME")
-                .firstName("FIXME")
-                .lastName("FIXME")
-                .login("FIXME")
-                .build());
+        Me me = data.select(Me.class).get().first();
 
         LuckyNumber luckyNumber = data.select(LuckyNumber.class)
-                .where(LuckyNumberType.DAY.lte(LocalDate.now()))
                 .orderBy(LuckyNumberType.DAY.desc())
-                .limit(1)
                 .get()
                 .firstOrNull();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         ProfileDrawerItem profile = new ProfileDrawerItem()
-                .withName(account.name())
-                .withEmail(account.login())
+                .withName(me.account().name())
+                .withEmail(me.account().login())
                 .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withIdentifier(LUCKY_NUMBER_ID)
@@ -273,6 +275,10 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             startActivity(intent);
             return false;
         } else if (itemId == LUCKY_NUMBER_ID) {
+            LuckyNumber luckyNumber = data.select(LuckyNumber.class)
+                    .orderBy(LuckyNumberType.DAY.desc())
+                    .get()
+                    .firstOrNull();
             if (luckyNumber != null) {
                 String luckyDate = luckyNumber.day().toString("EEEE, d MMMM");
                 Toast.makeText(getApplicationContext(), luckyDate, Toast.LENGTH_LONG).show();
