@@ -12,11 +12,13 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.base.Throwables;
 
+import java8.util.concurrent.CompletionException;
+import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.api.HttpException;
-import pl.librus.client.api.LoginException;
 import pl.librus.client.api.RegistrationIntentService;
 
 public class LoginActivity extends AppCompatActivity {
@@ -44,8 +46,8 @@ public class LoginActivity extends AppCompatActivity {
                 .whenComplete((result, exception) -> {
                     if (exception != null) {
                         String message = "Wystąpił niespodziewany błąd";
-                        if(exception instanceof HttpException) {
-                            if(((HttpException) exception).getCode() == 400) {
+                        if(exception.getCause() instanceof HttpException) {
+                            if(((HttpException) exception.getCause()).getMessage().contains("invalid_grant")) {
                                 message = "Nieprawidłowe hasło, spróbuj ponownie";
                             }
                         }
@@ -70,4 +72,5 @@ public class LoginActivity extends AppCompatActivity {
             progress.setVisibility(View.VISIBLE);
         });
     }
+
 }
