@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.jdeferred.DoneCallback;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
@@ -91,48 +90,14 @@ public class TimetableFragment extends MainFragment {
         adapter.setDisplayHeadersAtStartUp(true);
         adapter.setEndlessProgressItem(progressItem);
 
-        adapter.onLoadMoreListener = new TimetableAdapter.OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                final List<IFlexible> newElements = new ArrayList<>();
+        adapter.onLoadMoreListener = () -> {
                 progressItem.setStatus(ProgressItem.LOADING);
                 adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
-                final LocalDate weekStart = startDate.plusWeeks(page);
+                LocalDate weekStart = startDate.plusWeeks(page);
 
-                new UpdateHelper(getContext()).getLessonsForWeek(weekStart).done(new DoneCallback<List<Lesson>>() {
-                    @Override
-                    public void onDone(List<Lesson> result) {
-                        SchoolWeek schoolWeek = new SchoolWeek(weekStart, result);
-                        for (SchoolDay schoolDay : schoolWeek.getSchoolDays()) {
-                            LocalDate date = schoolDay.getDate();
-                            LessonHeaderItem header = new LessonHeaderItem(date);
-                            if (schoolDay.isEmpty()) {
-                                newElements.add(new EmptyLessonItem(header, date));
-                            } else {
-                                for (Lesson l : schoolDay.getLessons()) {
-                                    if(l != null) {
-                                        LessonItem lessonItem = new LessonItem(header, l, getContext());
-                                        newElements.add(lessonItem);
-                                    } else {
-                                        //TODO: Add missing lesson item
-                                    }
-
-                                }
-                            }
-                        }
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressItem.setStatus(ProgressItem.IDLE);
-                                adapter.onLoadMoreComplete(newElements);
-                                onSetupCompleted.run();
-                                page++;
-                            }
-                        });
-                    }
-                });
-            }
-        };
+                new UpdateHelper(getContext()).getLessonsForWeek(weekStart)
+                        .thenAccept(this::displayLessons);
+            };
         recyclerView.setAdapter(adapter);
 
         //Scroll to default position after a delay to let recyclerview complete layout
@@ -144,6 +109,38 @@ public class TimetableFragment extends MainFragment {
             }
         }, 50);
         if (listener != null) listener.run();
+    }
+
+    private void displayLessons(List<Lesson> lessons) {
+        LocalDate weekStart = startDate.plusWeeks(page);
+        List<IFlexible> newElements = new ArrayList<>();
+        SchoolWeek schoolWeek = new SchoolWeek(weekStart, lessons);
+        for (SchoolDay schoolDay : schoolWeek.getSchoolDays()) {
+            LocalDate date = schoolDay.getDate();
+            LessonHeaderItem header = new LessonHeaderItem(date);
+            if (schoolDay.isEmpty()) {
+                newElements.add(new EmptyLessonItem(header, date));
+            } else {
+                for (Lesson l : schoolDay.getLessons()) {
+                    if(l != null) {
+                        LessonItem lessonItem = new LessonItem(header, l, getContext());
+                        newElements.add(lessonItem);
+                    } else {
+                        //TODO: Add missing lesson item
+                    }
+
+                }
+            }
+        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressItem.setStatus(ProgressItem.IDLE);
+                adapter.onLoadMoreComplete(newElements);
+                onSetupCompleted.run();
+                page++;
+            }
+        });
     }
 
     @Override

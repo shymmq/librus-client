@@ -7,9 +7,6 @@ import android.util.Log;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-
 import java.io.IOException;
 
 /**
@@ -27,19 +24,9 @@ public class RegistrationIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            InstanceID instanceID = InstanceID.getInstance(this);
-            String token = instanceID.getToken("431120868545", GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            new APIClient(this).pushDevices(token).done(new DoneCallback<Integer>() {
-                @Override
-                public void onDone(Integer result) {
-                    Log.d(TAG, "Device registered");
-                }
-            }).fail(new FailCallback<Integer>() {
-                @Override
-                public void onFail(Integer result) {
-                    Log.d(TAG, "Registration failed: code " + result);
-                }
-            });
+            String token = InstanceID.getInstance(this)
+                    .getToken("431120868545", GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            new APIClient(this).pushDevices(token);
             Log.d(TAG, "GCM token: " + token);
         } catch (IOException e) {
             e.printStackTrace();

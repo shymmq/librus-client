@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion 25
@@ -12,6 +13,10 @@ android {
         versionCode 8
         versionName "1.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
     }
     buildTypes {
         release {
@@ -50,8 +55,6 @@ dependencies {
 
     compile 'joda-time:joda-time:2.9.4'
     compile 'com.afollestad.material-dialogs:core:0.9.0.2'
-    compile 'com.squareup.okhttp3:okhttp:3.5.0'
-    compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
     compile 'com.github.boxme:asyncmanager:1.0.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-joda:2.8.6'
@@ -59,7 +62,6 @@ dependencies {
     compile 'io.requery:requery:1.1.2'
     compile 'io.requery:requery-android:1.1.2'
     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.0-api', version: '1.0.1.Final'
-
 
     compile 'eu.davidea:flexible-adapter:5.0.0-rc1'
 
@@ -72,6 +74,11 @@ dependencies {
     apt 'io.requery:requery-processor:1.1.2'
     apt "org.immutables:value:2.4.2" // <-- for annotation processor
     provided "org.immutables:value:2.4.2" // <-- for annotation API
-
+    compile 'net.sourceforge.streamsupport:streamsupport:1.5.3'
+    compile 'net.sourceforge.streamsupport:streamsupport-cfuture:1.5.3'
+    compile 'net.sourceforge.streamsupport:streamsupport-atomic:1.5.3'
+    compile 'net.sourceforge.streamsupport:streamsupport-flow:1.5.3'
+    compile 'net.sourceforge.streamsupport:streamsupport-literal:1.5.3'
+    compile group: 'com.loopj.android', name: 'android-async-http', version: '1.4.9'
 }
 apply plugin: 'com.google.gms.google-services'

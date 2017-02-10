@@ -26,13 +26,6 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.ProgressCallback;
-import org.jdeferred.multiple.MasterProgress;
-import org.jdeferred.multiple.MultipleResults;
-import org.jdeferred.multiple.OneReject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +34,7 @@ import io.requery.sql.EntityDataStore;
 import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
+import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.LuckyNumberType;
@@ -72,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private Drawer drawer;
     private Toolbar toolbar;
     private UpdateHelper updateHelper;
-    private MainFragment pendingFragment;
     private Menu menu;
     private EntityDataStore<Persistable> data;
 
@@ -110,33 +103,17 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                         .content("")
                         .progress(false, 100)
                         .show();
-                updateHelper.updateAll().done(new DoneCallback<MultipleResults>() {
-                    @Override
-                    public void onDone(MultipleResults result) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                ProgressReporter reporter = new ProgressReporter(100, p -> runOnUiThread(() -> dialog.setProgress(p)));
+                updateHelper.updateAll(reporter)
+                        .whenComplete((result, exception) -> {
+                            if(exception != null) {
+                                //TODO: better error handling
+                                LibrusUtils.logError(exception.toString());
+                            } else{
                                 dialog.dismiss();
-                                setup();
+                                runOnUiThread(this::setup);
                             }
                         });
-                    }
-                }).fail(new FailCallback<OneReject>() {
-                    @Override
-                    public void onFail(OneReject result) {
-                        LibrusUtils.logError(result.toString());
-                    }
-                }).progress(new ProgressCallback<MasterProgress>() {
-                    @Override
-                    public void onProgress(final MasterProgress progress) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog.setProgress(100 * progress.getDone() / progress.getTotal());
-                            }
-                        });
-                    }
-                });
             } else {
                 setup();
             }
@@ -288,28 +265,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         } else {
             //Set toolbar title to clicked frawer item title
             getToolbar().setTitle(getTitleForId(itemId));
-            if (updateHelper.isLoading()) {
-                currentFragment = LoadingFragment.newInstance();
-                pendingFragment = getFragmentForId(itemId);
-                updateHelper.setOnUpdateCompleteListener(new UpdateHelper.OnUpdateCompleteListener() {
-                    @Override
-                    public void onUpdateComplete() {
-                        if (pendingFragment != null) {
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.content_main, pendingFragment)
-                                    .commit();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateMenu();
-                                }
-                            });
-                        }
-                    }
-                });
-            } else {
-                currentFragment = getFragmentForId(itemId);
-            }
+            currentFragment = getFragmentForId(itemId);
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_main, currentFragment)
                     .commit();
@@ -372,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         defaultFragment.setOnSetupCompleteListener(new MainFragment.OnSetupCompleteListener() {
             @Override
             public void run() {
-                updateHelper.updateAll();
                 defaultFragment.removeListener();
             }
         });
