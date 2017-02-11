@@ -2,11 +2,16 @@ package pl.librus.client.datamodel;
 
 import android.support.annotation.NonNull;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 
 import java.io.Serializable;
 
+import io.requery.Embedded;
+import io.requery.Entity;
 import io.requery.Persistable;
 
 /**
@@ -14,13 +19,29 @@ import io.requery.Persistable;
  */
 
 @Value.Immutable
-public abstract class Announcement implements Comparable<Announcement>, Identifiable, Serializable, Persistable {
+@Value.Style(builder = "new")
+@Entity
+@JsonDeserialize(as = ImmutableAnnouncement.class)
+public abstract class Announcement implements Comparable<Announcement>, Identifiable, Persistable, Serializable {
+
     public abstract String id();
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public abstract LocalDate startDate();
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public abstract LocalDate endDate();
+
     public abstract String subject();
+
     public abstract String content();
-    public abstract String authorId();
+
+    @Embedded
+    public abstract HasId addedBy();
+
+    public static class Builder extends ImmutableAnnouncement.Builder {
+
+    }
 
     @Override
     public int compareTo(@NonNull Announcement announcement) {

@@ -2,6 +2,7 @@ package pl.librus.client;
 
 import com.google.common.io.Resources;
 
+import org.apache.tools.ant.taskdefs.Local;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -14,6 +15,7 @@ import java.util.List;
 import io.requery.Persistable;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.api.EntityInfos;
+import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
@@ -100,6 +102,12 @@ public class APIClientTest {
                         .firstName("Tomasz")
                         .lastName("Problem")
                         .build())
+                .substitutionClass(true)
+                .orgDate(LocalDate.parse("2017-02-06"))
+                .orgLessonNo(2)
+                .orgLesson(HasId.of("1822337"))
+                .orgSubject(HasId.of("44565"))
+                .orgTeacher(HasId.of("1235090"))
                 .build();
         assertEquals(expected, actual);
 
@@ -275,7 +283,7 @@ public class APIClientTest {
     @Test
     public void shouldParseColors() {
         //when
-        List<LibrusColor> colors = APIClient.parseList(readFile("Colors.json"), "Colors", LibrusColor.class);
+        List<LibrusColor> colors = parseList("Colors.json", LibrusColor.class);
         //then
         LibrusColor goldenrod = new LibrusColor.Builder()
                 .id("13")
@@ -283,6 +291,22 @@ public class APIClientTest {
                 .rawColor("DAA520")
                 .build();
         assertThat(colors, hasItem(goldenrod));
+    }
+
+    @Test
+    public void shouldParseAnnouncements() {
+        //when
+        List<Announcement> res = parseList("SchoolNotices.json", Announcement.class);
+
+        //then
+        assertThat(res, hasItem(new Announcement.Builder()
+            .id("167110")
+            .startDate(LocalDate.parse("2016-09-21"))
+            .endDate(LocalDate.parse("2017-06-14"))
+            .subject("Konsultacje z matematyki")
+            .content("Konsultacje z matematyki dla uczniów klas: 1B  2D2A 3A3D")
+            .addedBy(HasId.of("1575831"))
+            .build()));
     }
 
     private static String readFile(String fileName) {

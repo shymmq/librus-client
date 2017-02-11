@@ -27,7 +27,7 @@ import pl.librus.client.datamodel.Teacher;
 
 public class EntityInfos {
     private final static Map<Class<? extends Persistable>, EntityInfo> infos = new ImmutableMap.Builder<Class<? extends Persistable>, EntityInfo>()
-            .put(Announcement.class, EntityInfo.of("Announcement"))
+            .put(Announcement.class, EntityInfo.of("SchoolNotice"))
             .put(Attendance.class, EntityInfo.of("Attendance"))
             .put(AttendanceCategory.class, EntityInfo.builder()
                     .name("Type")

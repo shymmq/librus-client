@@ -70,7 +70,7 @@ public class AnnouncementsFragment extends MainFragment {
 
                     AnnouncementItem item = (AnnouncementItem) adapter.getItem(position);
                     Announcement announcement = item.getAnnouncement();
-                    Teacher teacher = data.getTeacherMap().get(announcement.authorId());
+                    Teacher teacher = data.getTeacherMap().get(announcement.addedBy().id());
 
                     FragmentManager fm = getFragmentManager();
                     FragmentTransaction ft = fm.beginTransaction();

@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import javax.persistence.Embedded;
@@ -47,5 +48,23 @@ public abstract class BaseLesson {
 
     @Convert(LocalTimeConverter.class)
     public abstract LocalTime hourTo();
+
+    @Nullable
+    public abstract String substitutionNote();
+
+    @Nullable
+    public abstract LocalDate orgDate();
+
+    @Nullable
+    public abstract Integer orgLessonNo();
+
+    @Nullable
+    public abstract HasId orgLesson();
+
+    @Nullable
+    public abstract HasId orgSubject();
+
+    @Nullable
+    public abstract HasId orgTeacher();
 
 }

@@ -35,6 +35,20 @@
           "IsSubstitutionClass": true,
           "IsCanceled": false,
           "SubstitutionNote": null,
+          "OrgDate": "2017-02-06",
+          "OrgLessonNo": "2",
+          "OrgLesson": {
+            "Id": "1822337",
+            "Url": "https://api.librus.pl/2.0/Lessons/1822337"
+          },
+          "OrgSubject": {
+            "Id": "44565",
+            "Url": "https://api.librus.pl/2.0/Subjects/44565"
+          },
+          "OrgTeacher": {
+            "Id": "1235090",
+            "Url": "https://api.librus.pl/2.0/Users/1235090"
+          },
           "HourFrom": "08:00",
           "HourTo": "08:45",
 		  "NewDate": "2017-03-14"

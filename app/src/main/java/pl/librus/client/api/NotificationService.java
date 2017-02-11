@@ -89,7 +89,7 @@ class NotificationService {
                     .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
             for (Announcement a : announcements) {
                 style.addLine(a.subject());
-                Teacher author = data.getTeacherMap().get(a.authorId());
+                Teacher author = data.getTeacherMap().get(a.addedBy().id());
                 if (authorsLength + author.name().length() < 40) {
                     authors.add(author.name());
                 }
