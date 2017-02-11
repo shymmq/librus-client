@@ -1,15 +1,13 @@
 package pl.librus.client.db;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.robolectric.RuntimeEnvironment;
 
 import io.requery.Persistable;
-import io.requery.android.sqlite.DatabaseProvider;
 import io.requery.android.sqlite.DatabaseSource;
-import io.requery.meta.EntityModel;
 import io.requery.sql.EntityDataStore;
 import pl.librus.client.datamodel.Models;
 import pl.librus.client.sql.SqlHelper;
@@ -22,7 +20,8 @@ public abstract class BaseDBTest {
     @Before
     public void setup() {
         String dbName = "test.db";
-        Context context = InstrumentationRegistry.getTargetContext();
+
+        Context context = RuntimeEnvironment.application;
         context.deleteDatabase(dbName);
         dataSource = new DatabaseSource(context, Models.DEFAULT, dbName, 10);
         dataSource.setLoggingEnabled(true);

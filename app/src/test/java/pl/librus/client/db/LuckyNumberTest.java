@@ -1,10 +1,9 @@
 package pl.librus.client.db;
 
-import android.support.test.runner.AndroidJUnit4;
-
 import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.LuckyNumber;
@@ -17,7 +16,7 @@ import static org.junit.Assert.assertThat;
  * Created by robwys on 05/02/2017.
  */
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class LuckyNumberTest extends BaseDBTest{
 
 

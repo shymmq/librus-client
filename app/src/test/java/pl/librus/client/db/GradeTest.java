@@ -1,7 +1,6 @@
 package pl.librus.client.db;
 
-import android.support.test.espresso.core.deps.guava.collect.Lists;
-import android.support.test.runner.AndroidJUnit4;
+import com.google.common.collect.Lists;
 
 import org.hamcrest.Matchers;
 import org.joda.time.LocalDate;
@@ -9,6 +8,7 @@ import org.joda.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.HasId;
@@ -17,7 +17,7 @@ import pl.librus.client.datamodel.MultipleIds;
 /**
  * Created by robwys on 05/02/2017.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class GradeTest extends BaseDBTest {
     @Test
     public void shouldReadGrade() {
