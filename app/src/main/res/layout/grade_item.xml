@@ -65,7 +65,7 @@
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="@string/np"
-        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textColor="?attr/solidCircleColor"
         android:textSize="16sp" />
 
     <ImageView

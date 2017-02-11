@@ -30,7 +30,7 @@
         android:layout_height="1dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:background="@color/md_divider_black" />
+        android:background="?attr/itemDividerColor" />
 
     <ImageView
         android:id="@+id/grade_header_item_arrow"

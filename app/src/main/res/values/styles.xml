@@ -24,11 +24,17 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AppTheme.Dark" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 
-        <item name="listSubheaderColorBackground">@color/md_dark_background</item>
         <item name="lessonItemElevation">0dp</item>
+        <item name="listSubheaderColorBackground">@color/md_grey_800</item>
+        <item name="solidCircleColor">?android:attr/textColorPrimary</item>
+        <item name="itemDividerColor">@color/md_divider_white</item>
 
         <!-- MaterialDrawer specific values -->
         <item name="material_drawer_background">@color/material_drawer_dark_background</item>
@@ -55,5 +61,7 @@
 
         <item name="lessonItemElevation">2dp</item>
         <item name="listSubheaderColorBackground">@color/md_grey_200</item>
+        <item name="solidCircleColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="itemDividerColor">@color/md_divider_black</item>
     </style>
 </resources>

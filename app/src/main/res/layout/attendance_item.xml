@@ -37,7 +37,7 @@
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="@string/nb"
-        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textColor="?attr/solidCircleColor"
         android:textSize="16sp" />
 
     <TextView

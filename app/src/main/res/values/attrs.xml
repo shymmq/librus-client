@@ -2,4 +2,6 @@
 <resources>
     <attr name="lessonItemElevation" format="dimension" />
     <attr name="listSubheaderColorBackground" format="color" />
+    <attr name="solidCircleColor" format="color" />
+    <attr name="itemDividerColor" format="color" />
 </resources>
