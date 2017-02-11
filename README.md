@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/shymmq/librus-client.svg?branch=master)](https://travis-ci.org/shymmq/librus-client)
 # librus-client
 Klient restowego API librusa na androida
 
