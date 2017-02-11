@@ -19,6 +19,7 @@ import io.requery.Persistable;
 public abstract class Me implements Persistable {
 
     @Embedded
+    @Value.Parameter
     public abstract LibrusAccount account();
 
     public static class Builder extends ImmutableMe.Builder {

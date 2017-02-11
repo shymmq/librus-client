@@ -100,13 +100,7 @@
       "IsSemester": false,
       "IsSemesterProposition": false,
       "IsFinal": false,
-      "IsFinalProposition": false,
-      "Comments": [
-        {
-          "Id": 834777,
-          "Url": "https://api.librus.pl/2.0/Grades/Comments/834777"
-        }
-      ]
+      "IsFinalProposition": false
     },
     {
       "Id": 2539299,
@@ -138,7 +132,13 @@
       "IsSemester": false,
       "IsSemesterProposition": false,
       "IsFinal": false,
-      "IsFinalProposition": false
+      "IsFinalProposition": false,
+      "Comments": [
+        {
+          "Id": 834777,
+          "Url": "https://api.librus.pl/2.0/Grades/Comments/834777"
+        }
+      ]
     },
     {
       "Id": 2834796,

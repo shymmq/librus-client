@@ -18,6 +18,7 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.api.EntityInfo;
+import pl.librus.client.api.EntityInfos;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
@@ -75,7 +76,7 @@ public class UpdateHelper {
         final long startTime = System.currentTimeMillis();
 
         for (Class<? extends Persistable> entityClass : entitiesToUpdate) {
-            EntityInfo info = APIClient.descriptions.get(entityClass);
+            EntityInfo info = EntityInfos.infoFor(entityClass);
             if (info.single()) {
                 tasks.add(updateObject(info.endpoint(), info.topLevelName(), entityClass));
             } else {

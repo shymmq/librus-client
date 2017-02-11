@@ -11,11 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.datatype.joda.deser.LocalTimeDeserializer;
 import com.google.common.collect.ImmutableMap;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,47 +51,7 @@ import pl.librus.client.datamodel.Timetable;
 import static pl.librus.client.LibrusUtils.log;
 
 public class APIClient {
-    public final static Map<Class<? extends Persistable>, EntityInfo> descriptions = new ImmutableMap.Builder<Class<? extends Persistable>, EntityInfo>()
-            .put(Announcement.class, EntityInfo.of("Announcement"))
-            .put(Attendance.class, EntityInfo.of("Attendance"))
-            .put(AttendanceCategory.class, EntityInfo.builder()
-                    .name("Type")
-                    .endpointPrefix("Attendances")
-                    .build())
-            .put(Average.class, EntityInfo.builder()
-                    .name("Average")
-                    .endpointPrefix("Grades")
-                    .build())
-            .put(Event.class, EntityInfo.of("HomeWork"))
-            .put(EventCategory.class, EntityInfo.builder()
-                    .name("Category")
-                    .pluralName("Categories")
-                    .endpointPrefix("HomeWorks")
-                    .build())
-            .put(Grade.class, EntityInfo.of("Grade"))
-            .put(GradeCategory.class, EntityInfo.builder()
-                    .name("Category")
-                    .pluralName("Categories")
-                    .endpointPrefix("Grades")
-                    .build())
-            .put(GradeComment.class, EntityInfo.builder()
-                    .name("Comment")
-                    .endpointPrefix("Grades")
-                    .build())
-            .put(Me.class, EntityInfo.builder()
-                    .name("Me")
-                    .single(true)
-                    .build())
-            .put(LibrusColor.class, EntityInfo.of("Color"))
-            .put(LuckyNumber.class, EntityInfo.builder()
-                    .name("LuckyNumbers")
-                    .topLevelName("LuckyNumber")
-                    .single(true)
-                    .build())
-            .put(PlainLesson.class, EntityInfo.of("Lesson"))
-            .put(Subject.class, EntityInfo.of("Subject"))
-            .put(Teacher.class, EntityInfo.of("User"))
-            .build();
+
     private final Context context;
 
     public APIClient(Context _context) {
@@ -127,13 +90,11 @@ public class APIClient {
     }
 
     private static ObjectMapper createMapper() {
-        SimpleModule schoolWeekModule = new SimpleModule();
         return new ObjectMapper()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .registerModule(new JodaModule())
-                .registerModule(new GuavaModule())
-                .registerModule(schoolWeekModule);
+                .registerModule(new GuavaModule());
     }
 
     public CompletableFuture<Void> login(String username, String password) {
