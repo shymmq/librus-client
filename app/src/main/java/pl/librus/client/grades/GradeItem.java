@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Locale;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
-import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
+import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
@@ -18,15 +18,15 @@ import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.LibrusColor;
 
-class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeaderItem> {
+class GradeItem extends AbstractFlexibleItem<GradeItem.ViewHolder> {
     private final Grade grade;
     private final GradeCategory gc;
+    private final GradeHeaderItem header;
     private final LibrusColor color;
 
     GradeItem(GradeHeaderItem header, Grade grade, GradeCategory gc, LibrusColor color) {
-        super(header);
-        this.color = color;
         this.header = header;
+        this.color = color;
         this.grade = grade;
         this.gc = gc;
     }
@@ -73,6 +73,10 @@ class GradeItem extends AbstractSectionableItem<GradeItem.ViewHolder, GradeHeade
 
     GradeCategory getGradeCategory() {
         return gc;
+    }
+
+    public GradeHeaderItem getHeader() {
+        return header;
     }
 
 

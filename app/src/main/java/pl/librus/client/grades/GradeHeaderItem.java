@@ -15,15 +15,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.Payload;
-import eu.davidea.flexibleadapter.items.AbstractExpandableHeaderItem;
-import eu.davidea.flexibleadapter.items.ISectionable;
+import eu.davidea.flexibleadapter.items.AbstractHeaderItem;
+import eu.davidea.flexibleadapter.items.IExpandable;
 import eu.davidea.viewholders.ExpandableViewHolder;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
@@ -36,12 +36,17 @@ import pl.librus.client.datamodel.Subject;
  * Header item for grades fragment
  */
 
-class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewHolder, ISectionable> implements Comparable<GradeHeaderItem> {
+@SuppressWarnings("Guava")
+class GradeHeaderItem
+        extends AbstractHeaderItem<GradeHeaderItem.ViewHolder>
+        implements IExpandable<GradeHeaderItem.ViewHolder, GradeItem>, Comparable<GradeHeaderItem> {
 
     private final Subject subject;
     private final Average average;
     private final Reader reader;
     private Context context;
+    private boolean expanded;
+    private ArrayList<GradeItem> mSubItems;
 
     GradeHeaderItem(Subject subject, Average average, Context context) {
         super();
@@ -69,25 +74,21 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
     }
 
     @Override
-    public void addSubItem(ISectionable subItem) {
-        super.addSubItem(subItem);
-
-    }
-
-    GradeHeaderItem sort() {
-//        if (mSubItems != null) Collections.sort(mSubItems, Collections.reverseOrder());
-        return this;
-    }
-
-    @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
+        boolean expanded = payloads.contains(Payload.EXPANDED);
+
+//        if (expanded &&
+//                getSubItems() != null &&
+//                !getSubItems().isEmpty()) {
+//            adapter.expand(getSubItems().get(0));
+//        }
+
         //get grade count and unread grade count
 
         int gradeCount = getGradeCount();
         int unreadGradeCount = getUnreadGradeCount();
 
         setEnabled(gradeCount > 0);
-        boolean expanded = payloads.contains(Payload.EXPANDED);
         holder.subject.setText(subject.name());
         holder.averageSummary.setVisibility(expanded ? View.VISIBLE : View.GONE);
         holder.gradeCountView.setVisibility(expanded ? View.GONE : View.VISIBLE);
@@ -133,8 +134,29 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
     }
 
     @Override
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    @Override
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
+    }
+
+    void addSubItem(GradeItem subItem) {
+        if (mSubItems == null)
+            mSubItems = new ArrayList<>();
+        mSubItems.add(subItem);
+    }
+
+    @Override
     public int getExpansionLevel() {
         return 0;
+    }
+
+    @Override
+    public List<GradeItem> getSubItems() {
+        return mSubItems;
     }
 
     @Override
@@ -159,12 +181,8 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
         if (getSubItems() == null) return 0;
         return FluentIterable.from(getSubItems())
                 .filter(GradeItem.class)
-                .filter(new Predicate<GradeItem>() {
-                    @Override
-                    public boolean apply(GradeItem input) {
-                        return !reader.isRead(input.getGrade());
-                    }
-                }).size();
+                .filter(input -> !reader.isRead(input.getGrade()))
+                .size();
     }
 
     class ViewHolder extends ExpandableViewHolder {
@@ -185,4 +203,5 @@ class GradeHeaderItem extends AbstractExpandableHeaderItem<GradeHeaderItem.ViewH
             return true;
         }
     }
+
 }

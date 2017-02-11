@@ -2,7 +2,6 @@ package pl.librus.client.grades;
 
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,15 +16,14 @@ import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import io.requery.Persistable;
 import io.requery.sql.EntityDataStore;
+import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Average;
@@ -48,12 +46,7 @@ import pl.librus.client.ui.ReadAllMenuAction;
  */
 public class GradesFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener {
 
-    private final Comparator<GradeHeaderItem> headerComparator = new Comparator<GradeHeaderItem>() {
-        @Override
-        public int compare(GradeHeaderItem o1, GradeHeaderItem o2) {
-            return o1.compareTo(o2);
-        }
-    };
+    private final Comparator<GradeHeaderItem> headerComparator = GradeHeaderItem::compareTo;
 
     List<? extends MenuAction> actions = new ArrayList<>();
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
@@ -72,6 +65,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         reader = new Reader(getContext());
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
@@ -81,14 +75,16 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.getItemAnimator().setChangeDuration(0);
         adapter = new FlexibleAdapter<>(null, this);
-        adapter.setAutoCollapseOnExpand(true)
-                .setAutoScrollOnExpand(true);
+
+        //TODO fix auto collapse
+        adapter.setAutoScrollOnExpand(true)
+                .setAutoCollapseOnExpand(true)
+                .setMinCollapsibleLevel(1);
 
         recyclerView.setAdapter(adapter);
 
         //Load subjects and make a header for each subject
 
-        final Map<String, GradeHeaderItem> headers = new HashMap<>();
         data = MainApplication.getData();
 
         List<Subject> subjects = data.select(Subject.class).get().toList();
@@ -98,37 +94,28 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                     .where(AverageType.SUBJECT_ID.eq(s.id()))
                     .get()
                     .firstOrNull();
-            headers.put(s.id(), new GradeHeaderItem(s, average, getContext()));
+
+            final GradeHeaderItem headerItem = new GradeHeaderItem(s, average, getContext());
+
+            List<Grade> grades = data.select(Grade.class)
+                    .where(GradeType.SUBJECT_ID.eq(s.id()))
+                    .orderBy(GradeType.DATE.desc())
+                    .get()
+                    .toList();
+
+            StreamSupport.stream(grades).forEach(grade ->
+                    headerItem.addSubItem(getGradeItem(headerItem, grade)));
+
+            getActivity().runOnUiThread(() -> adapter.addSection(headerItem, headerComparator));
         }
 
-        //Load grades and sort them by their date
-        List<Grade> grades = data.select(Grade.class)
-                .orderBy(GradeType.DATE.desc())
-                .get()
-                .toList();
-        actions = Lists.newArrayList(new ReadAllMenuAction(grades, getContext(), new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyItemRangeChanged(0, adapter.getItemCount());
-            }
-        }));
+        //Load grades by semester and sort them by their date
 
-
-        for (Grade grade : grades) {
-            GradeItem item = getGradeItem(headers.get(grade.subject().id()), grade);
-            headers.get(grade.subject().id()).addSubItem(item);
-        }
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (GradeHeaderItem header : headers.values()) {
-                    adapter.addSection(header.sort(), headerComparator);
-                }
-                adapter.showAllHeaders()
-                        .collapseAll();
-            }
-        });
+        actions = Lists.newArrayList(new ReadAllMenuAction(
+                data.select(Grade.class)
+                        .get()
+                        .toList(),
+                getContext(), () -> adapter.notifyItemRangeChanged(0, adapter.getItemCount())));
 
         if (listener != null) listener.run();
 
@@ -192,12 +179,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                     .title(header.getSubject().name())
                     .customView(dialogLayout, true)
                     .positiveText(R.string.close)
-                    .dismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            adapter.notifyItemChanged(position);
-                        }
-                    })
+                    .dismissListener(dialog -> adapter.notifyItemChanged(position))
                     .show();
 
             reader.read(grade);
