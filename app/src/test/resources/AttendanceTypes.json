@@ -14,7 +14,6 @@
       "Name": "Spóźnienie",
       "Short": "sp",
       "Standard": true,
-      "ColorRGB": "D2B48C",
       "IsPresenceKind": true,
       "Order": 2
     },

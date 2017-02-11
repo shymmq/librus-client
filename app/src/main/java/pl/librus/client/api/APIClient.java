@@ -93,42 +93,6 @@ public class APIClient {
 
     public APIClient(Context _context) {
         context = _context;
-
-    }
-
-    public CompletableFuture<Void> login(String username, String password) {
-        final String AUTH_URL = "https://api.librus.pl/OAuth/Token";
-        final String auth_token = "MzU6NjM2YWI0MThjY2JlODgyYjE5YTMzZjU3N2U5NGNiNGY=";
-        RequestParams params = new RequestParams();
-        params.add("username", username);
-        params.add("password", password);
-        params.add("grant_type", "password");
-        params.add("librus_long_term_token", "1");
-        params.add("librus_rules_accepted", "true");
-        params.add("librus_mobile_rules_accepted", "true");
-
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.addHeader("Authorization", "Basic " + auth_token);
-        CompletableFutureHttpResponseHandler handler = new CompletableFutureHttpResponseHandler();
-        client.post(AUTH_URL, params, handler);
-        return handler.getFuture()
-                .thenAccept(this::saveTokens);
-    }
-
-    private void saveTokens(String response) {
-        try {
-            JSONObject responseJSON  = new JSONObject(response);
-            String access_token = responseJSON.getString("access_token");
-            String refresh_token = responseJSON.getString("refresh_token");
-            PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .putString("refresh_token", refresh_token)
-                    .putString("access_token", access_token)
-                    .commit();
-        } catch (JSONException e){
-            throw new RuntimeException(e);
-        }
-
     }
 
     public static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
@@ -172,24 +136,64 @@ public class APIClient {
                 .registerModule(schoolWeekModule);
     }
 
+    public CompletableFuture<Void> login(String username, String password) {
+        final String AUTH_URL = "https://api.librus.pl/OAuth/Token";
+        final String auth_token = "MzU6NjM2YWI0MThjY2JlODgyYjE5YTMzZjU3N2U5NGNiNGY=";
+        RequestParams params = new RequestParams();
+        params.add("username", username);
+        params.add("password", password);
+        params.add("grant_type", "password");
+        params.add("librus_long_term_token", "1");
+        params.add("librus_rules_accepted", "true");
+        params.add("librus_mobile_rules_accepted", "true");
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.addHeader("Authorization", "Basic " + auth_token);
+        CompletableFutureHttpResponseHandler handler = new CompletableFutureHttpResponseHandler();
+        client.post(AUTH_URL, params, handler);
+        return handler.getFuture()
+                .thenAccept(this::saveTokens);
+    }
+
+    private void saveTokens(String response) {
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            String access_token = responseJSON.getString("access_token");
+            String refresh_token = responseJSON.getString("refresh_token");
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString("refresh_token", refresh_token)
+                    .putString("access_token", access_token)
+                    .apply();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     private CompletableFuture<String> APIRequest(String endpoint) {
         return fetchData(endpoint)
                 .exceptionally(e -> {
-                    log("Retrying APIRequest " +  "Endpoint: " + endpoint);
-                    return refreshAccess()
-                            .thenApply((a) -> fetchData(endpoint).join())
-                            .join();
+                    if (e instanceof HttpException) {
+                        String message = e.getMessage();
+                        if (message != null && message.contains("Access Token expired")) {
+                            //access token expired
+                            log("Retrying APIRequest " + "Endpoint: " + endpoint);
+                            return refreshAccess()
+                                    .thenApply((a) -> fetchData(endpoint).join())
+                                    .join();
+                        }
+                    }
+                    throw new RuntimeException(e);
                 });
     }
 
     private CompletableFuture<String> fetchData(final String endpoint) {
         String access_token = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString("access_token", "");
-        String url = new StringBuilder()
-                .append("https://api.librus.pl/2.0")
-                .append(endpoint)
-                .toString();
-        log("Performing APIRequest " +  "Endpoint: " + endpoint);
+        String url = "https://api.librus.pl/2.0" +
+                endpoint;
+        log("Performing APIRequest " + "Endpoint: " + endpoint);
 
         CompletableFutureHttpResponseHandler handler = new CompletableFutureHttpResponseHandler();
         AsyncHttpClient client = new AsyncHttpClient();

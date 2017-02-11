@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -106,13 +107,18 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 ProgressReporter reporter = new ProgressReporter(100, p -> runOnUiThread(() -> dialog.setProgress(p)));
                 updateHelper.updateAll(reporter)
                         .whenComplete((result, exception) -> {
-                            if(exception != null) {
+                            if (exception != null) {
                                 //TODO: better error handling
                                 LibrusUtils.logError(exception.toString());
-                            } else{
-                                dialog.dismiss();
-                                runOnUiThread(this::setup);
+                                runOnUiThread(() ->
+                                        Snackbar.make(
+                                                findViewById(R.id.activity_main_coordinator),
+                                                "Wystąpił nieoczekiwany błąd",
+                                                Snackbar.LENGTH_SHORT)
+                                                .show());
                             }
+                            dialog.dismiss();
+                            runOnUiThread(this::setup);
                         });
             } else {
                 setup();
