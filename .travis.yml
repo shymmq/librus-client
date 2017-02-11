@@ -12,5 +12,3 @@ android:
     - extra-google-m2repository
     - extra-android-support
     - extra-google-google_play_services
-script:
-  - ./gradlew clean assemble || ./gradlew clean assemble
