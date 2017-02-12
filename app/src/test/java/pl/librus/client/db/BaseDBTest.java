@@ -1,41 +1,46 @@
 package pl.librus.client.db;
 
-import android.content.Context;
-
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import io.requery.Persistable;
-import io.requery.android.sqlite.DatabaseSource;
 import io.requery.sql.EntityDataStore;
-import pl.librus.client.datamodel.Models;
-import pl.librus.client.sql.SqlHelper;
+import pl.librus.client.ui.MainApplication;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
+
+@Config(application = MainApplication.class)
 public abstract class BaseDBTest {
 
-    protected DatabaseSource dataSource;
+    MainApplication app;
     protected EntityDataStore<Persistable> data;
 
     @Before
     public void setup() {
-        String dbName = "test.db";
-
-        Context context = RuntimeEnvironment.application;
-        context.deleteDatabase(dbName);
-        dataSource = new DatabaseSource(context, Models.DEFAULT, dbName, 10);
-        dataSource.setLoggingEnabled(true);
-        data = SqlHelper.getDataStore(dataSource);
+        app = (pl.librus.client.ui.MainApplication) RuntimeEnvironment.application;
+        app.initData();
+        data = MainApplication.getData();
     }
 
     protected void clearCache() {
-        data = SqlHelper.getDataStore(dataSource);
+        app.closeData();
+        data = app.initData();
     }
 
     @After
     public void teardown() {
-        if (dataSource != null) {
-            dataSource.close();
+        if (app != null) {
+            app.closeData();
         }
+    }
+
+    protected <T> Matcher<T> equalsNotSameInstance(T obj) {
+        return allOf(equalTo(obj), not(sameInstance(obj)));
     }
 }

@@ -13,7 +13,7 @@ import java.util.Map;
 
 import io.requery.Persistable;
 import java8.util.concurrent.CompletableFuture;
-import java8.util.stream.Stream;
+import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
@@ -40,8 +40,6 @@ import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.timetable.TimetableUtils;
 import pl.librus.client.ui.MainApplication;
 
-import static com.google.common.collect.Iterables.toArray;
-
 /**
  * Created by szyme on 31.01.2017.
  * Contains methods to update data from server
@@ -67,7 +65,11 @@ public class UpdateHelper {
             Me.class
     );
     public UpdateHelper(Context context) {
-        client = new APIClient(context);
+        this(new APIClient(context));
+    }
+
+    public UpdateHelper(APIClient client) {
+        this.client = client;
     }
 
     public CompletableFuture<?> updateAll(ProgressReporter progressReporter) {
@@ -155,5 +157,29 @@ public class UpdateHelper {
         } else {
             return CompletableFuture.completedFuture(cached);
         }
+    }
+
+    public CompletableFuture<List<EntityChange>> reloadGrades() {
+        List<Grade> gradesInDB = MainApplication.getData()
+                .select(Grade.class)
+                .get()
+                .toList();
+        Map<String, Grade> gradesById = StreamSupport.stream(gradesInDB)
+                .collect(Collectors.toMap(Grade::id, g -> g));
+        EntityInfo info = EntityInfos.infoFor(Grade.class);
+        return client.getList(info.endpoint(), info.topLevelName(), Grade.class)
+                .thenApply(newGrades -> {
+                    MainApplication.getData().upsert(newGrades);
+                    List<EntityChange> changed = Lists.newArrayList();
+                    for (Grade newGrade : newGrades) {
+                        Grade inDB = gradesById.get(newGrade.id());
+                        if (inDB == null) {
+                            changed.add(ImmutableEntityChange.of(EntityChange.Type.ADDED, newGrade));
+                        } else if (!inDB.equals(newGrade)) {
+                            changed.add(ImmutableEntityChange.of(EntityChange.Type.CHANGED, newGrade));
+                        }
+                    }
+                    return changed;
+                });
     }
 }

@@ -32,7 +32,7 @@ public class LuckyNumberTest extends BaseDBTest{
         LuckyNumber res = data.findByKey(LuckyNumber.class, date);
 
         //then
-        assertThat(res, is(original));
+        assertThat(res, equalsNotSameInstance(original));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class LuckyNumberTest extends BaseDBTest{
         LuckyNumber res = data.findByKey(LuckyNumber.class, date);
 
         //then
-        assertThat(res, is(current));
+        assertThat(res, equalsNotSameInstance(current));
     }
 
     @Test
@@ -71,6 +71,6 @@ public class LuckyNumberTest extends BaseDBTest{
                 .first();
 
         //then
-        assertThat(res, is(latest));
+        assertThat(res, equalsNotSameInstance(latest));
     }
 }

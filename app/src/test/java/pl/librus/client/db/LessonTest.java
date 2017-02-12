@@ -57,7 +57,7 @@ public class LessonTest extends BaseDBTest {
         Lesson result = data.findByKey(Lesson.class, new CompositeKey<>(map));
 
         //then
-        Assert.assertThat(result, Matchers.is(original));
+        Assert.assertThat(result, equalsNotSameInstance(original));
     }
 
 }

@@ -5,10 +5,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.AverageType;
 import pl.librus.client.datamodel.EmbeddedId;
+import pl.librus.client.ui.MainApplication;
 
 /**
  * Created by robwys on 05/02/2017.
@@ -36,7 +38,7 @@ public class AverageTest extends BaseDBTest {
                 .first();
 
         //then
-        Assert.assertThat(result, Matchers.is(original));
+        Assert.assertThat(result, equalsNotSameInstance(original));
     }
 
 }
