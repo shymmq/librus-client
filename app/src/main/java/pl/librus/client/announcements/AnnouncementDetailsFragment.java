@@ -41,7 +41,7 @@ public class AnnouncementDetailsFragment extends Fragment {
         AnnouncementDetailsFragment fragment = new AnnouncementDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ANNOUNCEMENT, announcement);
-//        args.putSerializable(ARG_AUTHOR, author);
+        args.putSerializable(ARG_AUTHOR, author);
         fragment.setArguments(args);
         return fragment;
     }

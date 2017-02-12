@@ -65,6 +65,11 @@ public class TimetableTabFragment extends MainFragment {
         this.listener = null;
     }
 
+    @Override
+    public int getTitle() {
+        return R.string.timetable_view_title;
+    }
+
     private class TabAdapter extends FragmentPagerAdapter {
 
         TabAdapter(FragmentManager fm) {
@@ -90,4 +95,6 @@ public class TimetableTabFragment extends MainFragment {
             return firstWeekStart.plusDays(position);
         }
     }
+
+
 }

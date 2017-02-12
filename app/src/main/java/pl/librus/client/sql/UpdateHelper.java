@@ -20,6 +20,7 @@ import pl.librus.client.api.APIClient;
 import pl.librus.client.api.EntityInfo;
 import pl.librus.client.api.EntityInfos;
 import pl.librus.client.api.ProgressReporter;
+import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
@@ -49,6 +50,7 @@ public class UpdateHelper {
     private final APIClient client;
     @SuppressWarnings("unchecked")
     private final List<Class<? extends Persistable>> entitiesToUpdate = Lists.newArrayList(
+            Announcement.class,
             Subject.class,
             Teacher.class,
             Grade.class,

@@ -99,4 +99,9 @@ public class AttendanceFragment extends MainFragment {
     public void removeListener() {
         this.listener = null;
     }
+
+    @Override
+    public int getTitle() {
+        return R.string.attendances_view_title;
+    }
 }

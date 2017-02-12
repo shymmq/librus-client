@@ -32,4 +32,9 @@ public class PlaceholderFragment extends MainFragment {
     public void removeListener() {
 
     }
+
+    @Override
+    public int getTitle() {
+        return R.string.app_name;
+    }
 }

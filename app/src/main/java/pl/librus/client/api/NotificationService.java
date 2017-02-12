@@ -20,8 +20,11 @@ import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.datamodel.Me;
+import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
+import pl.librus.client.ui.MainApplication;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -33,12 +36,10 @@ class NotificationService {
     private static final String DEFAULT_POSITION = "NotificationService:redirect_fragment";
     private static final String TAG = "librus-client-logError";
     private final Context context;
-    private final LibrusData data;
 
 
-    NotificationService(Context context, LibrusData data) {
+    NotificationService(Context context) {
         this.context = context;
-        this.data = data;
     }
 
     private void sendNotification(@NonNull CharSequence title, @NonNull CharSequence text, int iconResource, @Nullable CharSequence subtext, @Nullable Notification.Style style, int fragment) {
@@ -68,14 +69,14 @@ class NotificationService {
     }
 
     NotificationService addAnnouncements(List<Announcement> announcements) {
-
+        Me me = MainApplication.getData().select(Me.class).get().firstOrNull();
         int size = announcements.size();
         if (size == 1) {
             Announcement announcement = announcements.get(0);
             Notification.BigTextStyle style = new Notification.BigTextStyle()
                     .setBigContentTitle(announcement.subject())
                     .bigText(announcement.content())
-                    .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
+                    .setSummaryText(me.account().login() + " - " + me.account().name());
             sendNotification(announcement.subject(), announcement.content(), R.drawable.ic_announcement_black_48dp, null, style, MainActivity.FRAGMENT_ANNOUNCEMENTS_ID);
         } else if (size > 1) {
             String title;
@@ -86,10 +87,10 @@ class NotificationService {
             else title = "Nowe ogłoszenia: " + size;
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title)
-                    .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
+                    .setSummaryText(me.account().login() + " - " + me.account().name());
             for (Announcement a : announcements) {
                 style.addLine(a.subject());
-                Teacher author = data.getTeacherMap().get(a.addedBy().id());
+                Teacher author = MainApplication.getData().findByKey(Teacher.class, a.addedBy().id());
                 if (authorsLength + author.name().length() < 40) {
                     authors.add(author.name());
                 }
@@ -101,10 +102,12 @@ class NotificationService {
 
     NotificationService addGrades(List<Grade> grades) {
         //Create notification
+        Me me = MainApplication.getData().select(Me.class).get().firstOrNull();
+
         int size = grades.size();
         if (size == 1) {
             Grade grade = grades.get(0);
-            String subject = data.getSubjectMap().get(grade.subject().id()).name();
+            String subject = MainApplication.getData().findByKey(Subject.class, grade.subject().id()).name();
             sendNotification("Nowa ocena", subject + " " + grade.grade(), R.drawable.ic_assignment_black_48dp, null, null, MainActivity.FRAGMENT_GRADES_ID);
         } else if (size > 1) {
             String title;
@@ -114,10 +117,10 @@ class NotificationService {
             else title = "Nowe oceny: " + size;
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title)
-                    .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
+                    .setSummaryText(me.account().login() + " - " + me.account().name());
             for (Grade g : grades) {
 //                String category = data.getGradeCategoriesMap().get(g.getCategoryId()).name();
-                String subject = data.getSubjectMap().get(g.subject().id()).name();
+                String subject = MainApplication.getData().findByKey(Subject.class, g.subject().id()).name();
                 style.addLine(g.grade() + " " + subject);
                 if (!subjects.contains(subject))
                     subjects.add(subject);
@@ -132,6 +135,8 @@ class NotificationService {
     }
 
     NotificationService addEvents(List<Event> events) {
+        Me me = MainApplication.getData().select(Me.class).get().firstOrNull();
+
         int size = events.size();
         if (size == 1) {
             Event event = events.get(0);
@@ -150,11 +155,10 @@ class NotificationService {
 
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title)
-                    .setSummaryText(data.getAccount().login() + " - " + data.getAccount().name());
-            Map<String, Teacher> teacherMap = data.getTeacherMap();
+                    .setSummaryText(me.account().login() + " - " + me.account().name());
             for (Event e : events) {
                 style.addLine(e.content());
-                String name = teacherMap.get(e.addedBy()).name();
+                String name = MainApplication.getData().findByKey(Teacher.class, e.addedBy()).name();
                 if (!authorNames.contains(name)) authorNames.add(name);
             }
 

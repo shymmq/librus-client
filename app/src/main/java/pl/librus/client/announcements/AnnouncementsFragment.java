@@ -21,21 +21,20 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.api.LibrusData;
+import pl.librus.client.datamodel.AnnouncementType;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
+import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
 
 public class AnnouncementsFragment extends MainFragment {
-    private static final String ARG_DATA = "AnnouncementsFragment:data";
 
     public AnnouncementsFragment() {
         // Required empty public constructor
     }
 
-    public static AnnouncementsFragment newInstance(LibrusData data) {
+    public static AnnouncementsFragment newInstance() {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_DATA, data);
         AnnouncementsFragment fragment = new AnnouncementsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -47,16 +46,16 @@ public class AnnouncementsFragment extends MainFragment {
         postponeEnterTransition();
         RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
 
-        final LibrusData data = (LibrusData) getArguments().getSerializable(ARG_DATA);
-        assert data != null;
-
-        List<Announcement> announcementList = data.getAnnouncements();
-        Collections.sort(announcementList);
+        List<Announcement> announcementList = MainApplication.getData()
+                .select(Announcement.class)
+                .orderBy(AnnouncementType.START_DATE.desc())
+                .get()
+                .toList();
         List<AnnouncementItem> announcementItems = new ArrayList<>();
 
 
         for (Announcement a : announcementList) {
-            announcementItems.add(new AnnouncementItem(a, data, AnnouncementUtils.getHeaderOf(a, getContext())));
+            announcementItems.add(new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())));
         }
         Collections.sort(announcementItems);
         List<IFlexible> listItems = new ArrayList<>();
@@ -70,7 +69,7 @@ public class AnnouncementsFragment extends MainFragment {
 
                     AnnouncementItem item = (AnnouncementItem) adapter.getItem(position);
                     Announcement announcement = item.getAnnouncement();
-                    Teacher teacher = data.getTeacherMap().get(announcement.addedBy().id());
+                    Teacher teacher = MainApplication.getData().findByKey(Teacher.class, announcement.addedBy().id());
 
                     FragmentManager fm = getFragmentManager();
                     FragmentTransaction ft = fm.beginTransaction();
@@ -116,5 +115,10 @@ public class AnnouncementsFragment extends MainFragment {
 
     @Override
     public void removeListener() {
+    }
+
+    @Override
+    public int getTitle() {
+        return R.string.announcements_view_title;
     }
 }
