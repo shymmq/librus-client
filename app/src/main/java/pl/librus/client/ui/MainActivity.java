@@ -35,6 +35,7 @@ import io.requery.sql.EntityDataStore;
 import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
+import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.datamodel.LuckyNumber;
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
     private final GradesFragment gradesFragment = GradesFragment.newInstance();
     private final AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
     private final TimetableTabFragment timetableTabFragment = TimetableTabFragment.newInstance();
+    private final AnnouncementsFragment announcementsFragment = AnnouncementsFragment.newInstance();
+
     MainFragment currentFragment;
     List<? extends MenuAction> actions = new ArrayList<>();
     private Drawer drawer;
@@ -270,8 +273,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             }
         } else {
             //Set toolbar title to clicked frawer item title
-            getToolbar().setTitle(getTitleForId(itemId));
             currentFragment = getFragmentForId(itemId);
+            getToolbar().setTitle(currentFragment.getTitle());
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_main, currentFragment)
@@ -301,23 +304,13 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             case FRAGMENT_ATTENDANCES_ID:
                 result = attendanceFragment;
                 break;
+            case FRAGMENT_ANNOUNCEMENTS_ID:
+                result = announcementsFragment;
+                break;
             default:
                 result = new PlaceholderFragment();
         }
         return result;
-    }
-
-    private String getTitleForId(int id) {
-        switch (id) {
-            case FRAGMENT_TIMETABLE_ID:
-                return getString(R.string.timetable_view_title);
-            case FRAGMENT_GRADES_ID:
-                return getString(R.string.grades_view_title);
-            case FRAGMENT_ATTENDANCES_ID:
-                return getString(R.string.attendances_view_title);
-            default:
-                return getString(R.string.app_name);
-        }
     }
 
     @Override

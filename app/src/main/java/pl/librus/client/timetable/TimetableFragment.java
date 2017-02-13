@@ -153,4 +153,9 @@ public class TimetableFragment extends MainFragment {
     public void removeListener() {
         this.listener = null;
     }
+
+    @Override
+    public int getTitle() {
+        return R.string.timetable_view_title;
+    }
 }

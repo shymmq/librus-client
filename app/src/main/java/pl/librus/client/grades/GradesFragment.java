@@ -223,4 +223,9 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     public List<? extends MenuAction> getMenuItems() {
         return actions;
     }
+
+    @Override
+    public int getTitle() {
+        return R.string.grades_view_title;
+    }
 }

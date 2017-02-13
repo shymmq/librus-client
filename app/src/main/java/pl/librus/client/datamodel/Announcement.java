@@ -12,6 +12,7 @@ import java.io.Serializable;
 
 import io.requery.Embedded;
 import io.requery.Entity;
+import io.requery.Key;
 import io.requery.Persistable;
 
 /**
@@ -24,6 +25,7 @@ import io.requery.Persistable;
 @JsonDeserialize(as = ImmutableAnnouncement.class)
 public abstract class Announcement implements Comparable<Announcement>, Identifiable, Persistable, Serializable {
 
+    @Key
     public abstract String id();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

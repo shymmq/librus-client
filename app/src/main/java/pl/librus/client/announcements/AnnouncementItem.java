@@ -19,24 +19,22 @@ import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.api.LibrusData;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.ui.MainApplication;
 
 /**
  * Created by szyme on 28.12.2016. librus-client
  */
 
 class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> implements Comparable<AnnouncementItem> {
-    private final LibrusData data;
     private final Announcement announcement;
     private View backgroundView;
     private TextView title;
     private boolean read;
 
-    public AnnouncementItem(Announcement announcement, LibrusData data, AnnouncementHeaderItem header) {
+    public AnnouncementItem(Announcement announcement, AnnouncementHeaderItem header) {
         super(header);
         this.announcement = announcement;
-        this.data = data;
     }
 
     @Override
@@ -58,7 +56,7 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         this.backgroundView = holder.background;
         this.title = holder.announcementSubject;
-        Teacher teacher = data.getTeacherMap().get(announcement.addedBy().id());
+        Teacher teacher = MainApplication.getData().findByKey(Teacher.class, announcement.addedBy().id());
         holder.announcementSubject.setText(announcement.subject());
         holder.background.setTransitionName("announcement_background_" + announcement.id());
         holder.announcementTeacherName.setText(teacher.name());

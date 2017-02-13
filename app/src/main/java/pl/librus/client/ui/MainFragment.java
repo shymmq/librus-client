@@ -26,4 +26,6 @@ public abstract class MainFragment extends Fragment {
     public interface OnSetupCompleteListener {
         void run();
     }
+
+    public abstract int getTitle();
 }
