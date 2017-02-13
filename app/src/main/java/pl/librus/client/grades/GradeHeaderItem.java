@@ -80,10 +80,10 @@ class GradeHeaderItem
 //        if (expanded &&
 //                getSubItems() != null &&
 //                !getSubItems().isEmpty()) {
-//            adapter.expand(getSubItems().get(0));
+//            adapter.expand(getSubItems().getAll(0));
 //        }
 
-        //get grade count and unread grade count
+        //getAll grade count and unread grade count
 
         int gradeCount = getGradeCount();
         int unreadGradeCount = getUnreadGradeCount();

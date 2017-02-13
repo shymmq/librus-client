@@ -9,7 +9,7 @@ import io.requery.Persistable;
  */
 
 @Value.Immutable
-public abstract class EntityChange {
+public abstract class EntityChange<T extends Persistable>{
     public static enum Type {
         ADDED, CHANGED
     }
@@ -18,5 +18,5 @@ public abstract class EntityChange {
     public abstract Type type();
 
     @Value.Parameter
-    public abstract Persistable entity();
+    public abstract T entity();
 }

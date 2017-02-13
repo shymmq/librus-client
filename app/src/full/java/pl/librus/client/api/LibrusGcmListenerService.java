@@ -1,70 +1,97 @@
 package pl.librus.client.api;
 
-import android.app.NotificationManager;
-import android.content.Context;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 import com.google.firebase.analytics.FirebaseAnalytics;
+
+import java.util.List;
+
+import io.requery.Persistable;
+import java8.util.concurrent.CompletableFuture;
+import java8.util.function.Consumer;
+import java8.util.stream.Collectors;
+import java8.util.stream.StreamSupport;
+import pl.librus.client.datamodel.Announcement;
+import pl.librus.client.datamodel.Event;
+import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.sql.EntityChange;
+import pl.librus.client.sql.UpdateHelper;
+
+import static pl.librus.client.sql.EntityChange.Type.ADDED;
 
 /**
  * Created by szyme on 15.12.2016. librus-client
  */
 
 public class LibrusGcmListenerService extends GcmListenerService {
-    private static final String TAG = "librus-client-logError";
+    private UpdateHelper updateHelper;
+    private Consumer<String> firebaseLogger;
+    private NotificationService notificationService;
+
+    private CompletableFuture<?> reloads;
+
+    @Override
+    public ComponentName startService(Intent service) {
+        updateHelper = new UpdateHelper(getApplicationContext());
+        firebaseLogger = s -> {
+            Bundle event = new Bundle();
+            event.putString("objectType", s);
+            FirebaseAnalytics.getInstance(this).logEvent("notification_received", event);;
+        };
+        notificationService = new NotificationService(getApplicationContext());
+        return super.startService(service);
+    }
 
     @Override
     public void onMessageReceived(String s, Bundle bundle) {
 
-        //Log values
-        String summary = "";
-        for (String key : bundle.keySet()) {
-            Object o = bundle.get(key);
-            String v = o == null ? "" : o.toString();
-            summary += key + "  :  " + v + "\n";
-        }
-        Log.d(TAG, "onMessageReceived: \n" +
-                "Sender: " + s + "\n" +
-                summary);
-
         //Send category to analytics
-        FirebaseAnalytics fa = FirebaseAnalytics.getInstance(this);
-        Bundle event = new Bundle();
-        event.putString("objectType", bundle.getString("objectT"));
-        fa.logEvent("notification_received", event);
-        //Send test notification
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(android.R.drawable.btn_plus)
-                        .setContentTitle(bundle.getString("message"))
-                        .setContentText(bundle.getString("objectType"));
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(4544, mBuilder.build());
-        //Start the update
-//        LibrusDataLoader.load(this).done(new DoneCallback<LibrusData>() {
-//            @Override
-//            public void onDone(LibrusData result) {
-//                LibrusDataLoader.updatePersistent(result, getApplicationContext()).done(new DoneCallback<LibrusData>() {
-//                    @Override
-//                    public void onDone(LibrusData result) {
-//                        LibrusDataLoader.save(result, getApplicationContext());
-//                    }
-//                });
-//            }
-//        }).fail(new FailCallback<Object>() {
-//            @Override
-//            public void onFail(Object result) {
-//                LibrusDataLoader.updatePersistent(new LibrusData(getApplicationContext()), getApplicationContext()).done(new DoneCallback<LibrusData>() {
-//                    @Override
-//                    public void onDone(LibrusData result) {
-//                        LibrusDataLoader.save(result, getApplicationContext());
-//                    }
-//                });
-//            }
-//        });
+        firebaseLogger.accept(bundle.getString("objectT"));
+
+        reloads = CompletableFuture.allOf(
+            updateHelper.reload(Grade.class)
+                    .thenApply(this::filterAdded)
+                    .thenAccept(notificationService::addGrades),
+
+            updateHelper.reload(Announcement.class)
+                    .thenApply(this::filterAdded)
+                    .thenAccept(notificationService::addAnnouncements),
+
+            updateHelper.reload(Event.class)
+                    .thenApply(this::filterAdded)
+                    .thenAccept(notificationService::addEvents),
+
+            updateHelper.reload(LuckyNumber.class)
+                    .thenApply(this::filterAdded)
+                    .thenAccept(notificationService::addLuckyNumber)
+        );
+
+    }
+
+    public CompletableFuture<?> getReloads() {
+        return reloads;
+    }
+
+    public void setUpdateHelper(UpdateHelper updateHelper) {
+        this.updateHelper = updateHelper;
+    }
+
+    public void setFirebaseLogger(Consumer<String> firebaseLogger) {
+        this.firebaseLogger = firebaseLogger;
+    }
+
+    public void setNotificationService(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
+
+    private <T extends Persistable> List<T> filterAdded(List<EntityChange<T>> changes) {
+        return StreamSupport.stream(changes)
+                .filter(change -> change.type() == ADDED)
+                .map(EntityChange::entity)
+                .collect(Collectors.toList());
     }
 }

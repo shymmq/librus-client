@@ -17,8 +17,6 @@ import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
-import pl.librus.client.api.EntityInfo;
-import pl.librus.client.api.EntityInfos;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
@@ -29,6 +27,7 @@ import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.Identifiable;
 import pl.librus.client.datamodel.JsonLesson;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LessonType;
@@ -40,6 +39,9 @@ import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.timetable.TimetableUtils;
 import pl.librus.client.ui.MainApplication;
+
+import static pl.librus.client.sql.EntityChange.Type.ADDED;
+import static pl.librus.client.sql.EntityChange.Type.CHANGED;
 
 /**
  * Created by szyme on 31.01.2017.
@@ -81,12 +83,7 @@ public class UpdateHelper {
         final long startTime = System.currentTimeMillis();
 
         for (Class<? extends Persistable> entityClass : entitiesToUpdate) {
-            EntityInfo info = EntityInfos.infoFor(entityClass);
-            if (info.single()) {
-                tasks.add(updateObject(info.endpoint(), info.topLevelName(), entityClass));
-            } else {
-                tasks.add(updateList(info.endpoint(), info.topLevelName(), entityClass));
-            }
+            tasks.add(update(entityClass));
         }
         tasks.add(updateNearestTimetables());
         progressReporter.setTotal(tasks.size());
@@ -127,14 +124,9 @@ public class UpdateHelper {
         });
     }
 
-    private <T extends Persistable> CompletableFuture<Iterable<T>> updateList(final String endpoint, String topLevelName, final Class<T> clazz) {
-        return client.getList(endpoint, topLevelName, clazz)
-                .thenApply(result -> MainApplication.getData().upsert(result));
-    }
-
-    private <T extends Persistable> CompletableFuture<T> updateObject(final String endpoint, String topLevelName, final Class<T> clazz) {
-        return client.getObject(endpoint, topLevelName, clazz)
-                .thenApply(result -> MainApplication.getData().upsert(result));
+    private <T extends Persistable> CompletableFuture<Iterable<T>> update(final Class<T> clazz) {
+        return client.getAll(clazz)
+                .thenApply(MainApplication.getData()::upsert);
     }
 
     public CompletableFuture<List<Lesson>> getLessonsForWeek(LocalDate weekStart) {
@@ -152,37 +144,28 @@ public class UpdateHelper {
         }
     }
 
-    public CompletableFuture<Teacher> getTeacherForId(String id) {
-        Teacher cached = MainApplication.getData().findByKey(Teacher.class, id);
-        if (cached == null) {
-            //teacher not cached, download from server
-            return updateObject("/Users/" + id, "User", Teacher.class);
-        } else {
-            return CompletableFuture.completedFuture(cached);
-        }
-    }
+    public <T extends Persistable & Identifiable> CompletableFuture<List<EntityChange<T>>> reload(Class<T> clazz) {
 
-    public CompletableFuture<List<EntityChange>> reloadGrades() {
-        List<Grade> gradesInDB = MainApplication.getData()
-                .select(Grade.class)
+        List<T> entitiesInDB = MainApplication.getData()
+                .select(clazz)
                 .get()
                 .toList();
-        Map<String, Grade> gradesById = StreamSupport.stream(gradesInDB)
-                .collect(Collectors.toMap(Grade::id, g -> g));
-        EntityInfo info = EntityInfos.infoFor(Grade.class);
-        return client.getList(info.endpoint(), info.topLevelName(), Grade.class)
-                .thenApply(newGrades -> {
-                    MainApplication.getData().upsert(newGrades);
-                    List<EntityChange> changed = Lists.newArrayList();
-                    for (Grade newGrade : newGrades) {
-                        Grade inDB = gradesById.get(newGrade.id());
+        Map<String, T> byId = StreamSupport.stream(entitiesInDB)
+                .collect(Collectors.toMap(t -> t.id(), t -> t));
+        return client.getAll(clazz)
+                .thenApply(newEntities -> {
+                    MainApplication.getData().upsert(newEntities);
+                    List<EntityChange<T>> changed = Lists.newArrayList();
+                    for (T newEntity : newEntities) {
+                        T inDB = byId.get(newEntity.id());
                         if (inDB == null) {
-                            changed.add(ImmutableEntityChange.of(EntityChange.Type.ADDED, newGrade));
-                        } else if (!inDB.equals(newGrade)) {
-                            changed.add(ImmutableEntityChange.of(EntityChange.Type.CHANGED, newGrade));
+                            changed.add(ImmutableEntityChange.of(ADDED, newEntity));
+                        } else if (!inDB.equals(newEntity)) {
+                            changed.add(ImmutableEntityChange.of(CHANGED, newEntity));
                         }
                     }
                     return changed;
                 });
     }
+
 }

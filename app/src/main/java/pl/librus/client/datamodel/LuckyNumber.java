@@ -16,7 +16,7 @@ import io.requery.Persistable;
         builder = "new"
 )
 @JsonDeserialize(as = ImmutableLuckyNumber.class)
-public abstract class LuckyNumber implements Persistable {
+public abstract class LuckyNumber implements Persistable, Identifiable{
 
     @JsonProperty("LuckyNumberDay")
     @Key
@@ -30,4 +30,8 @@ public abstract class LuckyNumber implements Persistable {
 
     }
 
+    @Override
+    public String id() {
+        return day().toString();
+    }
 }
