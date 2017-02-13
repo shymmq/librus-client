@@ -1,9 +1,9 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_announcement_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="1"
+    android:background="@color/md_light_background"
     android:clipChildren="false"
     android:transitionGroup="true"
     tools:context="pl.librus.client.announcements.AnnouncementDetailsFragment">
@@ -52,4 +52,4 @@
 
 
     </LinearLayout>
-</RelativeLayout>
+</ScrollView>
