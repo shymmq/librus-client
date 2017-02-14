@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.collect.Ordering;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +28,8 @@ import pl.librus.client.datamodel.AnnouncementType;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
+
+import static java8.util.stream.Collectors.toList;
 
 public class AnnouncementsFragment extends MainFragment {
 
@@ -48,21 +52,25 @@ public class AnnouncementsFragment extends MainFragment {
 
         List<Announcement> announcementList = MainApplication.getData()
                 .select(Announcement.class)
-                .orderBy(AnnouncementType.START_DATE.desc())
                 .get()
                 .toList();
+
+        Ordering<AnnouncementItem> ordering = Ordering.natural()
+                .onResultOf(AnnouncementItem::getHeaderOrder)
+                .compound(Ordering.natural()
+                        .onResultOf(AnnouncementItem::getStartDate).reverse());
+
         List<AnnouncementItem> announcementItems = StreamSupport.stream(announcementList)
                 .map(a -> new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())))
-                .collect(java8.util.stream.Collectors.toList());
-        Collections.sort(announcementItems);
-        List<IFlexible> listItems = new ArrayList<>();
-        listItems.addAll(announcementItems);
-        final FlexibleAdapter<IFlexible> adapter = new FlexibleAdapter<>(listItems);
+                .sorted(ordering)
+                .collect(toList());
+
+        final FlexibleAdapter<AnnouncementItem> adapter = new FlexibleAdapter<>(announcementItems);
         adapter.setDisplayHeadersAtStartUp(true);
         adapter.mItemClickListener = position -> {
             if (adapter.getItem(position) instanceof AnnouncementItem) {
 
-                AnnouncementItem item = (AnnouncementItem) adapter.getItem(position);
+                AnnouncementItem item = adapter.getItem(position);
                 Announcement announcement = item.getAnnouncement();
 
                 FragmentManager fm = getFragmentManager();

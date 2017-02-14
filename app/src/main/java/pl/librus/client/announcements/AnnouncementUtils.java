@@ -24,7 +24,7 @@ class AnnouncementUtils {
 
     static AnnouncementHeaderItem getHeaderOf(Announcement a, Context c) {
         LocalDate date = a.startDate();
-        if (new Reader(c).isRead(a))
+        if (!new Reader(c).isRead(a))
             return unread;
         else if (!date.isBefore(LocalDate.now()))
             return today;
@@ -38,14 +38,4 @@ class AnnouncementUtils {
             return older;
     }
 
-    static Comparator getItemComparator() {
-        return new Comparator() {
-            @Override
-            public int compare(Object o1, Object o2) {
-                if (o1 instanceof AnnouncementItem && o2 instanceof AnnouncementItem)
-                    return ((AnnouncementItem) o1).getAnnouncement().startDate().compareTo(((AnnouncementItem) o2).getAnnouncement().startDate());
-                else return 0;
-            }
-        };
-    }
 }
