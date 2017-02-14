@@ -19,10 +19,10 @@ import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.IFlexible;
+import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.AnnouncementType;
-import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
@@ -51,58 +51,45 @@ public class AnnouncementsFragment extends MainFragment {
                 .orderBy(AnnouncementType.START_DATE.desc())
                 .get()
                 .toList();
-        List<AnnouncementItem> announcementItems = new ArrayList<>();
-
-
-        for (Announcement a : announcementList) {
-            announcementItems.add(new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())));
-        }
+        List<AnnouncementItem> announcementItems = StreamSupport.stream(announcementList)
+                .map(a -> new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())))
+                .collect(java8.util.stream.Collectors.toList());
         Collections.sort(announcementItems);
         List<IFlexible> listItems = new ArrayList<>();
-        for (AnnouncementItem i : announcementItems) listItems.add(i);
+        listItems.addAll(announcementItems);
         final FlexibleAdapter<IFlexible> adapter = new FlexibleAdapter<>(listItems);
         adapter.setDisplayHeadersAtStartUp(true);
-        adapter.mItemClickListener = new FlexibleAdapter.OnItemClickListener() {
-            @Override
-            public boolean onItemClick(int position) {
-                if (adapter.getItem(position) instanceof AnnouncementItem) {
+        adapter.mItemClickListener = position -> {
+            if (adapter.getItem(position) instanceof AnnouncementItem) {
 
-                    AnnouncementItem item = (AnnouncementItem) adapter.getItem(position);
-                    Announcement announcement = item.getAnnouncement();
-                    Teacher teacher = MainApplication.getData().findByKey(Teacher.class, announcement.addedBy().id());
+                AnnouncementItem item = (AnnouncementItem) adapter.getItem(position);
+                Announcement announcement = item.getAnnouncement();
 
-                    FragmentManager fm = getFragmentManager();
-                    FragmentTransaction ft = fm.beginTransaction();
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
 
-                    AnnouncementDetailsFragment announcementDetailsFragment = AnnouncementDetailsFragment.newInstance(announcement, teacher);
+                AnnouncementDetailsFragment announcementDetailsFragment = AnnouncementDetailsFragment.newInstance(announcement);
 
-                    TransitionInflater transitionInflater = TransitionInflater.from(getContext());
-                    Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
-                    Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
+                TransitionInflater transitionInflater = TransitionInflater.from(getContext());
+                Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
+                Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
 
-                    setSharedElementEnterTransition(details_enter);
-                    setSharedElementReturnTransition(details_exit);
-                    setExitTransition(new Fade());
-                    announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
-                    announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
+                setSharedElementEnterTransition(details_enter);
+                setSharedElementReturnTransition(details_exit);
+                setExitTransition(new Fade());
+                announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
+                announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
 
-                    ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
-                    ft.addSharedElement(item.getBackgroundView(), item.getBackgroundView().getTransitionName());
-                    ft.addToBackStack("aaas");
-                    ft.commit();
-                }
-                return false;
+                ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
+                ft.addSharedElement(item.getBackgroundView(), item.getBackgroundView().getTransitionName());
+                ft.commit();
             }
+            return false;
         };
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(adapter);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startPostponedEnterTransition();
-            }
-        }, 50);
+        new Handler().postDelayed(this::startPostponedEnterTransition, 50);
         ((MainActivity) getActivity()).setBackArrow(false);
 
         return root;
@@ -110,7 +97,6 @@ public class AnnouncementsFragment extends MainFragment {
 
     @Override
     public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-
     }
 
     @Override
