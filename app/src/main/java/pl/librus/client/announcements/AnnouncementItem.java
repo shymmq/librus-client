@@ -59,7 +59,7 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         Teacher teacher = MainApplication.getData().findByKey(Teacher.class, announcement.addedBy().id());
         holder.announcementSubject.setText(announcement.subject());
         holder.background.setTransitionName("announcement_background_" + announcement.id());
-        holder.announcementTeacherName.setText(teacher.name());
+        holder.announcementTeacherName.setText(teacher == null ? "" : teacher.name());
         holder.announcementContent.setText(announcement.content());
 
         if (!read)

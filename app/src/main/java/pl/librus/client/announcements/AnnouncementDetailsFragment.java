@@ -14,6 +14,7 @@ import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
+import pl.librus.client.ui.MainApplication;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,7 +23,6 @@ import pl.librus.client.ui.MainActivity;
  */
 public class AnnouncementDetailsFragment extends Fragment {
     private static final String ARG_ANNOUNCEMENT = "librus-client:AnnouncementDetailsFragment:announcement";
-    private static final String ARG_AUTHOR = "librus-client:AnnouncementDetailsFragment:author";
     private Announcement announcement;
     private Teacher author;
 
@@ -37,11 +37,10 @@ public class AnnouncementDetailsFragment extends Fragment {
      * @param announcement Announcement to show
      * @return A new instance of fragment AnnouncementDetailsFragment.
      */
-    public static AnnouncementDetailsFragment newInstance(Announcement announcement, Teacher author) {
+    public static AnnouncementDetailsFragment newInstance(Announcement announcement) {
         AnnouncementDetailsFragment fragment = new AnnouncementDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ANNOUNCEMENT, announcement);
-        args.putSerializable(ARG_AUTHOR, author);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,7 +50,8 @@ public class AnnouncementDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             announcement = (Announcement) getArguments().getSerializable(ARG_ANNOUNCEMENT);
-            author = (Teacher) getArguments().getSerializable(ARG_AUTHOR);
+            author = MainApplication.getData()
+                    .findByKey(Teacher.class, announcement.addedBy().id());
         }
     }
 
@@ -70,7 +70,7 @@ public class AnnouncementDetailsFragment extends Fragment {
         View background = root.findViewById(R.id.fragment_announcement_details);
         titleTextView.setText(announcement.subject());
         contentTextView.setText(announcement.content());
-        authorTextView.setText(author.name());
+        authorTextView.setText(author == null ? "" : author.name());
         dateTextView.setText(announcement.startDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
 
         background.setTransitionName("announcement_background_" + announcement.id());
