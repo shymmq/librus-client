@@ -26,7 +26,7 @@ import pl.librus.client.ui.MainApplication;
  * Created by szyme on 28.12.2016. librus-client
  */
 
-class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> implements Comparable<AnnouncementItem> {
+class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> {
     private final Announcement announcement;
     private View backgroundView;
     private TextView title;
@@ -92,14 +92,6 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         return backgroundView;
     }
 
-    @Override
-    public int compareTo(@NonNull AnnouncementItem o) {
-        int a = Boolean.compare(read, o.isRead());
-        if (a == 0)
-            return o.getAnnouncement().startDate().compareTo(announcement.startDate());
-        else return a;
-    }
-
     private boolean isRead() {
         return read;
     }
@@ -127,5 +119,18 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
             announcementContent = (TextView) view.findViewById(R.id.three_line_list_item_second);
             announcementDate = (TextView) view.findViewById(R.id.three_line_list_item_date);
         }
+    }
+
+    public int getHeaderOrder() {
+        return getHeader().getOrder();
+    }
+
+    public LocalDate getStartDate() {
+        return announcement.startDate();
+    }
+
+    @Override
+    public String toString() {
+        return announcement.toString();
     }
 }

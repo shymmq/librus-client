@@ -18,7 +18,7 @@ import pl.librus.client.R;
  * Created by szyme on 28.12.2016. librus-client
  */
 
-class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.ViewHolder> implements Comparable<AnnouncementHeaderItem> {
+class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.ViewHolder> {
 
     private String title;
     private int order;
@@ -87,11 +87,6 @@ class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.V
         return R.layout.list_subheader;
     }
 
-    @Override
-    public int compareTo(@NonNull AnnouncementHeaderItem announcementHeaderItem) {
-        return Integer.compare(order, announcementHeaderItem.order);
-    }
-
     class ViewHolder extends FlexibleViewHolder {
         TextView title;
 
@@ -99,5 +94,9 @@ class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.V
             super(view, adapter);
             title = (TextView) view.findViewById(R.id.list_subheader_title);
         }
+    }
+
+    public int getOrder() {
+        return order;
     }
 }
