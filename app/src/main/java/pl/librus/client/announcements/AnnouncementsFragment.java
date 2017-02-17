@@ -82,6 +82,7 @@ public class AnnouncementsFragment extends MainFragment {
 
                 ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
                 ft.addSharedElement(item.getBackgroundView(), item.getBackgroundView().getTransitionName());
+                ft.addToBackStack(null);
                 ft.commit();
             }
             return false;
