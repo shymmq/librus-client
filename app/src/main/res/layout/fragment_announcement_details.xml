@@ -3,7 +3,7 @@
     android:id="@+id/fragment_announcement_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/md_light_background"
+    android:background="?attr/selectableItemBackground"
     android:clipChildren="false"
     android:transitionGroup="true"
     tools:context="pl.librus.client.announcements.AnnouncementDetailsFragment">

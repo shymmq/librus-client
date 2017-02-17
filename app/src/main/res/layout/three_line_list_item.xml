@@ -4,7 +4,7 @@
     android:id="@+id/three_line_list_item_background"
     android:layout_width="match_parent"
     android:layout_height="88dp"
-    android:background="@color/md_light_background"
+    android:background="?attr/selectableItemBackground"
     android:clipChildren="false"
     android:elevation="1dp"
     android:outlineProvider="bounds"
