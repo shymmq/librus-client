@@ -1,7 +1,6 @@
 package pl.librus.client.announcements;
 
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
+import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainApplication;
@@ -30,7 +30,6 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
     private final Announcement announcement;
     private View backgroundView;
     private TextView title;
-    private boolean read;
 
     public AnnouncementItem(Announcement announcement, AnnouncementHeaderItem header) {
         super(header);
@@ -62,7 +61,9 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         holder.announcementTeacherName.setText(teacher == null ? "" : teacher.name());
         holder.announcementContent.setText(announcement.content());
 
-        if (!read)
+        Reader reader = new Reader(holder.itemView.getContext());
+
+        if (!reader.isRead(announcement))
             holder.announcementSubject.setTypeface(holder.announcementSubject.getTypeface(), Typeface.BOLD);
         else
             holder.announcementSubject.setTypeface(null, Typeface.NORMAL);
@@ -92,14 +93,6 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         return backgroundView;
     }
 
-    private boolean isRead() {
-        return read;
-    }
-
-    public void setRead(boolean read) {
-        this.read = read;
-    }
-
     public TextView getTitle() {
         return title;
     }
@@ -121,11 +114,11 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
         }
     }
 
-    public int getHeaderOrder() {
+    int getHeaderOrder() {
         return getHeader().getOrder();
     }
 
-    public LocalDate getStartDate() {
+    LocalDate getStartDate() {
         return announcement.startDate();
     }
 

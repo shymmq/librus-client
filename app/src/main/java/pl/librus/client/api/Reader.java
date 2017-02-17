@@ -31,7 +31,7 @@ public class Reader {
         modify(object, true);
     }
 
-    private void modify(Identifiable object, boolean mode) {
+    public void modify(Identifiable object, boolean mode) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         Set<String> read = Sets.newHashSet(getRead(object.getClass()));
@@ -43,7 +43,7 @@ public class Reader {
 
     private Set<String> getRead(Class clazz) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getStringSet(clazz.getCanonicalName(), new HashSet<String>());
+        return prefs.getStringSet(clazz.getCanonicalName(), new HashSet<>());
 
     }
 }

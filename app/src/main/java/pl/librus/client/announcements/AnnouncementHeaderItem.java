@@ -1,7 +1,6 @@
 package pl.librus.client.announcements;
 
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,17 +21,10 @@ class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.V
 
     private String title;
     private int order;
-    private boolean dismissable = false;
 
     AnnouncementHeaderItem(String title, int order) {
         this.title = title;
         this.order = order;
-    }
-
-    AnnouncementHeaderItem(String title, int order, boolean dismissable) {
-        this.title = title;
-        this.order = order;
-        this.dismissable = dismissable;
     }
 
     @Override
@@ -44,7 +36,6 @@ class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.V
     public void bindViewHolder(final FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         holder.title.setText(title);
         holder.title.setTypeface(holder.title.getTypeface(), Typeface.BOLD);
-        final AnnouncementHeaderItem header = this;
 //        if (dismissable) {
 //            holder.done.setVisibility(View.VISIBLE);
 //            holder.done.setOnClickListener(new View.OnClickListener() {

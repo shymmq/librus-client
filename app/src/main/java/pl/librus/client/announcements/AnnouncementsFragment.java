@@ -15,16 +15,13 @@ import android.view.ViewGroup;
 
 import com.google.common.collect.Ordering;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
-import eu.davidea.flexibleadapter.items.IFlexible;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
+import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.datamodel.AnnouncementType;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
@@ -68,32 +65,33 @@ public class AnnouncementsFragment extends MainFragment {
         final FlexibleAdapter<AnnouncementItem> adapter = new FlexibleAdapter<>(announcementItems);
         adapter.setDisplayHeadersAtStartUp(true);
         adapter.mItemClickListener = position -> {
-            if (adapter.getItem(position) instanceof AnnouncementItem) {
+            AnnouncementItem item = adapter.getItem(position);
+            Announcement announcement = item.getAnnouncement();
 
-                AnnouncementItem item = adapter.getItem(position);
-                Announcement announcement = item.getAnnouncement();
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
 
-                FragmentManager fm = getFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
+            AnnouncementDetailsFragment announcementDetailsFragment = AnnouncementDetailsFragment.newInstance(announcement);
 
-                AnnouncementDetailsFragment announcementDetailsFragment = AnnouncementDetailsFragment.newInstance(announcement);
+            TransitionInflater transitionInflater = TransitionInflater.from(getContext());
+            Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
+            Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
 
-                TransitionInflater transitionInflater = TransitionInflater.from(getContext());
-                Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
-                Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
+            setSharedElementEnterTransition(details_enter);
+            setSharedElementReturnTransition(details_exit);
+            setExitTransition(new Fade());
+            announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
+            announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
 
-                setSharedElementEnterTransition(details_enter);
-                setSharedElementReturnTransition(details_exit);
-                setExitTransition(new Fade());
-                announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
-                announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
-
-                ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
-                ft.addSharedElement(item.getBackgroundView(), item.getBackgroundView().getTransitionName());
-                ft.addToBackStack(null);
-                ft.commit();
-            }
+            ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
+            ft.addSharedElement(item.getBackgroundView(), item.getBackgroundView().getTransitionName());
+            ft.addToBackStack(null);
+            ft.commit();
             return false;
+        };
+        adapter.mItemLongClickListener = position -> {
+            new Reader(getContext()).modify(adapter.getItem(position).getAnnouncement(), false);
+            adapter.notifyItemChanged(position);
         };
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
