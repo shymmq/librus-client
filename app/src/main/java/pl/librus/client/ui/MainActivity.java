@@ -279,13 +279,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_main, currentFragment)
                     .commit();
-            currentFragment.setOnSetupCompleteListener(new MainFragment.OnSetupCompleteListener() {
-                @Override
-                public void run() {
-                    updateMenu();
-                    currentFragment.removeListener();
-                }
-            });
+
+            currentFragment.runAfterSetup(this::updateMenu);
         }
         return false;
     }
@@ -323,14 +318,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                         getString(R.string.prefs_default_fragment),
                         getString(R.string.timetable_view_key)
                 ));
-        final MainFragment defaultFragment = getFragmentForId(id);
-        //when first fragment is set up, start the update
-        defaultFragment.setOnSetupCompleteListener(new MainFragment.OnSetupCompleteListener() {
-            @Override
-            public void run() {
-                defaultFragment.removeListener();
-            }
-        });
         drawer.setSelection(id);
         return true;
     }

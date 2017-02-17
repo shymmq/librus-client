@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import pl.librus.client.R;
 
 public class PlaceholderFragment extends MainFragment {
+
     public PlaceholderFragment() {
     }
 
@@ -16,21 +17,6 @@ public class PlaceholderFragment extends MainFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_placeholder, container, false);
-    }
-
-    @Override
-    public void refresh() {
-
-    }
-
-    @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-
-    }
-
-    @Override
-    public void removeListener() {
-
     }
 
     @Override

@@ -55,17 +55,6 @@ public class TimetableTabFragment extends MainFragment {
     }
 
     @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-        this.listener = listener;
-
-    }
-
-    @Override
-    public void removeListener() {
-        this.listener = null;
-    }
-
-    @Override
     public int getTitle() {
         return R.string.timetable_view_title;
     }

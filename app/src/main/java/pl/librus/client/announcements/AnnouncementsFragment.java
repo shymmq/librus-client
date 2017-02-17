@@ -103,14 +103,6 @@ public class AnnouncementsFragment extends MainFragment {
     }
 
     @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-    }
-
-    @Override
-    public void removeListener() {
-    }
-
-    @Override
     public int getTitle() {
         return R.string.announcements_view_title;
     }

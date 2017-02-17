@@ -10,29 +10,11 @@ import pl.librus.client.R;
 
 
 public class LoadingFragment extends MainFragment {
-    public static LoadingFragment newInstance() {
-
-        Bundle args = new Bundle();
-
-        LoadingFragment fragment = new LoadingFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_loading, container, false);
-    }
-
-    @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-
-    }
-
-    @Override
-    public void removeListener() {
-
     }
 
     @Override

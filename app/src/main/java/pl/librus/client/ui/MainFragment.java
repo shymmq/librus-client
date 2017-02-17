@@ -1,5 +1,7 @@
 package pl.librus.client.ui;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import java.util.ArrayList;
@@ -12,12 +14,11 @@ import java.util.List;
 
 public abstract class MainFragment extends Fragment {
 
-    void refresh() {
+    private Runnable onSetupComplete;
+
+    void runAfterSetup(Runnable r) {
+        this.onSetupComplete = r;
     }
-
-    public abstract void setOnSetupCompleteListener(OnSetupCompleteListener listener);
-
-    public abstract void removeListener();
 
     public List<? extends MenuAction> getMenuItems() {
         return new ArrayList<>();
@@ -28,4 +29,11 @@ public abstract class MainFragment extends Fragment {
     }
 
     public abstract int getTitle();
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (onSetupComplete != null) onSetupComplete.run();
+        onSetupComplete = null;
+    }
 }

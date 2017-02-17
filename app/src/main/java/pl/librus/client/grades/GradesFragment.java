@@ -50,7 +50,6 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
 
     List<? extends MenuAction> actions = new ArrayList<>();
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
-    private OnSetupCompleteListener listener;
     private Reader reader;
     private EntityDataStore<Persistable> data;
 
@@ -116,8 +115,6 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                         .get()
                         .toList(),
                 getContext(), () -> adapter.notifyItemRangeChanged(0, adapter.getItemCount())));
-
-        if (listener != null) listener.run();
 
         return root;
     }
@@ -207,16 +204,6 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                 category,
                 color
         );
-    }
-
-    @Override
-    public void setOnSetupCompleteListener(OnSetupCompleteListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
-    public void removeListener() {
-        this.listener = null;
     }
 
     @Override
