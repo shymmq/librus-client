@@ -26,7 +26,7 @@ public class RegistrationIntentService extends IntentService {
         try {
             String token = InstanceID.getInstance(this)
                     .getToken("431120868545", GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            new APIClient(this).pushDevices(token);
+            new DefaultAPIClient(this).pushDevices(token);
             Log.d(TAG, "GCM token: " + token);
         } catch (IOException e) {
             e.printStackTrace();

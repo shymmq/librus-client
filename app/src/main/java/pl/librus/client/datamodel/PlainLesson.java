@@ -8,15 +8,13 @@ import org.immutables.value.Value;
 import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
-import io.requery.ManyToOne;
-import io.requery.OneToOne;
 import io.requery.Persistable;
 
 @Entity
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutablePlainLesson.class)
-public abstract class PlainLesson implements Persistable{
+public abstract class PlainLesson implements Persistable, Identifiable{
     @Key
     public abstract String id();
 

@@ -19,7 +19,7 @@ import io.requery.Persistable;
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableAttendanceCategory.class)
-public abstract class AttendanceCategory implements Persistable {
+public abstract class AttendanceCategory implements Persistable, Identifiable {
     @Key
     public abstract String id();
 

@@ -2,7 +2,6 @@ package pl.librus.client;
 
 import com.google.common.io.Resources;
 
-import org.apache.tools.ant.taskdefs.Local;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -13,7 +12,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import io.requery.Persistable;
-import pl.librus.client.api.APIClient;
+import pl.librus.client.api.DefaultAPIClient;
 import pl.librus.client.api.EntityInfos;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
@@ -81,7 +80,7 @@ public class APIClientTest {
     @Test
     public void shouldParseTimetable() throws IOException {
         //when
-        Timetable res = APIClient.parseObject(readFile("Timetable.json"), "Timetable", Timetable.class);
+        Timetable res = DefaultAPIClient.parseObject(readFile("Timetable.json"), "Timetable", Timetable.class);
 
         //then
         JsonLesson actual = res.get(LocalDate.parse("2017-01-30"))
@@ -318,11 +317,11 @@ public class APIClientTest {
     }
 
     private <T extends Persistable> List<T> parseList(String filename, Class<T> clazz) {
-        return APIClient.parseList(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
+        return DefaultAPIClient.parseList(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
     }
 
     private <T extends Persistable> T parseObject(String filename, Class<T> clazz) {
-        return APIClient.parseObject(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
+        return DefaultAPIClient.parseObject(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
     }
 
 

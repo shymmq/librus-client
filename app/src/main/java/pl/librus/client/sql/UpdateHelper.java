@@ -66,8 +66,9 @@ public class UpdateHelper {
             LuckyNumber.class,
             Me.class
     );
+
     public UpdateHelper(Context context) {
-        this(new APIClient(context));
+        this(LibrusUtils.getAPIClient(context));
     }
 
     public UpdateHelper(APIClient client) {
@@ -109,20 +110,20 @@ public class UpdateHelper {
 
     private CompletableFuture<List<Lesson>> updateTimetable(LocalDate weekStart) {
         return client.getTimetable(weekStart).thenApply(timetable -> {
-                List<Lesson> result = Lists.newArrayList();
+            List<Lesson> result = Lists.newArrayList();
 
-                for (Map.Entry<LocalDate, List<List<JsonLesson>>> e : timetable.entrySet()) {
-                    LocalDate date = e.getKey();
-                    for (List<JsonLesson> list : e.getValue()) {
-                        if (list.size() > 0) {
-                            Lesson l = list.get(0).convert(date);
-                            result.add(l);
-                            MainApplication.getData()
-                                    .upsert(l);
-                        }
+            for (Map.Entry<LocalDate, List<List<JsonLesson>>> e : timetable.entrySet()) {
+                LocalDate date = e.getKey();
+                for (List<JsonLesson> list : e.getValue()) {
+                    if (list.size() > 0) {
+                        Lesson l = list.get(0).convert(date);
+                        result.add(l);
+                        MainApplication.getData()
+                                .upsert(l);
                     }
                 }
-                return result;
+            }
+            return result;
         });
     }
 

@@ -20,7 +20,7 @@ import io.requery.Persistable;
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableLibrusColor.class)
-public abstract class LibrusColor implements Persistable {
+public abstract class LibrusColor implements Persistable, Identifiable {
 
     @Key
     public abstract String id();

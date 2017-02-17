@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
 
+import java.io.Serializable;
+
+import io.requery.Column;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
@@ -15,7 +18,7 @@ import io.requery.Persistable;
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableTeacher.class)
-public abstract class Teacher implements Persistable {
+public abstract class Teacher implements Persistable, Serializable, Identifiable {
 
     @Key
     public abstract String id();

@@ -23,6 +23,7 @@ import pl.librus.client.datamodel.Teacher;
 
 /**
  * Created by robwys on 11/02/2017.
+ *
  */
 
 public class EntityInfos {
@@ -70,5 +71,9 @@ public class EntityInfos {
 
     public static EntityInfo infoFor(Class<? extends Persistable> clazz) {
         return infos.get(clazz);
+    }
+
+    public static Map<Class<? extends Persistable>, EntityInfo> all() {
+        return infos;
     }
 }

@@ -6,10 +6,7 @@ import org.immutables.value.Value;
 
 import io.requery.Embedded;
 import io.requery.Entity;
-import io.requery.ForeignKey;
 import io.requery.Key;
-import io.requery.ManyToOne;
-import io.requery.OneToOne;
 import io.requery.Persistable;
 
 /**
@@ -19,7 +16,7 @@ import io.requery.Persistable;
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableGradeComment.class)
-public abstract class GradeComment implements Persistable{
+public abstract class GradeComment implements Persistable, Identifiable{
 
     @Key
     public abstract String id();

@@ -4,10 +4,8 @@ package pl.librus.client.datamodel;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
-import org.joda.time.LocalDate;
 
 import io.requery.Entity;
-import io.requery.ForeignKey;
 import io.requery.Key;
 import io.requery.Persistable;
 
@@ -15,7 +13,7 @@ import io.requery.Persistable;
 @Value.Style(builder = "new")
 @Value.Immutable
 @JsonDeserialize(as=ImmutableSubject.class)
-public abstract class Subject implements Persistable {
+public abstract class Subject implements Persistable, Identifiable {
     @Key
     @Value.Parameter
     public abstract String id();

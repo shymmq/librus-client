@@ -112,7 +112,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                         .whenComplete((result, exception) -> {
                             if (exception != null) {
                                 //TODO: better error handling
-                                LibrusUtils.logError(exception.toString());
+                                LibrusUtils.logError("Update failed");
+                                exception.printStackTrace();
                                 runOnUiThread(() ->
                                         Snackbar.make(
                                                 findViewById(R.id.activity_main_coordinator),
