@@ -1,12 +1,18 @@
 package pl.librus.client.timetable;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import java.util.List;
 
@@ -80,24 +86,24 @@ class TabLessonItem extends AbstractFlexibleItem<TabLessonItem.TabLessonItemView
                 holder.badge.setVisibility(View.GONE);
             }
 
-//            LocalTime timeNow = LocalTime.now();
-//            if (preferences.getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
-//                    LocalDate.now().isEqual(lesson.date()) &&
-//                    timeNow.isAfter(lesson.getStartTime()) &&
-//                    timeNow.isBefore(lesson.getEndTime())) {
-//                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
-//            } else {
-//                holder.subject.setTypeface(null, Typeface.NORMAL);
-//            }
-//
-//            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
-//                    !lesson.date().isAfter(LocalDate.now()) &&
-//                    timeNow.isAfter(lesson.getEndTime())) {
-//                holder.itemView.setAlpha(0.57f);
-//            } else {
-//                holder.itemView.setAlpha(1.0f);
-//            }
-            //TODO
+            LocalTime timeNow = LocalTime.now();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            if (preferences
+                    .getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
+                    LocalDate.now().isEqual(lesson.date()) &&
+                    timeNow.isAfter(lesson.hourFrom()) &&
+                    timeNow.isBefore(lesson.hourTo())) {
+                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
+            } else {
+                holder.subject.setTypeface(null, Typeface.NORMAL);
+            }
+            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
+                    !lesson.date().isAfter(LocalDate.now()) &&
+                    timeNow.isAfter(lesson.hourTo())) {
+                holder.itemView.setAlpha(0.57f);
+            } else {
+                holder.itemView.setAlpha(1.0f);
+            }
         }
     }
 

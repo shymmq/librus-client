@@ -13,11 +13,7 @@ import eu.davidea.flexibleadapter.items.IFlexible;
  */
 
 class TimetableAdapter extends FlexibleAdapter<IFlexible> {
-    OnLoadMoreListener onLoadMoreListener = new OnLoadMoreListener() {
-        @Override
-        public void onLoadMore() {
-
-        }
+    OnLoadMoreListener onLoadMoreListener = () -> {
     };
 
     TimetableAdapter(@Nullable List<IFlexible> items) {

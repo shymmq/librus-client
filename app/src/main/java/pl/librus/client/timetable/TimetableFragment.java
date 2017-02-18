@@ -1,18 +1,28 @@
 package pl.librus.client.timetable;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
+import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
 import eu.davidea.flexibleadapter.common.TopSnappedSmoothScroller;
 import eu.davidea.flexibleadapter.items.IFlexible;
@@ -23,20 +33,16 @@ import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
 
-public class TimetableFragment extends MainFragment {
+public class TimetableFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener {
     private final ProgressItem progressItem = new ProgressItem();
-    private final Runnable onSetupCompleted = new Runnable() {
-        @Override
-        public void run() {
-
-        }
-    };
     private TimetableAdapter adapter;
     private SmoothScrollLinearLayoutManager layoutManager;
     private LocalDate startDate;
     private int page = 0;
     private IFlexible defaultHeader;
-    private OnSetupCompleteListener listener;
+
+    public TimetableFragment() {
+    }
 
     public static TimetableFragment newInstance() {
         return new TimetableFragment();
@@ -91,24 +97,21 @@ public class TimetableFragment extends MainFragment {
         adapter.setEndlessProgressItem(progressItem);
 
         adapter.onLoadMoreListener = () -> {
-                progressItem.setStatus(ProgressItem.LOADING);
-                adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
-                LocalDate weekStart = startDate.plusWeeks(page);
+            progressItem.setStatus(ProgressItem.LOADING);
+            adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
+            LocalDate weekStart = startDate.plusWeeks(page);
 
-                new UpdateHelper(getContext()).getLessonsForWeek(weekStart)
-                        .thenAccept(this::displayLessons);
-            };
+            new UpdateHelper(getContext()).getLessonsForWeek(weekStart)
+                    .thenAccept(this::displayLessons);
+        };
+        adapter.mItemClickListener = this;
         recyclerView.setAdapter(adapter);
 
         //Scroll to default position after a delay to let recyclerview complete layout
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (defaultHeader != null)
-                    recyclerView.smoothScrollToPosition(adapter.getGlobalPositionOf(defaultHeader));
-            }
+        new Handler().postDelayed(() -> {
+            if (defaultHeader != null)
+                recyclerView.smoothScrollToPosition(adapter.getGlobalPositionOf(defaultHeader));
         }, 50);
-        if (listener != null) listener.run();
     }
 
     private void displayLessons(List<Lesson> lessons) {
@@ -122,7 +125,7 @@ public class TimetableFragment extends MainFragment {
                 newElements.add(new EmptyLessonItem(header, date));
             } else {
                 for (Lesson l : schoolDay.getLessons()) {
-                    if(l != null) {
+                    if (l != null) {
                         LessonItem lessonItem = new LessonItem(header, l, getContext());
                         newElements.add(lessonItem);
                     } else {
@@ -132,19 +135,70 @@ public class TimetableFragment extends MainFragment {
                 }
             }
         }
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressItem.setStatus(ProgressItem.IDLE);
-                adapter.onLoadMoreComplete(newElements);
-                onSetupCompleted.run();
-                page++;
-            }
+        getActivity().runOnUiThread(() -> {
+            progressItem.setStatus(ProgressItem.IDLE);
+            adapter.onLoadMoreComplete(newElements);
+            page++;
         });
     }
 
     @Override
     public int getTitle() {
         return R.string.timetable_view_title;
+    }
+
+    @Override
+    public boolean onItemClick(int position) {
+        IFlexible item = adapter.getItem(position);
+        if (item instanceof LessonItem) {
+            Lesson lesson = ((LessonItem) item).getLesson();
+            MaterialDialog.Builder builder = new MaterialDialog.Builder(getContext()).title(lesson.subject().name()).positiveText("Zamknij");
+
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            View details = inflater.inflate(R.layout.lesson_details, null);
+
+            ViewGroup eventContainer = (ViewGroup) details.findViewById(R.id.lesson_details_event_container);
+
+            TextView teacherTextView = (TextView) details.findViewById(R.id.lesson_details_teacher_value);
+            TextView dateTextView = (TextView) details.findViewById(R.id.lesson_details_date_value);
+            TextView timeTextView = (TextView) details.findViewById(R.id.lesson_details_time_value);
+            TextView eventTextView = (TextView) details.findViewById(R.id.lesson_details_event_value);
+
+            dateTextView.setText(new SpannableStringBuilder()
+                    .append(lesson.date().toString("EEEE, d MMMM yyyy", new Locale("pl")),
+                            new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+            timeTextView.setText(new SpannableStringBuilder()
+                    .append(lesson.hourFrom().toString("HH:mm"))
+                    .append(" - ")
+                    .append(lesson.hourTo().toString("HH:mm"))
+                    .append(' ')
+                    .append(String.valueOf(lesson.lessonNo()),
+                            new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                    .append(". lekcja", new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+
+            //TODO add Events
+
+            if (lesson.substitutionClass() &&
+                    lesson.orgTeacher() != null &&
+                    !Objects.equals(lesson.teacher().id(), lesson.orgTeacher().id())) {
+                teacherTextView.setText(new SpannableStringBuilder()
+                        .append(lesson.teacher().name())
+                        .append(" -> ")
+                        .append(lesson.orgTeacher().id(),
+                                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)); //TODO replace id with name
+            } else {
+                teacherTextView.setText(new SpannableStringBuilder()
+                        .append(lesson.teacher().name(),
+                                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+            }
+
+            eventContainer.setVisibility(View.GONE);
+
+            //TODO Ogarnianie odwołań
+            builder.customView(details, true).show();
+            return true;
+        } else {
+            return false;
+        }
     }
 }

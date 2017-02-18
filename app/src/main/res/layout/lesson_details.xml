@@ -1,0 +1,87 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/lesson_details_teacher_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/lesson_details_teacher_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nauczyciel" />
+
+        <TextView
+            android:id="@+id/lesson_details_teacher_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Value" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/lesson_details_date_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/lesson_details_date_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Data" />
+
+        <TextView
+            android:id="@+id/lesson_details_date_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Value" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/lesson_details_time_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/lesson_details_time_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Godzina" />
+
+        <TextView
+            android:id="@+id/lesson_details_time_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Value" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/lesson_details_event_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/lesson_details_event_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="kartkówka" />
+
+        <TextView
+            android:id="@+id/lesson_details_event_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Value" />
+    </LinearLayout>
+
+</LinearLayout>

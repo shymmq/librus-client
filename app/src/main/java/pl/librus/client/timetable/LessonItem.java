@@ -1,13 +1,18 @@
 package pl.librus.client.timetable;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.Serializable;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
@@ -21,9 +26,8 @@ import pl.librus.client.datamodel.Lesson;
  */
 //
 
-class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder, LessonHeaderItem> implements Serializable {
+class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder, LessonHeaderItem> {
 
-    private static final long serialVersionUID = -7951416905429163498L;
     private transient final Context context;
     private final Lesson lesson;
 
@@ -81,7 +85,6 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
         holder.lessonNumber.setText(String.valueOf(lesson.lessonNo()));
 
         if (lesson.cancelled()) {
-            //lesson canceled
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.canceled);
             holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_cancel_black_24dp));
@@ -98,16 +101,29 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
                 holder.badge.setVisibility(View.GONE);
             }
 
-//            LocalTime now = LocalTime.now();
-//            if (LocalDate.now().isEqual(lesson.date()) &&
-//                    now.isAfter(lesson.getStartTime()) &&
-//                    now.isBefore(lesson.getEndTime())) {
-//                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
-//            } else {
-//                holder.subject.setTypeface(null, Typeface.NORMAL);
-//            }
-            //TODO
+            LocalTime timeNow = LocalTime.now();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            if (preferences
+                    .getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
+                    LocalDate.now().isEqual(lesson.date()) &&
+                    timeNow.isAfter(lesson.hourFrom()) &&
+                    timeNow.isBefore(lesson.hourTo())) {
+                holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
+            } else {
+                holder.subject.setTypeface(null, Typeface.NORMAL);
+            }
+            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
+                    !lesson.date().isAfter(LocalDate.now()) &&
+                    timeNow.isAfter(lesson.hourTo())) {
+                holder.itemView.setAlpha(0.57f);
+            } else {
+                holder.itemView.setAlpha(1.0f);
+            }
         }
+    }
+
+    public Lesson getLesson() {
+        return lesson;
     }
 
     /**
