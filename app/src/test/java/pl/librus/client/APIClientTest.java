@@ -25,12 +25,26 @@ import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.HasId;
+import pl.librus.client.datamodel.ImmutableAnnouncement;
+import pl.librus.client.datamodel.ImmutableAttendance;
+import pl.librus.client.datamodel.ImmutableAttendanceCategory;
+import pl.librus.client.datamodel.ImmutableAverage;
+import pl.librus.client.datamodel.ImmutableEvent;
+import pl.librus.client.datamodel.ImmutableEventCategory;
+import pl.librus.client.datamodel.ImmutableGrade;
+import pl.librus.client.datamodel.ImmutableGradeCategory;
+import pl.librus.client.datamodel.ImmutableGradeComment;
 import pl.librus.client.datamodel.ImmutableJsonLesson;
+import pl.librus.client.datamodel.ImmutableLessonSubject;
+import pl.librus.client.datamodel.ImmutableLessonTeacher;
+import pl.librus.client.datamodel.ImmutableLibrusAccount;
+import pl.librus.client.datamodel.ImmutableLibrusColor;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
+import pl.librus.client.datamodel.ImmutablePlainLesson;
+import pl.librus.client.datamodel.ImmutableSubject;
+import pl.librus.client.datamodel.ImmutableTeacher;
 import pl.librus.client.datamodel.JsonLesson;
-import pl.librus.client.datamodel.LessonSubject;
-import pl.librus.client.datamodel.LessonTeacher;
 import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
@@ -55,7 +69,7 @@ public class APIClientTest {
         List<Teacher> res = parseList("Teachers.json", Teacher.class);
 
         //then
-        assertThat(res, hasItem(new Teacher.Builder()
+        assertThat(res, hasItem(ImmutableTeacher.builder()
             .firstName("Tomasz")
             .lastName("Problem")
             .id("12345")
@@ -68,7 +82,7 @@ public class APIClientTest {
         Me res = parseObject("Me.json", Me.class);
 
         //then
-        LibrusAccount expectedAccount = new LibrusAccount.Builder()
+        LibrusAccount expectedAccount = ImmutableLibrusAccount.builder()
                 .email("tompro@gmail.com")
                 .firstName("Tomasz")
                 .lastName("Problem")
@@ -91,12 +105,12 @@ public class APIClientTest {
                 .hourFrom(LocalTime.parse("08:00"))
                 .hourTo(LocalTime.parse("08:45"))
                 .lessonNo(1)
-                .subject(new LessonSubject.Builder()
+                .subject(ImmutableLessonSubject.builder()
                         .id("44561")
                         .name("Godzina wychowawcza")
                         .build())
                 .substitutionClass(true)
-                .teacher(new LessonTeacher.Builder()
+                .teacher(ImmutableLessonTeacher.builder()
                         .id("1235088")
                         .firstName("Tomasz")
                         .lastName("Problem")
@@ -118,7 +132,7 @@ public class APIClientTest {
         List<Grade> res = parseList("Grades.json", Grade.class);
 
         //then
-        assertThat(res, hasItem(new Grade.Builder()
+        assertThat(res, hasItem(ImmutableGrade.builder()
             .addDate(LocalDateTime.parse("2016-09-29T08:30:41"))
             .addedBy(HasId.of("1235106"))
             .category(HasId.of("164150"))
@@ -144,7 +158,7 @@ public class APIClientTest {
         List<GradeCategory> res = parseList("GradeCategories.json", GradeCategory.class);
 
         //then
-        assertThat(res, hasItem(new GradeCategory.Builder()
+        assertThat(res, hasItem(ImmutableGradeCategory.builder()
             .name("sprawdzian")
             .id("164149")
             .color(HasId.of("26"))
@@ -158,7 +172,7 @@ public class APIClientTest {
         List<GradeComment> res = parseList("GradeComments.json", GradeComment.class);
 
         //then
-        assertThat(res, hasItem(new GradeComment.Builder()
+        assertThat(res, hasItem(ImmutableGradeComment.builder()
             .id("834777")
             .text("Srodki artystycznego wyrazu")
             .grade(HasId.of("1811988"))
@@ -172,7 +186,7 @@ public class APIClientTest {
         List<PlainLesson> res = parseList("Lessons.json", PlainLesson.class);
 
         //then
-        assertThat(res, hasItem(new PlainLesson.Builder()
+        assertThat(res, hasItem(ImmutablePlainLesson.builder()
             .id("1822337")
             .teacher(HasId.of("1235090"))
             .subject(HasId.of("44565"))
@@ -185,7 +199,7 @@ public class APIClientTest {
         List<Event> res = parseList("HomeWorks.json", Event.class);
 
         //then
-        assertThat(res, hasItem(new Event.Builder()
+        assertThat(res, hasItem(ImmutableEvent.builder()
             .category(HasId.of("7323"))
             .addedBy(HasId.of("1235072"))
             .date(LocalDate.parse("2016-10-07"))
@@ -201,7 +215,7 @@ public class APIClientTest {
         List<EventCategory> res = parseList("HomeWorkCategories.json", EventCategory.class);
 
         //then
-        assertThat(res, hasItem(new EventCategory.Builder()
+        assertThat(res, hasItem(ImmutableEventCategory.builder()
             .id("7789")
             .name("praca klasowa")
             .build()));
@@ -213,7 +227,7 @@ public class APIClientTest {
         List<Attendance> res = parseList("Attendances.json", Attendance.class);
 
         //then
-        assertThat(res, hasItem(new Attendance.Builder()
+        assertThat(res, hasItem(ImmutableAttendance.builder()
             .id("t403209")
             .lesson(HasId.of("2714880"))
             .date(LocalDate.parse("2016-09-29"))
@@ -231,13 +245,14 @@ public class APIClientTest {
         List<AttendanceCategory> res = parseList("AttendanceTypes.json", AttendanceCategory.class);
 
         //then
-        assertThat(res, hasItem(new AttendanceCategory.Builder()
+        assertThat(res, hasItem(ImmutableAttendanceCategory.builder()
             .name("Spóźnienie")
             .id("2")
             .shortName("sp")
             .standard(true)
             .presenceKind(true)
             .priority(2)
+            .colorRGB("FFFFFF")
             .build()));
     }
 
@@ -247,7 +262,7 @@ public class APIClientTest {
         List<Subject> res = parseList("Subjects.json", Subject.class);
         
         //then
-        assertThat(res, hasItem(new Subject.Builder()
+        assertThat(res, hasItem(ImmutableSubject.builder()
             .id("44908")
             .name("Matematyka i media")
             .build()));
@@ -271,8 +286,8 @@ public class APIClientTest {
         List<Average> averages = parseList("Averages.json", Average.class);
 
         //then
-        assertThat(averages, hasItem(new Average.Builder()
-            .subject(EmbeddedId.of("44555"))
+        assertThat(averages, hasItem(ImmutableAverage.builder()
+            .subject(EmbeddedId.create("44555"))
             .fullYear(4.26)
             .semester1(4.29)
             .semester2(4.17)
@@ -284,7 +299,7 @@ public class APIClientTest {
         //when
         List<LibrusColor> colors = parseList("Colors.json", LibrusColor.class);
         //then
-        LibrusColor goldenrod = new LibrusColor.Builder()
+        LibrusColor goldenrod = ImmutableLibrusColor.builder()
                 .id("13")
                 .name("goldenrod")
                 .rawColor("DAA520")
@@ -298,7 +313,7 @@ public class APIClientTest {
         List<Announcement> res = parseList("SchoolNotices.json", Announcement.class);
 
         //then
-        assertThat(res, hasItem(new Announcement.Builder()
+        assertThat(res, hasItem(ImmutableAnnouncement.builder()
             .id("167110")
             .startDate(LocalDate.parse("2016-09-21"))
             .endDate(LocalDate.parse("2017-06-14"))

@@ -1,7 +1,5 @@
 package pl.librus.client.datamodel;
 
-import android.support.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -9,13 +7,8 @@ import org.immutables.value.Value;
 
 import javax.persistence.Embeddable;
 
-import io.requery.Entity;
-import io.requery.Key;
-import io.requery.Persistable;
-
 @Embeddable
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableLessonTeacher.class)
 public abstract class LessonTeacher {
 
@@ -25,12 +18,14 @@ public abstract class LessonTeacher {
 
     public abstract String lastName();
 
-    @Nullable
     @JsonProperty("IsSchoolAdministrator")
-    public abstract Boolean schoolAdministrator();
+    @Value.Default
+    public Boolean schoolAdministrator() {
+        return false;
+    }
 
-    public static class Builder extends ImmutableLessonTeacher.Builder {
-
+    public static ImmutableLessonTeacher.Builder builder() {
+        return ImmutableLessonTeacher.builder();
     }
 
     public String name() {

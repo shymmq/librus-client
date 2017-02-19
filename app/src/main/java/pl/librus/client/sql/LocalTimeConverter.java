@@ -1,13 +1,8 @@
 package pl.librus.client.sql;
 
-import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import io.requery.Converter;
-
-/**
- * Created by robwys on 04/02/2017.
- */
 
 public class LocalTimeConverter implements Converter<LocalTime, Integer> {
 

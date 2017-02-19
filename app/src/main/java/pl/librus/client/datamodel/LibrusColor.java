@@ -16,9 +16,8 @@ import io.requery.Persistable;
  * Created by szyme on 07.02.2017.
  */
 
-@Entity
+@Entity(builder = ImmutableLibrusColor.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableLibrusColor.class)
 public abstract class LibrusColor implements Persistable, Identifiable {
 
@@ -35,6 +34,4 @@ public abstract class LibrusColor implements Persistable, Identifiable {
         return Color.parseColor('#' + rawColor());
     }
 
-    public static class Builder extends ImmutableLibrusColor.Builder {
-    }
 }

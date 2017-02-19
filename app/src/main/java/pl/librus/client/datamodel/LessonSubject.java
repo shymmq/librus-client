@@ -12,7 +12,6 @@ import io.requery.Key;
 import io.requery.Persistable;
 
 @Embeddable
-@Value.Style(builder = "new")
 @Value.Immutable
 @JsonDeserialize(as=ImmutableLessonSubject.class)
 public abstract class LessonSubject implements Persistable {
@@ -20,8 +19,8 @@ public abstract class LessonSubject implements Persistable {
 
     public abstract String name();
 
-    public static class Builder extends ImmutableLessonSubject.Builder {
-
+    public static ImmutableLessonSubject.Builder builder() {
+        return ImmutableLessonSubject.builder();
     }
 
 }

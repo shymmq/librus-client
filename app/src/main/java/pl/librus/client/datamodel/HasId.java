@@ -13,7 +13,6 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableHasId.class)
 public abstract class HasId {
 
@@ -29,7 +28,8 @@ public abstract class HasId {
         return id();
     }
 
-    public static class Builder extends ImmutableHasId.Builder {
-
+    public static ImmutableHasId.Builder builder() {
+        return ImmutableHasId.builder();
     }
+
 }

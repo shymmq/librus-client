@@ -6,10 +6,6 @@ import com.google.common.base.Splitter;
 import io.requery.Converter;
 import pl.librus.client.datamodel.MultipleIds;
 
-/**
- * Created by robwys on 04/02/2017.
- */
-
 public class MultipleIdsConverter implements Converter<MultipleIds, String> {
 
     @Override

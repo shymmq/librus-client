@@ -10,9 +10,8 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 
-@Entity
+@Entity(builder = ImmutablePlainLesson.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutablePlainLesson.class)
 public abstract class PlainLesson implements Persistable, Identifiable{
     @Key
@@ -23,10 +22,5 @@ public abstract class PlainLesson implements Persistable, Identifiable{
 
     @Embedded
     public abstract HasId subject();
-
-    public static class Builder extends ImmutablePlainLesson.Builder {
-
-    }
-
 
 }

@@ -9,10 +9,6 @@ import io.requery.sql.GenericMapping;
 import io.requery.sql.platform.SQLite;
 import pl.librus.client.datamodel.Models;
 
-/**
- * Created by robwys on 05/02/2017.
- */
-
 public class SqlHelper {
 
     public static EntityDataStore<Persistable> getDataStore(DatabaseSource source) {

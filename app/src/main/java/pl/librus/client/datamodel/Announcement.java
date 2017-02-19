@@ -20,8 +20,7 @@ import io.requery.Persistable;
  */
 
 @Value.Immutable
-@Value.Style(builder = "new")
-@Entity
+@Entity(builder = ImmutableAnnouncement.Builder.class)
 @JsonDeserialize(as = ImmutableAnnouncement.class)
 public abstract class Announcement implements Comparable<Announcement>, Identifiable, Persistable, Serializable {
 
@@ -40,10 +39,6 @@ public abstract class Announcement implements Comparable<Announcement>, Identifi
 
     @Embedded
     public abstract HasId addedBy();
-
-    public static class Builder extends ImmutableAnnouncement.Builder {
-
-    }
 
     @Override
     public int compareTo(@NonNull Announcement announcement) {

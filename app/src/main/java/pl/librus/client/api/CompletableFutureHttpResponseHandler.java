@@ -1,15 +1,9 @@
 package pl.librus.client.api;
 
-import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 import cz.msebera.android.httpclient.Header;
 import java8.util.concurrent.CompletableFuture;
-import java8.util.function.Supplier;
-
-/**
- * Created by robwys on 10/02/2017.
- */
 
 public class CompletableFutureHttpResponseHandler extends TextHttpResponseHandler {
 

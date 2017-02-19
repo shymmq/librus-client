@@ -21,11 +21,6 @@ import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 
-/**
- * Created by robwys on 11/02/2017.
- *
- */
-
 public class EntityInfos {
     private final static Map<Class<? extends Persistable>, EntityInfo> infos = new ImmutableMap.Builder<Class<? extends Persistable>, EntityInfo>()
             .put(Announcement.class, EntityInfo.of("SchoolNotice"))

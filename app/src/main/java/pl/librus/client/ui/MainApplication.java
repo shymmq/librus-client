@@ -11,10 +11,6 @@ import pl.librus.client.BuildConfig;
 import pl.librus.client.datamodel.Models;
 import pl.librus.client.sql.SqlHelper;
 
-/**
- * Created by robwys on 04/02/2017.
- */
-
 public class MainApplication extends MultiDexApplication {
 
     private static EntityDataStore<Persistable> dataStore;
@@ -47,7 +43,4 @@ public class MainApplication extends MultiDexApplication {
             dataStore = null;
         }
     }
-
-
-
 }
