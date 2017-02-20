@@ -1,5 +1,7 @@
 package pl.librus.client.datamodel;
 
+import android.support.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -9,8 +11,13 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 
-@Entity(builder = ImmutableAttendanceCategory.Builder.class)
+/**
+ * Created by Adam on 16.12.2016.
+ */
+
+@Entity
 @Value.Immutable
+@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableAttendanceCategory.class)
 public abstract class AttendanceCategory implements Persistable, Identifiable {
     @Key
@@ -18,20 +25,21 @@ public abstract class AttendanceCategory implements Persistable, Identifiable {
 
     public abstract String name();
 
-    @Value.Default
-    public String colorRGB() {
-        return "FFFFFF";
-    }
+    @Nullable
+    public abstract String colorRGB();
 
     @JsonProperty("Short")
     public abstract String shortName();
 
-    public abstract Boolean standard();
+    public abstract boolean standard();
 
     @JsonProperty("IsPresenceKind")
-    public abstract Boolean presenceKind();
+    public abstract boolean presenceKind();
 
     @JsonProperty("Order")
     public abstract int priority();
+
+    public static class Builder extends ImmutableAttendanceCategory.Builder {
+    }
 
 }

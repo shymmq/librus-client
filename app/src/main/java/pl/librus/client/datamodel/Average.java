@@ -13,8 +13,9 @@ import io.requery.Persistable;
 /**
  * Created by szyme on 08.12.2016. librus-client
  */
-@Entity(builder = ImmutableAverage.Builder.class)
+@Entity
 @Value.Immutable
+@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableAverage.class)
 public abstract class Average implements Persistable {
 
@@ -26,5 +27,9 @@ public abstract class Average implements Persistable {
 
     @Embedded
     public abstract EmbeddedId subject();
+
+    public static class Builder extends ImmutableAverage.Builder {
+
+    }
 
 }

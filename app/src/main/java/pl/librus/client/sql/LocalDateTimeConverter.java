@@ -2,8 +2,13 @@ package pl.librus.client.sql;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 
 import io.requery.Converter;
+
+/**
+ * Created by robwys on 04/02/2017.
+ */
 
 public class LocalDateTimeConverter implements Converter<LocalDateTime, Long> {
 

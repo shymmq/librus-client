@@ -12,8 +12,9 @@ import io.requery.Persistable;
  * Created by szyme on 30.01.2017.
  * Class representing /Me endpoint
  */
-@Entity(builder = ImmutableMe.Builder.class)
+@Entity
 @Value.Immutable
+@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableMe.class)
 public abstract class Me implements Persistable {
 
@@ -21,4 +22,6 @@ public abstract class Me implements Persistable {
     @Value.Parameter
     public abstract LibrusAccount account();
 
+    public static class Builder extends ImmutableMe.Builder {
+    }
 }

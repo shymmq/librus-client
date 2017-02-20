@@ -9,7 +9,12 @@ import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.LuckyNumberType;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
+/**
+ * Created by robwys on 05/02/2017.
+ */
 
 @RunWith(RobolectricTestRunner.class)
 public class LuckyNumberTest extends BaseDBTest{

@@ -8,8 +8,13 @@ import javax.persistence.Embeddable;
 
 import io.requery.Key;
 
+/**
+ * Created by robwys on 07/02/2017.
+ */
+
 @Embeddable
 @Value.Immutable
+@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableEmbeddedId.class)
 public abstract class EmbeddedId {
 
@@ -17,12 +22,11 @@ public abstract class EmbeddedId {
     @Key
     public abstract String id();
 
-    public static EmbeddedId create(String id) {
+    public static EmbeddedId of(String id) {
         return ImmutableEmbeddedId.of(id);
     }
 
-    public static ImmutableEmbeddedId.Builder builder() {
-        return ImmutableEmbeddedId.builder();
-    }
+    public static class Builder extends ImmutableEmbeddedId.Builder{
 
+    }
 }

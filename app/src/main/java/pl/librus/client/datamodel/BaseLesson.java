@@ -3,6 +3,7 @@ package pl.librus.client.datamodel;
 import android.support.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -10,8 +11,14 @@ import org.joda.time.LocalTime;
 import javax.persistence.Embedded;
 
 import io.requery.Column;
+import io.requery.Convert;
 import io.requery.Key;
 import io.requery.Superclass;
+import pl.librus.client.sql.LocalTimeConverter;
+
+/**
+ * Created by robwys on 04/02/2017.
+ */
 
 @Superclass
 public abstract class BaseLesson {
@@ -28,30 +35,36 @@ public abstract class BaseLesson {
     @Embedded
     public abstract LessonTeacher teacher();
 
+    @Column
     @JsonProperty("IsSubstitutionClass")
-    @Column
-    public abstract Boolean substitutionClass();
+    public abstract boolean substitutionClass();
 
+    @Column
     @JsonProperty("IsCanceled")
-    @Column
-    public abstract Boolean cancelled();
+    public abstract boolean cancelled();
 
-    @Column
+    @Convert(LocalTimeConverter.class)
     public abstract LocalTime hourFrom();
 
-    @Column
+    @Convert(LocalTimeConverter.class)
     public abstract LocalTime hourTo();
 
     @Nullable
-    @Column
     public abstract String substitutionNote();
 
     @Nullable
-    @Column
     public abstract LocalDate orgDate();
 
     @Nullable
-    @Column
     public abstract Integer orgLessonNo();
+
+    @Nullable
+    public abstract HasId orgLesson();
+
+    @Nullable
+    public abstract HasId orgSubject();
+
+    @Nullable
+    public abstract HasId orgTeacher();
 
 }

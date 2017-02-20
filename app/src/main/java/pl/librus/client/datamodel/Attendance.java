@@ -11,6 +11,7 @@ import org.joda.time.LocalDateTime;
 import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
+import io.requery.ManyToOne;
 import io.requery.Persistable;
 
 /**
@@ -18,8 +19,9 @@ import io.requery.Persistable;
  * Class representing /Attendances item
  */
 
-@Entity(builder = ImmutableAttendance.Builder.class)
+@Entity
 @Value.Immutable
+@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableAttendance.class)
 public abstract class Attendance implements Persistable{
     @Key
@@ -44,5 +46,8 @@ public abstract class Attendance implements Persistable{
     public abstract int lessonNumber();
 
     public abstract int semester();
+
+    public static class Builder extends ImmutableAttendance.Builder{
+    }
 
 }

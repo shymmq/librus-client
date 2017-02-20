@@ -41,8 +41,6 @@ public abstract class BaseDBTest {
     }
 
     protected <T> Matcher<T> equalsNotSameInstance(T obj) {
-        return allOf(
-                equalTo(obj),
-                not(sameInstance(obj)));
+        return allOf(equalTo(obj), not(sameInstance(obj)));
     }
 }

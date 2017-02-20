@@ -33,7 +33,6 @@ import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.GradeCommentType;
 import pl.librus.client.datamodel.GradeType;
-import pl.librus.client.datamodel.ImmutableLibrusColor;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -194,7 +193,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
         GradeCategory category = data.findByKey(GradeCategory.class, grade.category().id());
         LibrusColor color = category.color() != null ?
                 data.findByKey(LibrusColor.class, category.color().id()) :
-                ImmutableLibrusColor.builder()
+                new LibrusColor.Builder()
                         .rawColor("00000000")
                         .id("")
                         .name("")

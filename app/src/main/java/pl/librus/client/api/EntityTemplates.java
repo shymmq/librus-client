@@ -29,12 +29,10 @@ import pl.librus.client.datamodel.ImmutableAverage;
 import pl.librus.client.datamodel.ImmutableEvent;
 import pl.librus.client.datamodel.ImmutableEventCategory;
 import pl.librus.client.datamodel.ImmutableGrade;
-import pl.librus.client.datamodel.ImmutableGradeCategory;
 import pl.librus.client.datamodel.ImmutableGradeComment;
 import pl.librus.client.datamodel.ImmutableJsonLesson;
 import pl.librus.client.datamodel.ImmutableLessonSubject;
 import pl.librus.client.datamodel.ImmutableLessonTeacher;
-import pl.librus.client.datamodel.ImmutableLibrusAccount;
 import pl.librus.client.datamodel.ImmutableLibrusColor;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
@@ -42,6 +40,9 @@ import pl.librus.client.datamodel.ImmutablePlainLesson;
 import pl.librus.client.datamodel.ImmutableSubject;
 import pl.librus.client.datamodel.ImmutableTeacher;
 import pl.librus.client.datamodel.Lesson;
+import pl.librus.client.datamodel.LessonSubject;
+import pl.librus.client.datamodel.LessonTeacher;
+import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
@@ -49,6 +50,10 @@ import pl.librus.client.datamodel.MultipleIds;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
+
+/**
+ * Created by robwys on 12/02/2017.
+ */
 
 class EntityTemplates {
 
@@ -72,14 +77,14 @@ class EntityTemplates {
             .build();
 
     ImmutableLessonSubject lessonSubject() {
-        return ImmutableLessonSubject.builder()
+        return new LessonSubject.Builder()
                 .id("44561")
                 .name("Godzina wychowawcza")
                 .build();
     }
 
     ImmutableLessonTeacher lessonTeacher() {
-        return ImmutableLessonTeacher.builder()
+        return new LessonTeacher.Builder()
                 .id("1235088")
                 .firstName("Tomasz")
                 .lastName("Problem")
@@ -110,7 +115,7 @@ class EntityTemplates {
     private final String MOCK_ID = "_mock_";
 
     public ImmutableGrade grade() {
-        return ImmutableGrade.builder()
+        return new Grade.Builder()
                 .id(idFor(Grade.class))
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
@@ -130,7 +135,7 @@ class EntityTemplates {
     }
 
     public ImmutableSubject subject() {
-        return ImmutableSubject.builder()
+        return new Subject.Builder()
                 .id(idFor(Subject.class))
                 .name("Matematyka")
                 .build();
@@ -138,7 +143,7 @@ class EntityTemplates {
 
 
     public ImmutableAnnouncement announcement() {
-        return ImmutableAnnouncement.builder()
+        return new Announcement.Builder()
                 .id(idFor(Announcement.class))
                 .startDate(LocalDate.parse("2016-09-21"))
                 .endDate(LocalDate.parse("2017-06-14"))
@@ -149,7 +154,7 @@ class EntityTemplates {
     }
 
     public ImmutableMe me() {
-        return ImmutableMe.of(ImmutableLibrusAccount.builder()
+        return ImmutableMe.of(new LibrusAccount.Builder()
                 .email("tompro@gmail.com")
                 .firstName("Tomasz")
                 .lastName("Problem")
@@ -158,7 +163,7 @@ class EntityTemplates {
     }
 
     public ImmutableTeacher teacher() {
-        return ImmutableTeacher.builder()
+        return new Teacher.Builder()
                 .id(idFor(Teacher.class))
                 .firstName("Ala")
                 .lastName("Makota")
@@ -166,14 +171,14 @@ class EntityTemplates {
     }
 
     private ImmutableLuckyNumber luckyNumber() {
-        return ImmutableLuckyNumber.builder()
+        return new LuckyNumber.Builder()
                 .luckyNumber(42)
                 .day(LocalDate.now())
                 .build();
     }
 
-    private ImmutableGradeCategory gradeCategory() {
-        return ImmutableGradeCategory.builder()
+    private GradeCategory gradeCategory() {
+        return new GradeCategory.Builder()
                 .color(HasId.of(MOCK_ID))
                 .id(MOCK_ID)
                 .name("Mock grade category")
@@ -182,7 +187,7 @@ class EntityTemplates {
     }
 
     private ImmutableGradeComment gradeComment() {
-        return ImmutableGradeComment.builder()
+        return new GradeComment.Builder()
                 .id(idFor(GradeComment.class))
                 .addedBy(HasId.of(MOCK_ID))
                 .grade(HasId.of(MOCK_ID))
@@ -191,7 +196,7 @@ class EntityTemplates {
     }
 
     private ImmutablePlainLesson plainLesson() {
-        return ImmutablePlainLesson.builder()
+        return new PlainLesson.Builder()
                 .id(idFor(PlainLesson.class))
                 .subject(HasId.of(MOCK_ID))
                 .teacher(HasId.of(MOCK_ID))
@@ -199,7 +204,7 @@ class EntityTemplates {
     }
 
     private ImmutableEvent event() {
-        return ImmutableEvent.builder()
+        return new Event.Builder()
                 .id(idFor(Event.class))
                 .addedBy(HasId.of(MOCK_ID))
                 .category(HasId.of(MOCK_ID))
@@ -210,14 +215,14 @@ class EntityTemplates {
     }
 
     private ImmutableEventCategory eventCategory() {
-        return ImmutableEventCategory.builder()
+        return new EventCategory.Builder()
                 .id(idFor(EventCategory.class))
                 .name("Mock event category")
                 .build();
     }
 
     private ImmutableAttendance attendance() {
-        return ImmutableAttendance.builder()
+        return new Attendance.Builder()
                 .id(idFor(Attendance.class))
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
@@ -230,7 +235,7 @@ class EntityTemplates {
     }
 
     private ImmutableAttendanceCategory attendanceCategory() {
-        return ImmutableAttendanceCategory.builder()
+        return new AttendanceCategory.Builder()
                 .id(idFor(AttendanceCategory.class))
                 .colorRGB("FF0000")
                 .name("Mock attendance category")
@@ -242,17 +247,17 @@ class EntityTemplates {
     }
 
     public ImmutableAverage average() {
-        return ImmutableAverage.builder()
+        return new Average.Builder()
                 .fullYear(3.00)
                 .semester1(1.00)
                 .semester2(2.00)
-                .subject(EmbeddedId.create(idFor(Average.class)))
+                .subject(EmbeddedId.of(idFor(Average.class)))
                 .build();
     }
 
 
     private ImmutableLibrusColor librusColor() {
-        return ImmutableLibrusColor.builder()
+        return new LibrusColor.Builder()
                 .id(idFor(LibrusColor.class))
                 .name("supa_black")
                 .rawColor("000000")

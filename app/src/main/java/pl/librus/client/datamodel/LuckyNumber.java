@@ -10,8 +10,11 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 
-@Entity(builder = ImmutableLuckyNumber.Builder.class)
+@Entity
 @Value.Immutable
+@Value.Style(
+        builder = "new"
+)
 @JsonDeserialize(as = ImmutableLuckyNumber.class)
 public abstract class LuckyNumber implements Persistable, Identifiable{
 
@@ -22,6 +25,10 @@ public abstract class LuckyNumber implements Persistable, Identifiable{
 
     @Value.Parameter
     public abstract int luckyNumber();
+
+    public static class Builder extends ImmutableLuckyNumber.Builder {
+
+    }
 
     @Override
     public String id() {

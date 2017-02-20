@@ -11,8 +11,9 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 
-@Entity(builder = ImmutableEvent.Builder.class)
+@Entity
 @Value.Immutable
+@Value.Style(builder = "new")
 @JsonDeserialize(as=ImmutableEvent.class)
 public abstract class Event implements Persistable, Identifiable{
     @Key
@@ -30,5 +31,8 @@ public abstract class Event implements Persistable, Identifiable{
     @JsonProperty("CreatedBy")
     @Embedded
     public abstract HasId addedBy();
+
+    public static class Builder extends ImmutableEvent.Builder{
+    }
 
 }

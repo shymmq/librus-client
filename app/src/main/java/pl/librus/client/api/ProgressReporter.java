@@ -1,8 +1,15 @@
 package pl.librus.client.api;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import java8.util.function.Consumer;
+import pl.librus.client.LibrusUtils;
+
+/**
+ * Created by robwys on 10/02/2017.
+ */
 
 public class ProgressReporter implements Runnable {
     private final Consumer<Integer> callback;

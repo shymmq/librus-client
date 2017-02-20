@@ -1,5 +1,9 @@
 package pl.librus.client.api;
 
+/**
+ * Created by robwys on 10/02/2017.
+ */
+
 public class HttpException extends RuntimeException {
     private final int code;
 

@@ -10,7 +10,6 @@ import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import io.requery.Column;
 import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
@@ -19,8 +18,9 @@ import io.requery.Persistable;
 /**
  * Created by szyme on 08.12.2016. librus-client
  */
-@Entity(builder = ImmutableGrade.Builder.class)
+@Entity
 @Value.Immutable
+@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableGrade.class)
 public abstract class Grade implements Persistable, Identifiable {
     @Key
@@ -55,16 +55,16 @@ public abstract class Grade implements Persistable, Identifiable {
     public abstract MultipleIds comments();
 
     @JsonProperty("IsSemester")
-    public abstract Boolean semesterType();
+    public abstract boolean semesterType();
 
     @JsonProperty("IsSemesterProposition")
-    public abstract Boolean semesterPropositionType();
+    public abstract boolean semesterPropositionType();
 
     @JsonProperty("IsFinal")
-    public abstract Boolean finalType();
+    public abstract boolean finalType();
 
     @JsonProperty("IsFinalProposition")
-    public abstract Boolean finalPropositionType();
+    public abstract boolean finalPropositionType();
 
     public GradeType type() {
         if (semesterPropositionType()) return GradeType.SEMESTER_PROPOSITION;
@@ -78,4 +78,7 @@ public abstract class Grade implements Persistable, Identifiable {
         NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
     }
 
+    public static class Builder extends ImmutableGrade.Builder {
+
+    }
 }

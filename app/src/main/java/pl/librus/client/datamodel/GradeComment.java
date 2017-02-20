@@ -12,8 +12,9 @@ import io.requery.Persistable;
 /**
  * Created by szyme on 12.12.2016. librus-client
  */
-@Entity(builder = ImmutableGradeComment.Builder.class)
+@Entity
 @Value.Immutable
+@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableGradeComment.class)
 public abstract class GradeComment implements Persistable, Identifiable{
 
@@ -28,4 +29,7 @@ public abstract class GradeComment implements Persistable, Identifiable{
 
     public abstract String text() ;
 
+    public static class Builder extends ImmutableGradeComment.Builder {
+
+    }
 }
