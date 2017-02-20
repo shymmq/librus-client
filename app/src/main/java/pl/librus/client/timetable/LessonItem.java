@@ -112,13 +112,13 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
             } else {
                 holder.subject.setTypeface(null, Typeface.NORMAL);
             }
-            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
-                    !lesson.date().isAfter(LocalDate.now()) &&
-                    timeNow.isAfter(lesson.hourTo())) {
-                holder.itemView.setAlpha(0.57f);
-            } else {
-                holder.itemView.setAlpha(1.0f);
-            }
+//            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
+//                    !lesson.date().isAfter(LocalDate.now()) &&
+//                    timeNow.isAfter(lesson.hourTo())) {
+//                holder.itemView.setAlpha(0.57f);
+//            } else {
+//                holder.itemView.setAlpha(1.0f);
+//            }
         }
     }
 
