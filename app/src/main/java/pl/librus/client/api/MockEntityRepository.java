@@ -1,5 +1,6 @@
 package pl.librus.client.api;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
@@ -17,14 +18,12 @@ import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
-import pl.librus.client.datamodel.HasId;
 import pl.librus.client.datamodel.Identifiable;
 import pl.librus.client.datamodel.ImmutableAttendance;
 import pl.librus.client.datamodel.ImmutableGrade;
 import pl.librus.client.datamodel.ImmutableGradeCategory;
 import pl.librus.client.datamodel.ImmutablePlainLesson;
 import pl.librus.client.datamodel.LibrusColor;
-import pl.librus.client.datamodel.MultipleIds;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -84,29 +83,29 @@ class MockEntityRepository {
 
     private Grade updateGrade(Grade g, int index) {
         return ImmutableGrade.copyOf(g)
-                .withAddedBy(hasId(Teacher.class, index))
-                .withCategory(hasId(GradeCategory.class, index))
-                .withLesson(hasId(PlainLesson.class, index))
-                .withSubject(hasId(Subject.class, index))
+                .withAddedBy(idFromIndex(Teacher.class, index))
+                .withCategory(idFromIndex(GradeCategory.class, index))
+                .withLesson(idFromIndex(PlainLesson.class, index))
+                .withSubject(idFromIndex(Subject.class, index))
                 .withComments(multipleIds(GradeComment.class, index));
     }
 
     private Attendance updateAttendance(Attendance a, int index) {
         return ImmutableAttendance.copyOf(a)
-                .withAddedBy(hasId(Teacher.class, index))
-                .withType(hasId(AttendanceCategory.class, index))
-                .withLesson(hasId(PlainLesson.class, index));
+                .withAddedBy(idFromIndex(Teacher.class, index))
+                .withType(idFromIndex(AttendanceCategory.class, index))
+                .withLesson(idFromIndex(PlainLesson.class, index));
     }
 
     private PlainLesson updatePlainLesson(PlainLesson pl, int index) {
         return ImmutablePlainLesson.copyOf(pl)
-                .withTeacher(hasId(Teacher.class, index))
-                .withSubject(hasId(Subject.class, index));
+                .withTeacher(idFromIndex(Teacher.class, index))
+                .withSubject(idFromIndex(Subject.class, index));
     }
 
     private GradeCategory updateGradeCategory(GradeCategory gc, int index) {
         return ImmutableGradeCategory.copyOf(gc)
-                .withColor(hasId(LibrusColor.class, index));
+                .withColor(idFromIndex(LibrusColor.class, index));
     }
 
     private void addLongAnnouncement() {
@@ -123,12 +122,8 @@ class MockEntityRepository {
         return o.id();
     }
 
-    private HasId hasId(Class<? extends Identifiable> clazz, int index) {
-        return HasId.of(idFromIndex(clazz, index));
-    }
-
-    private MultipleIds multipleIds(Class<? extends Identifiable> clazz, int index) {
-        return MultipleIds.fromIds(idFromIndex(clazz, index));
+    private List<String> multipleIds(Class<? extends Identifiable> clazz, int index) {
+        return Lists.newArrayList(idFromIndex(clazz, index));
     }
 
     private interface UpdateEntityFunction<T> {

@@ -9,6 +9,7 @@ import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.api.IdDeserializer;
 
 @Entity
 @Value.Immutable
@@ -18,11 +19,11 @@ public abstract class PlainLesson implements Persistable, Identifiable{
     @Key
     public abstract String id();
 
-    @Embedded
-    public abstract HasId teacher();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String teacher();
 
-    @Embedded
-    public abstract HasId subject();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String subject();
 
     public static class Builder extends ImmutablePlainLesson.Builder {
 

@@ -24,7 +24,6 @@ import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
-import pl.librus.client.datamodel.HasId;
 import pl.librus.client.datamodel.ImmutableJsonLesson;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
@@ -35,7 +34,6 @@ import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
-import pl.librus.client.datamodel.MultipleIds;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -104,9 +102,9 @@ public class APIClientTest {
                 .substitutionClass(true)
                 .orgDate(LocalDate.parse("2017-02-06"))
                 .orgLessonNo(2)
-                .orgLesson(HasId.of("1822337"))
-                .orgSubject(HasId.of("44565"))
-                .orgTeacher(HasId.of("1235090"))
+                .orgLesson("1822337")
+                .orgSubject("44565")
+                .orgTeacher("1235090")
                 .build();
         assertEquals(expected, actual);
 
@@ -120,21 +118,21 @@ public class APIClientTest {
         //then
         assertThat(res, hasItem(new Grade.Builder()
             .addDate(LocalDateTime.parse("2016-09-29T08:30:41"))
-            .addedBy(HasId.of("1235106"))
-            .category(HasId.of("164150"))
-            .comments(MultipleIds.fromIds("834777"))
+            .addedBy("1235106")
+            .category("164150")
+            .addComments("834777")
             .date(LocalDate.parse("2016-09-29"))
             .finalPropositionType(false)
             .finalType(false)
             .grade("np")
             .id("2539299")
-            .lesson(HasId.of("2732545"))
-            .subject(HasId.of("44569"))
-            .category(HasId.of("392450"))
+            .lesson("2732545")
+            .subject("44569")
+            .category("392450")
             .semester(1)
             .semesterPropositionType(false)
             .semesterType(false)
-            .student(HasId.of("1402361"))
+            .student("1402361")
             .build()));
     }
 
@@ -147,7 +145,7 @@ public class APIClientTest {
         assertThat(res, hasItem(new GradeCategory.Builder()
             .name("sprawdzian")
             .id("164149")
-            .color(HasId.of("26"))
+            .color("26")
             .weight(7)
             .build()));
     }
@@ -159,11 +157,11 @@ public class APIClientTest {
 
         //then
         assertThat(res, hasItem(new GradeComment.Builder()
-            .id("834777")
-            .text("Srodki artystycznego wyrazu")
-            .grade(HasId.of("1811988"))
-            .addedBy(HasId.of("1235106"))
-            .build()));
+                .id("834777")
+                .text("Srodki artystycznego wyrazu")
+                .grade("1811988")
+                .addedBy("1235106")
+                .build()));
     }
 
     @Test
@@ -174,8 +172,8 @@ public class APIClientTest {
         //then
         assertThat(res, hasItem(new PlainLesson.Builder()
             .id("1822337")
-            .teacher(HasId.of("1235090"))
-            .subject(HasId.of("44565"))
+            .teacher("1235090")
+            .subject("44565")
             .build()));
     }
 
@@ -186,8 +184,8 @@ public class APIClientTest {
 
         //then
         assertThat(res, hasItem(new Event.Builder()
-            .category(HasId.of("7323"))
-            .addedBy(HasId.of("1235072"))
+            .category("7323")
+            .addedBy("1235072")
             .date(LocalDate.parse("2016-10-07"))
             .id("1810676")
             .content("Węglowodory.")
@@ -215,13 +213,13 @@ public class APIClientTest {
         //then
         assertThat(res, hasItem(new Attendance.Builder()
             .id("t403209")
-            .lesson(HasId.of("2714880"))
+            .lesson("2714880")
             .date(LocalDate.parse("2016-09-29"))
             .addDate(LocalDateTime.parse("2016-09-28T16:19:22"))
             .lessonNumber(3)
             .semester(1)
-            .type(HasId.of("100"))
-            .addedBy(HasId.of("1234988"))
+            .type("100")
+            .addedBy("1234988")
             .build()));
     }
 
@@ -304,7 +302,7 @@ public class APIClientTest {
             .endDate(LocalDate.parse("2017-06-14"))
             .subject("Konsultacje z matematyki")
             .content("Konsultacje z matematyki dla uczniów klas: 1B  2D2A 3A3D")
-            .addedBy(HasId.of("1575831"))
+            .addedBy("1575831")
             .build()));
     }
 
@@ -323,7 +321,4 @@ public class APIClientTest {
     private <T extends Persistable> T parseObject(String filename, Class<T> clazz) {
         return DefaultAPIClient.parseObject(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
     }
-
-
-
 }

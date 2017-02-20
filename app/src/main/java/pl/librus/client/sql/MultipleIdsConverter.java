@@ -2,19 +2,21 @@ package pl.librus.client.sql;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+
+import java.util.List;
 
 import io.requery.Converter;
-import pl.librus.client.datamodel.MultipleIds;
 
 /**
  * Created by robwys on 04/02/2017.
  */
 
-public class MultipleIdsConverter implements Converter<MultipleIds, String> {
+public class MultipleIdsConverter implements Converter<List, String> {
 
     @Override
-    public Class<MultipleIds> getMappedType() {
-        return MultipleIds.class;
+    public Class<List> getMappedType() {
+        return List.class;
     }
 
     @Override
@@ -28,12 +30,12 @@ public class MultipleIdsConverter implements Converter<MultipleIds, String> {
     }
 
     @Override
-    public String convertToPersisted(MultipleIds value) {
+    public String convertToPersisted(List value) {
         return value == null ? null : Joiner.on(';').join(value);
     }
 
     @Override
-    public MultipleIds convertToMapped(Class<? extends MultipleIds> type, String value) {
-        return value == null ? null : MultipleIds.fromIds(Splitter.on(";").split(value));
+    public List convertToMapped(Class<? extends List> type, String value) {
+        return value == null ? null : Lists.newArrayList(Splitter.on(";").split(value));
     }
 }

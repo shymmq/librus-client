@@ -45,6 +45,12 @@ public class LessonTest extends BaseDBTest {
                 .hourTo(LocalTime.parse("08:45"))
                 .cancelled(true)
                 .substitutionClass(true)
+                .orgLessonNo(3)
+                .orgLesson("5443")
+                .orgDate(LocalDate.parse("2017-02-02"))
+                .orgSubject("4432")
+                .orgTeacher("7584")
+                .substitutionNote("zastępstwo")
                 .build();
 
         data.insert(original);

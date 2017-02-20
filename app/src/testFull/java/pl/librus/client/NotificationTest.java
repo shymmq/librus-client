@@ -33,7 +33,6 @@ import pl.librus.client.api.NotificationService;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.HasId;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -70,7 +69,7 @@ public class NotificationTest extends BaseDBTest {
         //given
         Subject subject = EntityTemplates.subject();
         Grade newGrade = EntityTemplates.grade()
-                .withSubject(HasId.of(subject.id()));
+                .withSubject(subject.id());
         LibrusGcmListenerService service = serviceWithMockClient();
         addMockGrades(newGrade);
         data.insert(subject);
@@ -93,14 +92,14 @@ public class NotificationTest extends BaseDBTest {
                 .withName("Matematyka");
         Grade grade1 = EntityTemplates.grade()
                 .withGrade("4+")
-                .withSubject(HasId.of(matematyka.id()));
+                .withSubject(matematyka.id());
 
         Subject informatyka = EntityTemplates.subject()
                 .withId("2")
                 .withName("Informatyka");
         Grade grade2 = EntityTemplates.grade()
                 .withGrade("5")
-                .withSubject(HasId.of(informatyka.id()));
+                .withSubject(informatyka.id());
 
         LibrusGcmListenerService service = serviceWithMockClient();
         addMockGrades(grade1, grade2);
@@ -193,7 +192,7 @@ public class NotificationTest extends BaseDBTest {
         Teacher teacher = EntityTemplates.teacher();
 
         Event event = EntityTemplates.event()
-                .withAddedBy(HasId.of(teacher.id()));
+                .withAddedBy(teacher.id());
 
         LibrusGcmListenerService service = serviceWithMockClient();
         addMockEvents(event);
@@ -219,7 +218,7 @@ public class NotificationTest extends BaseDBTest {
         Event event1 = EntityTemplates.event()
                 .withContent("Praca klasowa")
                 .withDate(LocalDate.parse("2016-10-07"))
-                .withAddedBy(HasId.of(teacher1.id()));
+                .withAddedBy(teacher1.id());
 
         Teacher teacher2 = EntityTemplates.teacher()
                 .withId("2")
@@ -228,7 +227,7 @@ public class NotificationTest extends BaseDBTest {
         Event event2 = EntityTemplates.event()
                 .withContent("Kartkówka")
                 .withDate(LocalDate.parse("2016-10-10"))
-                .withAddedBy(HasId.of(teacher2.id()));
+                .withAddedBy(teacher2.id());
 
         LibrusGcmListenerService service = serviceWithMockClient();
         addMockEvents(event1, event2);

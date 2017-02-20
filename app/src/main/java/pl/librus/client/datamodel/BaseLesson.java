@@ -14,6 +14,7 @@ import io.requery.Column;
 import io.requery.Convert;
 import io.requery.Key;
 import io.requery.Superclass;
+import pl.librus.client.api.IdDeserializer;
 import pl.librus.client.sql.LocalTimeConverter;
 
 /**
@@ -50,21 +51,30 @@ public abstract class BaseLesson {
     public abstract LocalTime hourTo();
 
     @Nullable
+    @Column
     public abstract String substitutionNote();
 
     @Nullable
+    @Column
     public abstract LocalDate orgDate();
 
     @Nullable
+    @Column
     public abstract Integer orgLessonNo();
 
     @Nullable
-    public abstract HasId orgLesson();
+    @Column
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String orgLesson();
 
     @Nullable
-    public abstract HasId orgSubject();
+    @Column
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String orgSubject();
 
     @Nullable
-    public abstract HasId orgTeacher();
+    @Column
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String orgTeacher();
 
 }

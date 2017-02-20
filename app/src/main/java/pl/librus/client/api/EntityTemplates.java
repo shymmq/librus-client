@@ -21,7 +21,6 @@ import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
-import pl.librus.client.datamodel.HasId;
 import pl.librus.client.datamodel.ImmutableAnnouncement;
 import pl.librus.client.datamodel.ImmutableAttendance;
 import pl.librus.client.datamodel.ImmutableAttendanceCategory;
@@ -46,7 +45,6 @@ import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
-import pl.librus.client.datamodel.MultipleIds;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -104,9 +102,9 @@ class EntityTemplates {
                 .substitutionClass(true)
                 .orgDate(LocalDate.parse("2017-02-06"))
                 .orgLessonNo(2)
-                .orgLesson(HasId.of("1822337"))
-                .orgSubject(HasId.of("44565"))
-                .orgTeacher(HasId.of("1235090"))
+                .orgLesson("1822337")
+                .orgSubject("44565")
+                .orgTeacher("1235090")
                 .build();
     }
 
@@ -119,18 +117,18 @@ class EntityTemplates {
                 .id(idFor(Grade.class))
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
-                .addedBy(HasId.of(MOCK_ID))
-                .category(HasId.of(MOCK_ID))
+                .addedBy(MOCK_ID)
+                .category(MOCK_ID)
                 .finalPropositionType(false)
                 .finalType(false)
                 .grade("4+")
-                .lesson(HasId.of(MOCK_ID))
+                .lesson(MOCK_ID)
                 .semester(1)
                 .semesterPropositionType(false)
                 .semesterType(false)
-                .subject(HasId.of(MOCK_ID))
-                .comments(MultipleIds.fromIds(Lists.newArrayList("777", "888")))
-                .student(HasId.of("77779"))
+                .subject(MOCK_ID)
+                .addComments("777", "888")
+                .student("77779")
                 .build();
     }
 
@@ -149,7 +147,7 @@ class EntityTemplates {
                 .endDate(LocalDate.parse("2017-06-14"))
                 .subject("Tytuł ogłoszenia")
                 .content("Treść ogłoszenia")
-                .addedBy(HasId.of(MOCK_ID))
+                .addedBy(MOCK_ID)
                 .build();
     }
 
@@ -179,7 +177,7 @@ class EntityTemplates {
 
     private GradeCategory gradeCategory() {
         return new GradeCategory.Builder()
-                .color(HasId.of(MOCK_ID))
+                .color(MOCK_ID)
                 .id(MOCK_ID)
                 .name("Mock grade category")
                 .weight(5)
@@ -189,8 +187,8 @@ class EntityTemplates {
     private ImmutableGradeComment gradeComment() {
         return new GradeComment.Builder()
                 .id(idFor(GradeComment.class))
-                .addedBy(HasId.of(MOCK_ID))
-                .grade(HasId.of(MOCK_ID))
+                .addedBy(MOCK_ID)
+                .grade(MOCK_ID)
                 .text("Mock comment")
                 .build();
     }
@@ -198,16 +196,16 @@ class EntityTemplates {
     private ImmutablePlainLesson plainLesson() {
         return new PlainLesson.Builder()
                 .id(idFor(PlainLesson.class))
-                .subject(HasId.of(MOCK_ID))
-                .teacher(HasId.of(MOCK_ID))
+                .subject(MOCK_ID)
+                .teacher(MOCK_ID)
                 .build();
     }
 
     private ImmutableEvent event() {
         return new Event.Builder()
                 .id(idFor(Event.class))
-                .addedBy(HasId.of(MOCK_ID))
-                .category(HasId.of(MOCK_ID))
+                .addedBy(MOCK_ID)
+                .category(MOCK_ID)
                 .content("Mock event")
                 .date(LocalDate.now())
                 .lessonNo(1)
@@ -226,10 +224,10 @@ class EntityTemplates {
                 .id(idFor(Attendance.class))
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
-                .addedBy(HasId.of(MOCK_ID))
-                .lesson(HasId.of(MOCK_ID))
+                .addedBy(MOCK_ID)
+                .lesson(MOCK_ID)
                 .lessonNumber(1)
-                .type(HasId.of(MOCK_ID))
+                .type(MOCK_ID)
                 .semester(1)
                 .build();
     }

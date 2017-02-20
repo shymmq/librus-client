@@ -84,8 +84,8 @@ dependencies {
 
     compile fileTree(dir: "libs", include: ["*.jar"])
     apt 'io.requery:requery-processor:1.1.2'
-    apt "org.immutables:value:2.4.2" // <-- for annotation processor
-    provided "org.immutables:value:2.4.2" // <-- for annotation API
+    apt "org.immutables:value:2.4.4-SNAPSHOT" // <-- for annotation processor
+    provided "org.immutables:value:2.4.4-SNAPSHOT" // <-- for annotation API
     compile 'net.sourceforge.streamsupport:streamsupport:1.5.3'
     compile 'net.sourceforge.streamsupport:streamsupport-cfuture:1.5.3'
     compile 'net.sourceforge.streamsupport:streamsupport-atomic:1.5.3'

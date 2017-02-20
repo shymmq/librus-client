@@ -48,8 +48,8 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
         holder.lesson.setText(lessonNumber);
 
         EntityDataStore<Persistable> data = MainApplication.getData();
-        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson().id());
-        Subject subject = data.findByKey(Subject.class, lesson.subject().id());
+        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson());
+        Subject subject = data.findByKey(Subject.class, lesson.subject());
         holder.subject.setText(subject.name());
 
     }

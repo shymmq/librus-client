@@ -10,10 +10,10 @@ import org.joda.time.LocalDate;
 
 import java.io.Serializable;
 
-import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.api.IdDeserializer;
 
 /**
  * Created by Adam on 2016-10-31. librus-client
@@ -38,8 +38,8 @@ public abstract class Announcement implements Comparable<Announcement>, Identifi
 
     public abstract String content();
 
-    @Embedded
-    public abstract HasId addedBy();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String addedBy();
 
     public static class Builder extends ImmutableAnnouncement.Builder {
 

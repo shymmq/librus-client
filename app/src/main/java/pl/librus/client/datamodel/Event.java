@@ -10,6 +10,7 @@ import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.api.IdDeserializer;
 
 @Entity
 @Value.Immutable
@@ -23,14 +24,14 @@ public abstract class Event implements Persistable, Identifiable{
 
     public abstract LocalDate date();
 
-    @Embedded
-    public abstract HasId category();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String category();
 
     public abstract int lessonNo();
 
     @JsonProperty("CreatedBy")
-    @Embedded
-    public abstract HasId addedBy();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String addedBy();
 
     public static class Builder extends ImmutableEvent.Builder{
     }

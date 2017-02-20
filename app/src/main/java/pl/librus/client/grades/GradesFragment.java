@@ -97,7 +97,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             final GradeHeaderItem headerItem = new GradeHeaderItem(s, average, getContext());
 
             List<Grade> grades = data.select(Grade.class)
-                    .where(GradeType.SUBJECT_ID.eq(s.id()))
+                    .where(GradeType.SUBJECT.eq(s.id()))
                     .orderBy(GradeType.DATE.desc())
                     .get()
                     .toList();
@@ -158,11 +158,11 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             EntityDataStore<Persistable> data = MainApplication.getData();
 
 
-            Teacher addedBy = data.findByKey(Teacher.class, grade.addedBy().id());
+            Teacher addedBy = data.findByKey(Teacher.class, grade.addedBy());
             addedByTextView.setText(addedBy.name());
 
             List<GradeComment> comments = data.select(GradeComment.class)
-                    .where(GradeCommentType.GRADE_ID.eq(grade.id()))
+                    .where(GradeCommentType.GRADE.eq(grade.id()))
                     .get()
                     .toList();
             if (comments != null && !comments.isEmpty()) {
@@ -190,9 +190,9 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     }
 
     private GradeItem getGradeItem(GradeHeaderItem headerItem, Grade grade) {
-        GradeCategory category = data.findByKey(GradeCategory.class, grade.category().id());
+        GradeCategory category = data.findByKey(GradeCategory.class, grade.category());
         LibrusColor color = category.color() != null ?
-                data.findByKey(LibrusColor.class, category.color().id()) :
+                data.findByKey(LibrusColor.class, category.color()) :
                 new LibrusColor.Builder()
                         .rawColor("00000000")
                         .id("")

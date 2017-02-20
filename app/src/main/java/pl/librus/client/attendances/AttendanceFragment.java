@@ -62,7 +62,7 @@ public class AttendanceFragment extends MainFragment {
             LocalDate date = attendance.date();
 
             AttendanceCategory category = MainApplication.getData()
-                    .findByKey(AttendanceCategory.class, attendance.type().id());
+                    .findByKey(AttendanceCategory.class, attendance.type());
 
             if (!category.presenceKind()) {
                 if (headerItemMap.get(date) == null) {

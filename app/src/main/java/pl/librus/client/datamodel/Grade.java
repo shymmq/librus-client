@@ -10,10 +10,12 @@ import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import io.requery.Embedded;
+import java.util.List;
+
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.api.IdDeserializer;
 
 /**
  * Created by szyme on 08.12.2016. librus-client
@@ -26,20 +28,20 @@ public abstract class Grade implements Persistable, Identifiable {
     @Key
     public abstract String id();
 
-    @Embedded
-    public abstract HasId lesson();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String lesson();
 
-    @Embedded
-    public abstract HasId subject();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String subject();
 
-    @Embedded
-    public abstract HasId category();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String category();
 
-    @Embedded
-    public abstract HasId student();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String student();
 
-    @Embedded
-    public abstract HasId addedBy();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String addedBy();
 
     public abstract String grade();
 
@@ -52,7 +54,8 @@ public abstract class Grade implements Persistable, Identifiable {
     public abstract int semester();
 
     @Nullable
-    public abstract MultipleIds comments();
+    @JsonDeserialize(contentUsing = IdDeserializer.class)
+    public abstract List<String> comments();
 
     @JsonProperty("IsSemester")
     public abstract boolean semesterType();

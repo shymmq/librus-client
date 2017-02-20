@@ -8,7 +8,6 @@ import org.joda.time.LocalDateTime;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.HasId;
 import pl.librus.client.datamodel.ImmutableAnnouncement;
 import pl.librus.client.datamodel.ImmutableEvent;
 import pl.librus.client.datamodel.ImmutableGrade;
@@ -17,7 +16,6 @@ import pl.librus.client.datamodel.ImmutableMe;
 import pl.librus.client.datamodel.ImmutableSubject;
 import pl.librus.client.datamodel.ImmutableTeacher;
 import pl.librus.client.datamodel.LibrusAccount;
-import pl.librus.client.datamodel.MultipleIds;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 
@@ -26,19 +24,19 @@ public class EntityTemplates {
         return new Grade.Builder()
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
-                .addedBy(HasId.of("12"))
-                .category(HasId.of("34"))
+                .addedBy("12")
+                .category("34")
                 .finalPropositionType(false)
                 .finalType(false)
                 .grade("4+")
                 .id("45632")
-                .lesson(HasId.of("56"))
+                .lesson("56")
                 .semester(1)
                 .semesterPropositionType(false)
                 .semesterType(false)
-                .subject(HasId.of(subject().id()))
-                .comments(MultipleIds.fromIds(Lists.newArrayList("777", "888")))
-                .student(HasId.of("77779"))
+                .subject(subject().id())
+                .addComments("777", "888")
+                .student("77779")
                 .build();
     }
 
@@ -57,7 +55,7 @@ public class EntityTemplates {
                 .endDate(LocalDate.parse("2017-06-14"))
                 .subject("Tytuł ogłoszenia")
                 .content("Treść ogłoszenia")
-                .addedBy(HasId.of("1575831"))
+                .addedBy("1575831")
                 .build();
     }
 
@@ -80,8 +78,8 @@ public class EntityTemplates {
 
     public static ImmutableEvent event() {
         return new Event.Builder()
-                .category(HasId.of("7323"))
-                .addedBy(HasId.of("1235072"))
+                .category("7323")
+                .addedBy("1235072")
                 .date(LocalDate.parse("2016-10-07"))
                 .id("1810676")
                 .content("Praca klasowa")

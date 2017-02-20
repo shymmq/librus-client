@@ -10,6 +10,7 @@ import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.api.IdDeserializer;
 
 @Entity
 @Value.Immutable
@@ -25,8 +26,8 @@ public abstract class GradeCategory implements Persistable, Identifiable {
 
     public abstract String name();
 
-    @Embedded
-    public abstract HasId color();
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String color();
 
     public static class Builder extends ImmutableGradeCategory.Builder {
 

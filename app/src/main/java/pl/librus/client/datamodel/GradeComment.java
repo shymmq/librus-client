@@ -8,6 +8,7 @@ import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.api.IdDeserializer;
 
 /**
  * Created by szyme on 12.12.2016. librus-client
@@ -16,16 +17,16 @@ import io.requery.Persistable;
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableGradeComment.class)
-public abstract class GradeComment implements Persistable, Identifiable{
+public abstract class GradeComment implements Persistable, Identifiable {
 
     @Key
     public abstract String id();
 
-    @Embedded
-    public abstract HasId addedBy() ;
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String addedBy() ;
 
-    @Embedded
-    public abstract HasId grade() ;
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String grade() ;
 
     public abstract String text() ;
 

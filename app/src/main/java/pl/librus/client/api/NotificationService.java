@@ -101,7 +101,7 @@ public class NotificationService {
         int size = grades.size();
         if (size == 1) {
             Grade grade = grades.get(0);
-            String subject = MainApplication.getData().findByKey(Subject.class, grade.subject().id()).name();
+            String subject = MainApplication.getData().findByKey(Subject.class, grade.subject()).name();
             sendNotification("Nowa ocena", subject + " " + grade.grade(), R.drawable.ic_assignment_black_48dp, null, MainActivity.FRAGMENT_GRADES_ID);
         } else if (size > 1) {
             String title;
@@ -112,7 +112,7 @@ public class NotificationService {
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title);
             for (Grade g : grades) {
-                String subject = MainApplication.getData().findByKey(Subject.class, g.subject().id()).name();
+                String subject = MainApplication.getData().findByKey(Subject.class, g.subject()).name();
                 style.addLine(subject + " " + g.grade());
                 if (!subjects.contains(subject))
                     subjects.add(subject);
