@@ -20,7 +20,6 @@ import org.joda.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
@@ -29,6 +28,7 @@ import eu.davidea.flexibleadapter.items.IFlexible;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LessonType;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
@@ -178,20 +178,18 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
 
             //TODO add Events
 
-            if (lesson.substitutionClass() &&
-                    lesson.orgTeacher() != null &&
-                    !Objects.equals(lesson.teacher().id(), lesson.orgTeacher().id())) {
-                teacherTextView.setText(new SpannableStringBuilder()
-                        .append(lesson.teacher().name())
-                        .append(" -> ")
-                        .append(lesson.orgTeacher().id(),
-                                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)); //TODO replace id with name
-            } else {
+            if (!lesson.substitutionClass() || lesson.orgTeacher() == null) {
                 teacherTextView.setText(new SpannableStringBuilder()
                         .append(lesson.teacher().name(),
                                 new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+            } else {
+                Teacher orgTeacher = MainApplication.getData().findByKey(Teacher.class, lesson.orgTeacher());
+                teacherTextView.setText(new SpannableStringBuilder()
+                        .append(orgTeacher.name())
+                        .append(" -> ")
+                        .append(lesson.teacher().name(),
+                                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)); //TODO replace id with name
             }
-
             eventContainer.setVisibility(View.GONE);
 
             //TODO Ogarnianie odwołań
