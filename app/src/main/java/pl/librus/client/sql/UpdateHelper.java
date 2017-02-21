@@ -17,6 +17,7 @@ import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
+import pl.librus.client.api.IAPIClient;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
@@ -49,7 +50,7 @@ import static pl.librus.client.sql.EntityChange.Type.CHANGED;
  */
 
 public class UpdateHelper {
-    private final APIClient client;
+    private final IAPIClient client;
     @SuppressWarnings("unchecked")
     private final List<Class<? extends Persistable>> entitiesToUpdate = Lists.newArrayList(
             Announcement.class,
@@ -73,7 +74,7 @@ public class UpdateHelper {
         this(new APIClient(context));
     }
 
-    public UpdateHelper(APIClient client) {
+    public UpdateHelper(IAPIClient client) {
         this.client = client;
     }
 

@@ -8,11 +8,7 @@ import io.requery.Persistable;
 import java8.util.concurrent.CompletableFuture;
 import pl.librus.client.datamodel.Timetable;
 
-/**
- * Created by robwys on 21/02/2017.
- */
-
-interface IAPIClient {
+public interface IAPIClient {
     CompletableFuture<Void> login(String username, String password);
 
     CompletableFuture<Timetable> getTimetable(LocalDate weekStart);
