@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import java8.util.concurrent.CompletableFuture;
-import pl.librus.client.api.DefaultAPIClient;
+import pl.librus.client.api.APIClient;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.ImmutableGrade;
 import pl.librus.client.sql.ImmutableEntityChange;
@@ -34,7 +34,7 @@ public class ReloadingTest extends BaseDBTest {
     public void shouldDiscoverNewEntity() throws ExecutionException, InterruptedException {
         //given
         Grade newGrade = EntityTemplates.grade();
-        DefaultAPIClient client = mockApiClient(newGrade);
+        APIClient client = mockApiClient(newGrade);
 
         //when
         new UpdateHelper(client).reload(Grade.class)
@@ -47,7 +47,7 @@ public class ReloadingTest extends BaseDBTest {
     public void shouldNotDiscoverAnything() throws ExecutionException, InterruptedException {
         //given
         Grade grade = EntityTemplates.grade();
-        DefaultAPIClient client = mockApiClient(grade);
+        APIClient client = mockApiClient(grade);
         data.upsert(grade);
 
         //when
@@ -63,7 +63,7 @@ public class ReloadingTest extends BaseDBTest {
                 .withGrade("4");
         data.upsert(oldGrade);
         Grade newGrade = oldGrade.withGrade("5");
-        DefaultAPIClient client = mockApiClient(newGrade);
+        APIClient client = mockApiClient(newGrade);
 
         //when
         new UpdateHelper(client).reload(Grade.class)
@@ -82,7 +82,7 @@ public class ReloadingTest extends BaseDBTest {
         Grade changedGrade = oldGrade.withGrade("5");
         Grade newGrade = oldGrade.withId("2");
 
-        DefaultAPIClient client = mockApiClient(newGrade, changedGrade);
+        APIClient client = mockApiClient(newGrade, changedGrade);
 
         //when
         new UpdateHelper(client).reload(Grade.class)
@@ -102,7 +102,7 @@ public class ReloadingTest extends BaseDBTest {
         data.upsert(grade);
         data.upsert(deletedGrade);
 
-        DefaultAPIClient client = mockApiClient(grade);
+        APIClient client = mockApiClient(grade);
 
         //when
         new UpdateHelper(client).reload(Grade.class)
@@ -117,7 +117,7 @@ public class ReloadingTest extends BaseDBTest {
                 .withGrade("4");
         data.upsert(oldGrade);
         Grade newGrade = oldGrade.withGrade("5");
-        DefaultAPIClient client = mockApiClient(newGrade);
+        APIClient client = mockApiClient(newGrade);
 
         //when
         new UpdateHelper(client).reload(Grade.class).get();
@@ -128,8 +128,8 @@ public class ReloadingTest extends BaseDBTest {
 
     }
 
-    private DefaultAPIClient mockApiClient(Grade... grades) {
-        DefaultAPIClient mock = mock(DefaultAPIClient.class);
+    private APIClient mockApiClient(Grade... grades) {
+        APIClient mock = mock(APIClient.class);
         Mockito.when(mock.getAll(eq(Grade.class)))
                 .thenReturn(CompletableFuture.completedFuture(Lists.newArrayList(grades)));
         return mock;

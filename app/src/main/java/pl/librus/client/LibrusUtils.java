@@ -1,24 +1,11 @@
 package pl.librus.client;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
-
-import pl.librus.client.api.APIClient;
-import pl.librus.client.api.DefaultAPIClient;
-import pl.librus.client.api.MockAPIClient;
 
 import static pl.librus.client.LibrusConstants.DBG;
 import static pl.librus.client.LibrusConstants.TAG;
 
 public class LibrusUtils {
-
-    public static APIClient getAPIClient(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean dev_mode = preferences.getBoolean("dev_mode", false);
-        return dev_mode ? new MockAPIClient() : new DefaultAPIClient(context);
-    }
 
     /**
      * Metoda do okreslania porawnej formy rzeczownika przy liczebniku.

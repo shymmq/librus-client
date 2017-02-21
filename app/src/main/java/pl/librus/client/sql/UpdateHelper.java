@@ -70,7 +70,7 @@ public class UpdateHelper {
     );
 
     public UpdateHelper(Context context) {
-        this(LibrusUtils.getAPIClient(context));
+        this(new APIClient(context));
     }
 
     public UpdateHelper(APIClient client) {

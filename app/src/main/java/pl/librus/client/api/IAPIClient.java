@@ -9,10 +9,10 @@ import java8.util.concurrent.CompletableFuture;
 import pl.librus.client.datamodel.Timetable;
 
 /**
- * Created by szyme on 14.02.2017.
+ * Created by robwys on 21/02/2017.
  */
-public interface APIClient {
 
+interface IAPIClient {
     CompletableFuture<Void> login(String username, String password);
 
     CompletableFuture<Timetable> getTimetable(LocalDate weekStart);
@@ -22,4 +22,5 @@ public interface APIClient {
     <T> CompletableFuture<T> getObject(String endpoint, String topLevelName, Class<T> clazz);
 
     <T> CompletableFuture<List<T>> getList(String endpoint, String topLevelName, Class<T> clazz);
+
 }

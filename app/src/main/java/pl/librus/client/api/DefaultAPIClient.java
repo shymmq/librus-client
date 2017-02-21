@@ -3,13 +3,6 @@ package pl.librus.client.api;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
-import com.fasterxml.jackson.core.TreeNode;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Lists;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
@@ -18,9 +11,6 @@ import org.joda.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.List;
 
 import io.requery.Persistable;
@@ -30,7 +20,7 @@ import pl.librus.client.datamodel.Timetable;
 
 import static pl.librus.client.LibrusUtils.log;
 
-public class DefaultAPIClient implements APIClient {
+class DefaultAPIClient implements IAPIClient {
 
     private final Context context;
 
@@ -38,46 +28,6 @@ public class DefaultAPIClient implements APIClient {
         context = _context;
     }
 
-    public static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
-        ObjectMapper mapper = createMapper();
-        try {
-            JsonNode root = mapper.readTree(input);
-            TreeNode node = root.at("/" + topLevelName);
-            return Arrays.asList(mapper.treeToValue(node, getArrayClass(clazz)));
-        } catch (IOException e) {
-            LibrusUtils.logError("Error parsing " + topLevelName);
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static <T> T parseObject(String input, String topLevelName, Class<T> clazz) {
-        ObjectMapper mapper = createMapper();
-        try {
-            JsonNode root = mapper.readTree(input);
-            TreeNode node = root.at("/" + topLevelName);
-            return mapper.treeToValue(node, clazz);
-        } catch (IOException e) {
-            LibrusUtils.logError("Error parsing " + topLevelName);
-            e.printStackTrace();
-            throw new ParseException(e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Class<? extends T[]> getArrayClass(Class<T> clazz) {
-        return (Class<? extends T[]>) Array.newInstance(clazz, 0).getClass();
-    }
-
-    private static ObjectMapper createMapper() {
-        return new ObjectMapper()
-                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .registerModule(new JodaModule())
-                .registerModule(new GuavaModule());
-    }
-
-    @Override
     public CompletableFuture<Void> login(String username, String password) {
         final String AUTH_URL = "https://api.librus.pl/OAuth/Token";
         final String auth_token = "MzU6NjM2YWI0MThjY2JlODgyYjE5YTMzZjU3N2U5NGNiNGY=";
@@ -185,7 +135,6 @@ public class DefaultAPIClient implements APIClient {
                 .thenAccept(response -> LibrusUtils.log("Device registered"));
     }
 
-    @Override
     public CompletableFuture<Timetable> getTimetable(final LocalDate weekStart) {
 
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
@@ -193,7 +142,6 @@ public class DefaultAPIClient implements APIClient {
         return getObject(endpoint, "Timetable", Timetable.class);
     }
 
-    @Override
     public <T extends Persistable> CompletableFuture<List<T>> getAll(Class<T> clazz) {
         EntityInfo info = EntityInfos.infoFor(clazz);
         if(info.single()) {
@@ -204,13 +152,11 @@ public class DefaultAPIClient implements APIClient {
         }
     }
 
-    @Override
     public <T> CompletableFuture<T> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
-        return APIRequest(endpoint).thenApplyAsync(s -> parseObject(s, topLevelName, clazz));
+        return APIRequest(endpoint).thenApplyAsync(s -> EntityParser.parseObject(s, topLevelName, clazz));
     }
 
-    @Override
     public <T> CompletableFuture<List<T>> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
-        return APIRequest(endpoint).thenApplyAsync(s -> parseList(s, topLevelName, clazz));
+        return APIRequest(endpoint).thenApplyAsync(s -> EntityParser.parseList(s, topLevelName, clazz));
     }
 }

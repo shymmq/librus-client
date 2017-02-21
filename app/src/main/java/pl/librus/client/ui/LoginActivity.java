@@ -15,9 +15,8 @@ import android.widget.ProgressBar;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import pl.librus.client.R;
-import pl.librus.client.api.DefaultAPIClient;
+import pl.librus.client.api.APIClient;
 import pl.librus.client.api.HttpException;
-import pl.librus.client.api.MockAPIClient;
 import pl.librus.client.api.RegistrationIntentService;
 
 public class LoginActivity extends AppCompatActivity {
@@ -44,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
             //log in normally
             String username = usernameInput.getText().toString();
             String password = passwordInput.getText().toString();
-            new DefaultAPIClient(getApplicationContext()).login(username, password)
+            new APIClient(getApplicationContext()).login(username, password)
                     .whenComplete((result, exception) -> {
                         if (exception != null) {
                             String message = "Wystąpił niespodziewany błąd";
@@ -61,7 +60,6 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             sharedPreferences
                                     .edit()
-                                    .putBoolean("dev_mode", false)
                                     .putBoolean("logged_in", true)
                                     .apply();
                             registerGCM();
@@ -72,18 +70,6 @@ public class LoginActivity extends AppCompatActivity {
             progress.setVisibility(View.VISIBLE);
         });
 
-        loginButton.setOnLongClickListener(v -> {
-            //log in in dev mode
-            sharedPreferences
-                    .edit()
-                    .putBoolean("dev_mode", true)
-                    .putBoolean("logged_in", true)
-                    .apply();
-            new MockAPIClient().login("", "");
-            registerGCM();
-            showMainActivity();
-            return true;
-        });
     }
 
     private void showMainActivity() {

@@ -40,7 +40,7 @@ public class LibrusGcmListenerService extends GcmListenerService {
         firebaseLogger = s -> {
             Bundle event = new Bundle();
             event.putString("objectType", s);
-            FirebaseAnalytics.getInstance(this).logEvent("notification_received", event);;
+            FirebaseAnalytics.getInstance(this).logEvent("notification_received", event);
         };
         notificationService = new NotificationService(getApplicationContext());
         return super.startService(service);

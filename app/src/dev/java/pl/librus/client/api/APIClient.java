@@ -1,5 +1,7 @@
 package pl.librus.client.api;
 
+import android.content.Context;
+
 import com.google.common.collect.Lists;
 
 import org.joda.time.DateTimeConstants;
@@ -18,20 +20,20 @@ import pl.librus.client.datamodel.Timetable;
  * Created by szyme on 14.02.2017.
  */
 
-public class MockAPIClient implements APIClient {
+public class APIClient implements IAPIClient {
 
     private final MockEntityRepository repository = new MockEntityRepository();
     private final EntityTemplates templates = new EntityTemplates();
 
-    public MockAPIClient() {
+    public APIClient(Context _context) {
+
     }
 
-    @Override
+
     public CompletableFuture<Void> login(String username, String password) {
         return CompletableFuture.completedFuture(null);
     }
 
-    @Override
     public CompletableFuture<Timetable> getTimetable(LocalDate weekStart) {
         Timetable result = new Timetable();
         String[] subjects = new String[]{
@@ -66,7 +68,6 @@ public class MockAPIClient implements APIClient {
         return CompletableFuture.completedFuture(result);
     }
 
-    @Override
     public <T extends Persistable> CompletableFuture<List<T>> getAll(Class<T> clazz) {
         EntityInfo info = EntityInfos.infoFor(clazz);
         if (info.single()) {
@@ -78,12 +79,10 @@ public class MockAPIClient implements APIClient {
         }
     }
 
-    @Override
     public <T> CompletableFuture<T> getObject(String endpoint, String topLevelName, Class<T> clazz) {
         return CompletableFuture.completedFuture(repository.getObject(clazz));
     }
 
-    @Override
     public <T> CompletableFuture<List<T>> getList(String endpoint, String topLevelName, Class<T> clazz) {
         return CompletableFuture.completedFuture(repository.getList(clazz));
     }

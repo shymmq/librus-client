@@ -22,6 +22,7 @@ android {
     productFlavors {
         full
         foss
+        dev
     }
 
     buildTypes {

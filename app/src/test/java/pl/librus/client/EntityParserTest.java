@@ -12,8 +12,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import io.requery.Persistable;
-import pl.librus.client.api.DefaultAPIClient;
 import pl.librus.client.api.EntityInfos;
+import pl.librus.client.api.EntityParser;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 
-public class APIClientTest {
+public class EntityParserTest {
 
     @Test
     public void shouldParseTeachers() throws IOException {
@@ -78,7 +78,7 @@ public class APIClientTest {
     @Test
     public void shouldParseTimetable() throws IOException {
         //when
-        Timetable res = DefaultAPIClient.parseObject(readFile("Timetable.json"), "Timetable", Timetable.class);
+        Timetable res = EntityParser.parseObject(readFile("Timetable.json"), "Timetable", Timetable.class);
 
         //then
         JsonLesson actual = res.get(LocalDate.parse("2017-01-30"))
@@ -315,10 +315,10 @@ public class APIClientTest {
     }
 
     private <T extends Persistable> List<T> parseList(String filename, Class<T> clazz) {
-        return DefaultAPIClient.parseList(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
+        return EntityParser.parseList(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
     }
 
     private <T extends Persistable> T parseObject(String filename, Class<T> clazz) {
-        return DefaultAPIClient.parseObject(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
+        return EntityParser.parseObject(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
     }
 }
