@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
 import pl.librus.client.api.APIClient;
+import pl.librus.client.api.IAPIClient;
 import pl.librus.client.api.LibrusGcmListenerService;
 import pl.librus.client.api.NotificationService;
 import pl.librus.client.datamodel.Announcement;
@@ -57,7 +58,7 @@ public class NotificationTest extends BaseDBTest {
 
     private NotificationManager notificationManager;
 
-    private APIClient apiClient;
+    private IAPIClient apiClient;
 
     @Before
     public void setUp() {
@@ -263,7 +264,7 @@ public class NotificationTest extends BaseDBTest {
     }
 
     private LibrusGcmListenerService serviceWithMockClient() {
-        apiClient = mock(APIClient.class);
+        apiClient = mock(IAPIClient.class);
         LibrusGcmListenerService service = new LibrusGcmListenerService();
         service.setUpdateHelper(new UpdateHelper(apiClient));
         service.setFirebaseLogger(mock(Consumer.class));
