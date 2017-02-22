@@ -276,6 +276,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateMenu() {
+        if(menu == null) {
+            return;
+        }
         actions = currentFragment.getMenuItems();
         menu.clear();
         for (int id = 0; id < actions.size(); id++) {
