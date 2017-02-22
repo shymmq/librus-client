@@ -121,6 +121,9 @@ class GradeHeaderItem
             averageSummaryText.setSpan(new StyleSpan(Typeface.BOLD), s.length(), averageSummaryText.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
             holder.averageSummary.setText(averageSummaryText);
         }
+        else {
+            holder.averageSummary.setText(ssb);
+        }
     }
 
     @Override
