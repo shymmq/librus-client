@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/three_line_list_item_background"
     android:layout_width="match_parent"
     android:layout_height="88dp"
-    android:background="?attr/selectableItemBackground"
+    android:background="?attr/defaultBackgroundColor"
     android:clipChildren="false"
     android:elevation="1dp"
+    android:foreground="?attr/selectableItemBackground"
     android:outlineProvider="bounds"
     android:padding="0dp"
     android:transitionGroup="true"
-    android:transitionName="three_line_list_item_background"
-    tools:targetApi="lollipop">
+    android:transitionName="three_line_list_item_background">
 
     <TextView
         android:id="@+id/three_line_list_item_title"

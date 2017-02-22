@@ -4,7 +4,8 @@
     android:id="@+id/grade_category_item_root"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:background="?attr/selectableItemBackground">
+    android:background="?attr/defaultBackgroundColor"
+    android:foreground="?attr/selectableItemBackground">
 
     <Space
         android:id="@+id/space"

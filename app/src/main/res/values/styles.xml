@@ -33,6 +33,7 @@
 
         <item name="lessonItemElevation">0dp</item>
         <item name="listSubheaderColorBackground">@color/md_grey_800</item>
+        <item name="defaultBackgroundColor">@color/md_dark_background</item>
         <item name="solidCircleColor">?android:attr/textColorPrimary</item>
         <item name="itemDividerColor">@color/md_divider_white</item>
 
@@ -61,6 +62,7 @@
 
         <item name="lessonItemElevation">2dp</item>
         <item name="listSubheaderColorBackground">@color/md_grey_200</item>
+        <item name="defaultBackgroundColor">@color/md_light_background</item>
         <item name="solidCircleColor">?android:attr/textColorPrimaryInverse</item>
         <item name="itemDividerColor">@color/md_divider_black</item>
     </style>
