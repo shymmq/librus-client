@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                         .title("Pobieranie danych")
                         .content("")
                         .progress(false, 100)
+                        .cancelable(false)
                         .show();
                 ProgressReporter reporter = new ProgressReporter(100, p -> runOnUiThread(() -> dialog.setProgress(p)));
                 updateHelper.updateAll(reporter)
