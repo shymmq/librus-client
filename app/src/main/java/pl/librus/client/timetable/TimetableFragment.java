@@ -148,6 +148,11 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
     }
 
     @Override
+    public int getIcon() {
+        return R.drawable.ic_event_note_black_48dp;
+    }
+
+    @Override
     public boolean onItemClick(int position) {
         IFlexible item = adapter.getItem(position);
         if (item instanceof LessonItem) {

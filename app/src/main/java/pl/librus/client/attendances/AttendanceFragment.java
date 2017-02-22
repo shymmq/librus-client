@@ -88,4 +88,9 @@ public class AttendanceFragment extends MainFragment {
     public int getTitle() {
         return R.string.attendances_view_title;
     }
+
+    @Override
+    public int getIcon() {
+        return R.drawable.ic_person_outline_black_48dp;
+    }
 }

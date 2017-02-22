@@ -215,4 +215,9 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     public int getTitle() {
         return R.string.grades_view_title;
     }
+
+    @Override
+    public int getIcon() {
+        return R.drawable.ic_assignment_black_48dp;
+    }
 }

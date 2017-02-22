@@ -22,7 +22,6 @@ import pl.librus.client.api.RegistrationIntentService;
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "librus-schedule-debug";
-    private MaterialDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

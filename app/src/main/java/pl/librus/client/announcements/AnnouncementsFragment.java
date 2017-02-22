@@ -106,4 +106,10 @@ public class AnnouncementsFragment extends MainFragment {
     public int getTitle() {
         return R.string.announcements_view_title;
     }
+
+    @Override
+    public int getIcon() {
+        return R.drawable.ic_announcement_black_48dp;
+
+    }
 }

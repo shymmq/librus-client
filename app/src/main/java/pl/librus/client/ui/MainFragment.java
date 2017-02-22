@@ -1,7 +1,9 @@
 package pl.librus.client.ui;
 
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 
 import java.util.ArrayList;
@@ -28,7 +30,11 @@ public abstract class MainFragment extends Fragment {
         void run();
     }
 
+    @StringRes
     public abstract int getTitle();
+
+    @DrawableRes
+    public abstract int getIcon();
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

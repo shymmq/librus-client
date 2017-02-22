@@ -37,41 +37,25 @@ import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.api.ProgressReporter;
-import pl.librus.client.attendances.AttendanceFragment;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.LuckyNumberType;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.timetable.TimetableFragment;
-import pl.librus.client.timetable.TimetableTabFragment;
 
-public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
-    public static final int FRAGMENT_GRADES_ID = 2;
-    public static final int FRAGMENT_ANNOUNCEMENTS_ID = 4;
+public class MainActivity extends AppCompatActivity {
+    public static final String INITIAL_FRAGMENT = "initial_fragment";
+    public static final String FRAGMENT_ANNOUNCEMENTS = "annoucements";
+    public static final String FRAGMENT_GRADES = "grades";
 
-    private static final int FRAGMENT_TIMETABLE_ID = 1;
-    private static final int FRAGMENT_CALENDAR_ID = 3;
-    private static final int FRAGMENT_MESSAGES_ID = 5;
-    private static final int FRAGMENT_ATTENDANCES_ID = 6;
-    private static final int LUCKY_NUMBER_ID = 7;
-    private static final int SETTINGS_ID = 8;
-    private static final int PROFILE_SETTING = 9;
-    private static final int PROFILE_SETTING_LOGOUT = 10;
 
-    private final TimetableFragment timetableFragment = TimetableFragment.newInstance();
-    private final GradesFragment gradesFragment = GradesFragment.newInstance();
-    private final AttendanceFragment attendanceFragment = AttendanceFragment.newInstance();
-    private final TimetableTabFragment timetableTabFragment = TimetableTabFragment.newInstance();
-    private final AnnouncementsFragment announcementsFragment = AnnouncementsFragment.newInstance();
-
-    MainFragment currentFragment;
     List<? extends MenuAction> actions = new ArrayList<>();
     private Drawer drawer;
     private Toolbar toolbar;
-    private UpdateHelper updateHelper;
     private Menu menu;
     private EntityDataStore<Persistable> data;
+    private MainFragment currentFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -130,9 +114,23 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         }
     }
 
+    private void setInitialFragment() {
+        String fragment = getIntent().getStringExtra(INITIAL_FRAGMENT);
+        fragment = fragment == null ? "" : fragment;
+        switch (fragment) {
+            case FRAGMENT_ANNOUNCEMENTS:
+                currentFragment = new AnnouncementsFragment();
+                break;
+            case FRAGMENT_GRADES:
+                currentFragment = new GradesFragment();
+                break;
+            default:
+                currentFragment = new TimetableFragment();
+        }
+    }
+
     private void setup() {
         LibrusUtils.log("setting up");
-        updateHelper = new UpdateHelper(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //Drawer setup
@@ -144,90 +142,53 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
                 .get()
                 .firstOrNull();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
         ProfileDrawerItem profile = new ProfileDrawerItem()
                 .withName(me.account().name())
                 .withEmail(me.account().login())
                 .withIcon(R.drawable.ic_person_white_48px);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                .withIdentifier(LUCKY_NUMBER_ID)
                 .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.luckyNumber()))
-                .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
+                .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp)
+                .withOnDrawerItemClickListener(this::showLuckyNumber);
         AccountHeader header = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withSelectionListEnabledForSingleProfile(true)
                 .withHeaderBackground(R.drawable.background_nav)
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
                 .addProfiles(profile,
-                        new ProfileSettingDrawerItem().withName("Dodaj konto").withIdentifier(PROFILE_SETTING).withIcon(R.drawable.plus),
+                        new ProfileSettingDrawerItem()
+                                .withName("Dodaj konto")
+                                .withIcon(R.drawable.plus),
                         //TODO: Add  support for multi profiles
-                        new ProfileSettingDrawerItem().withName("Wyloguj").withIdentifier(PROFILE_SETTING_LOGOUT).withIcon(R.drawable.logout).withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                            @Override
-                            public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                                SharedPreferences.Editor editor = prefs.edit();
-                                boolean logged_in = prefs.getBoolean("logged_in", true);
-                                if (logged_in) {
-                                    Toast.makeText(MainActivity.this, "Wylogowano", Toast.LENGTH_SHORT).show();
-                                    editor.clear();
-                                    editor.apply();
-                                    Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-                                    startActivity(i);
-                                    finish();
-                                }
-                                return false;
-                            }
-                        }))
+                        new ProfileSettingDrawerItem()
+                                .withName("Wyloguj")
+                                .withIcon(R.drawable.logout)
+                                .withOnDrawerItemClickListener(this::logout))
                 .build();
 
         final DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withAccountHeader(header)
+                .addDrawerItems(new DrawerItemsFactory().getItems(this::displayFragment))
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(FRAGMENT_TIMETABLE_ID)
-                                .withName(R.string.timetable_view_title)
-                                .withIcon(R.drawable.ic_event_note_black_48dp),
-                        new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(FRAGMENT_GRADES_ID)
-                                .withName(R.string.grades_view_title)
-                                .withIcon(R.drawable.ic_assignment_black_48dp),
-                        new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(FRAGMENT_CALENDAR_ID)
-                                .withName(R.string.calendar_view_title)
-                                .withIcon(R.drawable.ic_date_range_black_48dp),
-                        new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(FRAGMENT_ANNOUNCEMENTS_ID)
-                                .withName(R.string.announcements_view_title)
-                                .withIcon(R.drawable.ic_announcement_black_48dp),
-                        new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(FRAGMENT_MESSAGES_ID)
-                                .withName(R.string.messages_view_title)
-                                .withIcon(R.drawable.ic_message_black_48dp),
-                        new PrimaryDrawerItem().withIconTintingEnabled(true)
-                                .withIdentifier(FRAGMENT_ATTENDANCES_ID)
-                                .withName(R.string.attendances_view_title)
-                                .withIcon(R.drawable.ic_person_outline_black_48dp),
                         new DividerDrawerItem(),
                         lucky)
                 .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                        .withIdentifier(SETTINGS_ID)
                         .withName(R.string.settings_title)
-                        .withIcon(R.drawable.ic_settings_black_48dp))
-                .withOnDrawerItemClickListener(this)
+                        .withIcon(R.drawable.ic_settings_black_48dp)
+                        .withOnDrawerItemClickListener(this::openSettings))
                 .withDelayOnDrawerClose(50)
-                .withOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
-                    @Override
-                    public boolean onNavigationClickListener(View clickedView) {
-                        onBackPressed();
-                        return true;
-                    }
+                .withOnDrawerNavigationListener(clickedView -> {
+                    onBackPressed();
+                    return true;
                 })
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
                 .withToolbar(toolbar);
         drawer = drawerBuilder.build();
+
+        setInitialFragment();
+        displayFragment(currentFragment);
     }
 
     private Drawer getDrawer() {
@@ -253,60 +214,50 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         }
     }
 
-    @Override
-    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-        //Regardless of update going on in the background start the settings activity
-        int itemId = (int) drawerItem.getIdentifier();
-        if (itemId == SETTINGS_ID) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            return false;
-        } else if (itemId == LUCKY_NUMBER_ID) {
-            LuckyNumber luckyNumber = data.select(LuckyNumber.class)
-                    .orderBy(LuckyNumberType.DAY.desc())
-                    .get()
-                    .firstOrNull();
-            if (luckyNumber != null) {
-                String luckyDate = luckyNumber.day().toString("EEEE, d MMMM");
-                Toast.makeText(getApplicationContext(), luckyDate, Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getApplicationContext(), "Brak danych", Toast.LENGTH_LONG).show();
-            }
+    private boolean showLuckyNumber(View view, int position, IDrawerItem drawerItem) {
+        LuckyNumber luckyNumber = data.select(LuckyNumber.class)
+                .orderBy(LuckyNumberType.DAY.desc())
+                .get()
+                .firstOrNull();
+        if (luckyNumber != null) {
+            String luckyDate = luckyNumber.day().toString("EEEE, d MMMM");
+            Toast.makeText(getApplicationContext(), luckyDate, Toast.LENGTH_LONG).show();
         } else {
-            //Set toolbar title to clicked frawer item title
-            currentFragment = getFragmentForId(itemId);
-            getToolbar().setTitle(currentFragment.getTitle());
+            Toast.makeText(getApplicationContext(), "Brak danych", Toast.LENGTH_LONG).show();
+        }
+        return true;
+    }
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_main, currentFragment)
-                    .commit();
+    private boolean openSettings(View view, int position, IDrawerItem drawerItem) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+        return false;
+    }
 
-            currentFragment.runAfterSetup(this::updateMenu);
+    private boolean logout(View view, int position, IDrawerItem drawerItem) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean logged_in = prefs.getBoolean("logged_in", true);
+        if (logged_in) {
+            Toast.makeText(MainActivity.this, "Wylogowano", Toast.LENGTH_SHORT).show();
+            prefs.edit()
+                .clear()
+                .apply();
+            Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(i);
+            finish();
         }
         return false;
     }
 
+    private void displayFragment(MainFragment fragment) {
+        currentFragment = fragment;
+        getToolbar().setTitle(fragment.getTitle());
 
-    private MainFragment getFragmentForId(int id) {
-        MainFragment result;
-        switch (id) {
-            case FRAGMENT_TIMETABLE_ID:
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                result = preferences.getBoolean("useTabs", false) ? timetableTabFragment : timetableFragment;
-                break;
-            case FRAGMENT_GRADES_ID:
-                result = gradesFragment;
-                break;
-            case FRAGMENT_ATTENDANCES_ID:
-                result = attendanceFragment;
-                break;
-            case FRAGMENT_ANNOUNCEMENTS_ID:
-                result = announcementsFragment;
-                break;
-            default:
-                result = new PlaceholderFragment();
-        }
-        return result;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_main, fragment)
+                .commit();
+
+        fragment.runAfterSetup(this::updateMenu);
     }
 
     @Override

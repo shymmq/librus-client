@@ -36,14 +36,18 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  */
 
 public class NotificationService {
-    private static final String DEFAULT_POSITION = "NotificationService:redirect_fragment";
     private final Context context;
 
     public NotificationService(Context context) {
         this.context = context;
     }
 
-    private void sendNotification(@NonNull CharSequence title, @NonNull CharSequence text, int iconResource, @Nullable Notification.Style style, int fragment) {
+    private void sendNotification(
+            @NonNull CharSequence title,
+            @NonNull CharSequence text,
+            int iconResource,
+            @Nullable Notification.Style style,
+            String fragment) {
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle(title)
                 .setContentText(text)
@@ -51,11 +55,8 @@ public class NotificationService {
                 .setAutoCancel(true);
         if (style != null) builder.setStyle(style);
 
-        Bundle bundle = new Bundle();
-        bundle.putInt(DEFAULT_POSITION, fragment);
-
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(DEFAULT_POSITION, fragment);
+        intent.putExtra(MainActivity.INITIAL_FRAGMENT, fragment);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
@@ -75,7 +76,12 @@ public class NotificationService {
             Notification.BigTextStyle style = new Notification.BigTextStyle()
                     .setBigContentTitle(announcement.subject())
                     .bigText(announcement.content());
-            sendNotification(announcement.subject(), announcement.content(), R.drawable.ic_announcement_black_48dp, style, MainActivity.FRAGMENT_ANNOUNCEMENTS_ID);
+            sendNotification(
+                    announcement.subject(),
+                    announcement.content(),
+                    R.drawable.ic_announcement_black_48dp,
+                    style,
+                    MainActivity.FRAGMENT_ANNOUNCEMENTS);
         } else if (size > 1) {
             String title = size +
                     LibrusUtils.getPluralForm(size, " nowe ogłoszenie", " nowe ogłoszenia", " nowych ogłoszeń");
@@ -91,7 +97,7 @@ public class NotificationService {
                     text,
                     R.drawable.ic_announcement_black_48dp,
                     style,
-                    MainActivity.FRAGMENT_ANNOUNCEMENTS_ID);
+                    MainActivity.FRAGMENT_ANNOUNCEMENTS);
         }
         return this;
     }
@@ -102,7 +108,12 @@ public class NotificationService {
         if (size == 1) {
             Grade grade = grades.get(0);
             String subject = MainApplication.getData().findByKey(Subject.class, grade.subject()).name();
-            sendNotification("Nowa ocena", subject + " " + grade.grade(), R.drawable.ic_assignment_black_48dp, null, MainActivity.FRAGMENT_GRADES_ID);
+            sendNotification(
+                    "Nowa ocena",
+                    subject + " " + grade.grade(),
+                    R.drawable.ic_assignment_black_48dp,
+                    null,
+                    MainActivity.FRAGMENT_GRADES);
         } else if (size > 1) {
             String title;
             List<String> subjects = new ArrayList<>();
@@ -121,7 +132,7 @@ public class NotificationService {
                     TextUtils.join(", ", subjects),
                     R.drawable.ic_assignment_black_48dp,
                     style,
-                    MainActivity.FRAGMENT_GRADES_ID);
+                    MainActivity.FRAGMENT_GRADES);
         }
         return this;
     }
@@ -136,7 +147,7 @@ public class NotificationService {
                     event.content() + " - " + date,
                     R.drawable.ic_event_black_24dp,
                     null,
-                    -1);
+                    null);
         } else if (size > 1) {
             String title;
             List<String> authorNames = new ArrayList<>();
@@ -157,7 +168,7 @@ public class NotificationService {
                     TextUtils.join(", ", authorNames),
                     R.drawable.ic_event_black_24dp,
                     style,
-                    -1);
+                    null);
         }
         return this;
     }
@@ -168,7 +179,7 @@ public class NotificationService {
         sendNotification(
                 "Szczęśliwy numerek: " + ln.luckyNumber(),
                 ln.day().toString("EEEE, d MMMM yyyy", new Locale("pl")),
-                R.drawable.ic_sentiment_very_satisfied_black_24dp, null, -1);
+                R.drawable.ic_sentiment_very_satisfied_black_24dp, null, null);
         return this;
     }
 }
