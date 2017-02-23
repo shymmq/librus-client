@@ -20,6 +20,7 @@ public class EntityParser {
     public static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
         ObjectMapper mapper = createMapper();
         try {
+            input = input.replace("\\\\\\", "\\");
             JsonNode root = mapper.readTree(input);
             TreeNode node = root.at("/" + topLevelName);
             return Arrays.asList(mapper.treeToValue(node, getArrayClass(clazz)));
@@ -33,6 +34,7 @@ public class EntityParser {
     public static <T> T parseObject(String input, String topLevelName, Class<T> clazz) {
         ObjectMapper mapper = createMapper();
         try {
+            input = input.replace("\\\\\\", "\\");
             JsonNode root = mapper.readTree(input);
             TreeNode node = root.at("/" + topLevelName);
             return mapper.treeToValue(node, clazz);

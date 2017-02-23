@@ -298,7 +298,7 @@ public class EntityParserTest {
             .id("167110")
             .startDate(LocalDate.parse("2016-09-21"))
             .endDate(LocalDate.parse("2017-06-14"))
-            .subject("Konsultacje z matematyki")
+            .subject("Konsultacje z \"matematyki\"")
             .content("Konsultacje z matematyki dla uczniów klas: 1B  2D2A 3A3D")
             .addedBy("1575831")
             .build()));
