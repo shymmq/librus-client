@@ -1,5 +1,6 @@
 package pl.librus.client;
 
+import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 
 import org.joda.time.LocalDate;
@@ -14,6 +15,7 @@ import java.util.List;
 import io.requery.Persistable;
 import pl.librus.client.api.EntityInfos;
 import pl.librus.client.api.EntityParser;
+import pl.librus.client.api.ParseException;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
@@ -39,6 +41,7 @@ import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.datamodel.Timetable;
 
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -49,7 +52,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseTeachers() throws IOException {
         //when
-        List<Teacher> res = parseList("Teachers.json", Teacher.class);
+        List<Teacher> res = parse("Teachers.json", Teacher.class);
 
         //then
         assertThat(res, hasItem(new Teacher.Builder()
@@ -62,7 +65,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseMe() throws IOException {
         //when
-        Me res = parseObject("Me.json", Me.class);
+        List<Me> res = parse("Me.json", Me.class);
 
         //then
         LibrusAccount expectedAccount = new LibrusAccount.Builder()
@@ -71,16 +74,16 @@ public class EntityParserTest {
                 .lastName("Problem")
                 .login("12u")
                 .build();
-        assertThat(res, is(ImmutableMe.of(expectedAccount)));
+        assertThat(Iterables.getOnlyElement(res), is(ImmutableMe.of(expectedAccount)));
     }
 
     @Test
     public void shouldParseTimetable() throws IOException {
         //when
-        Timetable res = EntityParser.parseObject(readFile("Timetable.json"), "Timetable", Timetable.class);
+        List<Timetable> res = EntityParser.parse(readFile("Timetable.json"), "Timetable", Timetable.class);
 
         //then
-        JsonLesson actual = res.get(LocalDate.parse("2017-01-30"))
+        JsonLesson actual = Iterables.getOnlyElement(res).get(LocalDate.parse("2017-01-30"))
                 .get(1).get(0);
         JsonLesson expected = ImmutableJsonLesson.builder()
                 .cancelled(false)
@@ -112,7 +115,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseGrades() throws IOException {
         //when
-        List<Grade> res = parseList("Grades.json", Grade.class);
+        List<Grade> res = parse("Grades.json", Grade.class);
 
         //then
         assertThat(res, hasItem(new Grade.Builder()
@@ -138,7 +141,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseCategories() throws IOException {
         //when
-        List<GradeCategory> res = parseList("GradeCategories.json", GradeCategory.class);
+        List<GradeCategory> res = parse("GradeCategories.json", GradeCategory.class);
 
         //then
         assertThat(res, hasItem(new GradeCategory.Builder()
@@ -152,7 +155,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseComment() throws IOException {
         //when
-        List<GradeComment> res = parseList("GradeComments.json", GradeComment.class);
+        List<GradeComment> res = parse("GradeComments.json", GradeComment.class);
 
         //then
         assertThat(res, hasItem(new GradeComment.Builder()
@@ -165,7 +168,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseLessons() throws IOException {
         //when
-        List<PlainLesson> res = parseList("Lessons.json", PlainLesson.class);
+        List<PlainLesson> res = parse("Lessons.json", PlainLesson.class);
 
         //then
         assertThat(res, hasItem(new PlainLesson.Builder()
@@ -178,7 +181,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseHomeWorks() throws IOException {
         //when
-        List<Event> res = parseList("HomeWorks.json", Event.class);
+        List<Event> res = parse("HomeWorks.json", Event.class);
 
         //then
         assertThat(res, hasItem(new Event.Builder()
@@ -194,7 +197,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseHomeWorkCategories() throws IOException {
         //when
-        List<EventCategory> res = parseList("HomeWorkCategories.json", EventCategory.class);
+        List<EventCategory> res = parse("HomeWorkCategories.json", EventCategory.class);
 
         //then
         assertThat(res, hasItem(new EventCategory.Builder()
@@ -206,7 +209,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseAttendances() throws IOException {
         //when
-        List<Attendance> res = parseList("Attendances.json", Attendance.class);
+        List<Attendance> res = parse("Attendances.json", Attendance.class);
 
         //then
         assertThat(res, hasItem(new Attendance.Builder()
@@ -224,7 +227,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseAttendanceTypes() throws IOException {
         //when
-        List<AttendanceCategory> res = parseList("AttendanceTypes.json", AttendanceCategory.class);
+        List<AttendanceCategory> res = parse("AttendanceTypes.json", AttendanceCategory.class);
 
         //then
         assertThat(res, hasItem(new AttendanceCategory.Builder()
@@ -240,7 +243,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseSubject() throws IOException {
         //when
-        List<Subject> res = parseList("Subjects.json", Subject.class);
+        List<Subject> res = parse("Subjects.json", Subject.class);
         
         //then
         assertThat(res, hasItem(new Subject.Builder()
@@ -252,10 +255,10 @@ public class EntityParserTest {
     @Test
     public void shouldParseLuckyNumbers() throws IOException {
         //when
-        LuckyNumber luckyNumber = parseObject("LuckyNumbers.json", LuckyNumber.class);
+        List<LuckyNumber> luckyNumbers = parse("LuckyNumbers.json", LuckyNumber.class);
 
         //then
-        assertThat(luckyNumber, is(ImmutableLuckyNumber.of(
+        assertThat(Iterables.getOnlyElement(luckyNumbers), is(ImmutableLuckyNumber.of(
                 LocalDate.parse("2017-02-03"),
                 13
         )));
@@ -264,7 +267,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseAverages() {
         //when
-        List<Average> averages = parseList("Averages.json", Average.class);
+        List<Average> averages = parse("Averages.json", Average.class);
 
         //then
         assertThat(averages, hasItem(new Average.Builder()
@@ -278,7 +281,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseColors() {
         //when
-        List<LibrusColor> colors = parseList("Colors.json", LibrusColor.class);
+        List<LibrusColor> colors = parse("Colors.json", LibrusColor.class);
         //then
         LibrusColor goldenrod = new LibrusColor.Builder()
                 .id("13")
@@ -291,7 +294,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseAnnouncements() {
         //when
-        List<Announcement> res = parseList("SchoolNotices.json", Announcement.class);
+        List<Announcement> res = parse("SchoolNotices.json", Announcement.class);
 
         //then
         assertThat(res, hasItem(new Announcement.Builder()
@@ -304,6 +307,21 @@ public class EntityParserTest {
             .build()));
     }
 
+    @Test
+    public void shouldNotFailOnDisabled() {
+        //when
+        List<Average> res = parse("Disabled.json", Average.class);
+
+        //then
+        assertThat(res, hasSize(0));
+    }
+
+    @Test(expected = ParseException.class)
+    public void shouldFailOnMalformed() {
+        //when
+        parse("Malformed.json", Average.class);
+    }
+
     private static String readFile(String fileName) {
         try {
             return Resources.toString(Resources.getResource(fileName), Charset.defaultCharset());
@@ -312,11 +330,8 @@ public class EntityParserTest {
         }
     }
 
-    private <T extends Persistable> List<T> parseList(String filename, Class<T> clazz) {
-        return EntityParser.parseList(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
+    private <T extends Persistable> List<T> parse(String filename, Class<T> clazz) {
+        return EntityParser.parse(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
     }
 
-    private <T extends Persistable> T parseObject(String filename, Class<T> clazz) {
-        return EntityParser.parseObject(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
-    }
 }

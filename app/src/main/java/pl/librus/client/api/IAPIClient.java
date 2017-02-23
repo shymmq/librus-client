@@ -15,8 +15,6 @@ public interface IAPIClient {
 
     <T extends Persistable> CompletableFuture<List<T>> getAll(Class<T> clazz);
 
-    <T> CompletableFuture<T> getObject(String endpoint, String topLevelName, Class<T> clazz);
-
     <T> CompletableFuture<List<T>> getList(String endpoint, String topLevelName, Class<T> clazz);
 
 }

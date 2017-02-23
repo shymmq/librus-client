@@ -3,7 +3,7 @@ package pl.librus.client.api;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Iterables;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 
@@ -139,24 +139,16 @@ class DefaultAPIClient implements IAPIClient {
 
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
 
-        return getObject(endpoint, "Timetable", Timetable.class);
+        return getList(endpoint, "Timetable", Timetable.class)
+                .thenApply(Iterables::getOnlyElement);
     }
 
     public <T extends Persistable> CompletableFuture<List<T>> getAll(Class<T> clazz) {
         EntityInfo info = EntityInfos.infoFor(clazz);
-        if(info.single()) {
-            return getObject(info.endpoint(), info.topLevelName(), clazz)
-                    .thenApply(Lists::newArrayList);
-        } else {
-            return getList(info.endpoint(), info.topLevelName(), clazz);
-        }
-    }
-
-    public <T> CompletableFuture<T> getObject(String endpoint, final String topLevelName, final Class<T> clazz) {
-        return APIRequest(endpoint).thenApplyAsync(s -> EntityParser.parseObject(s, topLevelName, clazz));
+        return getList(info.endpoint(), info.topLevelName(), clazz);
     }
 
     public <T> CompletableFuture<List<T>> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
-        return APIRequest(endpoint).thenApplyAsync(s -> EntityParser.parseList(s, topLevelName, clazz));
+        return APIRequest(endpoint).thenApplyAsync(s -> EntityParser.parse(s, topLevelName, clazz));
     }
 }

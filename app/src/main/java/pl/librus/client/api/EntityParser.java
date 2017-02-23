@@ -11,37 +11,28 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import pl.librus.client.LibrusUtils;
 
 public class EntityParser {
 
-    public static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
+    public static <T> List<T> parse(String input, String topLevelName, Class<T> clazz) {
         ObjectMapper mapper = createMapper();
         try {
             input = input.replace("\\\\\\", "\\");
             JsonNode root = mapper.readTree(input);
             TreeNode node = root.at("/" + topLevelName);
-            return Arrays.asList(mapper.treeToValue(node, getArrayClass(clazz)));
-        } catch (IOException e) {
-            LibrusUtils.logError("Error parsing " + topLevelName);
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static <T> T parseObject(String input, String topLevelName, Class<T> clazz) {
-        ObjectMapper mapper = createMapper();
-        try {
-            input = input.replace("\\\\\\", "\\");
-            JsonNode root = mapper.readTree(input);
-            TreeNode node = root.at("/" + topLevelName);
-            return mapper.treeToValue(node, clazz);
-        } catch (IOException e) {
-            LibrusUtils.logError("Error parsing " + topLevelName);
-            e.printStackTrace();
-            throw new ParseException(e);
+            if(!node.isMissingNode()) {
+                return Arrays.asList(mapper.treeToValue(node, getArrayClass(clazz)));
+            } else if(root.at("/Status").textValue().equals("Disabled")){
+                return Collections.emptyList();
+            } else {
+                throw new RuntimeException("No root element, status not disabled");
+            }
+        } catch (Exception e) {
+            throw new ParseException(input, e);
         }
     }
 
@@ -49,6 +40,7 @@ public class EntityParser {
         return new ObjectMapper()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
                 .registerModule(new JodaModule())
                 .registerModule(new GuavaModule());
     }
