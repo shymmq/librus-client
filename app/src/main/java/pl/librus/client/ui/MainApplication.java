@@ -31,7 +31,7 @@ public class MainApplication extends MultiDexApplication {
 
     public EntityDataStore<Persistable> initData() {
         if(dataStore == null) {
-            DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, 9);
+            DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, 10);
             if (BuildConfig.DEBUG) {
                 source.setLoggingEnabled(true);
                 source.setTableCreationMode(TableCreationMode.DROP_CREATE);

@@ -90,7 +90,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
         for (Subject s : subjects) {
             Average average = MainApplication.getData()
                     .select(Average.class)
-                    .where(AverageType.SUBJECT_ID.eq(s.id()))
+                    .where(AverageType.SUBJECT.eq(s.id()))
                     .get()
                     .firstOrNull();
 
@@ -162,7 +162,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             addedByTextView.setText(addedBy.name());
 
             List<GradeComment> comments = data.select(GradeComment.class)
-                    .where(GradeCommentType.GRADE.eq(grade.id()))
+                    .where(GradeCommentType.ID.in(grade.comments()))
                     .get()
                     .toList();
             if (comments != null && !comments.isEmpty()) {

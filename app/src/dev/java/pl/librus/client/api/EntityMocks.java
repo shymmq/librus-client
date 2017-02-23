@@ -1,21 +1,23 @@
 package pl.librus.client.api;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.thedeanda.lorem.Lorem;
+import com.thedeanda.lorem.LoremIpsum;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import java8.util.function.Supplier;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
-import pl.librus.client.datamodel.EmbeddedId;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
@@ -49,11 +51,16 @@ import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 
-/**
- * Created by robwys on 12/02/2017.
- */
+import static pl.librus.client.api.SampleValues.COLORS;
+import static pl.librus.client.api.SampleValues.GRADES;
+import static pl.librus.client.api.SampleValues.SUBJECTS;
 
-class EntityTemplates {
+
+class EntityMocks {
+
+    private static final long SEED = 42L;
+    private final Lorem lorem = new LoremIpsum(SEED);
+    private final Random random = new Random(SEED);
 
     private Map<Class<?>, Supplier<?>> templates = ImmutableMap.<Class<?>, Supplier<?>>builder()
             .put(Announcement.class, this::announcement)
@@ -74,18 +81,30 @@ class EntityTemplates {
             .put(Lesson.class, this::jsonLesson)
             .build();
 
+    private Map<Class<?>, IdGenerator> idGenerators = Maps.newHashMap();
+
+    private final String MOCK_ID = "_mock_";
+
+    <T> T forClass(Class<T> clazz) {
+        Object instance = templates.get(clazz).get();
+        if (instance != null)
+            return clazz.cast(instance);
+        else
+            throw new RuntimeException("Mock not available for " + clazz.getSimpleName());
+    }
+
     ImmutableLessonSubject lessonSubject() {
         return new LessonSubject.Builder()
-                .id("44561")
-                .name("Godzina wychowawcza")
+                .id(MOCK_ID)
+                .name(randomElement(SUBJECTS))
                 .build();
     }
 
     ImmutableLessonTeacher lessonTeacher() {
         return new LessonTeacher.Builder()
-                .id("1235088")
-                .firstName("Tomasz")
-                .lastName("Problem")
+                .id(MOCK_ID)
+                .firstName(lorem.getFirstName())
+                .lastName(lorem.getLastName())
                 .build();
     }
 
@@ -99,17 +118,13 @@ class EntityTemplates {
                 .subject(lessonSubject())
                 .substitutionClass(false)
                 .teacher(lessonTeacher())
-                .orgDate(LocalDate.parse("2017-02-06"))
+                .orgDate(randomDate())
                 .orgLessonNo(2)
-                .orgLesson("1822337")
-                .orgSubject("44565")
-                .orgTeacher("1235090")
+                .orgLesson(MOCK_ID)
+                .orgSubject(MOCK_ID)
+                .orgTeacher(MOCK_ID)
                 .build();
     }
-
-    private Map<Class<?>, IdGenerator> idGenerators = Maps.newHashMap();
-
-    private final String MOCK_ID = "_mock_";
 
     public ImmutableGrade grade() {
         return new Grade.Builder()
@@ -120,21 +135,21 @@ class EntityTemplates {
                 .category(MOCK_ID)
                 .finalPropositionType(false)
                 .finalType(false)
-                .grade("4+")
+                .grade(randomElement(GRADES))
                 .lesson(MOCK_ID)
                 .semester(1)
                 .semesterPropositionType(false)
                 .semesterType(false)
                 .subject(MOCK_ID)
-                .addComments("777", "888")
-                .student("77779")
+                .addComments(MOCK_ID)
+                .student(MOCK_ID)
                 .build();
     }
 
     public ImmutableSubject subject() {
         return new Subject.Builder()
                 .id(idFor(Subject.class))
-                .name("Matematyka")
+                .name(randomElement(SUBJECTS))
                 .build();
     }
 
@@ -142,19 +157,19 @@ class EntityTemplates {
     public ImmutableAnnouncement announcement() {
         return new Announcement.Builder()
                 .id(idFor(Announcement.class))
-                .startDate(LocalDate.parse("2016-09-21"))
-                .endDate(LocalDate.parse("2017-06-14"))
-                .subject("Tytuł ogłoszenia")
-                .content("Treść ogłoszenia")
+                .startDate(randomDate())
+                .endDate(randomDate())
+                .subject(lorem.getWords(1, 10))
+                .content(lorem.getWords(10, 500))
                 .addedBy(MOCK_ID)
                 .build();
     }
 
     public ImmutableMe me() {
         return ImmutableMe.of(new LibrusAccount.Builder()
-                .email("tompro@gmail.com")
-                .firstName("Tomasz")
-                .lastName("Problem")
+                .email(lorem.getEmail())
+                .firstName(lorem.getFirstName())
+                .lastName(lorem.getLastName())
                 .login("12222u")
                 .build());
     }
@@ -162,37 +177,36 @@ class EntityTemplates {
     public ImmutableTeacher teacher() {
         return new Teacher.Builder()
                 .id(idFor(Teacher.class))
-                .firstName("Ala")
-                .lastName("Makota")
+                .firstName(lorem.getFirstName())
+                .lastName(lorem.getLastName())
                 .build();
     }
 
-    private ImmutableLuckyNumber luckyNumber() {
+    public ImmutableLuckyNumber luckyNumber() {
         return new LuckyNumber.Builder()
-                .luckyNumber(42)
+                .luckyNumber(random.nextInt(35))
                 .day(LocalDate.now())
                 .build();
     }
 
-    private GradeCategory gradeCategory() {
+    public GradeCategory gradeCategory() {
         return new GradeCategory.Builder()
+                .id(idFor(GradeCategory.class))
                 .color(MOCK_ID)
-                .id(MOCK_ID)
-                .name("Mock grade category")
-                .weight(5)
+                .name(lorem.getWords(1, 5))
+                .weight(random.nextInt(5))
                 .build();
     }
 
-    private ImmutableGradeComment gradeComment() {
+    public ImmutableGradeComment gradeComment() {
         return new GradeComment.Builder()
                 .id(idFor(GradeComment.class))
                 .addedBy(MOCK_ID)
-                .grade(MOCK_ID)
-                .text("Mock comment")
+                .text(lorem.getWords(1, 10))
                 .build();
     }
 
-    private ImmutablePlainLesson plainLesson() {
+    public ImmutablePlainLesson plainLesson() {
         return new PlainLesson.Builder()
                 .id(idFor(PlainLesson.class))
                 .subject(MOCK_ID)
@@ -200,28 +214,28 @@ class EntityTemplates {
                 .build();
     }
 
-    private ImmutableEvent event() {
+    public ImmutableEvent event() {
         return new Event.Builder()
                 .id(idFor(Event.class))
                 .addedBy(MOCK_ID)
                 .category(MOCK_ID)
-                .content("Mock event")
+                .content(lorem.getWords(10, 200))
                 .date(LocalDate.now())
                 .lessonNo(1)
                 .build();
     }
 
-    private ImmutableEventCategory eventCategory() {
+    public ImmutableEventCategory eventCategory() {
         return new EventCategory.Builder()
                 .id(idFor(EventCategory.class))
-                .name("Mock event category")
+                .name(lorem.getWords(1, 10))
                 .build();
     }
 
-    private ImmutableAttendance attendance() {
+    public ImmutableAttendance attendance() {
         return new Attendance.Builder()
                 .id(idFor(Attendance.class))
-                .date(LocalDate.now())
+                .date(randomDate())
                 .addDate(LocalDateTime.now())
                 .addedBy(MOCK_ID)
                 .lesson(MOCK_ID)
@@ -231,42 +245,41 @@ class EntityTemplates {
                 .build();
     }
 
-    private ImmutableAttendanceCategory attendanceCategory() {
+    public ImmutableAttendanceCategory attendanceCategory() {
         return new AttendanceCategory.Builder()
                 .id(idFor(AttendanceCategory.class))
-                .colorRGB("FF0000")
-                .name("Mock attendance category")
+                .colorRGB(randomElement(COLORS))
+                .name(lorem.getWords(1, 10))
                 .presenceKind(false)
                 .priority(1)
-                .shortName("mock")
+                .shortName("nb")
                 .standard(true)
                 .build();
     }
 
     public ImmutableAverage average() {
         return new Average.Builder()
-                .fullYear(3.00)
-                .semester1(1.00)
-                .semester2(2.00)
-                .subject(EmbeddedId.of(idFor(Average.class)))
+                .fullYear(randomAverage())
+                .semester1(randomAverage())
+                .semester2(randomAverage())
+                .subject(MOCK_ID)
                 .build();
     }
 
-
-    private ImmutableLibrusColor librusColor() {
+    public ImmutableLibrusColor librusColor() {
         return new LibrusColor.Builder()
                 .id(idFor(LibrusColor.class))
-                .name("supa_black")
-                .rawColor("000000")
+                .name(lorem.getWords(1))
+                .rawColor(randomElement(COLORS))
                 .build();
     }
 
-    <T> T forClass(Class<T> clazz) {
-        Object instance = templates.get(clazz).get();
-        if (instance != null)
-            return clazz.cast(instance);
-        else
-            throw new RuntimeException("Mocking not supported for " + clazz.getSimpleName());
+    private double randomAverage() {
+        return 1 + 5 * random.nextDouble();
+    }
+
+    private LocalDate randomDate() {
+        return LocalDate.now().plusDays(60).minusDays(random.nextInt(120));
     }
 
     private String idFor(Class clazz) {
@@ -277,6 +290,10 @@ class EntityTemplates {
             idGenerators.put(clazz, generator);
         }
         return generator.get();
+    }
+
+    private <T> T randomElement(List<T> list) {
+        return list.get(random.nextInt(list.size()));
     }
 
 }

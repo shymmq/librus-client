@@ -9,6 +9,7 @@ import io.requery.Embedded;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.api.IdDeserializer;
 
 /**
  * Created by szyme on 08.12.2016. librus-client
@@ -19,14 +20,15 @@ import io.requery.Persistable;
 @JsonDeserialize(as = ImmutableAverage.class)
 public abstract class Average implements Persistable {
 
+    @Key
+    @JsonDeserialize(using = IdDeserializer.class)
+    public abstract String subject();
+
     public abstract double semester1();
 
     public abstract double semester2();
 
     public abstract double fullYear();
-
-    @Embedded
-    public abstract EmbeddedId subject();
 
     public static class Builder extends ImmutableAverage.Builder {
 

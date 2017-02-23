@@ -15,11 +15,12 @@ import io.requery.Persistable;
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableEventCategory.class)
-public abstract class EventCategory implements Persistable{
-    public abstract String name();
+public abstract class EventCategory implements Persistable, Identifiable {
 
     @Key
     public abstract String id();
+
+    public abstract String name();
 
     public static class Builder extends ImmutableEventCategory.Builder {
 

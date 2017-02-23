@@ -38,4 +38,13 @@ public abstract class LessonTeacher {
                 ? firstName() + ' ' + lastName()
                 : id();
     }
+
+    public static LessonTeacher fromTeacher(Teacher teacher) {
+        return new Builder()
+                .id(teacher.id())
+                .firstName(teacher.firstName())
+                .lastName(teacher.lastName())
+                .schoolAdministrator(teacher.schoolAdministrator())
+                .build();
+    }
 }

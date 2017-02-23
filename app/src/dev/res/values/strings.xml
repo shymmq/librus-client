@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_tester">Test powiadomień</string>
+    <string name="single_grade">1 ocena</string>
+    <string name="multiple_grades">Wiele ocen</string>
+    <string name="single_announcement">1 ogłoszenie</string>
+    <string name="multiple_announcements">Wiele ogłoszeń</string>
+    <string name="single_event">1 wydarzenie </string>
+    <string name="multiple_events">Wiele wydarzeń</string>
+</resources>

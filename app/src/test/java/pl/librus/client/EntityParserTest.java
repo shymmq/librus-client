@@ -18,7 +18,6 @@ import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
-import pl.librus.client.datamodel.EmbeddedId;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
@@ -159,7 +158,6 @@ public class EntityParserTest {
         assertThat(res, hasItem(new GradeComment.Builder()
                 .id("834777")
                 .text("Srodki artystycznego wyrazu")
-                .grade("1811988")
                 .addedBy("1235106")
                 .build()));
     }
@@ -270,7 +268,7 @@ public class EntityParserTest {
 
         //then
         assertThat(averages, hasItem(new Average.Builder()
-            .subject(EmbeddedId.of("44555"))
+            .subject("44555")
             .fullYear(4.26)
             .semester1(4.29)
             .semester2(4.17)

@@ -24,4 +24,11 @@ public abstract class LessonSubject implements Persistable {
 
     }
 
+    public static LessonSubject fromSubject(Subject subject) {
+        return new Builder()
+                .id(subject.id())
+                .name(subject.name())
+                .build();
+    }
+
 }

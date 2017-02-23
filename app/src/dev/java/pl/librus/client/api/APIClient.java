@@ -13,12 +13,13 @@ import java.util.List;
 
 import io.requery.Persistable;
 import java8.util.concurrent.CompletableFuture;
-import pl.librus.client.datamodel.BaseLesson;
+import java8.util.stream.StreamSupport;
+import pl.librus.client.datamodel.Identifiable;
 import pl.librus.client.datamodel.ImmutableJsonLesson;
-import pl.librus.client.datamodel.ImmutableLesson;
-import pl.librus.client.datamodel.ImmutableLessonTeacher;
 import pl.librus.client.datamodel.JsonLesson;
-import pl.librus.client.datamodel.Lesson;
+import pl.librus.client.datamodel.LessonSubject;
+import pl.librus.client.datamodel.LessonTeacher;
+import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.datamodel.Timetable;
@@ -32,7 +33,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class APIClient implements IAPIClient {
 
     private final MockEntityRepository repository = new MockEntityRepository();
-    private final EntityTemplates templates = new EntityTemplates();
+    private final EntityMocks templates = new EntityMocks();
 
     public APIClient(Context _context) {
 
@@ -45,21 +46,10 @@ public class APIClient implements IAPIClient {
 
     public CompletableFuture<Timetable> getTimetable(LocalDate weekStart) {
         Timetable result = new Timetable();
-        String[] subjects = new String[]{
-                "Matematyka",
-                "Projektowanie i obsługa projektów obługujących obsługę projektową amen",
-                "Wychowanie chemiczne",
-                "Leżakowanie",
-                "Wiedza o rodznie",
-                "Przygotowanie do życia w społeczeństwie",
-                "Obsługa maszyn rolniczych"
-        };
         for (int dayNo = DateTimeConstants.MONDAY; dayNo <= DateTimeConstants.FRIDAY; dayNo++) {
             List<List<JsonLesson>> schoolDay = new ArrayList<>();
-            for (int lessonNo = 0; lessonNo < subjects.length; lessonNo++) {
-
+            for (int lessonNo = 0; lessonNo < repository.getList(PlainLesson.class).size(); lessonNo++) {
                 ImmutableJsonLesson lesson = templates.jsonLesson()
-                        .withSubject(templates.lessonSubject().withName(subjects[lessonNo]))
                         .withDayNo(dayNo);
                 schoolDay.add(newArrayList(withLessonNumber(lesson, lessonNo)));
             }
@@ -81,11 +71,18 @@ public class APIClient implements IAPIClient {
     }
 
     private ImmutableJsonLesson withLessonNumber(ImmutableJsonLesson lesson, int lessonNo) {
+        List<PlainLesson> plainLessons = repository.getList(PlainLesson.class);
+        PlainLesson plainLesson = plainLessons.get(lessonNo % plainLessons.size());
+        Subject subject = getById(Subject.class, plainLesson.subject());
+        Teacher teacher = getById(Teacher.class, plainLesson.teacher());
+
         LocalTime startTime = LocalTime.parse("08:00");
         LocalTime lessonStart = startTime.plusHours(lessonNo);
         LocalTime lessonEnd = lessonStart.plusMinutes(45);
 
         return lesson
+                .withSubject(LessonSubject.fromSubject(subject))
+                .withTeacher(LessonTeacher.fromTeacher(teacher))
                 .withLessonNo(lessonNo)
                 .withHourFrom(lessonStart)
                 .withHourTo(lessonEnd);
@@ -107,7 +104,6 @@ public class APIClient implements IAPIClient {
                 .withSubstitutionNote("Zabrakło śledzi")
                 .withOrgTeacher(repository.getList(Teacher.class).get(3).id())
                 .withOrgSubject(repository.getList(Subject.class).get(3).id())
-                .withLessonNo(12)
                 .withOrgDate(LocalDate.parse("2017-01-01"));
     }
 
@@ -122,6 +118,14 @@ public class APIClient implements IAPIClient {
         }
     }
 
+    private <T extends Identifiable & Persistable> T getById(Class<T> clazz, String id) {
+        EntityInfo info = EntityInfos.infoFor(clazz);
+        return StreamSupport.stream(repository.getList(clazz))
+                .filter(e -> e.id().equals(id))
+                .findFirst()
+                .get();
+    }
+
     public <T> CompletableFuture<T> getObject(String endpoint, String topLevelName, Class<T> clazz) {
         return CompletableFuture.completedFuture(repository.getObject(clazz));
     }
@@ -129,4 +133,5 @@ public class APIClient implements IAPIClient {
     public <T> CompletableFuture<List<T>> getList(String endpoint, String topLevelName, Class<T> clazz) {
         return CompletableFuture.completedFuture(repository.getList(clazz));
     }
+
 }

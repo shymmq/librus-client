@@ -69,7 +69,7 @@ public class NotificationService {
         notificationManager.notify((int) System.currentTimeMillis(), notification);
     }
 
-    NotificationService addAnnouncements(List<Announcement> announcements) {
+    public NotificationService addAnnouncements(List<Announcement> announcements) {
         int size = announcements.size();
         if (size == 1) {
             Announcement announcement = announcements.get(0);
@@ -102,7 +102,7 @@ public class NotificationService {
         return this;
     }
 
-    NotificationService addGrades(List<Grade> grades) {
+    public NotificationService addGrades(List<Grade> grades) {
         //Create notification
         int size = grades.size();
         if (size == 1) {
@@ -137,7 +137,7 @@ public class NotificationService {
         return this;
     }
 
-    NotificationService addEvents(List<Event> events) {
+    public NotificationService addEvents(List<Event> events) {
 
         int size = events.size();
         if (size == 1) {
@@ -173,7 +173,7 @@ public class NotificationService {
         return this;
     }
 
-    NotificationService addLuckyNumber(List<LuckyNumber> luckyNumbers) {
+    public NotificationService addLuckyNumber(List<LuckyNumber> luckyNumbers) {
         if (luckyNumbers == null || luckyNumbers.isEmpty()) return this;
         LuckyNumber ln = Iterables.getOnlyElement(luckyNumbers);
         sendNotification(

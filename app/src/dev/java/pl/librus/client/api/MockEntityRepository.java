@@ -1,32 +1,39 @@
 package pl.librus.client.api;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.thedeanda.lorem.Lorem;
-import com.thedeanda.lorem.LoremIpsum;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
-import io.requery.Persistable;
-import java8.util.function.Supplier;
-import java8.util.stream.Collectors;
 import java8.util.stream.IntStreams;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.Average;
+import pl.librus.client.datamodel.Event;
+import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.Identifiable;
 import pl.librus.client.datamodel.ImmutableAttendance;
+import pl.librus.client.datamodel.ImmutableAverage;
+import pl.librus.client.datamodel.ImmutableEvent;
 import pl.librus.client.datamodel.ImmutableGrade;
 import pl.librus.client.datamodel.ImmutableGradeCategory;
 import pl.librus.client.datamodel.ImmutablePlainLesson;
+import pl.librus.client.datamodel.ImmutableSubject;
 import pl.librus.client.datamodel.LibrusColor;
+import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
+
+import static java8.util.stream.Collectors.toList;
+import static pl.librus.client.api.SampleValues.COLORS;
+import static pl.librus.client.api.SampleValues.SUBJECTS;
 
 /**
  * Created by szyme on 16.02.2017.
@@ -37,26 +44,33 @@ class MockEntityRepository {
     private final Map<Class<?>, Object> objects = Maps.newHashMap();
 
     private final Map<Class<?>, List<?>> lists = Maps.newHashMap();
-    private final EntityTemplates templates;
+    private final EntityMocks templates;
+    private final Random random = new Random(42);
+
 
     MockEntityRepository() {
-        templates = new EntityTemplates();
-        for (Map.Entry<Class<? extends Persistable>, EntityInfo> e : EntityInfos.all().entrySet()) {
-            Class clazz = e.getKey();
-            boolean single = e.getValue().single();
-            if (!single) {
-                lists.put(clazz, createList(10, () -> templates.forClass(clazz)));
-            } else {
-                objects.put(clazz, templates.forClass(clazz));
-            }
-        }
+        templates = new EntityMocks();
 
-        addLongAnnouncement();
+        createList(Subject.class, SUBJECTS.size(), this::updateSubject);
+        createList(Average.class, SUBJECTS.size(), this::updateAverage);
+        createList(Teacher.class, SUBJECTS.size() - 1); // more subjects than teachers
+        createList(PlainLesson.class, SUBJECTS.size(), this::updatePlainLesson);
 
-        updateConnections(Attendance.class, this::updateAttendance);
-        updateConnections(PlainLesson.class, this::updatePlainLesson);
-        updateConnections(Grade.class, this::updateGrade);
-        updateConnections(GradeCategory.class, this::updateGradeCategory);
+        createList(Announcement.class, 15);
+
+        createList(AttendanceCategory.class, 3);
+        createList(Attendance.class, 600, this::updateAttendance);
+
+        createList(EventCategory.class, 3);
+        createList(Event.class, 15, this::updateEvent);
+
+        createList(LibrusColor.class, COLORS.size());
+        createList(GradeComment.class, 15);
+        createList(GradeCategory.class, 5, this::updateGradeCategory);
+        createList(Grade.class, 50, this::updateGrade);
+
+        objects.put(LuckyNumber.class, templates.luckyNumber());
+        objects.put(Me.class, templates.me());
     }
 
     <T> T getObject(Class<T> clazz) {
@@ -67,18 +81,32 @@ class MockEntityRepository {
         return (List<T>) lists.get(clazz);
     }
 
-    private <T> void updateConnections(Class<T> clazz, UpdateEntityFunction<T> updateEntityFunction) {
-        List<T> l = getList(clazz);
-        List<T> newList = IntStreams.range(0, l.size())
-                .mapToObj(i -> updateEntityFunction.update(l.get(i), i))
-                .collect(Collectors.toList());
-        lists.put(clazz, newList);
+    private <T> void createList(Class<T> clazz, int count) {
+        createList(clazz, count, (e, i) -> e);
     }
 
-    private <T> List<T> createList(int count, Supplier<T> supplier) {
-        return IntStreams.range(0, count)
-                .mapToObj(i -> supplier.get())
-                .collect(Collectors.toList());
+    private <T> void createList(Class<T> clazz, int count, UpdateEntityFunction<T> updateEntityFunction) {
+        List<T> list = IntStreams.range(0, count)
+                .mapToObj(i ->
+                        updateEntityFunction.update(templates.forClass(clazz), i))
+                .collect(toList());
+        lists.put(clazz, list);
+    }
+
+    private Subject updateSubject(Subject s, int index) {
+        return ImmutableSubject.copyOf(s)
+                .withName(SUBJECTS.get(index));
+    }
+
+    private Average updateAverage(Average a, int index) {
+        return ImmutableAverage.copyOf(a)
+                .withSubject(idFromIndex(Subject.class, index));
+    }
+
+    private Event updateEvent(Event e, int index) {
+        return ImmutableEvent.copyOf(e)
+                .withAddedBy(idFromIndex(Teacher.class, index))
+                .withCategory(idFromIndex(EventCategory.class, index));
     }
 
     private Grade updateGrade(Grade g, int index) {
@@ -108,14 +136,6 @@ class MockEntityRepository {
                 .withColor(idFromIndex(LibrusColor.class, index));
     }
 
-    private void addLongAnnouncement() {
-        Lorem lorem = LoremIpsum.getInstance();
-        getList(Announcement.class)
-                .add(templates.announcement()
-                        .withContent(lorem.getWords(2000))
-                        .withSubject("To jest bardzo długie ogłoszenie, którego tytuł może się nie zmieścić na ekranie. Dziękuję, dobranoc."));
-    }
-
     private String idFromIndex(Class<? extends Identifiable> clazz, int index) {
         List<? extends Identifiable> list = getList(clazz);
         Identifiable o = list.get(index % list.size());
@@ -123,7 +143,9 @@ class MockEntityRepository {
     }
 
     private List<String> multipleIds(Class<? extends Identifiable> clazz, int index) {
-        return Lists.newArrayList(idFromIndex(clazz, index));
+        return IntStreams.range(0, random.nextInt(3))
+                .mapToObj(subIndex -> idFromIndex(clazz, index + subIndex))
+                .collect(toList());
     }
 
     private interface UpdateEntityFunction<T> {

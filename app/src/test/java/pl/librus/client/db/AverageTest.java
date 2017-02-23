@@ -9,7 +9,6 @@ import org.robolectric.annotation.Config;
 
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.AverageType;
-import pl.librus.client.datamodel.EmbeddedId;
 import pl.librus.client.ui.MainApplication;
 
 /**
@@ -25,7 +24,7 @@ public class AverageTest extends BaseDBTest {
                 .fullYear(4.18)
                 .semester1(3.66)
                 .semester2(0)
-                .subject(EmbeddedId.of(subjectId))
+                .subject(subjectId)
                 .build();
 
         data.upsert(original);
@@ -33,7 +32,7 @@ public class AverageTest extends BaseDBTest {
 
         //when
         Average result = data.select(Average.class)
-                .where(AverageType.SUBJECT_ID.eq(subjectId))
+                .where(AverageType.SUBJECT.eq(subjectId))
                 .get()
                 .first();
 

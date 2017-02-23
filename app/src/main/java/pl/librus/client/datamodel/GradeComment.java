@@ -25,9 +25,6 @@ public abstract class GradeComment implements Persistable, Identifiable {
     @JsonDeserialize(using = IdDeserializer.class)
     public abstract String addedBy() ;
 
-    @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String grade() ;
-
     public abstract String text() ;
 
     public static class Builder extends ImmutableGradeComment.Builder {
