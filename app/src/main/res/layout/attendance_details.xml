@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/attendance_details_subject_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/attendance_details_subject_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Przedmiot" />
+
+        <TextView
+            android:id="@+id/attendance_details_subject_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Value"
+            android:textStyle="normal|bold" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/attendance_details_date_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/attendance_details_date_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Data" />
+
+        <TextView
+            android:id="@+id/attendance_details_date_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Value"
+            android:textStyle="normal|bold" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/attendance_details_added_by_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/attendance_details_added_by_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dodana przez" />
+
+        <TextView
+            android:id="@+id/attendance_details_added_by_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Value"
+            android:textStyle="normal|bold" />
+    </LinearLayout>
+
+</LinearLayout>

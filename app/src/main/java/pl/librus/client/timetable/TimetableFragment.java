@@ -193,7 +193,7 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
                         .append(orgTeacher.name())
                         .append(" -> ")
                         .append(lesson.teacher().name(),
-                                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)); //TODO replace id with name
+                                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
             }
             eventContainer.setVisibility(View.GONE);
 
