@@ -53,7 +53,6 @@ public abstract class Grade implements Persistable, Identifiable {
 
     public abstract int semester();
 
-    @Nullable
     @JsonDeserialize(contentUsing = IdDeserializer.class)
     public abstract List<String> comments();
 

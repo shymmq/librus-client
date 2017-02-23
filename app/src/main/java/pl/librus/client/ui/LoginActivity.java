@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import pl.librus.client.LibrusConstants;
 import pl.librus.client.R;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.api.HttpException;
@@ -59,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             sharedPreferences
                                     .edit()
-                                    .putBoolean("logged_in", true)
+                                    .putString("login", username)
                                     .apply();
                             registerGCM();
                             showMainActivity();
@@ -72,14 +73,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showMainActivity() {
-        Intent intent1 = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent1);
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
         finish();
     }
 
     private void registerGCM() {
-        Intent intent2 = new Intent(getApplicationContext(), RegistrationIntentService.class);
-        startService(intent2);
+        Intent intent = new Intent(getApplicationContext(), RegistrationIntentService.class);
+        intent.putExtra(LibrusConstants.REGISTER, true);
+        startService(intent);
     }
 
 }

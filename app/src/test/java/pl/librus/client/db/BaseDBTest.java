@@ -18,25 +18,26 @@ import static org.hamcrest.Matchers.sameInstance;
 @Config(application = MainApplication.class)
 public abstract class BaseDBTest {
 
+    public static final String DB_NAME = "test";
     MainApplication app;
     protected EntityDataStore<Persistable> data;
 
     @Before
     public void setup() {
         app = (pl.librus.client.ui.MainApplication) RuntimeEnvironment.application;
-        app.initData();
+        app.initData(DB_NAME);
         data = MainApplication.getData();
     }
 
     protected void clearCache() {
         app.closeData();
-        data = app.initData();
+        data = app.initData(DB_NAME);
     }
 
     @After
     public void teardown() {
         if (app != null) {
-            app.closeData();
+            app.deleteData(DB_NAME);
         }
     }
 
