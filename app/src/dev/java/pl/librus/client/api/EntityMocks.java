@@ -114,7 +114,7 @@ class EntityMocks {
                 .dayNo(1)
                 .hourFrom(LocalTime.parse("08:00"))
                 .hourTo(LocalTime.parse("08:45"))
-                .lessonNo(1)
+                .lessonNo(randomLessonNo())
                 .subject(lessonSubject())
                 .substitutionClass(false)
                 .teacher(lessonTeacher())
@@ -137,7 +137,7 @@ class EntityMocks {
                 .finalType(false)
                 .grade(randomElement(GRADES))
                 .lesson(MOCK_ID)
-                .semester(1)
+                .semester(randomSemester())
                 .semesterPropositionType(false)
                 .semesterType(false)
                 .subject(MOCK_ID)
@@ -155,10 +155,11 @@ class EntityMocks {
 
 
     public ImmutableAnnouncement announcement() {
+        LocalDate start = randomPastDate();
         return new Announcement.Builder()
                 .id(idFor(Announcement.class))
-                .startDate(randomDate())
-                .endDate(randomDate())
+                .startDate(start)
+                .endDate(start.plusDays(random.nextInt(30)))
                 .subject(lorem.getWords(1, 10))
                 .content(lorem.getWords(10, 500))
                 .addedBy(MOCK_ID)
@@ -220,8 +221,8 @@ class EntityMocks {
                 .addedBy(MOCK_ID)
                 .category(MOCK_ID)
                 .content(lorem.getWords(10, 200))
-                .date(LocalDate.now())
-                .lessonNo(1)
+                .date(randomDate())
+                .lessonNo(randomLessonNo())
                 .build();
     }
 
@@ -235,24 +236,27 @@ class EntityMocks {
     public ImmutableAttendance attendance() {
         return new Attendance.Builder()
                 .id(idFor(Attendance.class))
-                .date(randomDate())
+                .date(randomPastDate())
                 .addDate(LocalDateTime.now())
                 .addedBy(MOCK_ID)
                 .lesson(MOCK_ID)
-                .lessonNumber(1)
+                .lessonNumber(randomLessonNo())
                 .type(MOCK_ID)
-                .semester(1)
+                .semester(randomSemester())
                 .build();
     }
 
     public ImmutableAttendanceCategory attendanceCategory() {
+        boolean presence = random.nextDouble() < 0.05;
+        String shortName = presence ? "ob" :
+                random.nextBoolean() ? "sp" : "nb";
         return new AttendanceCategory.Builder()
                 .id(idFor(AttendanceCategory.class))
                 .colorRGB(randomElement(COLORS))
                 .name(lorem.getWords(1, 10))
-                .presenceKind(false)
-                .priority(1)
-                .shortName("nb")
+                .presenceKind(presence)
+                .priority(random.nextInt(10))
+                .shortName(shortName)
                 .standard(true)
                 .build();
     }
@@ -280,6 +284,18 @@ class EntityMocks {
 
     private LocalDate randomDate() {
         return LocalDate.now().plusDays(60).minusDays(random.nextInt(120));
+    }
+
+    private LocalDate randomPastDate() {
+        return LocalDate.now().minusDays(random.nextInt(60));
+    }
+
+    private int randomLessonNo() {
+        return random.nextInt(9);
+    }
+
+    private int randomSemester() {
+        return random.nextInt(1) + 1;
     }
 
     private String idFor(Class clazz) {

@@ -52,7 +52,7 @@ class MockEntityRepository {
         templates = new EntityMocks();
 
         createList(Subject.class, SUBJECTS.size(), this::updateSubject);
-        createList(Average.class, SUBJECTS.size(), this::updateAverage);
+        createList(Average.class, SUBJECTS.size() - 1, this::updateAverage); // some missing averages
         createList(Teacher.class, SUBJECTS.size() - 1); // more subjects than teachers
         createList(PlainLesson.class, SUBJECTS.size(), this::updatePlainLesson);
 
