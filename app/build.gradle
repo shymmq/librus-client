@@ -65,6 +65,7 @@ dependencies {
 
     compile 'joda-time:joda-time:2.9.4'
     compile 'com.afollestad.material-dialogs:core:0.9.0.2'
+    compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.github.boxme:asyncmanager:1.0.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-joda:2.8.6'

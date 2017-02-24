@@ -2,6 +2,7 @@ package pl.librus.client.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -143,10 +145,12 @@ public class MainActivity extends AppCompatActivity {
                 .get()
                 .firstOrNull();
 
+        TextDrawable icon = TextDrawable.builder()
+                .buildRect(me.account().firstName().substring(0, 1), Color.parseColor("#F49719"));
         ProfileDrawerItem profile = new ProfileDrawerItem()
                 .withName(me.account().name())
                 .withEmail(me.account().login())
-                .withIcon(R.drawable.ic_person_white_48px);
+                .withIcon(icon);
         PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
                 .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.luckyNumber()))
                 .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp)
@@ -237,8 +241,8 @@ public class MainActivity extends AppCompatActivity {
         String login = prefs.getString("login", null);
         if (login != null) {
             prefs.edit()
-                .clear()
-                .apply();
+                    .clear()
+                    .apply();
 
             MainApplication app = (MainApplication) getApplicationContext();
             app.deleteData(login);
