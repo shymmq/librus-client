@@ -73,4 +73,7 @@
     <string name="no_grades">Brak ocen</string>
     <string name="average_">"Średnia: "</string>
     <string name="mark_all_as_read">Oznacz wszystkie jako przeczytane</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
