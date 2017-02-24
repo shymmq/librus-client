@@ -5,10 +5,11 @@ package pl.librus.client;
  * Some useful global constants
  */
 
-class LibrusConstants {
-    //shared preferences
-    public static final String PREFS_DEFAULT_VIEW = "default_view";
+public class LibrusConstants {
     //debug
     static final String TAG = "librus-client-log";
     static final boolean DBG = true;
+
+    public static final String REGISTER = "register";
+
 }

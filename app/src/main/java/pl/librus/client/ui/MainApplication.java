@@ -29,9 +29,9 @@ public class MainApplication extends MultiDexApplication {
         StrictMode.enableDefaults();
     }
 
-    public EntityDataStore<Persistable> initData() {
+    public EntityDataStore<Persistable> initData(String login) {
         if(dataStore == null) {
-            DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, 10);
+            DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, databaseName(login), 10);
             if (BuildConfig.DEBUG) {
                 source.setLoggingEnabled(true);
                 source.setTableCreationMode(TableCreationMode.DROP_CREATE);
@@ -41,11 +41,20 @@ public class MainApplication extends MultiDexApplication {
         return dataStore;
     }
 
+    public void deleteData(String login) {
+        deleteDatabase(databaseName(login));
+        closeData();
+    }
+
     public void closeData() {
         if(dataStore != null) {
             dataStore.close();
             dataStore = null;
         }
+    }
+
+    private String databaseName(String login) {
+        return "user-data-" + login;
     }
 
 

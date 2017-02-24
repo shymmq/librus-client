@@ -67,6 +67,9 @@ public class APIClient implements IAPIClient {
                 withLessonNumber(substitutionLesson(), 7)
         ));
 
+        //Empty lesson
+        result.get(weekStart.plusDays(2)).remove(2);
+
         return CompletableFuture.completedFuture(result);
     }
 

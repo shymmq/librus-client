@@ -33,10 +33,12 @@ import java.util.List;
 import io.requery.Persistable;
 import io.requery.sql.EntityDataStore;
 import pl.librus.client.BuildConfig;
+import pl.librus.client.LibrusConstants;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.api.ProgressReporter;
+import pl.librus.client.api.RegistrationIntentService;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.LuckyNumberType;
 import pl.librus.client.datamodel.Me;
@@ -49,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String FRAGMENT_ANNOUNCEMENTS = "annoucements";
     public static final String FRAGMENT_GRADES = "grades";
 
-
     List<? extends MenuAction> actions = new ArrayList<>();
     private Drawer drawer;
     private Toolbar toolbar;
@@ -60,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         MainApplication app = (MainApplication) getApplicationContext();
-        data = app.initData();
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean theme = prefs.getBoolean(getString(R.string.prefs_dark_theme), false);
         if (theme) {
@@ -74,13 +74,13 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAnalytics.getInstance(getApplicationContext());
 
 
-        boolean logged_in = prefs.getBoolean("logged_in", false);
-        if (!logged_in) {
+        String login = prefs.getString("login", null);
+        if (login == null) {
             Intent i = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(i);
             finish();
         } else {
-
+            data = app.initData(login);
             UpdateHelper updateHelper = new UpdateHelper(getApplicationContext());
 
             if (BuildConfig.DEBUG || prefs.getLong(getString(R.string.last_update), -1) < 0) {
@@ -187,9 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 .withActionBarDrawerToggleAnimated(true)
                 .withToolbar(toolbar);
         drawer = drawerBuilder.build();
-
-        setInitialFragment();
-        displayFragment(currentFragment);
     }
 
     private Drawer getDrawer() {
@@ -237,17 +234,31 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean logout(View view, int position, IDrawerItem drawerItem) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        boolean logged_in = prefs.getBoolean("logged_in", true);
-        if (logged_in) {
-            Toast.makeText(MainActivity.this, "Wylogowano", Toast.LENGTH_SHORT).show();
+        String login = prefs.getString("login", null);
+        if (login != null) {
             prefs.edit()
                 .clear()
                 .apply();
+
+            MainApplication app = (MainApplication) getApplicationContext();
+            app.deleteData(login);
+
+            disableNotifications();
+
             Intent i = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(i);
+
+            Toast.makeText(MainActivity.this, "Wylogowano", Toast.LENGTH_SHORT).show();
+
             finish();
         }
         return false;
+    }
+
+    private void disableNotifications() {
+        Intent intent = new Intent(getApplicationContext(), RegistrationIntentService.class);
+        intent.putExtra(LibrusConstants.REGISTER, false);
+        startService(intent);
     }
 
     private void displayFragment(MainFragment fragment) {
@@ -264,21 +275,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
-        //show the default fragment
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int id = Integer.parseInt(prefs.
-                getString(
-                        getString(R.string.prefs_default_fragment),
-                        getString(R.string.timetable_view_key)
-                ));
-        drawer.setSelection(id);
+        setInitialFragment();
+        displayFragment(currentFragment);
         return true;
     }
 
     private void updateMenu() {
-        if(menu == null) {
-            return;
-        }
         actions = currentFragment.getMenuItems();
         menu.clear();
         for (int id = 0; id < actions.size(); id++) {
