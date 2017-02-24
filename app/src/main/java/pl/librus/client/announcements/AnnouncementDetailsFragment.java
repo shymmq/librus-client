@@ -10,8 +10,8 @@ import android.widget.TextView;
 import java.util.Locale;
 
 import pl.librus.client.R;
-import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.api.Reader;
+import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainApplication;
