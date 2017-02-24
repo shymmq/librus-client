@@ -60,8 +60,8 @@ dependencies {
 
     fullCompile 'com.google.android.gms:play-services-gcm:10.0.1'
     fullCompile 'com.google.android.gms:play-services:10.0.1'
+    fullCompile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.guava:guava:20.0'
-    compile 'com.google.firebase:firebase-core:10.0.1'
 
     compile 'joda-time:joda-time:2.9.4'
     compile 'com.afollestad.material-dialogs:core:0.9.0.2'
