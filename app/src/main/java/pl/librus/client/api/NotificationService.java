@@ -59,7 +59,9 @@ public class NotificationService {
         if (style != null) builder.setStyle(style);
 
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(MainActivity.INITIAL_FRAGMENT, fragment.getTitle());
+        if(fragment != null) {
+            intent.putExtra(MainActivity.INITIAL_FRAGMENT, fragment.getTitle());
+        }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
