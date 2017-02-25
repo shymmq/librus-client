@@ -2,10 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="Ogólne">
         <ListPreference
-            android:defaultValue="@string/timetable_view_key"
-            android:entries="@array/default_view_entries"
-            android:entryValues="@array/default_view_entry_values"
-            android:key="@string/prefs_default_fragment"
+            android:key="defaultFragment"
             android:title="@string/default_view" />
         <SwitchPreference
             android:defaultValue="0"
@@ -14,10 +11,6 @@
 
     </PreferenceCategory>
     <PreferenceCategory android:title="Plan lekcji">
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/prefs_use_tabs"
-            android:title="Używaj zakładek zamiast listy" />
         <SwitchPreference
             android:defaultValue="1"
             android:key="@string/prefs_grey_out_finished_lessons"

@@ -20,14 +20,17 @@ import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
+import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainApplication;
+import pl.librus.client.ui.MainFragment;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -47,7 +50,7 @@ public class NotificationService {
             @NonNull CharSequence text,
             int iconResource,
             @Nullable Notification.Style style,
-            String fragment) {
+            MainFragment fragment) {
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle(title)
                 .setContentText(text)
@@ -56,7 +59,7 @@ public class NotificationService {
         if (style != null) builder.setStyle(style);
 
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(MainActivity.INITIAL_FRAGMENT, fragment);
+        intent.putExtra(MainActivity.INITIAL_FRAGMENT, fragment.getTitle());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
@@ -81,7 +84,7 @@ public class NotificationService {
                     announcement.content(),
                     R.drawable.ic_announcement_black_48dp,
                     style,
-                    MainActivity.FRAGMENT_ANNOUNCEMENTS);
+                    new AnnouncementsFragment());
         } else if (size > 1) {
             String title = size +
                     LibrusUtils.getPluralForm(size, " nowe ogłoszenie", " nowe ogłoszenia", " nowych ogłoszeń");
@@ -97,7 +100,7 @@ public class NotificationService {
                     text,
                     R.drawable.ic_announcement_black_48dp,
                     style,
-                    MainActivity.FRAGMENT_ANNOUNCEMENTS);
+                    new AnnouncementsFragment());
         }
         return this;
     }
@@ -113,7 +116,7 @@ public class NotificationService {
                     subject + " " + grade.grade(),
                     R.drawable.ic_assignment_black_48dp,
                     null,
-                    MainActivity.FRAGMENT_GRADES);
+                    new GradesFragment());
         } else if (size > 1) {
             String title;
             List<String> subjects = new ArrayList<>();
@@ -132,7 +135,7 @@ public class NotificationService {
                     TextUtils.join(", ", subjects),
                     R.drawable.ic_assignment_black_48dp,
                     style,
-                    MainActivity.FRAGMENT_GRADES);
+                    new GradesFragment());
         }
         return this;
     }

@@ -33,6 +33,9 @@ import java.util.List;
 
 import io.requery.Persistable;
 import io.requery.sql.EntityDataStore;
+import java8.util.function.Predicate;
+import java8.util.function.Predicates;
+import java8.util.stream.StreamSupport;
 import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusConstants;
 import pl.librus.client.LibrusUtils;
@@ -49,8 +52,6 @@ import pl.librus.client.timetable.TimetableFragment;
 
 public class MainActivity extends AppCompatActivity {
     public static final String INITIAL_FRAGMENT = "initial_fragment";
-    public static final String FRAGMENT_ANNOUNCEMENTS = "annoucements";
-    public static final String FRAGMENT_GRADES = "grades";
 
     List<? extends MenuAction> actions = new ArrayList<>();
     private Drawer drawer;
@@ -72,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LibrusUtils.logError("FirebaseAnalytics not available");
-
+        // FIXME: add analytics
+        // FirebaseAnalytics.getInstance(getApplicationContext());
 
         String login = prefs.getString("login", null);
         if (login == null) {
@@ -117,18 +118,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setInitialFragment() {
-        String fragment = getIntent().getStringExtra(INITIAL_FRAGMENT);
-        fragment = fragment == null ? "" : fragment;
-        switch (fragment) {
-            case FRAGMENT_ANNOUNCEMENTS:
-                currentFragment = new AnnouncementsFragment();
-                break;
-            case FRAGMENT_GRADES:
-                currentFragment = new GradesFragment();
-                break;
-            default:
-                currentFragment = new TimetableFragment();
+        int fragmentTitle = getIntent().getIntExtra(INITIAL_FRAGMENT, -1);
+
+        if(fragmentTitle < 0) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            String defaultFragment = prefs.getString("defaultFragment", "-1");
+
+            fragmentTitle = Integer.valueOf(defaultFragment);
         }
+
+        setFragment(fragmentTitle);
+    }
+
+    private void setFragment(int fragmentTitle) {
+        this.currentFragment = StreamSupport.stream(new FragmentsRepository().getAll())
+                .filter(f -> f.getTitle() == fragmentTitle)
+                .findFirst()
+                .orElseGet(TimetableFragment::new);
     }
 
     private void setup() {
@@ -266,6 +272,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayFragment(MainFragment fragment) {
         currentFragment = fragment;
+        drawer.setSelection(currentFragment.getTitle(), false);
+
         getToolbar().setTitle(fragment.getTitle());
 
         getSupportFragmentManager().beginTransaction()

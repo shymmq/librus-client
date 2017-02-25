@@ -43,13 +43,6 @@
     <string name="messages_view_title">Wiadomości</string>
     <string name="attendances_view_title">Nieobecności</string>
 
-    <string name="timetable_view_key">1</string>
-    <string name="grades_view_key">2</string>
-    <string name="calendar_view_key">3</string>
-    <string name="announcements_view_key">4</string>
-    <string name="messages_view_key">5</string>
-    <string name="attendances_view_key">6</string>
-
     <string name="settings_title">Ustawienia</string>
 
     <string name="prefs_select_theme">selectTheme</string>

@@ -4,12 +4,12 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-public class DrawerItemsFactory extends DefaultDrawerItemsFactory{
+public class FragmentsRepository extends DefaultFragmentsRepository{
 
     @Override
-    protected List<MainFragment> getFragments() {
+    public List<MainFragment> getAll() {
         return ImmutableList.<MainFragment>builder()
-                .addAll(super.getFragments())
+                .addAll(super.getAll())
                 .add(new NotificationTesterFragment())
                 .build();
     }
