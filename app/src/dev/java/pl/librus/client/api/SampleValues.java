@@ -12,11 +12,11 @@ public class SampleValues {
     public static final List<String> SUBJECTS = Lists.newArrayList(
             "Matematyka",
             "Projektowanie i obsługa projektów obługujących obsługę projektową amen",
-            "Wychowanie chemiczne",
-            "Leżakowanie",
-            "Wiedza o rodznie",
-            "Przygotowanie do życia w społeczeństwie",
-            "Obsługa maszyn rolniczych"
+            "Plastyka",
+            "Język angielski",
+            "Wiedza o społeczeństwie",
+            "Religia",
+            "Zajęcia kulinarne"
     );
 
     public static final List<String> GRADES = Lists.newArrayList(
