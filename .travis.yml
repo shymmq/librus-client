@@ -22,3 +22,5 @@ cache:
     - $HOME/.android/build-cache
 script:
   ./gradlew assembleFullRelease testFullRelease
+notifications:
+  webhooks: https://discordapp.com/api/webhooks/285525724805464074/GqlC3IVo3ic3VArbBHC7AFoT9A3Vtr1UeJ7Fr7w9fPrODZ-npxdR3FELhI0BrgjUXiP4
