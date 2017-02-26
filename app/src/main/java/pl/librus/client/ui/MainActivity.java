@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         MainApplication app = (MainApplication) getApplicationContext();
+
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean theme = prefs.getBoolean(getString(R.string.prefs_dark_theme), false);
         if (theme) {
@@ -66,11 +67,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             setTheme(R.style.AppTheme_Light);
         }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // FIXME: add analytics
-        // FirebaseAnalytics.getInstance(getApplicationContext());
 
         String login = prefs.getString("login", null);
         if (login == null) {

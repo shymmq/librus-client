@@ -8,6 +8,7 @@ import io.requery.android.sqlite.DatabaseSource;
 import io.requery.sql.EntityDataStore;
 import io.requery.sql.TableCreationMode;
 import pl.librus.client.BuildConfig;
+import pl.librus.client.api.Analytics;
 import pl.librus.client.datamodel.Models;
 import pl.librus.client.sql.SqlHelper;
 
@@ -27,10 +28,11 @@ public class MainApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         StrictMode.enableDefaults();
+        new Analytics().init(this);
     }
 
     public EntityDataStore<Persistable> initData(String login) {
-        if(dataStore == null) {
+        if (dataStore == null) {
             DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, databaseName(login), 10);
             if (BuildConfig.DEBUG) {
                 source.setLoggingEnabled(true);
@@ -47,7 +49,7 @@ public class MainApplication extends MultiDexApplication {
     }
 
     public void closeData() {
-        if(dataStore != null) {
+        if (dataStore != null) {
             dataStore.close();
             dataStore = null;
         }
@@ -56,7 +58,6 @@ public class MainApplication extends MultiDexApplication {
     private String databaseName(String login) {
         return "user-data-" + login;
     }
-
 
 
 }
