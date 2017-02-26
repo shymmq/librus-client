@@ -33,20 +33,16 @@ import java.util.List;
 
 import io.requery.Persistable;
 import io.requery.sql.EntityDataStore;
-import java8.util.function.Predicate;
-import java8.util.function.Predicates;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusConstants;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
-import pl.librus.client.announcements.AnnouncementsFragment;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.api.RegistrationIntentService;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.LuckyNumberType;
 import pl.librus.client.datamodel.Me;
-import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.timetable.TimetableFragment;
 
@@ -151,6 +147,10 @@ public class MainActivity extends AppCompatActivity {
                 .firstOrNull();
 
         TextDrawable icon = TextDrawable.builder()
+                .beginConfig()
+                .height(48)
+                .width(48)
+                .endConfig()
                 .buildRect(me.account().firstName().substring(0, 1), Color.parseColor("#F49719"));
         ProfileDrawerItem profile = new ProfileDrawerItem()
                 .withName(me.account().name())
