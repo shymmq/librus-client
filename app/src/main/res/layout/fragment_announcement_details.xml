@@ -25,7 +25,8 @@
             android:paddingTop="16dp"
             android:text="@android:string/VideoView_error_text_invalid_progressive_playback"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:textIsSelectable="true" />
 
         <View
             android:layout_width="match_parent"
@@ -48,7 +49,8 @@
             android:paddingTop="16dp"
             android:tag="content"
             android:text="@string/library_AndroidIconics_libraryDescription"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textColor="?android:attr/textColorPrimary"
+            android:textIsSelectable="true" />
 
 
     </LinearLayout>

@@ -22,9 +22,11 @@
         android:layout_alignParentStart="true"
         android:layout_marginStart="16dp"
         android:layout_toStartOf="@+id/grade_header_item_arrow"
-        android:text="@string/details_subject_placeholder"
+        android:text="@string/placeholder_teacher_name"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
     <View
         android:layout_width="match_parent"
@@ -57,8 +59,7 @@
     <TextView
         android:id="@+id/grade_header_item_content_2"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignBottom="@+id/grade_header_item_arrow"
+        android:layout_height="wrap_content"
         android:layout_alignStart="@+id/grade_header_item_title"
         android:layout_below="@+id/space"
         android:layout_toStartOf="@+id/grade_header_item_arrow"
