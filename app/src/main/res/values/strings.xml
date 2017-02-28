@@ -44,6 +44,14 @@
     <string name="attendances_view_title">Nieobecności</string>
 
     <string name="settings_title">Ustawienia</string>
+    <string name="about_title">Informacje</string>
+
+    <string name="author_shymmq"><a href="https://github.com/shymmq" >shymmq</a></string>
+    <string name="author_frioo"><a href="https://github.com/Frioo" >Frioo</a></string>
+    <string name="author_rowysock"><a href="https://github.com/rowysock" >rowysock</a></string>
+    <string name="author_xdk78"><a href="https://github.com/xdk78" >xdk78</a></string>
+    <string name="author_mimi89999"><a href="https://github.com/mimi89999" >mimi89999</a></string>
+    <string name="author_kacpi2442"><a href="https://github.com/kacpi2442" >kacpi2442</a></string>
 
     <string name="prefs_select_theme">selectTheme</string>
     <string name="prefs_default_fragment">default_fragment</string>

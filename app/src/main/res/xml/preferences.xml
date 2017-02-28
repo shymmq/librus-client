@@ -20,4 +20,17 @@
             android:key="@string/prefs_currrent_lesson_bold"
             android:title="Pogrubiaj bieżącą lekcję" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="Więcej">
+        <Preference
+        android:title="Informacje" >
+            <intent android:action=".ui.AboutActivity" />
+        </Preference>
+        <Preference
+            android:key="pref_about_build"
+            android:title="Wersja"
+            android:summary="@string/versionName"
+            android:icon="@android:drawable/ic_menu_info_details">
+        </Preference>
+
+    </PreferenceCategory>
 </PreferenceScreen>

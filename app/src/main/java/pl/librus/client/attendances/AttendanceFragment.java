@@ -149,8 +149,10 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         }
 
         new MaterialDialog.Builder(getActivity())
-                .customView(root, true)
                 .title(category.name())
+                .customView(root, true)
+                .positiveText(R.string.close)
+                .dismissListener(dialog -> adapter.notifyItemChanged(position))
                 .show();
 
         return true;

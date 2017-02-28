@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                                 .withIcon(R.drawable.plus),
                         //TODO: Add  support for multi profiles
                         new ProfileSettingDrawerItem()
-                                .withName("Wyloguj")
+                                .withName("Wyloguj się")
                                 .withIcon(R.drawable.logout)
                                 .withOnDrawerItemClickListener(this::logout))
                 .build();
