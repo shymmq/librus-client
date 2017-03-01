@@ -2,20 +2,19 @@ package pl.librus.client.sql;
 
 import android.content.Context;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import org.joda.time.LocalDate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 import io.requery.Persistable;
-import java8.util.concurrent.CompletableFuture;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
-import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.api.IAPIClient;
 import pl.librus.client.api.ProgressReporter;
@@ -29,7 +28,6 @@ import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.GradeCategory;
 import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.Identifiable;
-import pl.librus.client.datamodel.JsonLesson;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LessonType;
 import pl.librus.client.datamodel.LibrusColor;
@@ -38,6 +36,7 @@ import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.Timetable;
 import pl.librus.client.timetable.TimetableUtils;
 import pl.librus.client.ui.MainApplication;
 
@@ -78,95 +77,73 @@ public class UpdateHelper {
         this.client = client;
     }
 
-    public CompletableFuture<?> updateAll(ProgressReporter progressReporter) {
-        LibrusUtils.log("Starting update...");
-        List<CompletableFuture<?>> tasks = Lists.newArrayList();
-        final long startTime = System.currentTimeMillis();
+    public Flowable<Object> updateAll(ProgressReporter progressReporter) {
+        ImmutableList.Builder<Single<?>> builder = ImmutableList.builder();
 
         for (Class<? extends Persistable> entityClass : entitiesToUpdate) {
-            tasks.add(update(entityClass));
+            builder.add(update(entityClass));
         }
-        tasks.add(updateNearestTimetables());
+        builder.addAll(updateNearestTimetables());
+        List<Single<?>> tasks = builder.build();
         progressReporter.setTotal(tasks.size());
-        return CompletableFuture.allOf(StreamSupport.stream(tasks)
-                .map(task -> task.thenRun(progressReporter))
-                .toArray(CompletableFuture[]::new))
-                .thenAccept(result -> {
-                    long currentTimeMillis = System.currentTimeMillis();
-                    LibrusUtils.log("Update completed in " + (currentTimeMillis - startTime) + " ms");
-                });
+        return Single.merge(tasks);
     }
 
-    private CompletableFuture<?> updateNearestTimetables() {
+    private List<Single<?>> updateNearestTimetables() {
         List<LocalDate> weekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
-        List<CompletableFuture<?>> tasks = new ArrayList<>(weekStarts.size());
-        for (LocalDate weekStart : weekStarts) {
-            tasks.add(updateTimetable(weekStart));
-        }
-        return CompletableFuture.allOf(Iterables.toArray(tasks, CompletableFuture.class));
+        return StreamSupport.stream(weekStarts)
+                .map(this::updateTimetable)
+                .collect(Collectors.toList());
     }
 
-    private CompletableFuture<List<Lesson>> updateTimetable(LocalDate weekStart) {
-        return client.getTimetable(weekStart).thenApply(timetable -> {
-            List<Lesson> result = Lists.newArrayList();
-
-            for (Map.Entry<LocalDate, List<List<JsonLesson>>> e : timetable.entrySet()) {
-                LocalDate date = e.getKey();
-                for (List<JsonLesson> list : e.getValue()) {
-                    if (list.size() > 0) {
-                        Lesson l = list.get(0).convert(date);
-                        result.add(l);
-                        MainApplication.getData()
-                                .upsert(l);
-                    }
-                }
-            }
-            return result;
-        });
+    private Single<List<Lesson>> updateTimetable(LocalDate weekStart) {
+        return client.getTimetable(weekStart)
+                .map(Timetable::toLessons)
+                .flatMap(MainApplication.getData()::upsert)
+                .map(Lists::newArrayList);
     }
 
-    private <T extends Persistable> CompletableFuture<Iterable<T>> update(final Class<T> clazz) {
+    private <T extends Persistable> Single<List<T>> update(final Class<T> clazz) {
         return client.getAll(clazz)
-                .thenApply(MainApplication.getData()::upsert);
+                .flatMap(MainApplication.getData()::upsert)
+                .map(Lists::newArrayList);
     }
 
-    public CompletableFuture<List<Lesson>> getLessonsForWeek(LocalDate weekStart) {
-        List<Lesson> cached = MainApplication.getData()
+    public Single<List<Lesson>> getLessonsForWeek(LocalDate weekStart) {
+        return MainApplication.getData()
                 .select(Lesson.class)
                 .where(LessonType.DATE.gte(weekStart))
                 .and(LessonType.DATE.lt(weekStart.plusWeeks(1)))
                 .get()
-                .toList();
-
-        if (cached.isEmpty()) {
-            return updateTimetable(weekStart);
-        } else {
-            return CompletableFuture.completedFuture(cached);
-        }
+                .observable()
+                .toList()
+                .flatMap(cached -> cached.isEmpty() ? updateTimetable(weekStart) : Single.just(cached));
     }
 
-    public <T extends Persistable & Identifiable> CompletableFuture<List<EntityChange<T>>> reload(Class<T> clazz) {
-
-        List<T> entitiesInDB = MainApplication.getData()
+    public <T extends Persistable & Identifiable, E> Single<List<EntityChange<T>>> reload(Class<T> clazz) {
+        Single<Map<String, T>> fromDB = MainApplication.getData()
                 .select(clazz)
                 .get()
-                .toList();
-        Map<String, T> byId = StreamSupport.stream(entitiesInDB)
-                .collect(Collectors.toMap(t -> t.id(), t -> t));
-        return client.getAll(clazz)
-                .thenApply(newEntities -> {
-                    MainApplication.getData().upsert(newEntities);
-                    List<EntityChange<T>> changed = Lists.newArrayList();
-                    for (T newEntity : newEntities) {
-                        T inDB = byId.get(newEntity.id());
-                        if (inDB == null) {
-                            changed.add(ImmutableEntityChange.of(ADDED, newEntity));
-                        } else if (!inDB.equals(newEntity)) {
-                            changed.add(ImmutableEntityChange.of(CHANGED, newEntity));
-                        }
-                    }
-                    return changed;
-                });
+                .observable()
+                .toMap(t -> t.id());
+
+        Single<List<T>> fromServer = client.getAll(clazz);
+
+        return Single.zip(fromDB, fromServer, this::detectChanges);
+    }
+
+    private <T extends Persistable & Identifiable> List<EntityChange<T>> detectChanges(Map<String, T> byId, List<T> fromServer) {
+        MainApplication.getData().upsert(fromServer).blockingGet();
+        ImmutableList.Builder builder = ImmutableList.<EntityChange<T>>builder();
+        for (T newEntity : fromServer) {
+            T inDB = byId.get(newEntity.id());
+            if (inDB == null) {
+                builder.add(ImmutableEntityChange.of(ADDED, newEntity));
+            } else if (!inDB.equals(newEntity)) {
+                builder.add(ImmutableEntityChange.of(CHANGED, newEntity));
+            }
+        }
+        return builder.build();
     }
 
 }

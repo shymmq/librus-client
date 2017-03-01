@@ -5,13 +5,14 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import java8.util.function.Consumer;
+import java8.util.function.ObjDoubleConsumer;
 import pl.librus.client.LibrusUtils;
 
 /**
  * Created by robwys on 10/02/2017.
  */
 
-public class ProgressReporter implements Runnable {
+public class ProgressReporter {
     private final Consumer<Integer> callback;
     int total = 0;
 
@@ -28,8 +29,7 @@ public class ProgressReporter implements Runnable {
         this.total = total;
     }
 
-    @Override
-    public void run() {
+    public void report(Object o) {
         callback.accept(max * done.incrementAndGet() / total);
     }
 }

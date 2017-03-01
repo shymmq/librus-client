@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import io.requery.BlockingEntityStore;
 import io.requery.Persistable;
 import io.requery.sql.EntityDataStore;
 import pl.librus.client.ui.MainApplication;
@@ -20,18 +21,18 @@ public abstract class BaseDBTest {
 
     public static final String DB_NAME = "test";
     MainApplication app;
-    protected EntityDataStore<Persistable> data;
+    protected BlockingEntityStore<Persistable> data;
 
     @Before
     public void setup() {
         app = (pl.librus.client.ui.MainApplication) RuntimeEnvironment.application;
         app.initData(DB_NAME);
-        data = MainApplication.getData();
+        data = MainApplication.getData().toBlocking();
     }
 
     protected void clearCache() {
         app.closeData();
-        data = app.initData(DB_NAME);
+        data = app.initData(DB_NAME).toBlocking();
     }
 
     @After

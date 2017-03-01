@@ -20,14 +20,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.IFlexible;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
+import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.sql.EntityDataStore;
+import java8.util.stream.Collectors;
+import java8.util.stream.StreamSupport;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
+import pl.librus.client.datamodel.AnnouncementType;
 import pl.librus.client.datamodel.Attendance;
 import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.AttendanceCategoryType;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
@@ -40,21 +50,27 @@ import pl.librus.client.ui.MainFragment;
 public class AttendanceFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener {
 
     private FlexibleAdapter<IFlexible> adapter;
+    private View root;
 
     public AttendanceFragment() {
         // Required empty public constructor
-    }
-
-    public static AttendanceFragment newInstance() {
-        return new AttendanceFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View root = inflater.inflate(R.layout.fragment_attendances, container, false);
-        //Setup RecyclerView
+        root = inflater.inflate(R.layout.fragment_attendances, container, false);
+
+        readAttendances()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayList);
+
+        return root;
+    }
+
+    private void displayList(Map<Attendance, AttendanceCategory> attendanceCategoryMap) {
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -62,15 +78,11 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         adapter = new FlexibleAdapter<>(null, this);
         recyclerView.setAdapter(adapter);
 
-        EntityDataStore<Persistable> data = MainApplication.getData();
 
-        List<Attendance> attendances = data.select(Attendance.class).get().toList();
         Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
-        for (Attendance attendance : attendances) {
+        for (Attendance attendance : attendanceCategoryMap.keySet()) {
+            AttendanceCategory category = attendanceCategoryMap.get(attendance);
             LocalDate date = attendance.date();
-
-            AttendanceCategory category = MainApplication.getData()
-                    .findByKey(AttendanceCategory.class, attendance.type());
 
             if (!category.presenceKind()) {
                 if (headerItemMap.get(date) == null) {
@@ -89,7 +101,29 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         for (AttendanceHeaderItem headerItem : headers) {
             adapter.addSection(headerItem);
         }
-        return root;
+    }
+
+    private Single<Map<Attendance, AttendanceCategory>> readAttendances() {
+        ReactiveEntityStore<Persistable> data = MainApplication.getData();
+        return data.select(Attendance.class)
+                .get()
+                .observable()
+                .toList()
+                .flatMap(attendances -> {
+                    Set<String> typeIds = StreamSupport.stream(attendances)
+                            .map(Attendance::type)
+                            .collect(Collectors.toSet());
+                    //TODO: check if this couldn't be simplified by making many findById queries
+                    return data.select(AttendanceCategory.class)
+                            .where(AttendanceCategoryType.ID.in(typeIds))
+                            .get()
+                            .observable()
+                            .toMap(AttendanceCategory::id)
+                            .map(categoryMap -> StreamSupport.stream(attendances)
+                                    .collect(Collectors.toMap(
+                                            a -> a,
+                                            a -> categoryMap.get(a.type()))));
+                });
     }
 
     @Override
@@ -119,11 +153,11 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         TextView dateValue = (TextView) root.findViewById(R.id.attendance_details_date_value);
         TextView addedByValue = (TextView) root.findViewById(R.id.attendance_details_added_by_value);
 
-        EntityDataStore<Persistable> data = MainApplication.getData();
+        ReactiveEntityStore<Persistable> data = MainApplication.getData();
 
-        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson());
+        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson()).blockingGet();
         if (lesson != null) {
-            Subject subject = data.findByKey(Subject.class, lesson.subject());
+            Subject subject = data.findByKey(Subject.class, lesson.subject()).blockingGet();
             if (subject != null) {
                 addedByContainer.setVisibility(View.VISIBLE);
                 subjectValue.setText(subject.name());
@@ -140,7 +174,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
                 .append(String.valueOf(attendance.lessonNumber()))
                 .append(". lekcja"));
 
-        Teacher addedBy = data.findByKey(Teacher.class, attendance.addedBy());
+        Teacher addedBy = data.findByKey(Teacher.class, attendance.addedBy()).blockingGet();
         if (addedBy != null) {
             addedByContainer.setVisibility(View.VISIBLE);
             addedByValue.setText(addedBy.name());

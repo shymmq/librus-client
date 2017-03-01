@@ -9,8 +9,9 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 import io.requery.Persistable;
-import java8.util.concurrent.CompletableFuture;
 import java8.util.function.Consumer;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
@@ -31,8 +32,7 @@ public class LibrusGcmListenerService extends GcmListenerService {
     private UpdateHelper updateHelper;
     private Consumer<String> firebaseLogger;
     private NotificationService notificationService;
-
-    private CompletableFuture<?> reloads;
+    private Flowable<?> reloads;
 
     @Override
     public ComponentName startService(Intent service) {
@@ -52,27 +52,35 @@ public class LibrusGcmListenerService extends GcmListenerService {
         //Send category to analytics
         firebaseLogger.accept(bundle.getString("objectT"));
 
-        reloads = CompletableFuture.allOf(
-            updateHelper.reload(Grade.class)
-                    .thenApply(this::filterAdded)
-                    .thenAccept(notificationService::addGrades),
+        Single<List<Grade>> gradeChanges = updateHelper.reload(Grade.class)
+                .map(this::filterAdded)
+                .cache();
+        gradeChanges.subscribe(notificationService::addGrades);
 
-            updateHelper.reload(Announcement.class)
-                    .thenApply(this::filterAdded)
-                    .thenAccept(notificationService::addAnnouncements),
+        Single<List<Announcement>> announcementChanges = updateHelper.reload(Announcement.class)
+                .map(this::filterAdded)
+                .cache();
+        announcementChanges.subscribe(notificationService::addAnnouncements);
 
-            updateHelper.reload(Event.class)
-                    .thenApply(this::filterAdded)
-                    .thenAccept(notificationService::addEvents),
+        Single<List<Event>> eventChanges = updateHelper.reload(Event.class)
+                .map(this::filterAdded)
+                .cache();
+        eventChanges.subscribe(notificationService::addEvents);
 
-            updateHelper.reload(LuckyNumber.class)
-                    .thenApply(this::filterAdded)
-                    .thenAccept(notificationService::addLuckyNumber)
+        Single<List<LuckyNumber>> luckyNumberChanges = updateHelper.reload(LuckyNumber.class)
+                .map(this::filterAdded)
+                .cache();
+        luckyNumberChanges.subscribe(notificationService::addLuckyNumber);
+
+        reloads = Single.merge(
+                gradeChanges,
+                announcementChanges,
+                eventChanges,
+                luckyNumberChanges
         );
-
     }
 
-    public CompletableFuture<?> getReloads() {
+    public Flowable<?> getReloads() {
         return reloads;
     }
 

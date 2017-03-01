@@ -12,6 +12,7 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import io.requery.Persistable;
+import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.sql.EntityDataStore;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Attendance;
@@ -47,9 +48,9 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
         String lessonNumber = context.getString(R.string.lesson) + " " + attendance.lessonNumber();
         holder.lesson.setText(lessonNumber);
 
-        EntityDataStore<Persistable> data = MainApplication.getData();
-        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson());
-        Subject subject = data.findByKey(Subject.class, lesson.subject());
+        ReactiveEntityStore<Persistable> data = MainApplication.getData();
+        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson()).blockingGet();
+        Subject subject = data.findByKey(Subject.class, lesson.subject()).blockingGet();
         holder.subject.setText(subject.name());
 
     }

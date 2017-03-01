@@ -112,7 +112,7 @@ public class NotificationService {
         int size = grades.size();
         if (size == 1) {
             Grade grade = grades.get(0);
-            String subject = MainApplication.getData().findByKey(Subject.class, grade.subject()).name();
+            String subject = MainApplication.getData().findByKey(Subject.class, grade.subject()).blockingGet().name();
             sendNotification(
                     "Nowa ocena",
                     subject + " " + grade.grade(),
@@ -128,7 +128,7 @@ public class NotificationService {
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title);
             for (Grade g : grades) {
-                String subject = MainApplication.getData().findByKey(Subject.class, g.subject()).name();
+                String subject = MainApplication.getData().findByKey(Subject.class, g.subject()).blockingGet().name();
                 style.addLine(subject + " " + g.grade());
                 if (!subjects.contains(subject))
                     subjects.add(subject);
@@ -165,7 +165,7 @@ public class NotificationService {
             for (Event e : events) {
                 String date = e.date().toString("EEEE, d MMMM yyyy", new Locale("pl"));
                 style.addLine(e.content() + " - " + date);
-                String name = MainApplication.getData().findByKey(Teacher.class, e.addedBy()).name();
+                String name = MainApplication.getData().findByKey(Teacher.class, e.addedBy()).blockingGet().name();
                 if (!authorNames.contains(name)) authorNames.add(name);
             }
 

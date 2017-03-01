@@ -18,6 +18,8 @@ import com.google.common.collect.Ordering;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
@@ -29,6 +31,8 @@ import pl.librus.client.ui.MainFragment;
 import static java8.util.stream.Collectors.toList;
 
 public class AnnouncementsFragment extends MainFragment {
+
+    private View root;
 
     public AnnouncementsFragment() {
         // Required empty public constructor
@@ -43,21 +47,28 @@ public class AnnouncementsFragment extends MainFragment {
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View root = inflater.inflate(R.layout.fragment_announcements, container, false);
+        root = inflater.inflate(R.layout.fragment_announcements, container, false);
         postponeEnterTransition();
-        RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
 
-        List<Announcement> announcementList = MainApplication.getData()
+        MainApplication.getData()
                 .select(Announcement.class)
                 .get()
-                .toList();
+                .observable()
+                .toList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayList);
+        return root;
+    }
 
+    private void displayList(List<Announcement> announcements) {
+        RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
         Ordering<AnnouncementItem> ordering = Ordering.natural()
                 .onResultOf(AnnouncementItem::getHeaderOrder)
                 .compound(Ordering.natural()
                         .onResultOf(AnnouncementItem::getStartDate).reverse());
 
-        List<AnnouncementItem> announcementItems = StreamSupport.stream(announcementList)
+        List<AnnouncementItem> announcementItems = StreamSupport.stream(announcements)
                 .map(a -> new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())))
                 .sorted(ordering)
                 .collect(toList());
@@ -98,8 +109,6 @@ public class AnnouncementsFragment extends MainFragment {
         mRecyclerView.setAdapter(adapter);
         new Handler().postDelayed(this::startPostponedEnterTransition, 50);
         ((MainActivity) getActivity()).setBackArrow(false);
-
-        return root;
     }
 
     @Override

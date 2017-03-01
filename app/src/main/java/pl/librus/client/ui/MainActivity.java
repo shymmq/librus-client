@@ -31,7 +31,9 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.requery.Persistable;
+import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.sql.EntityDataStore;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.BuildConfig;
@@ -53,8 +55,9 @@ public class MainActivity extends AppCompatActivity {
     private Drawer drawer;
     private Toolbar toolbar;
     private Menu menu;
-    private EntityDataStore<Persistable> data;
+    private ReactiveEntityStore<Persistable> data;
     private MainFragment currentFragment;
+    private MaterialDialog progressDialog;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -83,33 +86,34 @@ public class MainActivity extends AppCompatActivity {
             if (BuildConfig.DEBUG || prefs.getLong(getString(R.string.last_update), -1) < 0) {
                 //database empty or null update and then setup()
 
-                final MaterialDialog dialog = new MaterialDialog.Builder(MainActivity.this)
+                progressDialog = new MaterialDialog.Builder(MainActivity.this)
                         .title("Pobieranie danych")
                         .content("")
                         .progress(false, 100)
                         .cancelable(false)
                         .show();
-                ProgressReporter reporter = new ProgressReporter(100, p -> runOnUiThread(() -> dialog.setProgress(p)));
+                ProgressReporter reporter = new ProgressReporter(100, p -> runOnUiThread(() -> progressDialog.setProgress(p)));
                 updateHelper.updateAll(reporter)
-                        .whenComplete((result, exception) -> {
-                            if (exception != null) {
-                                //TODO: better error handling
-                                LibrusUtils.logError("Update failed");
-                                exception.printStackTrace();
-                                runOnUiThread(() ->
-                                        Snackbar.make(
-                                                findViewById(R.id.activity_main_coordinator),
-                                                "Wystąpił nieoczekiwany błąd",
-                                                Snackbar.LENGTH_SHORT)
-                                                .show());
-                            }
-                            dialog.dismiss();
-                            runOnUiThread(this::setup);
-                        });
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                reporter::report,
+                                this::handleUpdateError,
+                                this::setup);
             } else {
                 setup();
             }
         }
+    }
+
+    private void handleUpdateError(Throwable exception) {
+        LibrusUtils.logError("Update failed");
+        exception.printStackTrace();
+        Snackbar.make(
+                findViewById(R.id.activity_main_coordinator),
+                "Wystąpił nieoczekiwany błąd",
+                Snackbar.LENGTH_SHORT)
+                .show();
+        setup();
     }
 
     private void setInitialFragment() {
@@ -136,8 +140,10 @@ public class MainActivity extends AppCompatActivity {
         LibrusUtils.log("setting up");
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if(progressDialog != null) {
+            progressDialog.dismiss();
+        }
         //Drawer setup
-
         Me me = data.select(Me.class).get().first();
 
         LuckyNumber luckyNumber = data.select(LuckyNumber.class)

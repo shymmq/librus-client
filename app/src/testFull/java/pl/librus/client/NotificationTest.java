@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import io.reactivex.Single;
 import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
 import pl.librus.client.api.APIClient;
@@ -77,7 +78,7 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().get();
+        service.getReloads().blockingIterable();
 
         //then
         ShadowNotification notification = shadowOf(singleNotification());
@@ -109,7 +110,7 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().get();
+        service.getReloads().blockingIterable();
 
         //then
         Notification realNotification = singleNotification();
@@ -131,7 +132,7 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().get();
+        service.getReloads().blockingIterable();
 
         //then
         ShadowNotification notification = shadowOf(singleNotification());
@@ -155,7 +156,7 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().get();
+        service.getReloads().blockingIterable();
 
         //then
         Notification realNotification = singleNotification();
@@ -178,7 +179,7 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().get();
+        service.getReloads().blockingIterable();
 
         //then
         ShadowNotification notification = shadowOf(singleNotification());
@@ -201,7 +202,7 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().get();
+        service.getReloads().blockingIterable();
 
         //then
         ShadowNotification notification = shadowOf(singleNotification());
@@ -237,7 +238,7 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().get();
+        service.getReloads().blockingIterable();
 
         //then
 
@@ -270,28 +271,28 @@ public class NotificationTest extends BaseDBTest {
         service.setFirebaseLogger(mock(Consumer.class));
         service.setNotificationService(new NotificationService(RuntimeEnvironment.application));
         when(apiClient.getAll(any()))
-                .thenReturn(completedFuture(Collections.emptyList()));
+                .thenReturn(Single.just(Collections.emptyList()));
         return service;
     }
 
     private void addMockGrades(Grade... grades) {
         when(apiClient.getAll(eq(Grade.class)))
-                .thenReturn(completedFuture(newArrayList(grades)));
+                .thenReturn(Single.just(newArrayList(grades)));
     }
 
     private void addMockAnnouncements(Announcement... announcements) {
         when(apiClient.getAll(eq(Announcement.class)))
-                .thenReturn(completedFuture(newArrayList(announcements)));
+                .thenReturn(Single.just(newArrayList(announcements)));
     }
 
     private void addMockLuckyNumber(LuckyNumber luckyNumber) {
         when(apiClient.getAll(eq(LuckyNumber.class)))
-                .thenReturn(completedFuture(newArrayList(luckyNumber)));
+                .thenReturn(Single.just(newArrayList(luckyNumber)));
     }
 
     private void addMockEvents(Event... events) {
         when(apiClient.getAll(eq(Event.class)))
-                .thenReturn(completedFuture(newArrayList(events)));
+                .thenReturn(Single.just(newArrayList(events)));
     }
 
     private Bundle mockBundle() {

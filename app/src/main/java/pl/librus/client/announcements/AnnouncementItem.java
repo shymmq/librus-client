@@ -55,7 +55,7 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         this.backgroundView = holder.background;
         this.title = holder.announcementSubject;
-        Teacher teacher = MainApplication.getData().findByKey(Teacher.class, announcement.addedBy());
+        Teacher teacher = MainApplication.getData().findByKey(Teacher.class, announcement.addedBy()).blockingGet();
         holder.announcementSubject.setText(announcement.subject());
         holder.background.setTransitionName("announcement_background_" + announcement.id());
         holder.announcementTeacherName.setText(teacher == null ? "" : teacher.name());

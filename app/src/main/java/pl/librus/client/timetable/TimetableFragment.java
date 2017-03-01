@@ -25,6 +25,7 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
 import eu.davidea.flexibleadapter.common.TopSnappedSmoothScroller;
 import eu.davidea.flexibleadapter.items.IFlexible;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LessonType;
@@ -102,7 +103,8 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
             LocalDate weekStart = startDate.plusWeeks(page);
 
             new UpdateHelper(getContext()).getLessonsForWeek(weekStart)
-                    .thenAccept(this::displayLessons);
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::displayLessons);
         };
         adapter.mItemClickListener = this;
         recyclerView.setAdapter(adapter);
@@ -188,7 +190,7 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
                         .append(lesson.teacher().name(),
                                 new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
             } else {
-                Teacher orgTeacher = MainApplication.getData().findByKey(Teacher.class, lesson.orgTeacher());
+                Teacher orgTeacher = MainApplication.getData().findByKey(Teacher.class, lesson.orgTeacher()).blockingGet();
                 teacherTextView.setText(new SpannableStringBuilder()
                         .append(orgTeacher.name())
                         .append(" -> ")

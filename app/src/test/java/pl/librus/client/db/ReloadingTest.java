@@ -10,10 +10,12 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import io.reactivex.Single;
 import java8.util.concurrent.CompletableFuture;
 import pl.librus.client.api.IAPIClient;
 import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.ImmutableGrade;
+import pl.librus.client.sql.EntityChange;
 import pl.librus.client.sql.ImmutableEntityChange;
 import pl.librus.client.sql.UpdateHelper;
 
@@ -36,10 +38,10 @@ public class ReloadingTest extends BaseDBTest {
         IAPIClient client = mockApiClient(newGrade);
 
         //when
-        new UpdateHelper(client).reload(Grade.class)
-                .thenAccept(changed -> assertThat(changed, contains(
-                        ImmutableEntityChange.of(ADDED, newGrade))))
-                .get();
+        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+
+        //then
+        assertThat(result, contains(ImmutableEntityChange.of(ADDED, newGrade)));
     }
 
     @Test
@@ -50,9 +52,10 @@ public class ReloadingTest extends BaseDBTest {
         data.upsert(grade);
 
         //when
-        new UpdateHelper(client).reload(Grade.class)
-                .thenAccept(changed -> assertThat(changed, empty()))
-                .get();
+        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+
+        //then
+        assertThat(result, empty());
     }
 
     @Test
@@ -65,10 +68,10 @@ public class ReloadingTest extends BaseDBTest {
         IAPIClient client = mockApiClient(newGrade);
 
         //when
-        new UpdateHelper(client).reload(Grade.class)
-                .thenAccept(changed -> assertThat(changed, contains(
-                        ImmutableEntityChange.of(CHANGED, newGrade))))
-                .get();
+        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+
+        //then
+        assertThat(result, contains(ImmutableEntityChange.of(CHANGED, newGrade)));
     }
 
     @Test
@@ -84,11 +87,12 @@ public class ReloadingTest extends BaseDBTest {
         IAPIClient client = mockApiClient(newGrade, changedGrade);
 
         //when
-        new UpdateHelper(client).reload(Grade.class)
-                .thenAccept(changed -> assertThat(changed, containsInAnyOrder(
+        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+
+        //then
+        assertThat(result, containsInAnyOrder(
                         ImmutableEntityChange.of(CHANGED, changedGrade),
-                        ImmutableEntityChange.of(ADDED, newGrade))))
-                .get();
+                        ImmutableEntityChange.of(ADDED, newGrade)));
     }
 
     @Test
@@ -104,9 +108,10 @@ public class ReloadingTest extends BaseDBTest {
         IAPIClient client = mockApiClient(grade);
 
         //when
-        new UpdateHelper(client).reload(Grade.class)
-                .thenAccept(changed -> assertThat(changed, empty()))
-                .get();
+        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+
+        //then
+        assertThat(result, empty());
     }
 
     @Test
@@ -119,7 +124,7 @@ public class ReloadingTest extends BaseDBTest {
         IAPIClient client = mockApiClient(newGrade);
 
         //when
-        new UpdateHelper(client).reload(Grade.class).get();
+        new UpdateHelper(client).reload(Grade.class).blockingGet();
 
         //then
         List<Grade> res = data.select(Grade.class).get().toList();
@@ -130,7 +135,7 @@ public class ReloadingTest extends BaseDBTest {
     private IAPIClient mockApiClient(Grade... grades) {
         IAPIClient mock = mock(IAPIClient.class);
         Mockito.when(mock.getAll(eq(Grade.class)))
-                .thenReturn(CompletableFuture.completedFuture(Lists.newArrayList(grades)));
+                .thenReturn(Single.just(Lists.newArrayList(grades)));
         return mock;
     }
 }

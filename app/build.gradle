@@ -63,9 +63,7 @@ dependencies {
 
 
     compile fileTree(dir: "libs", include: ["*.jar"])
-    // <-- for annotation processor
-    // <-- for annotation API
-    compile group: 'com.loopj.android', name: 'android-async-http', version: '1.4.9'
+
     compile 'com.android.support:support-v4:25.1.1'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.android.support:appcompat-v7:25.1.1'
@@ -83,12 +81,14 @@ dependencies {
     compile 'io.requery:requery:1.1.2'
     compile 'io.requery:requery-android:1.1.2'
     compile 'eu.davidea:flexible-adapter:5.0.0-rc1'
-    compile 'com.thedeanda:lorem:2.1'
     compile 'net.sourceforge.streamsupport:streamsupport:1.5.3'
     compile 'net.sourceforge.streamsupport:streamsupport-cfuture:1.5.3'
     compile 'net.sourceforge.streamsupport:streamsupport-atomic:1.5.3'
     compile 'net.sourceforge.streamsupport:streamsupport-flow:1.5.3'
     compile 'net.sourceforge.streamsupport:streamsupport-literal:1.5.3'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'io.reactivex.rxjava2:rxjava:2.0.1'
+    compile 'com.squareup.okhttp3:okhttp:3.6.0'
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.2.2'
     testCompile 'org.robolectric:shadows-multidex:3.2.2'
@@ -96,6 +96,7 @@ dependencies {
     testCompile 'org.mockito:mockito-core:1.+'
     apt 'io.requery:requery-processor:1.1.2'
     apt 'org.immutables:value:2.4.4-SNAPSHOT'
+    devCompile 'com.thedeanda:lorem:2.1'
     fullCompile 'com.google.android.gms:play-services-gcm:10.0.1'
     fullCompile 'com.google.android.gms:play-services:10.0.1'
     fullCompile 'com.google.firebase:firebase-core:10.0.1'

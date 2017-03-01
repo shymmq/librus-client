@@ -51,7 +51,8 @@ public class AnnouncementDetailsFragment extends Fragment {
         if (getArguments() != null) {
             announcement = (Announcement) getArguments().getSerializable(ARG_ANNOUNCEMENT);
             author = MainApplication.getData()
-                    .findByKey(Teacher.class, announcement.addedBy());
+                    .findByKey(Teacher.class, announcement.addedBy())
+                    .blockingGet();
         }
     }
 

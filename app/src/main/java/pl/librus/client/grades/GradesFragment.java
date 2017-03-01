@@ -22,6 +22,7 @@ import java.util.Locale;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import io.requery.Persistable;
+import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.sql.EntityDataStore;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
@@ -51,7 +52,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     List<? extends MenuAction> actions = new ArrayList<>();
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private Reader reader;
-    private EntityDataStore<Persistable> data;
+    private ReactiveEntityStore<Persistable> data;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -155,10 +156,8 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
 
             Grade.GradeType type = grade.type();
             weightContainer.setVisibility(type == Grade.GradeType.NORMAL ? View.VISIBLE : View.GONE);
-            EntityDataStore<Persistable> data = MainApplication.getData();
 
-
-            Teacher addedBy = data.findByKey(Teacher.class, grade.addedBy());
+            Teacher addedBy = data.findByKey(Teacher.class, grade.addedBy()).blockingGet();
             addedByTextView.setText(addedBy.name());
 
             List<GradeComment> comments = data.select(GradeComment.class)
@@ -190,9 +189,9 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     }
 
     private GradeItem getGradeItem(GradeHeaderItem headerItem, Grade grade) {
-        GradeCategory category = data.findByKey(GradeCategory.class, grade.category());
+        GradeCategory category = data.findByKey(GradeCategory.class, grade.category()).blockingGet();
         LibrusColor color = category.color() != null ?
-                data.findByKey(LibrusColor.class, category.color()) :
+                data.findByKey(LibrusColor.class, category.color()).blockingGet() :
                 new LibrusColor.Builder()
                         .rawColor("00000000")
                         .id("")
