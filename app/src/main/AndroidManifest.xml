@@ -65,11 +65,13 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.SettingsActivity" />
-        <activity android:name=".ui.AboutActivity">
-        <intent-filter>
-            <action android:name=".ui.AboutActivity" />
-            <category android:name="android.intent.category.DEFAULT" />
-        </intent-filter>
+        <activity
+            android:name=".ui.AboutActivity"
+            android:theme="@style/AppTheme.Fullscreen">
+            <intent-filter>
+                <action android:name=".ui.AboutActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
     </application>
 
