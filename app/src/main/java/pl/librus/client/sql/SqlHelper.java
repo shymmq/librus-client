@@ -2,6 +2,7 @@ package pl.librus.client.sql;
 
 import io.requery.Persistable;
 import io.requery.android.sqlite.DatabaseSource;
+import io.requery.cache.EntityCacheBuilder;
 import io.requery.sql.Configuration;
 import io.requery.sql.ConfigurationBuilder;
 import io.requery.sql.EntityDataStore;
@@ -18,6 +19,10 @@ public class SqlHelper {
     public static EntityDataStore<Persistable> getDataStore(DatabaseSource source) {
         Configuration configuration = new ConfigurationBuilder(source, Models.DEFAULT)
                 .setMapping(new MainMapping())
+                .setStatementCacheSize(100)
+                .setEntityCache(new EntityCacheBuilder(Models.DEFAULT)
+                        .useReferenceCache(true)
+                        .build())
                 .build();
         return new EntityDataStore<>(configuration);
     }

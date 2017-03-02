@@ -55,7 +55,7 @@ public class EntityTemplates {
                 .endDate(LocalDate.parse("2017-06-14"))
                 .subject("Tytuł ogłoszenia")
                 .content("Treść ogłoszenia")
-                .addedBy("1575831")
+                .addedById("1575831")
                 .build();
     }
 

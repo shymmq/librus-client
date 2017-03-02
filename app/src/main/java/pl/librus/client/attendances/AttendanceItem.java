@@ -11,24 +11,19 @@ import java.util.List;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
-import io.requery.Persistable;
-import io.requery.reactivex.ReactiveEntityStore;
-import io.requery.sql.EntityDataStore;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import pl.librus.client.R;
-import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceCategory;
-import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.Subject;
-import pl.librus.client.ui.MainApplication;
+import pl.librus.client.api.LibrusData;
+import pl.librus.client.datamodel.AttendanceWithCategory;
+import pl.librus.client.datamodel.FullAttendance;
 
 class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, AttendanceHeaderItem> {
-    private final AttendanceCategory category;
-    private final Attendance attendance;
+    private final AttendanceWithCategory attendance;
+    private ViewHolder holder;
 
-    AttendanceItem(AttendanceHeaderItem header, Attendance attendance, AttendanceCategory category) {
+    AttendanceItem(AttendanceHeaderItem header, AttendanceWithCategory attendance) {
         super(header);
         this.attendance = attendance;
-        this.category = category;
     }
 
     @Override
@@ -43,16 +38,20 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
-        holder.shortName.setText(category.shortName());
+        this.holder = holder;
+        LibrusData.findFullAttendance(attendance)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayInfo);
+
+    }
+
+    private void displayInfo(FullAttendance fullAttendance) {
+        holder.shortName.setText(attendance.category().shortName());
         Context context = holder.itemView.getContext();
         String lessonNumber = context.getString(R.string.lesson) + " " + attendance.lessonNumber();
         holder.lesson.setText(lessonNumber);
 
-        ReactiveEntityStore<Persistable> data = MainApplication.getData();
-        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson()).blockingGet();
-        Subject subject = data.findByKey(Subject.class, lesson.subject()).blockingGet();
-        holder.subject.setText(subject.name());
-
+        holder.subject.setText(fullAttendance.subject().name());
     }
 
     @Override
@@ -71,12 +70,8 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
         return attendance.hashCode();
     }
 
-    public Attendance getAttendance() {
+    public AttendanceWithCategory getAttendance() {
         return attendance;
-    }
-
-    public AttendanceCategory getCategory() {
-        return category;
     }
 
     class ViewHolder extends FlexibleViewHolder {

@@ -3,12 +3,14 @@ package pl.librus.client.db;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
+import org.mockito.Mockito;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import io.requery.BlockingEntityStore;
 import io.requery.Persistable;
-import io.requery.sql.EntityDataStore;
+import pl.librus.client.api.IAPIClient;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.ui.MainApplication;
 
 import static org.hamcrest.Matchers.allOf;
@@ -20,26 +22,25 @@ import static org.hamcrest.Matchers.sameInstance;
 public abstract class BaseDBTest {
 
     public static final String DB_NAME = "test";
-    MainApplication app;
     protected BlockingEntityStore<Persistable> data;
+    protected IAPIClient apiClient;
 
     @Before
     public void setup() {
-        app = (pl.librus.client.ui.MainApplication) RuntimeEnvironment.application;
-        app.initData(DB_NAME);
-        data = MainApplication.getData().toBlocking();
+        apiClient = Mockito.mock(IAPIClient.class);
+        LibrusData.init(RuntimeEnvironment.application, apiClient, DB_NAME);
+        data = LibrusData.getDataStore().toBlocking();
     }
 
     protected void clearCache() {
-        app.closeData();
-        data = app.initData(DB_NAME).toBlocking();
+        LibrusData.close();
+        data = LibrusData.init(RuntimeEnvironment.application, apiClient, DB_NAME).toBlocking();
     }
 
     @After
     public void teardown() {
-        if (app != null) {
-            app.deleteData(DB_NAME);
-        }
+        LibrusData.delete(RuntimeEnvironment.application, DB_NAME);
+
     }
 
     protected <T> Matcher<T> equalsNotSameInstance(T obj) {

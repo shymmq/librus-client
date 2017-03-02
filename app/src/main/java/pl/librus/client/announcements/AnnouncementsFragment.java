@@ -22,8 +22,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Announcement;
+import pl.librus.client.datamodel.FullAnnouncement;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
@@ -48,20 +50,15 @@ public class AnnouncementsFragment extends MainFragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_announcements, container, false);
-        postponeEnterTransition();
 
-        MainApplication.getData()
-                .select(Announcement.class)
-                .get()
-                .observable()
-                .toList()
+        LibrusData.findFullAnnouncements()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);
         return root;
     }
 
-    private void displayList(List<Announcement> announcements) {
+    private void displayList(List<? extends FullAnnouncement> announcements) {
         RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
         Ordering<AnnouncementItem> ordering = Ordering.natural()
                 .onResultOf(AnnouncementItem::getHeaderOrder)
@@ -77,7 +74,7 @@ public class AnnouncementsFragment extends MainFragment {
         adapter.setDisplayHeadersAtStartUp(true);
         adapter.mItemClickListener = position -> {
             AnnouncementItem item = adapter.getItem(position);
-            Announcement announcement = item.getAnnouncement();
+            FullAnnouncement announcement = item.getAnnouncement();
 
             FragmentManager fm = getFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
@@ -107,7 +104,6 @@ public class AnnouncementsFragment extends MainFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(adapter);
-        new Handler().postDelayed(this::startPostponedEnterTransition, 50);
         ((MainActivity) getActivity()).setBackArrow(false);
     }
 

@@ -1,6 +1,7 @@
 package pl.librus.client.api;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -19,17 +20,22 @@ public class RxHttpClient {
     public Single<String> executeCall(Request request) {
         return Single.<String>create(observer -> {
             try {
-                LibrusUtils.log("start fetching data");
-                Response response = new OkHttpClient().newCall(request).execute();
+                LibrusUtils.log("start fetching data from " + request.url());
+                Response response = new OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .readTimeout(10, TimeUnit.SECONDS)
+                        .writeTimeout(10, TimeUnit.SECONDS)
+                        .build()
+                        .newCall(request).execute();
                 String message = response.body().string();
                 if(response.isSuccessful()) {
-                    LibrusUtils.log("data fetched succesfully");
+                    LibrusUtils.log("data fetched succesfully from " + request.url());
                     observer.onSuccess(message);
                 } else {
-                    observer.onError(new HttpException(response.code(), message));
+                    observer.onError(new HttpException(response.code(), message, request.url().toString()));
                 }
             } catch (Exception e) {
-                observer.onError(e);
+                observer.onError(new HttpException(e, request.url().toString()));
             }
         }).subscribeOn(Schedulers.io());
     }

@@ -21,11 +21,13 @@ import java.util.Locale;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
+import io.reactivex.Single;
 import io.requery.Persistable;
 import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.sql.EntityDataStore;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.AverageType;
@@ -85,17 +87,9 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
 
         //Load subjects and make a header for each subject
 
-        data = MainApplication.getData();
-
         List<Subject> subjects = data.select(Subject.class).get().toList();
         for (Subject s : subjects) {
-            Average average = MainApplication.getData()
-                    .select(Average.class)
-                    .where(AverageType.SUBJECT.eq(s.id()))
-                    .get()
-                    .firstOrNull();
-
-            final GradeHeaderItem headerItem = new GradeHeaderItem(s, average, getContext());
+            final GradeHeaderItem headerItem = new GradeHeaderItem(s, getContext());
 
             List<Grade> grades = data.select(Grade.class)
                     .where(GradeType.SUBJECT.eq(s.id()))

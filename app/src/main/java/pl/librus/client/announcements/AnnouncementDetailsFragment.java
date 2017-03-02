@@ -10,8 +10,10 @@ import android.widget.TextView;
 import java.util.Locale;
 
 import pl.librus.client.R;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Announcement;
+import pl.librus.client.datamodel.FullAnnouncement;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainApplication;
@@ -23,8 +25,7 @@ import pl.librus.client.ui.MainApplication;
  */
 public class AnnouncementDetailsFragment extends Fragment {
     private static final String ARG_ANNOUNCEMENT = "librus-client:AnnouncementDetailsFragment:announcement";
-    private Announcement announcement;
-    private Teacher author;
+    private FullAnnouncement announcement;
 
     public AnnouncementDetailsFragment() {
         // Required empty public constructor
@@ -37,7 +38,7 @@ public class AnnouncementDetailsFragment extends Fragment {
      * @param announcement Announcement to show
      * @return A new instance of fragment AnnouncementDetailsFragment.
      */
-    public static AnnouncementDetailsFragment newInstance(Announcement announcement) {
+    public static AnnouncementDetailsFragment newInstance(FullAnnouncement announcement) {
         AnnouncementDetailsFragment fragment = new AnnouncementDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ANNOUNCEMENT, announcement);
@@ -49,10 +50,7 @@ public class AnnouncementDetailsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            announcement = (Announcement) getArguments().getSerializable(ARG_ANNOUNCEMENT);
-            author = MainApplication.getData()
-                    .findByKey(Teacher.class, announcement.addedBy())
-                    .blockingGet();
+            announcement = (FullAnnouncement) getArguments().getSerializable(ARG_ANNOUNCEMENT);
         }
     }
 
@@ -71,7 +69,7 @@ public class AnnouncementDetailsFragment extends Fragment {
         View background = root.findViewById(R.id.fragment_announcement_details);
         titleTextView.setText(announcement.subject());
         contentTextView.setText(announcement.content());
-        authorTextView.setText(author == null ? "" : author.name());
+        authorTextView.setText(announcement.addedBy() == null ? "" : announcement.addedBy().name());
         dateTextView.setText(announcement.startDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
 
         background.setTransitionName("announcement_background_" + announcement.id());

@@ -3,6 +3,7 @@ package pl.librus.client.api;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 
 import org.joda.time.LocalDate;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 import java.util.List;
 
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import okhttp3.FormBody;
 import okhttp3.Request;
@@ -92,7 +94,6 @@ class DefaultAPIClient implements IAPIClient {
                 .getString("access_token", "");
         String url = "https://api.librus.pl/2.0" +
                 endpoint;
-        log("Performing APIRequest " + "Endpoint: " + endpoint);
 
         Request request = new Request.Builder()
                 .addHeader("Authorization", "Bearer " + access_token)
@@ -164,6 +165,17 @@ class DefaultAPIClient implements IAPIClient {
 
     public <T> Single<List<T>> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
         return APIRequest(endpoint)
-                .map(s -> EntityParser.parse(s, topLevelName, clazz));
+                .map(s -> EntityParser.parseList(s, topLevelName, clazz));
+    }
+
+    @Override
+    public <T extends Persistable> Single<T> getById(Class<T> clazz, String id) {
+        EntityInfo info = EntityInfos.infoFor(clazz);
+
+        return APIRequest(info.endpoint(id))
+                .map(s -> EntityParser.parseObject(s, info.name(), clazz))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toSingle();
     }
 }

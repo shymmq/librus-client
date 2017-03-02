@@ -80,7 +80,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseTimetable() throws IOException {
         //when
-        List<Timetable> res = EntityParser.parse(readFile("Timetable.json"), "Timetable", Timetable.class);
+        List<Timetable> res = EntityParser.parseList(readFile("Timetable.json"), "Timetable", Timetable.class);
 
         //then
         JsonLesson actual = Iterables.getOnlyElement(res).get(LocalDate.parse("2017-01-30"))
@@ -214,13 +214,13 @@ public class EntityParserTest {
         //then
         assertThat(res, hasItem(new Attendance.Builder()
             .id("t403209")
-            .lesson("2714880")
+            .lessonId("2714880")
             .date(LocalDate.parse("2016-09-29"))
             .addDate(LocalDateTime.parse("2016-09-28T16:19:22"))
             .lessonNumber(3)
             .semester(1)
-            .type("100")
-            .addedBy("1234988")
+            .categoryId("100")
+            .addedById("1234988")
             .build()));
     }
 
@@ -303,7 +303,7 @@ public class EntityParserTest {
             .endDate(LocalDate.parse("2017-06-14"))
             .subject("Konsultacje z \"matematyki\"")
             .content("Konsultacje z matematyki dla uczniów klas: 1B  2D2A 3A3D")
-            .addedBy("1575831")
+            .addedById("1575831")
             .build()));
     }
 
@@ -331,7 +331,7 @@ public class EntityParserTest {
     }
 
     private <T extends Persistable> List<T> parse(String filename, Class<T> clazz) {
-        return EntityParser.parse(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
+        return EntityParser.parseList(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
     }
 
 }

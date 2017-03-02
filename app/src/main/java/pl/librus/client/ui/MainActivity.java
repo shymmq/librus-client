@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.google.common.base.Optional;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -31,15 +32,20 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import io.requery.reactivex.ReactiveEntityStore;
-import io.requery.sql.EntityDataStore;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusConstants;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
+import pl.librus.client.api.APIClient;
+import pl.librus.client.api.DrawerData;
+import pl.librus.client.api.ImmutableDrawerData;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.api.RegistrationIntentService;
 import pl.librus.client.datamodel.LuckyNumber;
@@ -55,14 +61,11 @@ public class MainActivity extends AppCompatActivity {
     private Drawer drawer;
     private Toolbar toolbar;
     private Menu menu;
-    private ReactiveEntityStore<Persistable> data;
     private MainFragment currentFragment;
     private MaterialDialog progressDialog;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        MainApplication app = (MainApplication) getApplicationContext();
-
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean theme = prefs.getBoolean(getString(R.string.prefs_dark_theme), false);
         if (theme) {
@@ -80,8 +83,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            data = app.initData(login);
-            UpdateHelper updateHelper = new UpdateHelper(getApplicationContext());
+            APIClient apiClient = new APIClient(getApplicationContext());
+            LibrusData.init(getApplicationContext(), apiClient, login);
+            UpdateHelper updateHelper = new UpdateHelper();
 
             if (BuildConfig.DEBUG || prefs.getLong(getString(R.string.last_update), -1) < 0) {
                 //database empty or null update and then setup()
@@ -143,29 +147,55 @@ public class MainActivity extends AppCompatActivity {
         if(progressDialog != null) {
             progressDialog.dismiss();
         }
-        //Drawer setup
-        Me me = data.select(Me.class).get().first();
+        Single
+                .zip(
+                LibrusData.findMe(),
+                LibrusData.findLuckyNumber(),
+                        ImmutableDrawerData::of)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(this::initDrawer)
+                .subscribe(drawer -> {
+                    this.drawer = drawer;
+                    setInitialFragment();
+                    displayFragment(currentFragment);
+                });
+    }
 
-        LuckyNumber luckyNumber = data.select(LuckyNumber.class)
-                .orderBy(LuckyNumberType.DAY.desc())
-                .get()
-                .firstOrNull();
+    private Drawer initDrawer(DrawerData drawerData) {
+        TextDrawable icon = getIcon(drawerData.me());
+        ProfileDrawerItem profile = getProfileDrawerItem(drawerData.me(), icon);
+        AccountHeader header = getDrawerHeader(profile);
 
-        TextDrawable icon = TextDrawable.builder()
-                .beginConfig()
-                .height(48)
-                .width(48)
-                .endConfig()
-                .buildRect(me.account().firstName().substring(0, 1), Color.parseColor("#F49719"));
-        ProfileDrawerItem profile = new ProfileDrawerItem()
-                .withName(me.account().name())
-                .withEmail(me.account().login())
-                .withIcon(icon);
-        PrimaryDrawerItem lucky = new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.luckyNumber()))
-                .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp)
-                .withOnDrawerItemClickListener(this::showLuckyNumber);
-        AccountHeader header = new AccountHeaderBuilder()
+        final DrawerBuilder drawerBuilder = new DrawerBuilder()
+                .withActivity(this)
+                .withAccountHeader(header)
+                .addDrawerItems(new DrawerItemsFactory().getItems(this::displayFragment));
+
+        if (drawerData.luckyNumber().isPresent()) {
+            drawerBuilder.addDrawerItems(new DividerDrawerItem(), getLuckyNumberDrawerItem(drawerData.luckyNumber()));
+        }
+
+        drawerBuilder.addStickyDrawerItems(getSettingsDrawerItem())
+                .withDelayOnDrawerClose(50)
+                .withOnDrawerNavigationListener(clickedView -> {
+                    onBackPressed();
+                    return true;
+                })
+                .withActionBarDrawerToggle(true)
+                .withActionBarDrawerToggleAnimated(true)
+                .withToolbar(toolbar);
+        return drawerBuilder.build();
+    }
+
+    private PrimaryDrawerItem getSettingsDrawerItem() {
+        return new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
+                        .withName(R.string.settings_title)
+                        .withIcon(R.drawable.ic_settings_black_48dp)
+                        .withOnDrawerItemClickListener(this::openSettings);
+    }
+
+    private AccountHeader getDrawerHeader(ProfileDrawerItem profile) {
+        return new AccountHeaderBuilder()
                 .withActivity(this)
                 .withSelectionListEnabledForSingleProfile(true)
                 .withHeaderBackground(R.drawable.background_nav)
@@ -180,27 +210,29 @@ public class MainActivity extends AppCompatActivity {
                                 .withIcon(R.drawable.logout)
                                 .withOnDrawerItemClickListener(this::logout))
                 .build();
+    }
 
-        final DrawerBuilder drawerBuilder = new DrawerBuilder()
-                .withActivity(this)
-                .withAccountHeader(header)
-                .addDrawerItems(new DrawerItemsFactory().getItems(this::displayFragment))
-                .addDrawerItems(
-                        new DividerDrawerItem(),
-                        lucky)
-                .addStickyDrawerItems(new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                        .withName(R.string.settings_title)
-                        .withIcon(R.drawable.ic_settings_black_48dp)
-                        .withOnDrawerItemClickListener(this::openSettings))
-                .withDelayOnDrawerClose(50)
-                .withOnDrawerNavigationListener(clickedView -> {
-                    onBackPressed();
-                    return true;
-                })
-                .withActionBarDrawerToggle(true)
-                .withActionBarDrawerToggleAnimated(true)
-                .withToolbar(toolbar);
-        drawer = drawerBuilder.build();
+    private PrimaryDrawerItem getLuckyNumberDrawerItem(Optional<LuckyNumber> luckyNumber) {
+        return new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
+                .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.get().luckyNumber()))
+                .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp)
+                .withOnDrawerItemClickListener(showLuckyNumber(luckyNumber.get()));
+    }
+
+    private ProfileDrawerItem getProfileDrawerItem(Me me, TextDrawable icon) {
+        return new ProfileDrawerItem()
+                .withName(me.account().name())
+                .withEmail(me.account().login())
+                .withIcon(icon);
+    }
+
+    private TextDrawable getIcon(Me me) {
+        return TextDrawable.builder()
+                .beginConfig()
+                .height(48)
+                .width(48)
+                .endConfig()
+                .buildRect(me.account().firstName().substring(0, 1), Color.parseColor("#F49719"));
     }
 
     private Drawer getDrawer() {
@@ -226,18 +258,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean showLuckyNumber(View view, int position, IDrawerItem drawerItem) {
-        LuckyNumber luckyNumber = data.select(LuckyNumber.class)
-                .orderBy(LuckyNumberType.DAY.desc())
-                .get()
-                .firstOrNull();
-        if (luckyNumber != null) {
-            String luckyDate = luckyNumber.day().toString("EEEE, d MMMM");
-            Toast.makeText(getApplicationContext(), luckyDate, Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(getApplicationContext(), "Brak danych", Toast.LENGTH_LONG).show();
-        }
-        return true;
+    private Drawer.OnDrawerItemClickListener showLuckyNumber(LuckyNumber luckyNumber) {
+        return (v, p, di) -> {
+            if (luckyNumber != null) {
+                String luckyDate = luckyNumber.day().toString("EEEE, d MMMM");
+                Toast.makeText(getApplicationContext(), luckyDate, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Brak danych", Toast.LENGTH_LONG).show();
+            }
+            return true;
+        };
     }
 
     private boolean openSettings(View view, int position, IDrawerItem drawerItem) {
@@ -254,8 +284,7 @@ public class MainActivity extends AppCompatActivity {
                     .clear()
                     .apply();
 
-            MainApplication app = (MainApplication) getApplicationContext();
-            app.deleteData(login);
+            LibrusData.delete(getApplicationContext(), login);
 
             disableNotifications();
 
@@ -291,8 +320,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
-        setInitialFragment();
-        displayFragment(currentFragment);
         return true;
     }
 
@@ -326,7 +353,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MainApplication app = (MainApplication) getApplicationContext();
-        app.closeData();
+        LibrusData.close();
     }
 }

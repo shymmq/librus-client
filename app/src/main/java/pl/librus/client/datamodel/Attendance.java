@@ -22,29 +22,7 @@ import pl.librus.client.api.IdDeserializer;
 @Value.Immutable
 @Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableAttendance.class)
-public abstract class Attendance implements Persistable{
-    @Key
-    public abstract String id();
-
-    @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String lesson();
-
-    @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String type();
-
-    @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String addedBy();
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    public abstract LocalDate date();
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    public abstract LocalDateTime addDate();
-
-    @JsonProperty("LessonNo")
-    public abstract int lessonNumber();
-
-    public abstract int semester();
+public abstract class Attendance extends BaseAttendance implements Persistable{
 
     public static class Builder extends ImmutableAttendance.Builder{
     }

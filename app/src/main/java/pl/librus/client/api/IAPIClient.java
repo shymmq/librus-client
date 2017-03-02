@@ -19,4 +19,6 @@ public interface IAPIClient {
 
     <T> Single<List<T>> getList(String endpoint, String topLevelName, Class<T> clazz);
 
+    <T extends Persistable> Single<T> getById(Class<T> clazz, String id);
+
 }

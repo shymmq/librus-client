@@ -59,8 +59,6 @@ public class NotificationTest extends BaseDBTest {
 
     private NotificationManager notificationManager;
 
-    private IAPIClient apiClient;
-
     @Before
     public void setUp() {
         notificationManager = (NotificationManager) RuntimeEnvironment.application.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -265,9 +263,7 @@ public class NotificationTest extends BaseDBTest {
     }
 
     private LibrusGcmListenerService serviceWithMockClient() {
-        apiClient = mock(IAPIClient.class);
         LibrusGcmListenerService service = new LibrusGcmListenerService();
-        service.setUpdateHelper(new UpdateHelper(apiClient));
         service.setFirebaseLogger(mock(Consumer.class));
         service.setNotificationService(new NotificationService(RuntimeEnvironment.application));
         when(apiClient.getAll(any()))

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -15,16 +17,22 @@ import java.util.List;
 
 public class EntityParser {
 
-    public static <T> List<T> parse(String input, String topLevelName, Class<T> clazz) {
+    public static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
+        Optional<T[]> a = parseObject(input, topLevelName, getArrayClass(clazz));
+        return a.<List>transform(Lists::newArrayList)
+                .or(Collections::emptyList);
+    }
+
+    public static <T> Optional<T> parseObject(String input, String topLevelName, Class<T> clazz) {
         ObjectMapper mapper = createMapper();
         try {
             input = input.replace("\\\\\\", "\\");
             JsonNode root = mapper.readTree(input);
             TreeNode node = root.at("/" + topLevelName);
             if(!node.isMissingNode()) {
-                return Arrays.asList(mapper.treeToValue(node, getArrayClass(clazz)));
+                return Optional.of(mapper.treeToValue(node, clazz));
             } else if(root.at("/Status").textValue().equals("Disabled")){
-                return Collections.emptyList();
+                return Optional.absent();
             } else {
                 throw new RuntimeException("No root element, status not disabled");
             }
@@ -43,7 +51,7 @@ public class EntityParser {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Class<? extends T[]> getArrayClass(Class<T> clazz) {
-        return (Class<? extends T[]>) Array.newInstance(clazz, 0).getClass();
+    private static <T> Class<T[]> getArrayClass(Class<T> clazz) {
+        return (Class<T[]>) Array.newInstance(clazz, 0).getClass();
     }
 }

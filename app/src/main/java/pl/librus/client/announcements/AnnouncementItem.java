@@ -17,8 +17,10 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Announcement;
+import pl.librus.client.datamodel.FullAnnouncement;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.ui.MainApplication;
 
@@ -27,11 +29,11 @@ import pl.librus.client.ui.MainApplication;
  */
 
 class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHolder, AnnouncementHeaderItem> {
-    private final Announcement announcement;
+    private final FullAnnouncement announcement;
     private View backgroundView;
     private TextView title;
 
-    public AnnouncementItem(Announcement announcement, AnnouncementHeaderItem header) {
+    public AnnouncementItem(FullAnnouncement announcement, AnnouncementHeaderItem header) {
         super(header);
         this.announcement = announcement;
     }
@@ -47,7 +49,7 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
 
     }
 
-    public Announcement getAnnouncement() {
+    public FullAnnouncement getAnnouncement() {
         return announcement;
     }
 
@@ -55,7 +57,7 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         this.backgroundView = holder.background;
         this.title = holder.announcementSubject;
-        Teacher teacher = MainApplication.getData().findByKey(Teacher.class, announcement.addedBy()).blockingGet();
+        Teacher teacher = announcement.addedBy();
         holder.announcementSubject.setText(announcement.subject());
         holder.background.setTransitionName("announcement_background_" + announcement.id());
         holder.announcementTeacherName.setText(teacher == null ? "" : teacher.name());

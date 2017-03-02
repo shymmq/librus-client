@@ -25,8 +25,10 @@ import eu.davidea.flexibleadapter.Payload;
 import eu.davidea.flexibleadapter.items.AbstractHeaderItem;
 import eu.davidea.flexibleadapter.items.IExpandable;
 import eu.davidea.viewholders.ExpandableViewHolder;
+import io.reactivex.Single;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Subject;
@@ -42,16 +44,16 @@ class GradeHeaderItem
         implements IExpandable<GradeHeaderItem.ViewHolder, GradeItem>, Comparable<GradeHeaderItem> {
 
     private final Subject subject;
-    private final Average average;
     private final Reader reader;
     private Context context;
     private boolean expanded;
     private ArrayList<GradeItem> mSubItems;
+    private ViewHolder holder;
+    private SpannableStringBuilder gradeCountText;
 
-    GradeHeaderItem(Subject subject, Average average, Context context) {
+    GradeHeaderItem(Subject subject, Context context) {
         super();
         this.subject = subject;
-        this.average = average;
         this.reader = new Reader(context);
         this.context = context;
         setExpanded(false);
@@ -89,21 +91,22 @@ class GradeHeaderItem
         int unreadGradeCount = getUnreadGradeCount();
 
         setEnabled(gradeCount > 0);
+        this.holder = holder;
         holder.subject.setText(subject.name());
         holder.averageSummary.setVisibility(expanded ? View.VISIBLE : View.GONE);
         holder.gradeCountView.setVisibility(expanded ? View.GONE : View.VISIBLE);
         holder.background.setAlpha(gradeCount > 0 ? 1f : 0.5f);
         holder.arrow.animate().rotation(expanded ? 180f : 0f).start();
 
-        SpannableStringBuilder ssb = new SpannableStringBuilder();
+        gradeCountText = new SpannableStringBuilder();
         if (gradeCount == 0) {
-            ssb.append(context.getString(R.string.no_grades));
+            gradeCountText.append(context.getString(R.string.no_grades));
         } else {
-            ssb.append(String.valueOf(gradeCount))
+            gradeCountText.append(String.valueOf(gradeCount))
                     .append(' ')
                     .append(LibrusUtils.getPluralForm(gradeCount, "ocena", "oceny", "ocen"));
             if (unreadGradeCount > 0) {
-                ssb.append("  ")
+                gradeCountText.append("  ")
                         .append(String.valueOf(unreadGradeCount),
                                 new ForegroundColorSpan(Color.parseColor("#FF5722")),
                                 Spanned.SPAN_INCLUSIVE_INCLUSIVE)
@@ -113,17 +116,24 @@ class GradeHeaderItem
                                 Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             }
         }
-        holder.gradeCountView.setText(ssb);
+        holder.gradeCountView.setText(gradeCountText);
 
-        if (average != null) {
-            String s = holder.itemView.getContext().getString(R.string.average_);
-            Spannable averageSummaryText = new SpannableString(s + average.fullYear());
-            averageSummaryText.setSpan(new StyleSpan(Typeface.BOLD), s.length(), averageSummaryText.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
-            holder.averageSummary.setText(averageSummaryText);
-        }
-        else {
-            holder.averageSummary.setText(ssb);
-        }
+        LibrusData.findByKey(Average.class, subject.id())
+                .subscribe(
+                        this::displayAverage,
+                        this::displayNoAverage
+                );
+    }
+
+    private void displayAverage(Average average) {
+        String s = holder.itemView.getContext().getString(R.string.average_);
+        Spannable averageSummaryText = new SpannableString(s + average.fullYear());
+        averageSummaryText.setSpan(new StyleSpan(Typeface.BOLD), s.length(), averageSummaryText.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        holder.averageSummary.setText(averageSummaryText);
+    }
+
+    private void displayNoAverage(Throwable t) {
+        holder.averageSummary.setText(gradeCountText);
     }
 
     @Override

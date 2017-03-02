@@ -35,10 +35,10 @@ public class ReloadingTest extends BaseDBTest {
     public void shouldDiscoverNewEntity() throws ExecutionException, InterruptedException {
         //given
         Grade newGrade = EntityTemplates.grade();
-        IAPIClient client = mockApiClient(newGrade);
+        mockApiClient(newGrade);
 
         //when
-        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = UpdateHelper.reload(Grade.class).blockingGet();
 
         //then
         assertThat(result, contains(ImmutableEntityChange.of(ADDED, newGrade)));
@@ -48,11 +48,11 @@ public class ReloadingTest extends BaseDBTest {
     public void shouldNotDiscoverAnything() throws ExecutionException, InterruptedException {
         //given
         Grade grade = EntityTemplates.grade();
-        IAPIClient client = mockApiClient(grade);
         data.upsert(grade);
+        mockApiClient(grade);
 
         //when
-        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = UpdateHelper.reload(Grade.class).blockingGet();
 
         //then
         assertThat(result, empty());
@@ -65,10 +65,10 @@ public class ReloadingTest extends BaseDBTest {
                 .withGrade("4");
         data.upsert(oldGrade);
         Grade newGrade = oldGrade.withGrade("5");
-        IAPIClient client = mockApiClient(newGrade);
+        mockApiClient(newGrade);
 
         //when
-        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = UpdateHelper.reload(Grade.class).blockingGet();
 
         //then
         assertThat(result, contains(ImmutableEntityChange.of(CHANGED, newGrade)));
@@ -84,10 +84,10 @@ public class ReloadingTest extends BaseDBTest {
         Grade changedGrade = oldGrade.withGrade("5");
         Grade newGrade = oldGrade.withId("2");
 
-        IAPIClient client = mockApiClient(newGrade, changedGrade);
+        mockApiClient(newGrade, changedGrade);
 
         //when
-        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = UpdateHelper.reload(Grade.class).blockingGet();
 
         //then
         assertThat(result, containsInAnyOrder(
@@ -105,10 +105,10 @@ public class ReloadingTest extends BaseDBTest {
         data.upsert(grade);
         data.upsert(deletedGrade);
 
-        IAPIClient client = mockApiClient(grade);
+        mockApiClient(grade);
 
         //when
-        List<EntityChange<Grade>> result = new UpdateHelper(client).reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = UpdateHelper.reload(Grade.class).blockingGet();
 
         //then
         assertThat(result, empty());
@@ -121,10 +121,10 @@ public class ReloadingTest extends BaseDBTest {
                 .withGrade("4");
         data.upsert(oldGrade);
         Grade newGrade = oldGrade.withGrade("5");
-        IAPIClient client = mockApiClient(newGrade);
+        mockApiClient(newGrade);
 
         //when
-        new UpdateHelper(client).reload(Grade.class).blockingGet();
+        UpdateHelper.reload(Grade.class).blockingGet();
 
         //then
         List<Grade> res = data.select(Grade.class).get().toList();
@@ -132,10 +132,8 @@ public class ReloadingTest extends BaseDBTest {
 
     }
 
-    private IAPIClient mockApiClient(Grade... grades) {
-        IAPIClient mock = mock(IAPIClient.class);
-        Mockito.when(mock.getAll(eq(Grade.class)))
+    private void mockApiClient(Grade... grades) {
+        Mockito.when(apiClient.getAll(eq(Grade.class)))
                 .thenReturn(Single.just(Lists.newArrayList(grades)));
-        return mock;
     }
 }

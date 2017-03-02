@@ -9,6 +9,8 @@ import java.util.Comparator;
 
 import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.api.Reader;
+import pl.librus.client.datamodel.BaseAnnouncement;
+import pl.librus.client.datamodel.FullAnnouncement;
 
 /**
  * Created by szyme on 31.12.2016.
@@ -22,7 +24,7 @@ class AnnouncementUtils {
     private static final AnnouncementHeaderItem thisMonth = new AnnouncementHeaderItem("Ten miesiąc", 4);
     private static final AnnouncementHeaderItem older = new AnnouncementHeaderItem("Starsze", 5);
 
-    static AnnouncementHeaderItem getHeaderOf(Announcement a, Context c) {
+    static AnnouncementHeaderItem getHeaderOf(BaseAnnouncement a, Context c) {
         LocalDate date = a.startDate();
         if (!new Reader(c).isRead(a))
             return unread;

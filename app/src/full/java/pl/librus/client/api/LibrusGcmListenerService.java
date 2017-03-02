@@ -29,14 +29,12 @@ import static pl.librus.client.sql.EntityChange.Type.ADDED;
  */
 
 public class LibrusGcmListenerService extends GcmListenerService {
-    private UpdateHelper updateHelper;
     private Consumer<String> firebaseLogger;
     private NotificationService notificationService;
     private Flowable<?> reloads;
 
     @Override
     public ComponentName startService(Intent service) {
-        updateHelper = new UpdateHelper(getApplicationContext());
         firebaseLogger = s -> {
             Bundle event = new Bundle();
             event.putString("objectType", s);
@@ -52,22 +50,22 @@ public class LibrusGcmListenerService extends GcmListenerService {
         //Send category to analytics
         firebaseLogger.accept(bundle.getString("objectT"));
 
-        Single<List<Grade>> gradeChanges = updateHelper.reload(Grade.class)
+        Single<List<Grade>> gradeChanges = UpdateHelper.reload(Grade.class)
                 .map(this::filterAdded)
                 .cache();
         gradeChanges.subscribe(notificationService::addGrades);
 
-        Single<List<Announcement>> announcementChanges = updateHelper.reload(Announcement.class)
+        Single<List<Announcement>> announcementChanges = UpdateHelper.reload(Announcement.class)
                 .map(this::filterAdded)
                 .cache();
         announcementChanges.subscribe(notificationService::addAnnouncements);
 
-        Single<List<Event>> eventChanges = updateHelper.reload(Event.class)
+        Single<List<Event>> eventChanges = UpdateHelper.reload(Event.class)
                 .map(this::filterAdded)
                 .cache();
         eventChanges.subscribe(notificationService::addEvents);
 
-        Single<List<LuckyNumber>> luckyNumberChanges = updateHelper.reload(LuckyNumber.class)
+        Single<List<LuckyNumber>> luckyNumberChanges = UpdateHelper.reload(LuckyNumber.class)
                 .map(this::filterAdded)
                 .cache();
         luckyNumberChanges.subscribe(notificationService::addLuckyNumber);
@@ -82,10 +80,6 @@ public class LibrusGcmListenerService extends GcmListenerService {
 
     public Flowable<?> getReloads() {
         return reloads;
-    }
-
-    public void setUpdateHelper(UpdateHelper updateHelper) {
-        this.updateHelper = updateHelper;
     }
 
     public void setFirebaseLogger(Consumer<String> firebaseLogger) {

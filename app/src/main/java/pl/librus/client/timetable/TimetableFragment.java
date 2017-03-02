@@ -14,19 +14,28 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.collect.Lists;
 
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
 import eu.davidea.flexibleadapter.common.TopSnappedSmoothScroller;
 import eu.davidea.flexibleadapter.items.IFlexible;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import java8.util.stream.Collectors;
+import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.datamodel.Lesson;
 import pl.librus.client.datamodel.LessonType;
 import pl.librus.client.datamodel.Teacher;
@@ -34,19 +43,14 @@ import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
 
-public class TimetableFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener {
+public class TimetableFragment extends MainFragment {
     private final ProgressItem progressItem = new ProgressItem();
     private TimetableAdapter adapter;
     private SmoothScrollLinearLayoutManager layoutManager;
-    private LocalDate startDate;
-    private int page = 0;
+    private LocalDate weekStart;
     private IFlexible defaultHeader;
 
     public TimetableFragment() {
-    }
-
-    public static TimetableFragment newInstance() {
-        return new TimetableFragment();
     }
 
     @Override
@@ -59,40 +63,57 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
     public void onViewCreated(View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_timetable_recycler);
+        weekStart = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
+        List<LocalDate> initialWeekStarts = Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
+
+        Observable.fromIterable(initialWeekStarts)
+                .flatMap(ws -> LibrusData.findLessonsForWeek(ws).toObservable())
+                .flatMapIterable(l -> l)
+                .toList()
+                .map(this::mapLessons)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayInitial);
+    }
+
+    private List<IFlexible> mapLessons(List<Lesson> lessons) {
+        List<IFlexible> result = new ArrayList<>();
+
+        Map<LocalDate, List<Lesson>> days = StreamSupport.stream(lessons)
+                .collect(Collectors.groupingBy(Lesson::date));
+        for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
+            LessonHeaderItem header = new LessonHeaderItem(date);
+            if(date.equals(LocalDate.now())) {
+                defaultHeader = header;
+            }
+            List<Lesson> schoolDay = days.get(date);
+            if (schoolDay== null || schoolDay.isEmpty()) {
+                result.add(new EmptyLessonItem(header, date));
+            } else {
+                for (Lesson l : schoolDay) {
+                    if (l != null) {
+                        LessonItem lessonItem = new LessonItem(header, l, getContext());
+                        result.add(lessonItem);
+                    } else {
+                        //TODO: Add missing lesson item
+                    }
+
+                }
+            }
+        }
+        return result;
+    }
+
+    private void displayInitial(List<IFlexible> elements) {
+        weekStart = weekStart.plusWeeks(2);
+        final RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.fragment_timetable_recycler);
 
         recyclerView.setVisibility(View.VISIBLE);
 
         layoutManager = new SmoothScrollLinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        startDate = TimetableUtils.getLastFullWeekStart(LocalDate.now()).plusWeeks(1);
-        List<IFlexible> initialElements = new ArrayList<>();
-        List<LocalDate> initialWeekStarts = TimetableUtils.getNextFullWeekStarts(LocalDate.now());
-
-        for (LocalDate weekStart : initialWeekStarts) {
-            for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
-
-                LessonHeaderItem header = new LessonHeaderItem(date);
-                List<Lesson> lessons = MainApplication.getData().select(Lesson.class)
-                        .where(LessonType.DATE.eq(date))
-                        .get()
-                        .toList();
-                if (lessons == null || lessons.isEmpty()) {
-                    initialElements.add(new EmptyLessonItem(header, date));
-                } else {
-                    for (Lesson l : lessons) {
-                        LessonItem lessonItem = new LessonItem(header, l, getContext());
-                        initialElements.add(lessonItem);
-                    }
-                }
-                if (date.equals(LocalDate.now())) {
-                    defaultHeader = header;
-                }
-            }
-        }
-
-        adapter = new TimetableAdapter(initialElements);
+        adapter = new TimetableAdapter(elements);
 
         adapter.setDisplayHeadersAtStartUp(true);
         adapter.setEndlessProgressItem(progressItem);
@@ -100,13 +121,16 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
         adapter.onLoadMoreListener = () -> {
             progressItem.setStatus(ProgressItem.LOADING);
             adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
-            LocalDate weekStart = startDate.plusWeeks(page);
 
-            new UpdateHelper(getContext()).getLessonsForWeek(weekStart)
+            LibrusData.findLessonsForWeek(weekStart)
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::displayLessons);
+                    .map(this::mapLessons)
+                    .subscribe(this::moreLoaded);
         };
-        adapter.mItemClickListener = this;
+
+
+        adapter.mItemClickListener = this::onItemClick;
         recyclerView.setAdapter(adapter);
 
         //Scroll to default position after a delay to let recyclerview complete layout
@@ -116,32 +140,10 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
         }, 50);
     }
 
-    private void displayLessons(List<Lesson> lessons) {
-        LocalDate weekStart = startDate.plusWeeks(page);
-        List<IFlexible> newElements = new ArrayList<>();
-        SchoolWeek schoolWeek = new SchoolWeek(weekStart, lessons);
-        for (SchoolDay schoolDay : schoolWeek.getSchoolDays()) {
-            LocalDate date = schoolDay.getDate();
-            LessonHeaderItem header = new LessonHeaderItem(date);
-            if (schoolDay.isEmpty()) {
-                newElements.add(new EmptyLessonItem(header, date));
-            } else {
-                for (Lesson l : schoolDay.getLessons()) {
-                    if (l != null) {
-                        LessonItem lessonItem = new LessonItem(header, l, getContext());
-                        newElements.add(lessonItem);
-                    } else {
-                        //TODO: Add missing lesson item
-                    }
-
-                }
-            }
-        }
-        getActivity().runOnUiThread(() -> {
-            progressItem.setStatus(ProgressItem.IDLE);
-            adapter.onLoadMoreComplete(newElements);
-            page++;
-        });
+    private void moreLoaded(List<IFlexible> elements) {
+        progressItem.setStatus(ProgressItem.IDLE);
+        adapter.onLoadMoreComplete(elements);
+        weekStart = weekStart.plusWeeks(1);
     }
 
     @Override
@@ -154,7 +156,6 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
         return R.drawable.ic_event_note_black_48dp;
     }
 
-    @Override
     public boolean onItemClick(int position) {
         IFlexible item = adapter.getItem(position);
         if (item instanceof LessonItem) {
@@ -190,7 +191,7 @@ public class TimetableFragment extends MainFragment implements FlexibleAdapter.O
                         .append(lesson.teacher().name(),
                                 new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
             } else {
-                Teacher orgTeacher = MainApplication.getData().findByKey(Teacher.class, lesson.orgTeacher()).blockingGet();
+                Teacher orgTeacher = LibrusData.findByKey(Teacher.class, lesson.orgTeacher()).blockingGet();
                 teacherTextView.setText(new SpannableStringBuilder()
                         .append(orgTeacher.name())
                         .append(" -> ")

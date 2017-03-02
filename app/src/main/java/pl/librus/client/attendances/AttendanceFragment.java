@@ -20,28 +20,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.IFlexible;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import io.requery.Persistable;
-import io.requery.reactivex.ReactiveEntityStore;
-import io.requery.sql.EntityDataStore;
-import java8.util.stream.Collectors;
-import java8.util.stream.StreamSupport;
-import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
-import pl.librus.client.datamodel.AnnouncementType;
-import pl.librus.client.datamodel.Attendance;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.datamodel.AttendanceCategory;
-import pl.librus.client.datamodel.AttendanceCategoryType;
-import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.Subject;
-import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.ui.MainApplication;
+import pl.librus.client.datamodel.AttendanceWithCategory;
+import pl.librus.client.datamodel.FullAttendance;
 import pl.librus.client.ui.MainFragment;
 
 /**
@@ -62,7 +51,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_attendances, container, false);
 
-        readAttendances()
+        LibrusData.findAttendancesWithCategories()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);
@@ -70,7 +59,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         return root;
     }
 
-    private void displayList(Map<Attendance, AttendanceCategory> attendanceCategoryMap) {
+    private void displayList(List<? extends AttendanceWithCategory> attendances) {
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -78,10 +67,9 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         adapter = new FlexibleAdapter<>(null, this);
         recyclerView.setAdapter(adapter);
 
-
         Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
-        for (Attendance attendance : attendanceCategoryMap.keySet()) {
-            AttendanceCategory category = attendanceCategoryMap.get(attendance);
+        for (AttendanceWithCategory attendance : attendances) {
+            AttendanceCategory category = attendance.category();
             LocalDate date = attendance.date();
 
             if (!category.presenceKind()) {
@@ -90,8 +78,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
                 }
                 AttendanceItem subItem = new AttendanceItem(
                         headerItemMap.get(date),
-                        attendance,
-                        category);
+                        attendance);
                 headerItemMap.get(date)
                         .addSubItem(subItem);
             }
@@ -101,29 +88,6 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         for (AttendanceHeaderItem headerItem : headers) {
             adapter.addSection(headerItem);
         }
-    }
-
-    private Single<Map<Attendance, AttendanceCategory>> readAttendances() {
-        ReactiveEntityStore<Persistable> data = MainApplication.getData();
-        return data.select(Attendance.class)
-                .get()
-                .observable()
-                .toList()
-                .flatMap(attendances -> {
-                    Set<String> typeIds = StreamSupport.stream(attendances)
-                            .map(Attendance::type)
-                            .collect(Collectors.toSet());
-                    //TODO: check if this couldn't be simplified by making many findById queries
-                    return data.select(AttendanceCategory.class)
-                            .where(AttendanceCategoryType.ID.in(typeIds))
-                            .get()
-                            .observable()
-                            .toMap(AttendanceCategory::id)
-                            .map(categoryMap -> StreamSupport.stream(attendances)
-                                    .collect(Collectors.toMap(
-                                            a -> a,
-                                            a -> categoryMap.get(a.type()))));
-                });
     }
 
     @Override
@@ -141,9 +105,16 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         IFlexible item = adapter.getItem(position);
         if (!(item instanceof AttendanceItem)) return true;
         AttendanceItem attendanceItem = (AttendanceItem) item;
-        Attendance attendance = attendanceItem.getAttendance();
-        AttendanceCategory category = attendanceItem.getCategory();
+        AttendanceWithCategory attendance = attendanceItem.getAttendance();
+        LibrusData.findFullAttendance(attendance)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(displayPopup(position));
 
+        return true;
+    }
+
+    private Consumer<FullAttendance> displayPopup(int position) {
+        return fullAttendance -> {
         View root = LayoutInflater.from(getContext()).inflate(R.layout.attendance_details, null);
 
         View subjectContainer = root.findViewById(R.id.attendance_details_subject_container);
@@ -153,42 +124,32 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         TextView dateValue = (TextView) root.findViewById(R.id.attendance_details_date_value);
         TextView addedByValue = (TextView) root.findViewById(R.id.attendance_details_added_by_value);
 
-        ReactiveEntityStore<Persistable> data = MainApplication.getData();
-
-        PlainLesson lesson = data.findByKey(PlainLesson.class, attendance.lesson()).blockingGet();
-        if (lesson != null) {
-            Subject subject = data.findByKey(Subject.class, lesson.subject()).blockingGet();
-            if (subject != null) {
+            if (fullAttendance.subject() != null) {
                 addedByContainer.setVisibility(View.VISIBLE);
-                subjectValue.setText(subject.name());
-            } else {
-                subjectContainer.setVisibility(View.GONE);
-            }
+                subjectValue.setText(fullAttendance.subject().name());
         } else {
             subjectContainer.setVisibility(View.GONE);
         }
 
         dateValue.setText(new StringBuilder()
-                .append(attendance.date().toString(getContext().getString(R.string.date_format_no_year), new Locale("pl")))
+                .append(fullAttendance.date().toString(getContext().getString(R.string.date_format_no_year), new Locale("pl")))
                 .append(", ")
-                .append(String.valueOf(attendance.lessonNumber()))
+                .append(String.valueOf(fullAttendance.lessonNumber()))
                 .append(". lekcja"));
 
-        Teacher addedBy = data.findByKey(Teacher.class, attendance.addedBy()).blockingGet();
-        if (addedBy != null) {
+            if (fullAttendance.addedBy() != null) {
             addedByContainer.setVisibility(View.VISIBLE);
-            addedByValue.setText(addedBy.name());
+                addedByValue.setText(fullAttendance.addedBy().name());
         } else {
             addedByContainer.setVisibility(View.GONE);
         }
 
         new MaterialDialog.Builder(getActivity())
-                .title(category.name())
+                .title(fullAttendance.category().name())
                 .customView(root, true)
                 .positiveText(R.string.close)
                 .dismissListener(dialog -> adapter.notifyItemChanged(position))
                 .show();
-
-        return true;
+        };
     }
 }

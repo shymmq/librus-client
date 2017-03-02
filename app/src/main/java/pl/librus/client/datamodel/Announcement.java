@@ -3,6 +3,7 @@ package pl.librus.client.datamodel;
 import android.support.annotation.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
@@ -23,23 +24,7 @@ import pl.librus.client.api.IdDeserializer;
 @Value.Style(builder = "new")
 @Entity
 @JsonDeserialize(as = ImmutableAnnouncement.class)
-public abstract class Announcement implements Comparable<Announcement>, Identifiable, Persistable, Serializable {
-
-    @Key
-    public abstract String id();
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    public abstract LocalDate startDate();
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    public abstract LocalDate endDate();
-
-    public abstract String subject();
-
-    public abstract String content();
-
-    @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String addedBy();
+public abstract class Announcement extends BaseAnnouncement implements Comparable<Announcement>, Persistable {
 
     public static class Builder extends ImmutableAnnouncement.Builder {
 
