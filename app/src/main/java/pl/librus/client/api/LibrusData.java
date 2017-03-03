@@ -15,7 +15,6 @@ import java.util.Map;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import io.requery.android.sqlite.DatabaseSource;
@@ -23,26 +22,34 @@ import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.reactivex.ReactiveSupport;
 import io.requery.sql.TableCreationMode;
 import pl.librus.client.BuildConfig;
-import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceCategory;
-import pl.librus.client.datamodel.AttendanceWithCategory;
-import pl.librus.client.datamodel.BaseAttendance;
-import pl.librus.client.datamodel.FullAnnouncement;
-import pl.librus.client.datamodel.FullAttendance;
-import pl.librus.client.datamodel.ImmutableAttendanceWithCategory;
-import pl.librus.client.datamodel.ImmutableFullAnnouncement;
-import pl.librus.client.datamodel.ImmutableFullAttendance;
-import pl.librus.client.datamodel.Lesson;
-import pl.librus.client.datamodel.LessonType;
+import pl.librus.client.datamodel.Average;
+import pl.librus.client.datamodel.Identifiable;
+import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.LuckyNumberType;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.Models;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.subject.ImmutableFullSubject;
+import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.datamodel.Timetable;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.announcement.ImmutableFullAnnouncement;
+import pl.librus.client.datamodel.attendance.Attendance;
+import pl.librus.client.datamodel.attendance.AttendanceCategory;
+import pl.librus.client.datamodel.attendance.BaseAttendance;
+import pl.librus.client.datamodel.attendance.ImmutableEnrichedAttendance;
+import pl.librus.client.datamodel.attendance.ImmutableFullAttendance;
+import pl.librus.client.datamodel.grade.EnrichedGrade;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
+import pl.librus.client.datamodel.grade.GradeComment;
+import pl.librus.client.datamodel.grade.ImmutableEnrichedGrade;
+import pl.librus.client.datamodel.grade.ImmutableFullGrade;
+import pl.librus.client.datamodel.grade.ImmutableFullGradeCategory;
+import pl.librus.client.datamodel.lesson.Lesson;
+import pl.librus.client.datamodel.lesson.LessonType;
+import pl.librus.client.datamodel.lesson.Timetable;
 import pl.librus.client.sql.SqlHelper;
 
 public class LibrusData {
@@ -53,7 +60,7 @@ public class LibrusData {
     public static ReactiveEntityStore<Persistable> init(Context context, IAPIClient apiClient, String login) {
         LibrusData.apiClient = apiClient;
         if (dataStore == null) {
-            DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 12);
+            DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 13);
             if (BuildConfig.DEBUG) {
                 source.setLoggingEnabled(true);
                 source.setTableCreationMode(TableCreationMode.DROP_CREATE);
@@ -79,7 +86,7 @@ public class LibrusData {
         return "user-data-" + login;
     }
 
-    public static <T extends Persistable> Single<T> findByKey(Class<T> clazz, String key) {
+    public static <T extends Persistable & Identifiable> Single<T> findByKey(Class<T> clazz, String key) {
         if (key == null) {
             return null;
         }
@@ -92,7 +99,7 @@ public class LibrusData {
         return dataStore.findByKey(clazz, key);
     }
 
-    public static <T extends Persistable> Single<T> updateFromServerById(Class<T> clazz, String key) {
+    public static <T extends Persistable & Identifiable> Single<T> updateFromServerById(Class<T> clazz, String key) {
         return apiClient.getById(clazz, key)
                 .flatMap(dataStore::upsert);
     }
@@ -166,7 +173,7 @@ public class LibrusData {
                 .subscribeOn(Schedulers.io());
     }
 
-    public static Observable<? extends FullAttendance> findFullAttendance(BaseAttendance attendance) {
+    public static Observable<ImmutableFullAttendance> findFullAttendance(BaseAttendance attendance) {
         return Single.zip(
                 findByKey(Teacher.class, attendance.addedById()),
                 findByKey(AttendanceCategory.class, attendance.categoryId()),
@@ -181,24 +188,24 @@ public class LibrusData {
                 .toObservable();
     }
 
-    private static Single<? extends List<? extends AttendanceWithCategory>> mapAttendancesToCategories(
+    private static Single<List<ImmutableEnrichedAttendance>> makeEnrichedAttendances(
             Map<String, AttendanceCategory> categoryMap) {
         return findAll(Attendance.class)
                 .flattenAsObservable(l -> l)
-                .map(attendance -> ImmutableAttendanceWithCategory.builder()
+                .map(attendance -> ImmutableEnrichedAttendance.builder()
                         .from(attendance)
                         .category(categoryMap.get(attendance.categoryId()))
                         .build())
                 .toList();
     }
 
-    public static Single<? extends List<? extends AttendanceWithCategory>> findAttendancesWithCategories() {
+    public static Single<List<ImmutableEnrichedAttendance>> findEnrichedAttendances() {
         return findAll(AttendanceCategory.class)
                 .map(list -> Maps.uniqueIndex(list, AttendanceCategory::id))
-                .flatMap(LibrusData::mapAttendancesToCategories);
+                .flatMap(LibrusData::makeEnrichedAttendances);
     }
 
-    public static Single<? extends List<? extends FullAnnouncement>> findFullAnnouncements() {
+    public static Single<List<ImmutableFullAnnouncement>> findFullAnnouncements() {
         return findAll(Announcement.class)
                 .flattenAsObservable(l -> l)
                 .flatMap(announcement -> findByKey(Teacher.class, announcement.addedById())
@@ -208,6 +215,70 @@ public class LibrusData {
                                 .build())
                         .toObservable())
                 .toList();
+    }
+
+
+    public static Observable<ImmutableEnrichedGrade> findEnrichedGrades() {
+        return findFullGradeCategories()
+                .flatMap(categories -> findAll(Grade.class)
+                        .flattenAsObservable(l -> l)
+                        .map(grade -> ImmutableEnrichedGrade.builder()
+                            .from(grade)
+                            .category(categories.get(grade.categoryId()))
+                            .build())
+                .toList())
+                .flattenAsObservable(l -> l);
+    }
+
+    public static Single<Map<String, ImmutableFullGradeCategory>> findFullGradeCategories() {
+         return findAllColors()
+                .flatMap(colorMap -> findAll(GradeCategory.class)
+                    .flattenAsObservable(l -> l)
+                    .map(category -> ImmutableFullGradeCategory.builder()
+                            .from(category)
+                            .color(colorMap.get(category.colorId()))
+                            .build())
+                .toMap(ImmutableFullGradeCategory::id));
+    }
+
+    private static Single<Map<String, LibrusColor>> findAllColors() {
+        return findAll(LibrusColor.class)
+                .flattenAsObservable(l -> l)
+                .toMap(LibrusColor::id);
+    }
+
+    public static Single<List<GradeComment>> findGradeComments(List<String> ids) {
+        return Observable.fromIterable(ids)
+                .filter(id -> !id.isEmpty())
+                .flatMap(id -> findByKey(GradeComment.class, id).toObservable())
+                .toList();
+    }
+
+    public static Single<ImmutableFullGrade> findFullGrade(EnrichedGrade grade) {
+        return Single.zip(
+                findByKey(Teacher.class, grade.addedById()),
+                findGradeComments(grade.commentIds()),
+                findByKey(Subject.class, grade.subjectId()),
+                (t, cs, s) -> ImmutableFullGrade.builder()
+                        .from(grade)
+                        .category(grade.category())
+                        .addedBy(t)
+                        .subject(s)
+                        .comments(cs)
+                        .build()
+        );
+    }
+
+    public static Single<List<ImmutableFullSubject>> findFullSubjects() {
+        return findAll(Average.class)
+                .map(averages -> Maps.uniqueIndex(averages, Average::subject))
+                .flatMap(averageMap -> findAll(Subject.class)
+                        .flattenAsObservable(l -> l)
+                        .map(subject -> ImmutableFullSubject.builder()
+                            .from(subject)
+                            .average(Optional.fromNullable(averageMap.get(subject.id())))
+                            .build())
+                    .toList());
     }
 
     public static ReactiveEntityStore<Persistable> getDataStore() {

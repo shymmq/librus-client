@@ -12,11 +12,12 @@ import java.util.List;
 import io.requery.Persistable;
 import java8.util.function.Consumer;
 import pl.librus.client.R;
+import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.NotificationService;
-import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.datamodel.Event;
-import pl.librus.client.datamodel.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.grade.Grade;
 
 public class NotificationTesterFragment extends MainFragment {
 
@@ -82,7 +83,7 @@ public class NotificationTesterFragment extends MainFragment {
     }
 
     private <T extends Persistable> List<T> getMany(Class<T> clazz, int count) {
-        return MainApplication.getData()
+        return LibrusData.getDataStore()
                 .select(clazz)
                 .limit(count)
                 .get()

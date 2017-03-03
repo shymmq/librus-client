@@ -28,22 +28,18 @@ import java.util.concurrent.ExecutionException;
 import io.reactivex.Single;
 import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
-import pl.librus.client.api.APIClient;
-import pl.librus.client.api.IAPIClient;
 import pl.librus.client.api.LibrusGcmListenerService;
 import pl.librus.client.api.NotificationService;
-import pl.librus.client.datamodel.Announcement;
+import pl.librus.client.datamodel.announcement.Announcement;
 import pl.librus.client.datamodel.Event;
-import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
-import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.db.BaseDBTest;
 import pl.librus.client.db.EntityTemplates;
-import pl.librus.client.sql.UpdateHelper;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java8.util.concurrent.CompletableFuture.completedFuture;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
@@ -69,7 +65,7 @@ public class NotificationTest extends BaseDBTest {
         //given
         Subject subject = EntityTemplates.subject();
         Grade newGrade = EntityTemplates.grade()
-                .withSubject(subject.id());
+                .withSubjectId(subject.id());
         LibrusGcmListenerService service = serviceWithMockClient();
         addMockGrades(newGrade);
         data.insert(subject);
@@ -92,14 +88,14 @@ public class NotificationTest extends BaseDBTest {
                 .withName("Matematyka");
         Grade grade1 = EntityTemplates.grade()
                 .withGrade("4+")
-                .withSubject(matematyka.id());
+                .withSubjectId(matematyka.id());
 
         Subject informatyka = EntityTemplates.subject()
                 .withId("2")
                 .withName("Informatyka");
         Grade grade2 = EntityTemplates.grade()
                 .withGrade("5")
-                .withSubject(informatyka.id());
+                .withSubjectId(informatyka.id());
 
         LibrusGcmListenerService service = serviceWithMockClient();
         addMockGrades(grade1, grade2);

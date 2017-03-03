@@ -6,7 +6,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
 import pl.librus.client.datamodel.Average;
-import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.grades.GradeEntry;
 
 /**

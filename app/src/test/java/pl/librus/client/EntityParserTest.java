@@ -16,29 +16,29 @@ import io.requery.Persistable;
 import pl.librus.client.api.EntityInfos;
 import pl.librus.client.api.EntityParser;
 import pl.librus.client.api.ParseException;
-import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.attendance.Attendance;
+import pl.librus.client.datamodel.attendance.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
-import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.GradeCategory;
-import pl.librus.client.datamodel.GradeComment;
-import pl.librus.client.datamodel.ImmutableJsonLesson;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
+import pl.librus.client.datamodel.grade.GradeComment;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
-import pl.librus.client.datamodel.JsonLesson;
-import pl.librus.client.datamodel.LessonSubject;
-import pl.librus.client.datamodel.LessonTeacher;
+import pl.librus.client.datamodel.lesson.ImmutableJsonLesson;
+import pl.librus.client.datamodel.lesson.JsonLesson;
+import pl.librus.client.datamodel.lesson.LessonSubject;
+import pl.librus.client.datamodel.lesson.LessonTeacher;
 import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.datamodel.Timetable;
+import pl.librus.client.datamodel.lesson.Timetable;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -120,21 +120,21 @@ public class EntityParserTest {
         //then
         assertThat(res, hasItem(new Grade.Builder()
             .addDate(LocalDateTime.parse("2016-09-29T08:30:41"))
-            .addedBy("1235106")
-            .category("164150")
-            .addComments("834777")
+            .addedById("1235106")
+            .categoryId("164150")
+            .addCommentIds("834777")
             .date(LocalDate.parse("2016-09-29"))
             .finalPropositionType(false)
             .finalType(false)
             .grade("np")
             .id("2539299")
-            .lesson("2732545")
-            .subject("44569")
-            .category("392450")
+            .lessonId("2732545")
+            .subjectId("44569")
+            .categoryId("392450")
             .semester(1)
             .semesterPropositionType(false)
             .semesterType(false)
-            .student("1402361")
+            .studentId("1402361")
             .build()));
     }
 
@@ -147,7 +147,7 @@ public class EntityParserTest {
         assertThat(res, hasItem(new GradeCategory.Builder()
             .name("sprawdzian")
             .id("164149")
-            .color("26")
+            .colorId("26")
             .weight(7)
             .build()));
     }

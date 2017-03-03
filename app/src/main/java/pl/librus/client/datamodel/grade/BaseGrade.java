@@ -1,74 +1,94 @@
-package pl.librus.client.datamodel;
-
-import android.support.annotation.Nullable;
+package pl.librus.client.datamodel.grade;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
 import java.util.List;
 
-import io.requery.Entity;
+import io.requery.Column;
 import io.requery.Key;
-import io.requery.Persistable;
+import io.requery.Superclass;
 import pl.librus.client.api.IdDeserializer;
+import pl.librus.client.datamodel.Identifiable;
 
 /**
- * Created by szyme on 08.12.2016. librus-client
+ * Created by robwys on 02/03/2017.
  */
-@Entity
-@Value.Immutable
-@Value.Style(builder = "new")
-@JsonDeserialize(as = ImmutableGrade.class)
-public abstract class Grade implements Persistable, Identifiable {
+
+@Superclass
+public abstract class BaseGrade implements Identifiable {
     @Key
     public abstract String id();
 
     @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String lesson();
+    @JsonProperty("Lesson")
+    @Column
+    public abstract String lessonId();
 
     @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String subject();
+    @JsonProperty("Subject")
+    @Column
+    public abstract String subjectId();
 
     @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String category();
+    @JsonProperty("Category")
+    @Column
+    public abstract String categoryId();
 
     @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String student();
+    @JsonProperty("Student")
+    @Column
+    public abstract String studentId();
 
     @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String addedBy();
+    @JsonProperty("AddedBy")
+    @Column
+    public abstract String addedById();
 
+    @Column
     public abstract String grade();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Column
     public abstract LocalDate date();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column
     public abstract LocalDateTime addDate();
 
+    @Column
     public abstract int semester();
 
     @JsonDeserialize(contentUsing = IdDeserializer.class)
-    public abstract List<String> comments();
+    @Column
+    @JsonProperty("Comments")
+    public abstract List<String> commentIds();
 
     @JsonProperty("IsSemester")
+    @Column
     public abstract boolean semesterType();
 
     @JsonProperty("IsSemesterProposition")
+    @Column
     public abstract boolean semesterPropositionType();
 
     @JsonProperty("IsFinal")
+    @Column
     public abstract boolean finalType();
 
     @JsonProperty("IsFinalProposition")
+    @Column
     public abstract boolean finalPropositionType();
 
-    public GradeType type() {
+    public enum GradeType {
+        NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
+    }
+
+    public Grade.GradeType type() {
         if (semesterPropositionType()) return GradeType.SEMESTER_PROPOSITION;
         else if (semesterType()) return GradeType.SEMESTER;
         else if (finalPropositionType()) return GradeType.FINAL_PROPOSITION;
@@ -76,11 +96,5 @@ public abstract class Grade implements Persistable, Identifiable {
         else return GradeType.NORMAL;
     }
 
-    public enum GradeType {
-        NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
-    }
 
-    public static class Builder extends ImmutableGrade.Builder {
-
-    }
 }

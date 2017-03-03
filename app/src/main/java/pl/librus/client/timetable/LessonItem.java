@@ -19,7 +19,7 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
-import pl.librus.client.datamodel.Lesson;
+import pl.librus.client.datamodel.lesson.Lesson;
 
 /**
  * Created by szyme on 23.12.2016. librus-client
@@ -113,8 +113,8 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
                 holder.subject.setTypeface(null, Typeface.NORMAL);
             }
 //            if (preferences.getBoolean(context.getString(R.string.prefs_grey_out_finished_lessons), true) &&
-//                    !lesson.date().isAfter(LocalDate.now()) &&
-//                    timeNow.isAfter(lesson.hourTo())) {
+//                    !lessonId.date().isAfter(LocalDate.now()) &&
+//                    timeNow.isAfter(lessonId.hourTo())) {
 //                holder.itemView.setAlpha(0.57f);
 //            } else {
 //                holder.itemView.setAlpha(1.0f);

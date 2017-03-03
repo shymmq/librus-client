@@ -5,20 +5,20 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
 import io.requery.Persistable;
-import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceCategory;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.attendance.Attendance;
+import pl.librus.client.datamodel.attendance.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
-import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.GradeCategory;
-import pl.librus.client.datamodel.GradeComment;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
+import pl.librus.client.datamodel.grade.GradeComment;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
 
 /**

@@ -25,13 +25,13 @@ import eu.davidea.flexibleadapter.Payload;
 import eu.davidea.flexibleadapter.items.AbstractHeaderItem;
 import eu.davidea.flexibleadapter.items.IExpandable;
 import eu.davidea.viewholders.ExpandableViewHolder;
-import io.reactivex.Single;
+import java8.util.Optional;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
-import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Average;
-import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.subject.FullSubject;
+import pl.librus.client.datamodel.subject.Subject;
 
 /**
  * Created by szyme on 01.01.2017.
@@ -43,15 +43,14 @@ class GradeHeaderItem
         extends AbstractHeaderItem<GradeHeaderItem.ViewHolder>
         implements IExpandable<GradeHeaderItem.ViewHolder, GradeItem>, Comparable<GradeHeaderItem> {
 
-    private final Subject subject;
+    private final FullSubject subject;
     private final Reader reader;
     private Context context;
     private boolean expanded;
     private ArrayList<GradeItem> mSubItems;
     private ViewHolder holder;
-    private SpannableStringBuilder gradeCountText;
 
-    GradeHeaderItem(Subject subject, Context context) {
+    GradeHeaderItem(FullSubject subject, Context context) {
         super();
         this.subject = subject;
         this.reader = new Reader(context);
@@ -98,7 +97,7 @@ class GradeHeaderItem
         holder.background.setAlpha(gradeCount > 0 ? 1f : 0.5f);
         holder.arrow.animate().rotation(expanded ? 180f : 0f).start();
 
-        gradeCountText = new SpannableStringBuilder();
+        SpannableStringBuilder gradeCountText = new SpannableStringBuilder();
         if (gradeCount == 0) {
             gradeCountText.append(context.getString(R.string.no_grades));
         } else {
@@ -118,11 +117,11 @@ class GradeHeaderItem
         }
         holder.gradeCountView.setText(gradeCountText);
 
-        LibrusData.findByKey(Average.class, subject.id())
-                .subscribe(
-                        this::displayAverage,
-                        this::displayNoAverage
-                );
+        if (subject.average().isPresent()) {
+            displayAverage(subject.average().get());
+        } else {
+            displayNoAverage(gradeCountText);
+        }
     }
 
     private void displayAverage(Average average) {
@@ -132,7 +131,7 @@ class GradeHeaderItem
         holder.averageSummary.setText(averageSummaryText);
     }
 
-    private void displayNoAverage(Throwable t) {
+    private void displayNoAverage(SpannableStringBuilder gradeCountText) {
         holder.averageSummary.setText(gradeCountText);
     }
 
@@ -179,7 +178,7 @@ class GradeHeaderItem
         else return subject.name().compareTo(o.getSubject().name());
     }
 
-    public Subject getSubject() {
+    public FullSubject getSubject() {
         return subject;
     }
 

@@ -46,8 +46,8 @@ public class LibrusUtils {
         }
     }
 
-    public static void log(String text) {
-        log(text, Log.DEBUG, true);
+    public static void log(String text, Object... params) {
+        log(String.format(text, params), Log.DEBUG, true);
     }
 
     public static void logError(String text) {

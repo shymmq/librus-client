@@ -1,42 +1,40 @@
 package pl.librus.client.db;
 
-import com.google.common.collect.Lists;
-
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import pl.librus.client.datamodel.Announcement;
+import pl.librus.client.datamodel.announcement.Announcement;
 import pl.librus.client.datamodel.Event;
-import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.ImmutableAnnouncement;
 import pl.librus.client.datamodel.ImmutableEvent;
-import pl.librus.client.datamodel.ImmutableGrade;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
-import pl.librus.client.datamodel.ImmutableSubject;
 import pl.librus.client.datamodel.ImmutableTeacher;
 import pl.librus.client.datamodel.LibrusAccount;
-import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.subject.ImmutableSubject;
+import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.announcement.ImmutableAnnouncement;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.ImmutableGrade;
 
 public class EntityTemplates {
     public static ImmutableGrade grade() {
         return new Grade.Builder()
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
-                .addedBy("12")
-                .category("34")
+                .addedById("12")
+                .categoryId("34")
                 .finalPropositionType(false)
                 .finalType(false)
                 .grade("4+")
                 .id("45632")
-                .lesson("56")
+                .lessonId("56")
                 .semester(1)
                 .semesterPropositionType(false)
                 .semesterType(false)
-                .subject(subject().id())
-                .addComments("777", "888")
-                .student("77779")
+                .subjectId(subject().id())
+                .addCommentIds("777", "888")
+                .studentId("77779")
                 .build();
     }
 

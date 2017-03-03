@@ -4,11 +4,10 @@ import org.joda.time.LocalDate;
 
 import java.util.List;
 
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.requery.Persistable;
-import java8.util.concurrent.CompletableFuture;
-import pl.librus.client.datamodel.Timetable;
+import pl.librus.client.datamodel.Identifiable;
+import pl.librus.client.datamodel.lesson.Timetable;
 
 public interface IAPIClient {
     Single<String> login(String username, String password);
@@ -19,6 +18,6 @@ public interface IAPIClient {
 
     <T> Single<List<T>> getList(String endpoint, String topLevelName, Class<T> clazz);
 
-    <T extends Persistable> Single<T> getById(Class<T> clazz, String id);
+    <T extends Persistable & Identifiable> Single<T> getById(Class<T> clazz, String id);
 
 }

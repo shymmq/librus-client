@@ -1,7 +1,6 @@
 package pl.librus.client.announcements;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,10 +23,8 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
-import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.datamodel.FullAnnouncement;
+import pl.librus.client.datamodel.announcement.FullAnnouncement;
 import pl.librus.client.ui.MainActivity;
-import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
 
 import static java8.util.stream.Collectors.toList;

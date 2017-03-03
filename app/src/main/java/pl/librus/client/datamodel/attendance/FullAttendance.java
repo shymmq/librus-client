@@ -1,8 +1,11 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.attendance;
 
 import android.support.annotation.Nullable;
 
 import org.immutables.value.Value;
+
+import pl.librus.client.datamodel.subject.Subject;
+import pl.librus.client.datamodel.Teacher;
 
 @Value.Immutable
 public abstract class FullAttendance extends BaseAttendance {

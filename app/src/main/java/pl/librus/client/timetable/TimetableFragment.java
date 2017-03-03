@@ -24,23 +24,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
 import eu.davidea.flexibleadapter.common.TopSnappedSmoothScroller;
 import eu.davidea.flexibleadapter.items.IFlexible;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.datamodel.Lesson;
-import pl.librus.client.datamodel.LessonType;
+import pl.librus.client.datamodel.lesson.Lesson;
 import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.sql.UpdateHelper;
-import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
 
 public class TimetableFragment extends MainFragment {
@@ -67,41 +63,43 @@ public class TimetableFragment extends MainFragment {
         List<LocalDate> initialWeekStarts = Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
 
         Observable.fromIterable(initialWeekStarts)
-                .flatMap(ws -> LibrusData.findLessonsForWeek(ws).toObservable())
+                .flatMap(ws -> LibrusData.findLessonsForWeek(ws).toObservable()
+                    .map(mapLessonsForWeek(ws)))
                 .flatMapIterable(l -> l)
                 .toList()
-                .map(this::mapLessons)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayInitial);
     }
 
-    private List<IFlexible> mapLessons(List<Lesson> lessons) {
-        List<IFlexible> result = new ArrayList<>();
+    private Function<List<Lesson>, List<IFlexible>> mapLessonsForWeek(LocalDate weekStart) {
+        return lessons -> {
+            List<IFlexible> result = new ArrayList<>();
 
-        Map<LocalDate, List<Lesson>> days = StreamSupport.stream(lessons)
-                .collect(Collectors.groupingBy(Lesson::date));
-        for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
-            LessonHeaderItem header = new LessonHeaderItem(date);
-            if(date.equals(LocalDate.now())) {
-                defaultHeader = header;
-            }
-            List<Lesson> schoolDay = days.get(date);
-            if (schoolDay== null || schoolDay.isEmpty()) {
-                result.add(new EmptyLessonItem(header, date));
-            } else {
-                for (Lesson l : schoolDay) {
-                    if (l != null) {
-                        LessonItem lessonItem = new LessonItem(header, l, getContext());
-                        result.add(lessonItem);
-                    } else {
-                        //TODO: Add missing lesson item
+            Map<LocalDate, List<Lesson>> days = StreamSupport.stream(lessons)
+                    .collect(Collectors.groupingBy(Lesson::date));
+            for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
+                LessonHeaderItem header = new LessonHeaderItem(date);
+                if(date.equals(LocalDate.now())) {
+                    defaultHeader = header;
+                }
+                List<Lesson> schoolDay = days.get(date);
+                if (schoolDay== null || schoolDay.isEmpty()) {
+                    result.add(new EmptyLessonItem(header, date));
+                } else {
+                    for (Lesson l : schoolDay) {
+                        if (l != null) {
+                            LessonItem lessonItem = new LessonItem(header, l, getContext());
+                            result.add(lessonItem);
+                        } else {
+                            //TODO: Add missing lessonId item
+                        }
+
                     }
-
                 }
             }
-        }
-        return result;
+            return result;
+        };
     }
 
     private void displayInitial(List<IFlexible> elements) {
@@ -125,7 +123,7 @@ public class TimetableFragment extends MainFragment {
             LibrusData.findLessonsForWeek(weekStart)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .map(this::mapLessons)
+                    .map(mapLessonsForWeek(weekStart))
                     .subscribe(this::moreLoaded);
         };
 

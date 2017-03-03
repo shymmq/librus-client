@@ -14,42 +14,42 @@ import java.util.Map;
 import java.util.Random;
 
 import java8.util.function.Supplier;
-import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
-import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.GradeCategory;
-import pl.librus.client.datamodel.GradeComment;
-import pl.librus.client.datamodel.ImmutableAnnouncement;
-import pl.librus.client.datamodel.ImmutableAttendance;
-import pl.librus.client.datamodel.ImmutableAttendanceCategory;
 import pl.librus.client.datamodel.ImmutableAverage;
 import pl.librus.client.datamodel.ImmutableEvent;
 import pl.librus.client.datamodel.ImmutableEventCategory;
-import pl.librus.client.datamodel.ImmutableGrade;
-import pl.librus.client.datamodel.ImmutableGradeComment;
-import pl.librus.client.datamodel.ImmutableJsonLesson;
-import pl.librus.client.datamodel.ImmutableLessonSubject;
-import pl.librus.client.datamodel.ImmutableLessonTeacher;
 import pl.librus.client.datamodel.ImmutableLibrusColor;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
 import pl.librus.client.datamodel.ImmutablePlainLesson;
-import pl.librus.client.datamodel.ImmutableSubject;
 import pl.librus.client.datamodel.ImmutableTeacher;
-import pl.librus.client.datamodel.Lesson;
-import pl.librus.client.datamodel.LessonSubject;
-import pl.librus.client.datamodel.LessonTeacher;
 import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.announcement.ImmutableAnnouncement;
+import pl.librus.client.datamodel.attendance.Attendance;
+import pl.librus.client.datamodel.attendance.AttendanceCategory;
+import pl.librus.client.datamodel.attendance.ImmutableAttendance;
+import pl.librus.client.datamodel.attendance.ImmutableAttendanceCategory;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
+import pl.librus.client.datamodel.grade.GradeComment;
+import pl.librus.client.datamodel.grade.ImmutableGrade;
+import pl.librus.client.datamodel.grade.ImmutableGradeComment;
+import pl.librus.client.datamodel.lesson.ImmutableJsonLesson;
+import pl.librus.client.datamodel.lesson.ImmutableLessonSubject;
+import pl.librus.client.datamodel.lesson.ImmutableLessonTeacher;
+import pl.librus.client.datamodel.lesson.Lesson;
+import pl.librus.client.datamodel.lesson.LessonSubject;
+import pl.librus.client.datamodel.lesson.LessonTeacher;
+import pl.librus.client.datamodel.subject.ImmutableSubject;
+import pl.librus.client.datamodel.subject.Subject;
 
 import static pl.librus.client.api.SampleValues.COLORS;
 import static pl.librus.client.api.SampleValues.GRADES;
@@ -131,18 +131,18 @@ class EntityMocks {
                 .id(idFor(Grade.class))
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
-                .addedBy(MOCK_ID)
-                .category(MOCK_ID)
+                .addedById(MOCK_ID)
+                .categoryId(MOCK_ID)
                 .finalPropositionType(false)
                 .finalType(false)
                 .grade(randomElement(GRADES))
-                .lesson(MOCK_ID)
+                .lessonId(MOCK_ID)
                 .semester(randomSemester())
                 .semesterPropositionType(false)
                 .semesterType(false)
-                .subject(MOCK_ID)
-                .addComments(MOCK_ID)
-                .student(MOCK_ID)
+                .subjectId(MOCK_ID)
+                .addCommentIds(MOCK_ID)
+                .studentId(MOCK_ID)
                 .build();
     }
 
@@ -162,7 +162,7 @@ class EntityMocks {
                 .endDate(start.plusDays(random.nextInt(30)))
                 .subject(lorem.getWords(1, 10))
                 .content(lorem.getWords(10, 500))
-                .addedBy(MOCK_ID)
+                .addedById(MOCK_ID)
                 .build();
     }
 
@@ -193,7 +193,7 @@ class EntityMocks {
     public GradeCategory gradeCategory() {
         return new GradeCategory.Builder()
                 .id(idFor(GradeCategory.class))
-                .color(MOCK_ID)
+                .colorId(MOCK_ID)
                 .name(lorem.getWords(1, 5))
                 .weight(random.nextInt(5))
                 .build();
@@ -238,10 +238,10 @@ class EntityMocks {
                 .id(idFor(Attendance.class))
                 .date(randomPastDate())
                 .addDate(LocalDateTime.now())
-                .addedBy(MOCK_ID)
-                .lesson(MOCK_ID)
+                .addedById(MOCK_ID)
+                .lessonId(MOCK_ID)
                 .lessonNumber(randomLessonNo())
-                .type(MOCK_ID)
+                .categoryId(MOCK_ID)
                 .semester(randomSemester())
                 .build();
     }

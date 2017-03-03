@@ -11,10 +11,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Single;
-import java8.util.concurrent.CompletableFuture;
-import pl.librus.client.api.IAPIClient;
-import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.ImmutableGrade;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.ImmutableGrade;
 import pl.librus.client.sql.EntityChange;
 import pl.librus.client.sql.ImmutableEntityChange;
 import pl.librus.client.sql.UpdateHelper;

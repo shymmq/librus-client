@@ -1,20 +1,13 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.announcement;
 
 import android.support.annotation.NonNull;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
-import org.joda.time.LocalDate;
-
-import java.io.Serializable;
 
 import io.requery.Entity;
-import io.requery.Key;
 import io.requery.Persistable;
-import pl.librus.client.api.IdDeserializer;
 
 /**
  * Created by Adam on 2016-10-31. librus-client

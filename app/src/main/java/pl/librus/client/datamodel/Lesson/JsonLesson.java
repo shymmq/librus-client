@@ -1,13 +1,9 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.lesson;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
 import org.joda.time.LocalDate;
-
-/**
- * Created by robwys on 04/02/2017.
- */
 
 @Value.Immutable
 @JsonDeserialize(as = ImmutableJsonLesson.class)

@@ -1,4 +1,4 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.announcement;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,6 +12,7 @@ import io.requery.Column;
 import io.requery.Key;
 import io.requery.Superclass;
 import pl.librus.client.api.IdDeserializer;
+import pl.librus.client.datamodel.Identifiable;
 
 @Superclass
 public abstract class BaseAnnouncement implements Identifiable, Serializable {

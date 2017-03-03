@@ -1,4 +1,4 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.lesson;
 
 import android.support.annotation.Nullable;
 

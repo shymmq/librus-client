@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -21,15 +20,14 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.announcements.AnnouncementsFragment;
-import pl.librus.client.datamodel.Announcement;
+import pl.librus.client.datamodel.announcement.Announcement;
 import pl.librus.client.datamodel.Event;
-import pl.librus.client.datamodel.Grade;
+import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
-import pl.librus.client.datamodel.Subject;
+import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.grades.GradesFragment;
 import pl.librus.client.ui.MainActivity;
-import pl.librus.client.ui.MainApplication;
 import pl.librus.client.ui.MainFragment;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -112,7 +110,7 @@ public class NotificationService {
         int size = grades.size();
         if (size == 1) {
             Grade grade = grades.get(0);
-            String subject = LibrusData.findByKey(Subject.class, grade.subject()).blockingGet().name();
+            String subject = LibrusData.findByKey(Subject.class, grade.subjectId()).blockingGet().name();
             sendNotification(
                     "Nowa ocena",
                     subject + " " + grade.grade(),
@@ -128,7 +126,7 @@ public class NotificationService {
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title);
             for (Grade g : grades) {
-                String subject = LibrusData.findByKey(Subject.class, g.subject()).blockingGet().name();
+                String subject = LibrusData.findByKey(Subject.class, g.subjectId()).blockingGet().name();
                 style.addLine(subject + " " + g.grade());
                 if (!subjects.contains(subject))
                     subjects.add(subject);

@@ -17,12 +17,9 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
-import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
-import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.datamodel.FullAnnouncement;
+import pl.librus.client.datamodel.announcement.FullAnnouncement;
 import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.ui.MainApplication;
 
 /**
  * Created by szyme on 28.12.2016. librus-client

@@ -7,29 +7,30 @@ import java.util.Map;
 import java.util.Random;
 
 import java8.util.stream.IntStreams;
-import pl.librus.client.datamodel.Announcement;
-import pl.librus.client.datamodel.Attendance;
-import pl.librus.client.datamodel.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
-import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.GradeCategory;
-import pl.librus.client.datamodel.GradeComment;
 import pl.librus.client.datamodel.Identifiable;
-import pl.librus.client.datamodel.ImmutableAttendance;
 import pl.librus.client.datamodel.ImmutableAverage;
 import pl.librus.client.datamodel.ImmutableEvent;
-import pl.librus.client.datamodel.ImmutableGrade;
-import pl.librus.client.datamodel.ImmutableGradeCategory;
 import pl.librus.client.datamodel.ImmutablePlainLesson;
-import pl.librus.client.datamodel.ImmutableSubject;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.announcement.ImmutableAnnouncement;
+import pl.librus.client.datamodel.attendance.Attendance;
+import pl.librus.client.datamodel.attendance.AttendanceCategory;
+import pl.librus.client.datamodel.attendance.ImmutableAttendance;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
+import pl.librus.client.datamodel.grade.GradeComment;
+import pl.librus.client.datamodel.grade.ImmutableGrade;
+import pl.librus.client.datamodel.grade.ImmutableGradeCategory;
+import pl.librus.client.datamodel.subject.ImmutableSubject;
+import pl.librus.client.datamodel.subject.Subject;
 
 import static java8.util.stream.Collectors.toList;
 import static pl.librus.client.api.SampleValues.COLORS;
@@ -56,7 +57,7 @@ class MockEntityRepository {
         createList(Teacher.class, SUBJECTS.size() - 1); // more subjects than teachers
         createList(PlainLesson.class, SUBJECTS.size(), this::updatePlainLesson);
 
-        createList(Announcement.class, 15);
+        createList(Announcement.class, 15, this::updateAnnouncement);
 
         createList(AttendanceCategory.class, 3);
         createList(Attendance.class, 600, this::updateAttendance);
@@ -111,18 +112,18 @@ class MockEntityRepository {
 
     private Grade updateGrade(Grade g, int index) {
         return ImmutableGrade.copyOf(g)
-                .withAddedBy(idFromIndex(Teacher.class, index))
-                .withCategory(idFromIndex(GradeCategory.class, index))
-                .withLesson(idFromIndex(PlainLesson.class, index))
-                .withSubject(idFromIndex(Subject.class, index))
-                .withComments(multipleIds(GradeComment.class, index));
+                .withAddedById(idFromIndex(Teacher.class, index))
+                .withCategoryId(idFromIndex(GradeCategory.class, index))
+                .withLessonId(idFromIndex(PlainLesson.class, index))
+                .withSubjectId(idFromIndex(Subject.class, index))
+                .withCommentIds(multipleIds(GradeComment.class, index));
     }
 
     private Attendance updateAttendance(Attendance a, int index) {
         return ImmutableAttendance.copyOf(a)
-                .withAddedBy(idFromIndex(Teacher.class, index))
-                .withType(idFromIndex(AttendanceCategory.class, index))
-                .withLesson(idFromIndex(PlainLesson.class, index));
+                .withAddedById(idFromIndex(Teacher.class, index))
+                .withCategoryId(idFromIndex(AttendanceCategory.class, index))
+                .withLessonId(idFromIndex(PlainLesson.class, index));
     }
 
     private PlainLesson updatePlainLesson(PlainLesson pl, int index) {
@@ -131,9 +132,14 @@ class MockEntityRepository {
                 .withSubject(idFromIndex(Subject.class, index));
     }
 
+    private Announcement updateAnnouncement(Announcement a, int index) {
+        return ImmutableAnnouncement.copyOf(a)
+                .withAddedById(idFromIndex(Teacher.class, index));
+    }
+
     private GradeCategory updateGradeCategory(GradeCategory gc, int index) {
         return ImmutableGradeCategory.copyOf(gc)
-                .withColor(idFromIndex(LibrusColor.class, index));
+                .withColorId(idFromIndex(LibrusColor.class, index));
     }
 
     private String idFromIndex(Class<? extends Identifiable> clazz, int index) {

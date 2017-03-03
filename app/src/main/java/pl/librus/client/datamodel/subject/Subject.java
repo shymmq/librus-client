@@ -1,4 +1,4 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.subject;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -13,13 +13,7 @@ import io.requery.Persistable;
 @Value.Style(builder = "new")
 @Value.Immutable
 @JsonDeserialize(as=ImmutableSubject.class)
-public abstract class Subject implements Persistable, Identifiable {
-    @Key
-    @Value.Parameter
-    public abstract String id();
-
-    @Value.Parameter
-    public abstract String name();
+public abstract class Subject extends BaseSubject implements Persistable {
 
     public static class Builder extends ImmutableSubject.Builder {
 

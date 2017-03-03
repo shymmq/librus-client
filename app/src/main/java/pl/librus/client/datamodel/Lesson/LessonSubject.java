@@ -1,4 +1,4 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.lesson;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -7,9 +7,8 @@ import org.immutables.value.Value;
 
 import javax.persistence.Embeddable;
 
-import io.requery.Entity;
-import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.datamodel.subject.Subject;
 
 @Embeddable
 @Value.Style(builder = "new")

@@ -1,4 +1,4 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.attendance;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;

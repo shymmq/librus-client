@@ -13,13 +13,13 @@ import org.json.JSONObject;
 import java.util.List;
 
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import pl.librus.client.LibrusUtils;
-import pl.librus.client.datamodel.Timetable;
+import pl.librus.client.datamodel.Identifiable;
+import pl.librus.client.datamodel.lesson.Timetable;
 
 import static pl.librus.client.LibrusUtils.log;
 
@@ -169,7 +169,7 @@ class DefaultAPIClient implements IAPIClient {
     }
 
     @Override
-    public <T extends Persistable> Single<T> getById(Class<T> clazz, String id) {
+    public <T extends Persistable & Identifiable> Single<T> getById(Class<T> clazz, String id) {
         EntityInfo info = EntityInfos.infoFor(clazz);
 
         return APIRequest(info.endpoint(id))

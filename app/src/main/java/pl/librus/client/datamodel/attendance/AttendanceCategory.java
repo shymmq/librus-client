@@ -1,4 +1,4 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.attendance;
 
 import android.support.annotation.Nullable;
 
@@ -10,6 +10,7 @@ import org.immutables.value.Value;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.datamodel.Identifiable;
 
 /**
  * Created by Adam on 16.12.2016.

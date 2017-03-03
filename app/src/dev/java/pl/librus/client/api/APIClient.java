@@ -13,23 +13,18 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.requery.Persistable;
-import java8.util.concurrent.CompletableFuture;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.datamodel.Identifiable;
-import pl.librus.client.datamodel.ImmutableJsonLesson;
-import pl.librus.client.datamodel.JsonLesson;
-import pl.librus.client.datamodel.LessonSubject;
-import pl.librus.client.datamodel.LessonTeacher;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.Subject;
 import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.datamodel.Timetable;
+import pl.librus.client.datamodel.lesson.ImmutableJsonLesson;
+import pl.librus.client.datamodel.lesson.JsonLesson;
+import pl.librus.client.datamodel.lesson.LessonSubject;
+import pl.librus.client.datamodel.lesson.LessonTeacher;
+import pl.librus.client.datamodel.lesson.Timetable;
+import pl.librus.client.datamodel.subject.Subject;
 
 import static com.google.common.collect.Lists.newArrayList;
-
-/**
- * Created by szyme on 14.02.2017.
- */
 
 public class APIClient implements IAPIClient {
 
@@ -76,8 +71,8 @@ public class APIClient implements IAPIClient {
     private ImmutableJsonLesson withLessonNumber(ImmutableJsonLesson lesson, int lessonNo) {
         List<PlainLesson> plainLessons = repository.getList(PlainLesson.class);
         PlainLesson plainLesson = plainLessons.get(lessonNo % plainLessons.size());
-        Subject subject = getById(Subject.class, plainLesson.subject());
-        Teacher teacher = getById(Teacher.class, plainLesson.teacher());
+        Subject subject = getById(Subject.class, plainLesson.subject()).blockingGet();
+        Teacher teacher = getById(Teacher.class, plainLesson.teacher()).blockingGet();
 
         LocalTime startTime = LocalTime.parse("08:00");
         LocalTime lessonStart = startTime.plusHours(lessonNo);
@@ -121,14 +116,6 @@ public class APIClient implements IAPIClient {
         }
     }
 
-    private <T extends Identifiable & Persistable> T getById(Class<T> clazz, String id) {
-        EntityInfo info = EntityInfos.infoFor(clazz);
-        return StreamSupport.stream(repository.getList(clazz))
-                .filter(e -> e.id().equals(id))
-                .findFirst()
-                .get();
-    }
-
     public <T> Single<T> getObject(String endpoint, String topLevelName, Class<T> clazz) {
         return Single.just(repository.getObject(clazz));
     }
@@ -137,4 +124,12 @@ public class APIClient implements IAPIClient {
         return Single.just(repository.getList(clazz));
     }
 
+    @Override
+    public <T extends Persistable & Identifiable> Single<T> getById(Class<T> clazz, String id) {
+        return StreamSupport.stream(repository.getList(clazz))
+                .filter(e -> e.id().equals(id))
+                .findFirst()
+                .map(Single::just)
+                .get();
+    }
 }

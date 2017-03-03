@@ -1,6 +1,5 @@
 package pl.librus.client.db;
 
-import org.hamcrest.Matchers;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
@@ -13,14 +12,11 @@ import java.util.Map;
 
 import io.requery.meta.Attribute;
 import io.requery.proxy.CompositeKey;
-import pl.librus.client.datamodel.Lesson;
-import pl.librus.client.datamodel.LessonSubject;
-import pl.librus.client.datamodel.LessonTeacher;
-import pl.librus.client.datamodel.LessonType;
+import pl.librus.client.datamodel.lesson.Lesson;
+import pl.librus.client.datamodel.lesson.LessonSubject;
+import pl.librus.client.datamodel.lesson.LessonTeacher;
+import pl.librus.client.datamodel.lesson.LessonType;
 
-/**
- * Created by robwys on 05/02/2017.
- */
 @RunWith(RobolectricTestRunner.class)
 public class LessonTest extends BaseDBTest {
     @Test

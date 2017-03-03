@@ -14,14 +14,14 @@ import eu.davidea.viewholders.FlexibleViewHolder;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.datamodel.AttendanceWithCategory;
-import pl.librus.client.datamodel.FullAttendance;
+import pl.librus.client.datamodel.attendance.EnrichedAttendance;
+import pl.librus.client.datamodel.attendance.FullAttendance;
 
 class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, AttendanceHeaderItem> {
-    private final AttendanceWithCategory attendance;
+    private final EnrichedAttendance attendance;
     private ViewHolder holder;
 
-    AttendanceItem(AttendanceHeaderItem header, AttendanceWithCategory attendance) {
+    AttendanceItem(AttendanceHeaderItem header, EnrichedAttendance attendance) {
         super(header);
         this.attendance = attendance;
     }
@@ -70,7 +70,7 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
         return attendance.hashCode();
     }
 
-    public AttendanceWithCategory getAttendance() {
+    public EnrichedAttendance getAttendance() {
         return attendance;
     }
 

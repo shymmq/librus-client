@@ -15,31 +15,32 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
+import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.requery.Persistable;
-import io.requery.reactivex.ReactiveEntityStore;
-import io.requery.sql.EntityDataStore;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import java8.util.Optional;
+import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
-import pl.librus.client.datamodel.Average;
-import pl.librus.client.datamodel.AverageType;
-import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.GradeCategory;
-import pl.librus.client.datamodel.GradeComment;
-import pl.librus.client.datamodel.GradeCommentType;
-import pl.librus.client.datamodel.GradeType;
-import pl.librus.client.datamodel.LibrusColor;
-import pl.librus.client.datamodel.Subject;
-import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.ui.MainApplication;
+import pl.librus.client.datamodel.subject.ImmutableFullSubject;
+import pl.librus.client.datamodel.subject.Subject;
+import pl.librus.client.datamodel.grade.EnrichedGrade;
+import pl.librus.client.datamodel.grade.FullGrade;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.ImmutableEnrichedGrade;
 import pl.librus.client.ui.MainFragment;
 import pl.librus.client.ui.MenuAction;
 import pl.librus.client.ui.ReadAllMenuAction;
@@ -54,7 +55,6 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     List<? extends MenuAction> actions = new ArrayList<>();
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private Reader reader;
-    private ReactiveEntityStore<Persistable> data;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -85,33 +85,54 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
 
         recyclerView.setAdapter(adapter);
 
-        //Load subjects and make a header for each subject
+        Observable<ImmutableEnrichedGrade> gradeObservable = LibrusData.findEnrichedGrades()
+                .cache()
+                .subscribeOn(Schedulers.io());
 
-        List<Subject> subjects = data.select(Subject.class).get().toList();
-        for (Subject s : subjects) {
+        Single.zip(
+                gradeObservable.toMultimap(g -> g.subjectId()),
+                LibrusData.findFullSubjects(),
+                this::mapGradesToSubjects)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayGrades);
+
+
+        gradeObservable.toList().subscribe(grades ->
+                actions = Lists.newArrayList(new ReadAllMenuAction(
+                        grades,
+                        getContext(),
+                        this::allGradesChanged)));
+
+        return root;
+    }
+
+    private Map<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> mapGradesToSubjects(
+            Map<String, Collection<ImmutableEnrichedGrade>> gradesBySubject,
+            List<ImmutableFullSubject> subjects) {
+        return StreamSupport.stream(subjects)
+                .collect(Collectors.toMap(s -> s,
+                        s -> Optional.ofNullable(gradesBySubject.get(s.id()))
+                                .orElse(Collections.emptyList())
+                            ));
+    }
+
+    private void displayGrades(Map<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> mappedGrades) {
+        for (Map.Entry<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> entry : mappedGrades.entrySet()) {
+            ImmutableFullSubject s = entry.getKey();
+
             final GradeHeaderItem headerItem = new GradeHeaderItem(s, getContext());
 
-            List<Grade> grades = data.select(Grade.class)
-                    .where(GradeType.SUBJECT.eq(s.id()))
-                    .orderBy(GradeType.DATE.desc())
-                    .get()
-                    .toList();
-
-            StreamSupport.stream(grades).forEach(grade ->
-                    headerItem.addSubItem(getGradeItem(headerItem, grade)));
+            StreamSupport.stream(entry.getValue())
+                    .sorted((g1, g2) -> g1.date().compareTo(g2.date()))
+                    .forEach(grade ->
+                    headerItem.addSubItem(new GradeItem(headerItem, grade)));
 
             getActivity().runOnUiThread(() -> adapter.addSection(headerItem, headerComparator));
         }
+    }
 
-        //Load grades by semester and sort them by their date
-
-        actions = Lists.newArrayList(new ReadAllMenuAction(
-                data.select(Grade.class)
-                        .get()
-                        .toList(),
-                getContext(), () -> adapter.notifyItemRangeChanged(0, adapter.getItemCount())));
-
-        return root;
+    private void allGradesChanged() {
+        adapter.notifyItemRangeChanged(0, adapter.getItemCount());
     }
 
     @Override
@@ -119,11 +140,24 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
         AbstractFlexibleItem item = adapter.getItem(position);
         if (item instanceof GradeItem) {
             GradeItem gradeItem = (GradeItem) item;
-            Grade grade = gradeItem.getGrade();
-            GradeCategory gc = gradeItem.getGradeCategory();
-            GradeHeaderItem header = gradeItem.getHeader();
+            EnrichedGrade grade = gradeItem.getGrade();
+            LibrusData.findFullGrade(grade)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this.displayGradeDetails(position));
 
-            @SuppressLint("InflateParams") View dialogLayout = LayoutInflater.from(getContext()).inflate(R.layout.grade_details, null, false);
+        } else //noinspection StatementWithEmptyBody
+            if (item instanceof AverageItem) {
+                //TODO
+            }
+
+        return false;
+    }
+
+    private Consumer<FullGrade> displayGradeDetails(int position) {
+        return grade -> {
+            @SuppressLint("InflateParams")
+            View dialogLayout = LayoutInflater.from(getContext()).inflate(R.layout.grade_details, null, false);
             TextView gradeTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_grade);
             TextView categoryTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_category);
             TextView subjectTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_subject);
@@ -136,9 +170,9 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             View addDateContainer = dialogLayout.findViewById(R.id.grade_details_add_date_container);
 
             gradeTextView.setText(grade.grade());
-            categoryTextView.setText(gc.name());
-            subjectTextView.setText(header.getSubject().name());
-            weightTextView.setText(String.valueOf(gc.weight()));
+            categoryTextView.setText(grade.category().name());
+            subjectTextView.setText(grade.subject().name());
+            weightTextView.setText(String.valueOf(grade.category().weight()));
             dateTextView.setText(grade.date().toString(getString(R.string.date_format_no_year), new Locale("pl")));
             if (grade.addDate().toLocalDate().isEqual(grade.date())) {
                 addDateContainer.setVisibility(View.GONE);
@@ -151,52 +185,24 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             Grade.GradeType type = grade.type();
             weightContainer.setVisibility(type == Grade.GradeType.NORMAL ? View.VISIBLE : View.GONE);
 
-            Teacher addedBy = data.findByKey(Teacher.class, grade.addedBy()).blockingGet();
-            addedByTextView.setText(addedBy.name());
+            addedByTextView.setText(grade.addedBy().name());
 
-            List<GradeComment> comments = data.select(GradeComment.class)
-                    .where(GradeCommentType.ID.in(grade.comments()))
-                    .get()
-                    .toList();
-            if (comments != null && !comments.isEmpty()) {
+            if (grade.comments() != null && !grade.comments().isEmpty()) {
                 commentContainer.setVisibility(View.VISIBLE);
                 TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
-                commentTextView.setText(comments.get(0).text());
+                commentTextView.setText(grade.comments().get(0).text());
             } else {
                 commentContainer.setVisibility(View.GONE);
             }
             new MaterialDialog.Builder(getContext())
-                    .title(header.getSubject().name())
+                    .title(grade.subject().name())
                     .customView(dialogLayout, true)
                     .positiveText(R.string.close)
                     .dismissListener(dialog -> adapter.notifyItemChanged(position))
                     .show();
 
             reader.read(grade);
-
-        } else //noinspection StatementWithEmptyBody
-            if (item instanceof AverageItem) {
-                //TODO
-            }
-
-        return false;
-    }
-
-    private GradeItem getGradeItem(GradeHeaderItem headerItem, Grade grade) {
-        GradeCategory category = data.findByKey(GradeCategory.class, grade.category()).blockingGet();
-        LibrusColor color = category.color() != null ?
-                data.findByKey(LibrusColor.class, category.color()).blockingGet() :
-                new LibrusColor.Builder()
-                        .rawColor("00000000")
-                        .id("")
-                        .name("")
-                        .build();
-        return new GradeItem(
-                headerItem,
-                grade,
-                category,
-                color
-        );
+        };
     }
 
     @Override

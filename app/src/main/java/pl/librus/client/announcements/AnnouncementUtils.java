@@ -5,12 +5,8 @@ import android.content.Context;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
-import java.util.Comparator;
-
-import pl.librus.client.datamodel.Announcement;
 import pl.librus.client.api.Reader;
-import pl.librus.client.datamodel.BaseAnnouncement;
-import pl.librus.client.datamodel.FullAnnouncement;
+import pl.librus.client.datamodel.announcement.BaseAnnouncement;
 
 /**
  * Created by szyme on 31.12.2016.

@@ -1,4 +1,4 @@
-package pl.librus.client.datamodel;
+package pl.librus.client.datamodel.grade;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -9,6 +9,7 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 import pl.librus.client.api.IdDeserializer;
+import pl.librus.client.datamodel.Identifiable;
 
 /**
  * Created by szyme on 12.12.2016. librus-client

@@ -28,9 +28,9 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.datamodel.AttendanceCategory;
-import pl.librus.client.datamodel.AttendanceWithCategory;
-import pl.librus.client.datamodel.FullAttendance;
+import pl.librus.client.datamodel.attendance.AttendanceCategory;
+import pl.librus.client.datamodel.attendance.EnrichedAttendance;
+import pl.librus.client.datamodel.attendance.FullAttendance;
 import pl.librus.client.ui.MainFragment;
 
 /**
@@ -51,7 +51,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_attendances, container, false);
 
-        LibrusData.findAttendancesWithCategories()
+        LibrusData.findEnrichedAttendances()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);
@@ -59,7 +59,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         return root;
     }
 
-    private void displayList(List<? extends AttendanceWithCategory> attendances) {
+    private void displayList(List<? extends EnrichedAttendance> attendances) {
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -68,7 +68,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         recyclerView.setAdapter(adapter);
 
         Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
-        for (AttendanceWithCategory attendance : attendances) {
+        for (EnrichedAttendance attendance : attendances) {
             AttendanceCategory category = attendance.category();
             LocalDate date = attendance.date();
 
@@ -105,7 +105,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         IFlexible item = adapter.getItem(position);
         if (!(item instanceof AttendanceItem)) return true;
         AttendanceItem attendanceItem = (AttendanceItem) item;
-        AttendanceWithCategory attendance = attendanceItem.getAttendance();
+        EnrichedAttendance attendance = attendanceItem.getAttendance();
         LibrusData.findFullAttendance(attendance)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(displayPopup(position));

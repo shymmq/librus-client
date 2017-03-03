@@ -14,21 +14,19 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
-import pl.librus.client.datamodel.Grade;
-import pl.librus.client.datamodel.GradeCategory;
+import pl.librus.client.datamodel.grade.EnrichedGrade;
+import pl.librus.client.datamodel.grade.FullGradeCategory;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
 import pl.librus.client.datamodel.LibrusColor;
 
 class GradeItem extends AbstractFlexibleItem<GradeItem.ViewHolder> {
-    private final Grade grade;
-    private final GradeCategory gc;
+    private final EnrichedGrade grade;
     private final GradeHeaderItem header;
-    private final LibrusColor color;
 
-    GradeItem(GradeHeaderItem header, Grade grade, GradeCategory gc, LibrusColor color) {
+    GradeItem(GradeHeaderItem header, EnrichedGrade grade) {
         this.header = header;
-        this.color = color;
         this.grade = grade;
-        this.gc = gc;
     }
 
     @Override
@@ -50,9 +48,9 @@ class GradeItem extends AbstractFlexibleItem<GradeItem.ViewHolder> {
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         holder.grade.setText(grade.grade());
-        holder.title.setText(gc.name());
+        holder.title.setText(grade.category().name());
         holder.subtitle.setText(grade.date().toString("EEEE, d MMMM", new Locale("pl")));
-        holder.color.setBackgroundColor(color.colorInt());
+        holder.color.setBackgroundColor(grade.category().color().colorInt());
         holder.unreadBadge.setVisibility(
                 new Reader(holder.itemView.getContext()).isRead(grade) ? View.GONE : View.VISIBLE);
     }
@@ -67,18 +65,13 @@ class GradeItem extends AbstractFlexibleItem<GradeItem.ViewHolder> {
         return R.layout.grade_item;
     }
 
-    public Grade getGrade() {
+    public EnrichedGrade getGrade() {
         return grade;
-    }
-
-    GradeCategory getGradeCategory() {
-        return gc;
     }
 
     public GradeHeaderItem getHeader() {
         return header;
     }
-
 
     class ViewHolder extends FlexibleViewHolder {
 
