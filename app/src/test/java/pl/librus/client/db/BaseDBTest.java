@@ -4,9 +4,11 @@ import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import io.reactivex.Single;
 import io.requery.BlockingEntityStore;
 import io.requery.Persistable;
 import pl.librus.client.api.IAPIClient;
@@ -17,6 +19,9 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 @Config(application = MainApplication.class)
 public abstract class BaseDBTest {
@@ -27,7 +32,9 @@ public abstract class BaseDBTest {
 
     @Before
     public void setup() {
-        apiClient = Mockito.mock(IAPIClient.class);
+        Answer singleAnswer = invocation -> Single.never();
+        apiClient = Mockito.mock(IAPIClient.class, singleAnswer);
+
         LibrusData.init(RuntimeEnvironment.application, apiClient, DB_NAME);
         data = LibrusData.getDataStore().toBlocking();
     }
