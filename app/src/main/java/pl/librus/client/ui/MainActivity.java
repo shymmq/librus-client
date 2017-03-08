@@ -34,9 +34,6 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
-import io.requery.Persistable;
-import io.requery.reactivex.ReactiveEntityStore;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusConstants;
@@ -49,7 +46,6 @@ import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.api.RegistrationIntentService;
 import pl.librus.client.datamodel.LuckyNumber;
-import pl.librus.client.datamodel.LuckyNumberType;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.timetable.TimetableFragment;
@@ -85,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             APIClient apiClient = new APIClient(getApplicationContext());
             LibrusData.init(getApplicationContext(), apiClient, login);
-            UpdateHelper updateHelper = new UpdateHelper();
 
             if (BuildConfig.DEBUG || prefs.getLong(getString(R.string.last_update), -1) < 0) {
                 //database empty or null update and then setup()
@@ -97,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                         .cancelable(false)
                         .show();
                 ProgressReporter reporter = new ProgressReporter(100, p -> runOnUiThread(() -> progressDialog.setProgress(p)));
-                updateHelper.updateAll(reporter)
+                UpdateHelper.updateAll(reporter)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 reporter::report,

@@ -28,10 +28,10 @@ public class RegistrationIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         boolean register = intent.getBooleanExtra(LibrusConstants.REGISTER, false);
         try {
-            if(register) {
+            if (register) {
                 String token = InstanceID.getInstance(this)
                         .getToken(APP_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-                new DefaultAPIClient(this).pushDevices(token);
+                new DefaultAPIClient(this).pushDevices(token).subscribe();
                 Log.d(TAG, "GCM token: " + token);
             } else {
                 InstanceID.getInstance(this)

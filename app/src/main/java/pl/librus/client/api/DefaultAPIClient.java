@@ -15,6 +15,7 @@ import java.util.List;
 import io.reactivex.Single;
 import io.requery.Persistable;
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import pl.librus.client.LibrusUtils;
@@ -24,6 +25,9 @@ import pl.librus.client.datamodel.lesson.Timetable;
 import static pl.librus.client.LibrusUtils.log;
 
 class DefaultAPIClient implements IAPIClient {
+
+    public static final MediaType JSON
+            = MediaType.parse("application/json; charset=utf-8");
 
     private final Context context;
 
@@ -78,7 +82,7 @@ class DefaultAPIClient implements IAPIClient {
     private Single<String> APIRequest(String endpoint) {
         return fetchData(endpoint)
                 .onErrorResumeNext(cause -> {
-                    if(tokenExpired(cause)) {
+                    if (tokenExpired(cause)) {
                         log("Retrying APIRequest " + "Endpoint: " + endpoint);
 
                         return refreshAccess()
@@ -129,25 +133,30 @@ class DefaultAPIClient implements IAPIClient {
     }
 
     Single<?> pushDevices(final String regToken) {
-        String access_token = PreferenceManager.getDefaultSharedPreferences(context)
-                .getString("access_token", "");
+        try {
+            String access_token = PreferenceManager.getDefaultSharedPreferences(context)
+                    .getString("access_token", "");
 
-        String AUTH_URL = "https://api.librus.pl/2.0/PushDevices";
+            String PUSH_DEVICES_URL = "https://api.librus.pl/2.0/PushDevices";
+            JSONObject bodyJSON = new JSONObject();
 
-        RequestBody body = new FormBody.Builder()
-                .add("provider", "Android_dru")
-                .add("device", regToken)
-                .build();
+            bodyJSON.put("provider", "Android_dru");
+            bodyJSON.put("device", regToken);
 
-        Request request = new Request.Builder()
-                .addHeader("Authorization", "Bearer " + access_token)
-                .url(AUTH_URL)
-                .post(body)
-                .build();
+            RequestBody body = RequestBody.create(JSON, bodyJSON.toString());
+            Request request = new Request.Builder()
+                    .addHeader("Authorization", "Bearer " + access_token)
+                    .url(PUSH_DEVICES_URL)
+                    .post(body)
+                    .build();
 
+            return new RxHttpClient().executeCall(request)
+                    .doOnSuccess(response -> LibrusUtils.log("Device registered"));
 
-        return new RxHttpClient().executeCall(request)
-                .doOnSuccess(response -> LibrusUtils.log("Device registered"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public Single<Timetable> getTimetable(final LocalDate weekStart) {
