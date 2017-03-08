@@ -21,17 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
-import eu.davidea.flexibleadapter.Payload;
 import eu.davidea.flexibleadapter.items.AbstractHeaderItem;
 import eu.davidea.flexibleadapter.items.IExpandable;
 import eu.davidea.viewholders.ExpandableViewHolder;
-import java8.util.Optional;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.subject.FullSubject;
-import pl.librus.client.datamodel.subject.Subject;
 
 /**
  * Created by szyme on 01.01.2017.
@@ -76,15 +73,6 @@ class GradeHeaderItem
 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
-        boolean expanded = payloads.contains(Payload.EXPANDED);
-
-//        if (expanded &&
-//                getSubItems() != null &&
-//                !getSubItems().isEmpty()) {
-//            adapter.expand(getSubItems().getAll(0));
-//        }
-
-        //getAll grade count and unread grade count
 
         int gradeCount = getGradeCount();
         int unreadGradeCount = getUnreadGradeCount();
@@ -95,8 +83,7 @@ class GradeHeaderItem
         holder.averageSummary.setVisibility(expanded ? View.VISIBLE : View.GONE);
         holder.gradeCountView.setVisibility(expanded ? View.GONE : View.VISIBLE);
         holder.background.setAlpha(gradeCount > 0 ? 1f : 0.5f);
-        holder.arrow.animate().rotation(expanded ? 180f : 0f).start();
-
+        holder.arrow.setRotation(expanded ? 0f : 180f);
         SpannableStringBuilder gradeCountText = new SpannableStringBuilder();
         if (gradeCount == 0) {
             gradeCountText.append(context.getString(R.string.no_grades));
