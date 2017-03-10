@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 
 import org.joda.time.LocalDate;
 
-import java.io.Serializable;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
@@ -18,12 +17,11 @@ import pl.librus.client.R;
  * Created by szyme on 23.12.2016. librus-client
  */
 
-class EmptyLessonItem extends AbstractSectionableItem<EmptyLessonItem.EmptyLessonItemViewHolder, LessonHeaderItem> implements Serializable {
+class EmptyDayItem extends AbstractSectionableItem<EmptyDayItem.EmptyLessonItemViewHolder, LessonHeaderItem> {
 
-    private static final long serialVersionUID = 8138475989480727823L;
     private final LocalDate date;
 
-    EmptyLessonItem(LessonHeaderItem header, LocalDate date) {
+    EmptyDayItem(LessonHeaderItem header, LocalDate date) {
         super(header);
         this.date = date;
     }
@@ -47,7 +45,7 @@ class EmptyLessonItem extends AbstractSectionableItem<EmptyLessonItem.EmptyLesso
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        EmptyLessonItem that = (EmptyLessonItem) o;
+        EmptyDayItem that = (EmptyDayItem) o;
 
         return date.equals(that.date);
 

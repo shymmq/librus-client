@@ -14,12 +14,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,8 +38,8 @@ import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.datamodel.lesson.Lesson;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.lesson.Lesson;
 import pl.librus.client.ui.MainFragment;
 
 public class TimetableFragment extends MainFragment {
@@ -64,7 +67,7 @@ public class TimetableFragment extends MainFragment {
 
         Observable.fromIterable(initialWeekStarts)
                 .flatMap(ws -> LibrusData.findLessonsForWeek(ws).toObservable()
-                    .map(mapLessonsForWeek(ws)))
+                        .map(mapLessonsForWeek(ws)))
                 .flatMapIterable(l -> l)
                 .toList()
                 .subscribeOn(Schedulers.io())
@@ -80,21 +83,27 @@ public class TimetableFragment extends MainFragment {
                     .collect(Collectors.groupingBy(Lesson::date));
             for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
                 LessonHeaderItem header = new LessonHeaderItem(date);
-                if(date.equals(LocalDate.now())) {
+                if (date.equals(LocalDate.now())) {
                     defaultHeader = header;
                 }
                 List<Lesson> schoolDay = days.get(date);
-                if (schoolDay== null || schoolDay.isEmpty()) {
-                    result.add(new EmptyLessonItem(header, date));
+                if (schoolDay == null || schoolDay.isEmpty()) {
+                    result.add(new EmptyDayItem(header, date));
                 } else {
-                    for (Lesson l : schoolDay) {
-                        if (l != null) {
-                            LessonItem lessonItem = new LessonItem(header, l, getContext());
-                            result.add(lessonItem);
-                        } else {
-                            //TODO: Add missing lessonId item
-                        }
+                    ImmutableMap<Integer, Lesson> lessonMap = Maps.uniqueIndex(schoolDay, Lesson::lessonNo);
 
+                    int maxLessonNumber = Collections.max(lessonMap.keySet());
+                    int minLessonNumber = Collections.min(lessonMap.keySet());
+
+                    minLessonNumber = Math.min(1, minLessonNumber);
+
+                    for (int l = minLessonNumber; l <= maxLessonNumber; l++) {
+                        Lesson lesson = lessonMap.get(l);
+                        if (lesson != null) {
+                            result.add(new LessonItem(header, lesson, getContext()));
+                        } else {
+                            result.add(new MissingLessonItem(header, l));
+                        }
                     }
                 }
             }
