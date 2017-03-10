@@ -1,9 +1,8 @@
-[![Build Status](https://travis-ci.org/shymmq/librus-client.svg?branch=master)](https://travis-ci.org/shymmq/librus-client)
 # librus-client
-Klient restowego API librusa na androida
+Nieoficjalna aplikacja do systemów Librus i Librus Synergia
 
-# Kontakt
-Dołącz do serwera discord: https://discord.gg/r6Ugyk2 (nie wymaga logowania)
+Pobierz z [Google Play](https://play.google.com/store/apps/details?id=pl.librus.client)
 
-# Beta
-[Google Drive](https://drive.google.com/open?id=0B7N0u4iFLHxVcUxTZUJkTmRnU28)
+### Kontakt
+- Dołącz do serwera [Discord](https://discord.gg/r6Ugyk2) (nie wymaga logowania)
+- Napisz opinię na [Google Play](https://play.google.com/store/apps/details?id=pl.librus.client)
