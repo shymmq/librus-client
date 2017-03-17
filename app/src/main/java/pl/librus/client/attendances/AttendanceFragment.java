@@ -51,7 +51,8 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_attendances, container, false);
 
-        LibrusData.findEnrichedAttendances()
+        LibrusData.getInstance(getActivity())
+                .findEnrichedAttendances()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);
@@ -106,7 +107,8 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
         if (!(item instanceof AttendanceItem)) return true;
         AttendanceItem attendanceItem = (AttendanceItem) item;
         EnrichedAttendance attendance = attendanceItem.getAttendance();
-        LibrusData.findFullAttendance(attendance)
+        LibrusData.getInstance(getActivity())
+                .findFullAttendance(attendance)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(displayPopup(position));
 
@@ -115,41 +117,41 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
 
     private Consumer<FullAttendance> displayPopup(int position) {
         return fullAttendance -> {
-        View root = LayoutInflater.from(getContext()).inflate(R.layout.attendance_details, null);
+            View root = LayoutInflater.from(getContext()).inflate(R.layout.attendance_details, null);
 
-        View subjectContainer = root.findViewById(R.id.attendance_details_subject_container);
-        View addedByContainer = root.findViewById(R.id.attendance_details_added_by_container);
+            View subjectContainer = root.findViewById(R.id.attendance_details_subject_container);
+            View addedByContainer = root.findViewById(R.id.attendance_details_added_by_container);
 
-        TextView subjectValue = (TextView) root.findViewById(R.id.attendance_details_subject_value);
-        TextView dateValue = (TextView) root.findViewById(R.id.attendance_details_date_value);
-        TextView addedByValue = (TextView) root.findViewById(R.id.attendance_details_added_by_value);
+            TextView subjectValue = (TextView) root.findViewById(R.id.attendance_details_subject_value);
+            TextView dateValue = (TextView) root.findViewById(R.id.attendance_details_date_value);
+            TextView addedByValue = (TextView) root.findViewById(R.id.attendance_details_added_by_value);
 
             if (fullAttendance.subject() != null) {
                 addedByContainer.setVisibility(View.VISIBLE);
                 subjectValue.setText(fullAttendance.subject().name());
-        } else {
-            subjectContainer.setVisibility(View.GONE);
-        }
+            } else {
+                subjectContainer.setVisibility(View.GONE);
+            }
 
-        dateValue.setText(new StringBuilder()
-                .append(fullAttendance.date().toString(getContext().getString(R.string.date_format_no_year), new Locale("pl")))
-                .append(", ")
-                .append(String.valueOf(fullAttendance.lessonNumber()))
-                .append(". lekcja"));
+            dateValue.setText(new StringBuilder()
+                    .append(fullAttendance.date().toString(getContext().getString(R.string.date_format_no_year), new Locale("pl")))
+                    .append(", ")
+                    .append(String.valueOf(fullAttendance.lessonNumber()))
+                    .append(". lekcja"));
 
             if (fullAttendance.addedBy() != null) {
-            addedByContainer.setVisibility(View.VISIBLE);
+                addedByContainer.setVisibility(View.VISIBLE);
                 addedByValue.setText(fullAttendance.addedBy().name());
-        } else {
-            addedByContainer.setVisibility(View.GONE);
-        }
+            } else {
+                addedByContainer.setVisibility(View.GONE);
+            }
 
-        new MaterialDialog.Builder(getActivity())
-                .title(fullAttendance.category().name())
-                .customView(root, true)
-                .positiveText(R.string.close)
-                .dismissListener(dialog -> adapter.notifyItemChanged(position))
-                .show();
+            new MaterialDialog.Builder(getActivity())
+                    .title(fullAttendance.category().name())
+                    .customView(root, true)
+                    .positiveText(R.string.close)
+                    .dismissListener(dialog -> adapter.notifyItemChanged(position))
+                    .show();
         };
     }
 }

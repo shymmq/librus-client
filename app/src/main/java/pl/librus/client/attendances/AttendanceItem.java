@@ -39,7 +39,8 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
     @Override
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         this.holder = holder;
-        LibrusData.findFullAttendance(attendance)
+        LibrusData.getInstance(holder.itemView.getContext())
+                .findFullAttendance(attendance)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayInfo);
 

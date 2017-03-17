@@ -1,24 +1,19 @@
 package pl.librus.client.api;
 
-import android.content.ComponentName;
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.gms.gcm.GcmListenerService;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
-import java8.util.function.Consumer;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
-import pl.librus.client.datamodel.announcement.Announcement;
 import pl.librus.client.datamodel.Event;
-import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.sql.EntityChange;
 import pl.librus.client.sql.UpdateHelper;
 
@@ -29,65 +24,47 @@ import static pl.librus.client.sql.EntityChange.Type.ADDED;
  */
 
 public class LibrusGcmListenerService extends GcmListenerService {
-    private Consumer<String> firebaseLogger;
     private NotificationService notificationService;
-    private Flowable<?> reloads;
+    private LibrusData librusData;
+
+    public LibrusGcmListenerService() {
+    }
+
+    public LibrusGcmListenerService(NotificationService notificationService, LibrusData librusData) {
+        this.notificationService = notificationService;
+        this.librusData = librusData;
+    }
 
     @Override
-    public ComponentName startService(Intent service) {
-        firebaseLogger = s -> {
-            Bundle event = new Bundle();
-            event.putString("objectType", s);
-            FirebaseAnalytics.getInstance(this).logEvent("notification_received", event);
-        };
-        notificationService = new NotificationService(getApplicationContext());
-        return super.startService(service);
+    public void onCreate() {
+        super.onCreate();
+        librusData = LibrusData.getInstance(this);
+        notificationService = new NotificationService(this, librusData);
     }
 
     @Override
     public void onMessageReceived(String s, Bundle bundle) {
+        UpdateHelper updateHelper = new UpdateHelper(librusData);
 
-        //Send category to analytics
-        firebaseLogger.accept(bundle.getString("objectT"));
-
-        Single<List<Grade>> gradeChanges = UpdateHelper.reload(Grade.class)
+        updateHelper.reload(Grade.class)
                 .map(this::filterAdded)
-                .cache();
-        gradeChanges.subscribe(notificationService::addGrades);
+                .observeOn(Schedulers.trampoline())
+                .subscribe(notificationService::addGrades);
 
-        Single<List<Announcement>> announcementChanges = UpdateHelper.reload(Announcement.class)
+        updateHelper.reload(Announcement.class)
                 .map(this::filterAdded)
-                .cache();
-        announcementChanges.subscribe(notificationService::addAnnouncements);
+                .observeOn(Schedulers.trampoline())
+                .subscribe(notificationService::addAnnouncements);
 
-        Single<List<Event>> eventChanges = UpdateHelper.reload(Event.class)
+        updateHelper.reload(Event.class)
                 .map(this::filterAdded)
-                .cache();
-        eventChanges.subscribe(notificationService::addEvents);
+                .observeOn(Schedulers.trampoline())
+                .subscribe(notificationService::addEvents);
 
-        Single<List<LuckyNumber>> luckyNumberChanges = UpdateHelper.reload(LuckyNumber.class)
+        updateHelper.reload(LuckyNumber.class)
                 .map(this::filterAdded)
-                .cache();
-        luckyNumberChanges.subscribe(notificationService::addLuckyNumber);
-
-        reloads = Single.merge(
-                gradeChanges,
-                announcementChanges,
-                eventChanges,
-                luckyNumberChanges
-        );
-    }
-
-    public Flowable<?> getReloads() {
-        return reloads;
-    }
-
-    public void setFirebaseLogger(Consumer<String> firebaseLogger) {
-        this.firebaseLogger = firebaseLogger;
-    }
-
-    public void setNotificationService(NotificationService notificationService) {
-        this.notificationService = notificationService;
+                .observeOn(Schedulers.trampoline())
+                .subscribe(notificationService::addLuckyNumber);
     }
 
     private <T extends Persistable> List<T> filterAdded(List<EntityChange<T>> changes) {

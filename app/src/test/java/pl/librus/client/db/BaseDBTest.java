@@ -19,9 +19,6 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 @Config(application = MainApplication.class)
 public abstract class BaseDBTest {
@@ -29,25 +26,29 @@ public abstract class BaseDBTest {
     public static final String DB_NAME = "test";
     protected BlockingEntityStore<Persistable> data;
     protected IAPIClient apiClient;
+    protected LibrusData librusData;
 
     @Before
     public void setup() {
         Answer singleAnswer = invocation -> Single.never();
         apiClient = Mockito.mock(IAPIClient.class, singleAnswer);
 
-        LibrusData.init(RuntimeEnvironment.application, apiClient, DB_NAME);
-        data = LibrusData.getDataStore().toBlocking();
+        setupData();
+    }
+
+    private void setupData() {
+        librusData = LibrusData.getInstance(RuntimeEnvironment.application, apiClient, DB_NAME);
+        data = librusData.getDataStore().toBlocking();
     }
 
     protected void clearCache() {
         LibrusData.close();
-        data = LibrusData.init(RuntimeEnvironment.application, apiClient, DB_NAME).toBlocking();
+        setupData();
     }
 
     @After
     public void teardown() {
         LibrusData.delete(RuntimeEnvironment.application, DB_NAME);
-
     }
 
     protected <T> Matcher<T> equalsNotSameInstance(T obj) {

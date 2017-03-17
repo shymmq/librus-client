@@ -39,7 +39,6 @@ import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusConstants;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
-import pl.librus.client.api.APIClient;
 import pl.librus.client.api.DrawerData;
 import pl.librus.client.api.ImmutableDrawerData;
 import pl.librus.client.api.LibrusData;
@@ -79,9 +78,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            APIClient apiClient = new APIClient(getApplicationContext());
-            LibrusData.init(getApplicationContext(), apiClient, login);
-
             if (BuildConfig.DEBUG || prefs.getLong(getString(R.string.last_update), -1) < 0) {
                 //database empty or null update and then setup()
 
@@ -92,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                         .cancelable(false)
                         .show();
                 ProgressReporter reporter = new ProgressReporter(100, p -> runOnUiThread(() -> progressDialog.setProgress(p)));
-                UpdateHelper.updateAll(reporter)
+                new UpdateHelper(LibrusData.getInstance(this)).updateAll(reporter)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 reporter::report,
@@ -118,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     private void setInitialFragment() {
         int fragmentTitle = getIntent().getIntExtra(INITIAL_FRAGMENT, -1);
 
-        if(fragmentTitle < 0) {
+        if (fragmentTitle < 0) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             String defaultFragment = prefs.getString("defaultFragment", "-1");
 
@@ -139,13 +135,13 @@ public class MainActivity extends AppCompatActivity {
         LibrusUtils.log("setting up");
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(progressDialog != null) {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
         Single
                 .zip(
-                LibrusData.findMe(),
-                LibrusData.findLuckyNumber(),
+                        LibrusData.getInstance(this).findMe(),
+                        LibrusData.getInstance(this).findLuckyNumber(),
                         ImmutableDrawerData::of)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(this::initDrawer)
@@ -184,9 +180,9 @@ public class MainActivity extends AppCompatActivity {
 
     private PrimaryDrawerItem getSettingsDrawerItem() {
         return new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                        .withName(R.string.settings_title)
-                        .withIcon(R.drawable.ic_settings_black_48dp)
-                        .withOnDrawerItemClickListener(this::openSettings);
+                .withName(R.string.settings_title)
+                .withIcon(R.drawable.ic_settings_black_48dp)
+                .withOnDrawerItemClickListener(this::openSettings);
     }
 
     private AccountHeader getDrawerHeader(ProfileDrawerItem profile) {
@@ -196,9 +192,6 @@ public class MainActivity extends AppCompatActivity {
                 .withHeaderBackground(R.drawable.background_nav)
                 .withHeaderBackgroundScaleType(ImageView.ScaleType.CENTER_CROP)
                 .addProfiles(profile,
-                        new ProfileSettingDrawerItem()
-                                .withName("Dodaj konto")
-                                .withIcon(R.drawable.plus),
                         //TODO: Add  support for multi profiles
                         new ProfileSettingDrawerItem()
                                 .withName("Wyloguj się")

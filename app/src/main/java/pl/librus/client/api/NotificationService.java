@@ -38,9 +38,11 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NotificationService {
     private final Context context;
+    private final LibrusData librusData;
 
-    public NotificationService(Context context) {
+    public NotificationService(Context context, LibrusData data) {
         this.context = context;
+        this.librusData = data;
     }
 
     private void sendNotification(
@@ -57,7 +59,7 @@ public class NotificationService {
         if (style != null) builder.setStyle(style);
 
         Intent intent = new Intent(context, MainActivity.class);
-        if(fragment != null) {
+        if (fragment != null) {
             intent.putExtra(MainActivity.INITIAL_FRAGMENT, fragment.getTitle());
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
@@ -110,7 +112,8 @@ public class NotificationService {
         int size = grades.size();
         if (size == 1) {
             Grade grade = grades.get(0);
-            String subject = LibrusData.findByKey(Subject.class, grade.subjectId()).blockingGet().name();
+            String subject = librusData
+                    .findByKey(Subject.class, grade.subjectId()).blockingGet().name();
             sendNotification(
                     "Nowa ocena",
                     subject + " " + grade.grade(),
@@ -126,7 +129,10 @@ public class NotificationService {
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title);
             for (Grade g : grades) {
-                String subject = LibrusData.findByKey(Subject.class, g.subjectId()).blockingGet().name();
+                String subject = librusData
+                        .findByKey(Subject.class, g.subjectId())
+                        .blockingGet()
+                        .name();
                 style.addLine(subject + " " + g.grade());
                 if (!subjects.contains(subject))
                     subjects.add(subject);
@@ -163,7 +169,8 @@ public class NotificationService {
             for (Event e : events) {
                 String date = e.date().toString("EEEE, d MMMM yyyy", new Locale("pl"));
                 style.addLine(e.content() + " - " + date);
-                String name = LibrusData.findByKey(Teacher.class, e.addedBy()).blockingGet().name();
+                String name = librusData
+                        .findByKey(Teacher.class, e.addedBy()).blockingGet().name();
                 if (!authorNames.contains(name)) authorNames.add(name);
             }
 

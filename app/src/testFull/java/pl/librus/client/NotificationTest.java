@@ -26,16 +26,15 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Single;
-import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
 import pl.librus.client.api.LibrusGcmListenerService;
 import pl.librus.client.api.NotificationService;
-import pl.librus.client.datamodel.announcement.Announcement;
 import pl.librus.client.datamodel.Event;
-import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.LuckyNumber;
-import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.db.BaseDBTest;
 import pl.librus.client.db.EntityTemplates;
 
@@ -45,7 +44,6 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -72,7 +70,6 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().blockingIterable();
 
         //then
         ShadowNotification notification = shadowOf(singleNotification());
@@ -104,7 +101,6 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().blockingIterable();
 
         //then
         Notification realNotification = singleNotification();
@@ -126,7 +122,6 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().blockingIterable();
 
         //then
         ShadowNotification notification = shadowOf(singleNotification());
@@ -150,7 +145,6 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().blockingIterable();
 
         //then
         Notification realNotification = singleNotification();
@@ -173,7 +167,6 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().blockingIterable();
 
         //then
         ShadowNotification notification = shadowOf(singleNotification());
@@ -196,7 +189,6 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().blockingIterable();
 
         //then
         ShadowNotification notification = shadowOf(singleNotification());
@@ -232,7 +224,6 @@ public class NotificationTest extends BaseDBTest {
 
         //when
         service.onMessageReceived(null, mockBundle());
-        service.getReloads().blockingIterable();
 
         //then
 
@@ -259,9 +250,9 @@ public class NotificationTest extends BaseDBTest {
     }
 
     private LibrusGcmListenerService serviceWithMockClient() {
-        LibrusGcmListenerService service = new LibrusGcmListenerService();
-        service.setFirebaseLogger(mock(Consumer.class));
-        service.setNotificationService(new NotificationService(RuntimeEnvironment.application));
+        LibrusGcmListenerService service = new LibrusGcmListenerService(
+                new NotificationService(RuntimeEnvironment.application, librusData),
+                librusData);
         when(apiClient.getAll(any()))
                 .thenReturn(Single.just(Collections.emptyList()));
         return service;

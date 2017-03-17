@@ -48,7 +48,8 @@ public class AnnouncementsFragment extends MainFragment {
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_announcements, container, false);
 
-        LibrusData.findFullAnnouncements()
+        LibrusData.getInstance(getActivity())
+                .findFullAnnouncements()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);

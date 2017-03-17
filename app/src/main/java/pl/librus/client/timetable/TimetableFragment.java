@@ -66,7 +66,8 @@ public class TimetableFragment extends MainFragment {
         List<LocalDate> initialWeekStarts = Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
 
         Observable.fromIterable(initialWeekStarts)
-                .flatMap(ws -> LibrusData.findLessonsForWeek(ws).toObservable()
+                .flatMap(ws -> LibrusData.getInstance(getActivity())
+                        .findLessonsForWeek(ws).toObservable()
                         .map(mapLessonsForWeek(ws)))
                 .flatMapIterable(l -> l)
                 .toList()
@@ -129,7 +130,7 @@ public class TimetableFragment extends MainFragment {
             progressItem.setStatus(ProgressItem.LOADING);
             adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
 
-            LibrusData.findLessonsForWeek(weekStart)
+            LibrusData.getInstance(getActivity()).findLessonsForWeek(weekStart)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .map(mapLessonsForWeek(weekStart))
@@ -198,7 +199,8 @@ public class TimetableFragment extends MainFragment {
                         .append(lesson.teacher().name(),
                                 new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
             } else {
-                Teacher orgTeacher = LibrusData.findByKey(Teacher.class, lesson.orgTeacher()).blockingGet();
+                Teacher orgTeacher = LibrusData.getInstance(getActivity())
+                        .findByKey(Teacher.class, lesson.orgTeacher()).blockingGet();
                 teacherTextView.setText(new SpannableStringBuilder()
                         .append(orgTeacher.name())
                         .append(" -> ")

@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class NotificationTesterFragment extends MainFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        NotificationService service = new NotificationService(getContext());
+        NotificationService service = new NotificationService(getContext(), LibrusData.getInstance(getContext()));
         View v = inflater.inflate(R.layout.notification_tester, container, false);
 
         addListener(
@@ -83,7 +82,8 @@ public class NotificationTesterFragment extends MainFragment {
     }
 
     private <T extends Persistable> List<T> getMany(Class<T> clazz, int count) {
-        return LibrusData.getDataStore()
+        return LibrusData.getInstance(getContext())
+                .getDataStore()
                 .select(clazz)
                 .limit(count)
                 .get()

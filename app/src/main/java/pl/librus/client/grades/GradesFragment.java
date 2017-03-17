@@ -35,12 +35,11 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
-import pl.librus.client.datamodel.subject.ImmutableFullSubject;
-import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.grade.EnrichedGrade;
 import pl.librus.client.datamodel.grade.FullGrade;
 import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.grade.ImmutableEnrichedGrade;
+import pl.librus.client.datamodel.subject.ImmutableFullSubject;
 import pl.librus.client.ui.MainFragment;
 import pl.librus.client.ui.MenuAction;
 import pl.librus.client.ui.ReadAllMenuAction;
@@ -85,13 +84,15 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
 
         recyclerView.setAdapter(adapter);
 
-        Observable<ImmutableEnrichedGrade> gradeObservable = LibrusData.findEnrichedGrades()
+        Observable<ImmutableEnrichedGrade> gradeObservable = LibrusData.getInstance(getActivity())
+                .findEnrichedGrades()
                 .cache()
                 .subscribeOn(Schedulers.io());
 
         Single.zip(
                 gradeObservable.toMultimap(g -> g.subjectId()),
-                LibrusData.findFullSubjects(),
+                LibrusData.getInstance(getActivity())
+                        .findFullSubjects(),
                 this::mapGradesToSubjects)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayGrades);
@@ -113,7 +114,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                 .collect(Collectors.toMap(s -> s,
                         s -> Optional.ofNullable(gradesBySubject.get(s.id()))
                                 .orElse(Collections.emptyList())
-                            ));
+                ));
     }
 
     private void displayGrades(Map<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> mappedGrades) {
@@ -125,7 +126,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             StreamSupport.stream(entry.getValue())
                     .sorted((g1, g2) -> g1.date().compareTo(g2.date()))
                     .forEach(grade ->
-                    headerItem.addSubItem(new GradeItem(headerItem, grade)));
+                            headerItem.addSubItem(new GradeItem(headerItem, grade)));
 
             getActivity().runOnUiThread(() -> adapter.addSection(headerItem, headerComparator));
         }
@@ -141,7 +142,8 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
         if (item instanceof GradeItem) {
             GradeItem gradeItem = (GradeItem) item;
             EnrichedGrade grade = gradeItem.getGrade();
-            LibrusData.findFullGrade(grade)
+            LibrusData.getInstance(getActivity())
+                    .findFullGrade(grade)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this.displayGradeDetails(position));

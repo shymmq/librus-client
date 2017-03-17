@@ -1,5 +1,7 @@
 package pl.librus.client.sql;
 
+import android.content.Context;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -62,12 +64,18 @@ public class UpdateHelper {
             LuckyNumber.class,
             Me.class
     );
+    private final LibrusData librusData;
 
-    public static Flowable<Object> updateAll(ProgressReporter progressReporter) {
+    public UpdateHelper(LibrusData librusData) {
+        this.librusData = librusData;
+    }
+
+    public Flowable<Object> updateAll(ProgressReporter progressReporter) {
         ImmutableList.Builder<Single<?>> builder = ImmutableList.builder();
 
         for (Class<? extends Persistable> entityClass : entitiesToUpdate) {
-            builder.add(LibrusData.updateAllFromServer(entityClass));
+            builder.add(librusData
+                    .updateAllFromServer(entityClass));
         }
         builder.addAll(updateNearestTimetables());
         List<Single<?>> tasks = builder.build();
@@ -75,23 +83,23 @@ public class UpdateHelper {
         return Single.merge(tasks);
     }
 
-    private static List<Single<?>> updateNearestTimetables() {
+    private List<Single<?>> updateNearestTimetables() {
         LocalDate lastMonday = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
-        List<LocalDate> weekStarts =  Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
+        List<LocalDate> weekStarts = Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
         return StreamSupport.stream(weekStarts)
-                .map(LibrusData::updateTimetableFromServer)
+                .map(librusData::updateTimetableFromServer)
                 .collect(Collectors.toList());
     }
 
-    public static <T extends Persistable & Identifiable, E> Single<List<EntityChange<T>>> reload(Class<T> clazz) {
+    public <T extends Persistable & Identifiable, E> Single<List<EntityChange<T>>> reload(Class<T> clazz) {
         return Single.concat(
-                LibrusData.findAllInDb(clazz),
-                LibrusData.updateAllFromServer(clazz))
+                librusData.findAllInDb(clazz),
+                librusData.updateAllFromServer(clazz))
                 .toList(2)
-                .map(UpdateHelper::detectChanges);
+                .map(this::detectChanges);
     }
 
-    private static <T extends Persistable & Identifiable> List<EntityChange<T>> detectChanges(List<List<T>> result) {
+    private <T extends Persistable & Identifiable> List<EntityChange<T>> detectChanges(List<List<T>> result) {
         Preconditions.checkArgument(result.size() == 2);
         List<T> fromDb = result.get(0);
         List<T> fromServer = result.get(1);
