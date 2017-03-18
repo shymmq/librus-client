@@ -79,6 +79,7 @@ class AttendanceHeaderItem extends AbstractExpandableHeaderItem<AttendanceHeader
         holder.date.setText(date.toString(holder.itemView.getContext().getString(R.string.date_format_no_year), new Locale("pl")));
         String spSummary = spCount > 0 ? (spCount + " " + LibrusUtils.getPluralForm(spCount, "spóźnienie", "spóźnienia", "spóźnień")) : "";
         String nbSummary = nbCount > 0 ? (nbCount + " " + LibrusUtils.getPluralForm(nbCount, "nieobecność", "nieobecności", "nieobecności")) : "";
+        holder.arrow.setRotation(isExpanded() ? 180f : 0f);
         holder.content.setText(nbSummary +
                 ((nbCount > 0 && spCount > 0) ? ", " : "") +
                 spSummary);
@@ -91,11 +92,18 @@ class AttendanceHeaderItem extends AbstractExpandableHeaderItem<AttendanceHeader
 
     class ViewHolder extends ExpandableViewHolder {
         private final TextView date, content;
+        private final View arrow;
 
         public ViewHolder(View view, FlexibleAdapter adapter) {
             super(view, adapter);
             content = (TextView) view.findViewById(R.id.attendance_header_item_content);
             date = (TextView) view.findViewById(R.id.attendance_header_item_title);
+            arrow = view.findViewById(R.id.attendance_header_item_arrow);
+        }
+
+        @Override
+        protected boolean shouldNotifyParentOnClick() {
+            return true;
         }
     }
 }

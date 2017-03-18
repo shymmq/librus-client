@@ -83,7 +83,7 @@ class GradeHeaderItem
         holder.averageSummary.setVisibility(expanded ? View.VISIBLE : View.GONE);
         holder.gradeCountView.setVisibility(expanded ? View.GONE : View.VISIBLE);
         holder.background.setAlpha(gradeCount > 0 ? 1f : 0.5f);
-        holder.arrow.setRotation(expanded ? 0f : 180f);
+        holder.arrow.setRotation(expanded ? 180f : 0f);
         SpannableStringBuilder gradeCountText = new SpannableStringBuilder();
         if (gradeCount == 0) {
             gradeCountText.append(context.getString(R.string.no_grades));
