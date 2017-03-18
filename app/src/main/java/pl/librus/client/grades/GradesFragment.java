@@ -124,7 +124,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             final GradeHeaderItem headerItem = new GradeHeaderItem(s, getContext());
 
             StreamSupport.stream(entry.getValue())
-                    .sorted((g1, g2) -> g1.date().compareTo(g2.date()))
+                    .sorted((g1, g2) -> g2.date().compareTo(g1.date()))
                     .forEach(grade ->
                             headerItem.addSubItem(new GradeItem(headerItem, grade)));
 
