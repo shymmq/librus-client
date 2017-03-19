@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.List;
@@ -24,22 +25,32 @@ public class EntityParser {
 
     public static <T> Optional<T> parseObject(String input, String topLevelName, Class<T> clazz) {
         ObjectMapper mapper = createMapper();
+        JsonNode root;
         try {
             input = input.replace("\\\\\\", "\\");
-            JsonNode root = mapper.readTree(input);
+            root = mapper.readTree(input);
             TreeNode node = root.at("/" + topLevelName);
             if(!node.isMissingNode()) {
                 return Optional.of(mapper.treeToValue(node, clazz));
-            } else if(root.at("/Status").textValue().equals("Disabled")){
-                return Optional.absent();
-            } else if(root.at("/Message").textValue().contains("is not active")){
-                return Optional.absent();
-            } else {
-                throw new RuntimeException("No root element while feature not disabled");
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new ParseException(input, e);
         }
+        JsonNode status = root.at("/Status");
+        if (!status.isMissingNode()) {
+            if (status.textValue().equals("Disabled")) {
+                return Optional.absent();
+            }
+            if (status.textValue().equals("Maintenance")) {
+                throw new MaintenanceException();
+            }
+        }
+        JsonNode message = root.at("/Message");
+        if (!message.isMissingNode() && message.textValue().contains("is not active")) {
+            return Optional.absent();
+        }
+        throw new ParseException(input, "Parsing failed");
+
     }
 
     private static ObjectMapper createMapper() {

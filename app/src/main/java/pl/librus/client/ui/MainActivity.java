@@ -40,8 +40,11 @@ import pl.librus.client.LibrusConstants;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.DrawerData;
+import pl.librus.client.api.HttpException;
 import pl.librus.client.api.ImmutableDrawerData;
 import pl.librus.client.api.LibrusData;
+import pl.librus.client.api.MaintenanceException;
+import pl.librus.client.api.OfflineException;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.api.RegistrationIntentService;
 import pl.librus.client.datamodel.LuckyNumber;
@@ -101,14 +104,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleUpdateError(Throwable exception) {
-        LibrusUtils.logError("Update failed");
-        exception.printStackTrace();
-        Snackbar.make(
-                findViewById(R.id.activity_main_coordinator),
-                "Wystąpił nieoczekiwany błąd",
-                Snackbar.LENGTH_SHORT)
-                .show();
-        setup();
+        LibrusUtils.log("Handle update error");
+        if (exception instanceof OfflineException) {
+            LibrusUtils.log("Offline mode");
+            Snackbar.make(
+                    findViewById(R.id.activity_main_coordinator),
+                    R.string.offline_data_error,
+                    Snackbar.LENGTH_LONG)
+                    .show();
+            setup();
+        } else if (exception instanceof HttpException && exception.getMessage().contains("Request is denied")) {
+            LibrusUtils.log("Request denied, logout");
+
+            //User probably changed password
+            logout();
+        } else {
+            LibrusUtils.logError("Unknown error");
+            exception.printStackTrace();
+            Snackbar.make(
+                    findViewById(R.id.activity_main_coordinator),
+                    R.string.unknown_error,
+                    Snackbar.LENGTH_SHORT)
+                    .show();
+        }
     }
 
     private void setInitialFragment() {
@@ -265,6 +283,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean logout(View view, int position, IDrawerItem drawerItem) {
+        logout();
+        return false;
+    }
+
+    private void logout() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String login = prefs.getString("login", null);
         if (login != null) {
@@ -283,7 +306,6 @@ public class MainActivity extends AppCompatActivity {
 
             finish();
         }
-        return false;
     }
 
     private void disableNotifications() {

@@ -1,7 +1,10 @@
 package pl.librus.client.api;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
@@ -53,7 +56,7 @@ class DefaultAPIClient implements IAPIClient {
                 .post(formBody)
                 .build();
 
-        return new RxHttpClient().executeCall(request)
+        return getHttpClient().executeCall(request)
                 .doOnSuccess(this::saveTokens)
                 .map(r -> username);
     }
@@ -104,7 +107,7 @@ class DefaultAPIClient implements IAPIClient {
                 .url(url)
                 .get()
                 .build();
-        return new RxHttpClient().executeCall(request);
+        return getHttpClient().executeCall(request);
     }
 
     private Single<?> refreshAccess() {
@@ -128,7 +131,7 @@ class DefaultAPIClient implements IAPIClient {
                 .url(AUTH_URL)
                 .build();
 
-        return new RxHttpClient().executeCall(request)
+        return getHttpClient().executeCall(request)
                 .doOnSuccess(this::saveTokens);
     }
 
@@ -150,7 +153,7 @@ class DefaultAPIClient implements IAPIClient {
                     .post(body)
                     .build();
 
-            return new RxHttpClient().executeCall(request)
+            return getHttpClient().executeCall(request)
                     .doOnSuccess(response -> LibrusUtils.log("Device registered"));
 
         } catch (JSONException e) {
@@ -186,5 +189,11 @@ class DefaultAPIClient implements IAPIClient {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toSingle();
+    }
+
+    private RxHttpClient getHttpClient() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return new RxHttpClient(connectivityManager);
     }
 }

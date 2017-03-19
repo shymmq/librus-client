@@ -78,4 +78,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="md_icons_about">&lt;a href="https://github.com/google/material-design-icons/">Material design icons&lt;/a>by Google</string>
+    <string name="unknown_error">Wystąpił nieoczekiwany błąd</string>
+    <string name="offline_error">Serwis chwilowo niedostępny</string>
+    <string name="offline_data_error">Serwis chwilowo niedostępny. Wyświetlane dane mogą być niekatualne</string>
+    <string name="wrong_credentials">Nieprawidłowe hasło, spróbuj ponownie</string>
 </resources>

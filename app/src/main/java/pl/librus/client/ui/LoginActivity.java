@@ -1,7 +1,6 @@
 package pl.librus.client.ui;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -12,13 +11,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import pl.librus.client.LibrusConstants;
 import pl.librus.client.R;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.api.HttpException;
+import pl.librus.client.api.MaintenanceException;
+import pl.librus.client.api.OfflineException;
 import pl.librus.client.api.RegistrationIntentService;
 
 public class LoginActivity extends AppCompatActivity {
@@ -62,11 +61,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginFailed(Throwable exception) {
-        String message;
+        int message;
         if(exception instanceof HttpException && exception.getMessage().contains("invalid_grant")){
-            message = "Nieprawidłowe hasło, spróbuj ponownie";
+            message = R.string.wrong_credentials;
+        } else if(exception instanceof OfflineException){
+            message = R.string.offline_error;
         } else {
-            message = "Wystąpił niespodziewany błąd";
+            message = R.string.unknown_error;
         }
         Snackbar snackbar = Snackbar
                 .make(findViewById(R.id.coordinator), message, Snackbar.LENGTH_SHORT);

@@ -4,16 +4,12 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.support.multidex.MultiDexApplication;
 
-import io.requery.Persistable;
-import io.requery.android.sqlite.DatabaseSource;
-import io.requery.reactivex.ReactiveEntityStore;
-import io.requery.reactivex.ReactiveSupport;
-import io.requery.sql.EntityDataStore;
-import io.requery.sql.TableCreationMode;
-import pl.librus.client.BuildConfig;
+import io.reactivex.functions.Consumer;
+import io.reactivex.plugins.RxJavaPlugins;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.Analytics;
-import pl.librus.client.datamodel.Models;
-import pl.librus.client.sql.SqlHelper;
+import pl.librus.client.api.HttpException;
+import pl.librus.client.api.OfflineException;
 
 
 public class MainApplication extends MultiDexApplication {
@@ -25,6 +21,16 @@ public class MainApplication extends MultiDexApplication {
         super.onCreate();
         StrictMode.enableDefaults();
         new Analytics().init(this);
+        Consumer<Throwable> originalErrorHandler = RxJavaPlugins.getErrorHandler();
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            if (throwable instanceof HttpException) {
+                //If there are many requests sent at once, first error is handler normally, the rest lands here
+                LibrusUtils.log("plugin handle");
+                LibrusUtils.log(throwable);
+            } else {
+                originalErrorHandler.accept(throwable);
+            }
+        });
         MainApplication.context = getApplicationContext();
     }
 

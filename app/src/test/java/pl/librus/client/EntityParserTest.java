@@ -15,6 +15,7 @@ import java.util.List;
 import io.requery.Persistable;
 import pl.librus.client.api.EntityInfos;
 import pl.librus.client.api.EntityParser;
+import pl.librus.client.api.MaintenanceException;
 import pl.librus.client.api.ParseException;
 import pl.librus.client.datamodel.announcement.Announcement;
 import pl.librus.client.datamodel.attendance.Attendance;
@@ -329,6 +330,12 @@ public class EntityParserTest {
     public void shouldFailOnMalformed() {
         //when
         parse("Malformed.json", Average.class);
+    }
+
+    @Test(expected = MaintenanceException.class)
+    public void shouldHandleMaintenance() {
+        //when
+        parse("Maintenance.json", Average.class);
     }
 
     private static String readFile(String fileName) {

@@ -1,25 +1,33 @@
 package pl.librus.client.api;
 
-import java.io.IOException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import pl.librus.client.LibrusUtils;
 
-/**
- * Created by robwys on 10/02/2017.
- */
-
 public class RxHttpClient {
+
+    private final ConnectivityManager connectivityManager;
+
+    public RxHttpClient(ConnectivityManager connectivityManager) {
+        this.connectivityManager = connectivityManager;
+    }
 
     public Single<String> executeCall(Request request) {
         return Single.<String>create(observer -> {
             try {
+                NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                if(networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
+                    observer.onError(new OfflineException(request.url().toString()));
+                    return;
+                }
                 LibrusUtils.log("start fetching data from " + request.url());
                 Response response = new OkHttpClient.Builder()
                         .connectTimeout(10, TimeUnit.SECONDS)
