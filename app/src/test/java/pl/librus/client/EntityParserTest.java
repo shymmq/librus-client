@@ -316,6 +316,15 @@ public class EntityParserTest {
         assertThat(res, hasSize(0));
     }
 
+    @Test
+    public void shouldNotFailOnNotActive() {
+        //when
+        List<LuckyNumber> res = parse("NotActive.json", LuckyNumber.class);
+
+        //then
+        assertThat(res, hasSize(0));
+    }
+
     @Test(expected = ParseException.class)
     public void shouldFailOnMalformed() {
         //when

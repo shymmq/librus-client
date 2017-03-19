@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,8 +32,10 @@ public class EntityParser {
                 return Optional.of(mapper.treeToValue(node, clazz));
             } else if(root.at("/Status").textValue().equals("Disabled")){
                 return Optional.absent();
+            } else if(root.at("/Message").textValue().contains("is not active")){
+                return Optional.absent();
             } else {
-                throw new RuntimeException("No root element, status not disabled");
+                throw new RuntimeException("No root element while feature not disabled");
             }
         } catch (Exception e) {
             throw new ParseException(input, e);
