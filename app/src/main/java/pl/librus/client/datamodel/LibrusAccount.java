@@ -21,8 +21,6 @@ public abstract class LibrusAccount {
 
     public abstract String lastName();
 
-    public abstract String email();
-
     public String name() {
         return firstName() + " " + lastName();
     }

@@ -70,7 +70,6 @@ public class EntityParserTest {
 
         //then
         LibrusAccount expectedAccount = new LibrusAccount.Builder()
-                .email("tompro@gmail.com")
                 .firstName("Tomasz")
                 .lastName("Problem")
                 .login("12u")

@@ -168,7 +168,6 @@ class EntityMocks {
 
     public ImmutableMe me() {
         return ImmutableMe.of(new LibrusAccount.Builder()
-                .email(lorem.getEmail())
                 .firstName(lorem.getFirstName())
                 .lastName(lorem.getLastName())
                 .login("12222u")

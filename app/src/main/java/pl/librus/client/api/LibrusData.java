@@ -68,7 +68,7 @@ public class LibrusData {
 
     public static LibrusData getInstance(Context context, IAPIClient apiClient, String login) {
         if (instance != null) return instance;
-        DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 13);
+        DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 14);
         if (BuildConfig.DEBUG) {
             source.setLoggingEnabled(true);
             source.setTableCreationMode(TableCreationMode.DROP_CREATE);

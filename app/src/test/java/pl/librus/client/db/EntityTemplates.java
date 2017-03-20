@@ -59,7 +59,6 @@ public class EntityTemplates {
 
     public static ImmutableMe me() {
         return ImmutableMe.of(new LibrusAccount.Builder()
-                .email("tompro@gmail.com")
                 .firstName("Tomasz")
                 .lastName("Problem")
                 .login("12u")
