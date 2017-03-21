@@ -107,7 +107,7 @@ class MockEntityRepository {
     }
 
     private Teacher updateTeacher(Teacher t, int index) {
-        if(index == 0) {
+        if (index == 0) {
             //One teacher without names
             return ImmutableTeacher.copyOf(t)
                     .withFirstName(Optional.absent())
@@ -132,10 +132,18 @@ class MockEntityRepository {
     }
 
     private Attendance updateAttendance(Attendance a, int index) {
-        return ImmutableAttendance.copyOf(a)
-                .withAddedById(idFromIndex(Teacher.class, index))
-                .withCategoryId(idFromIndex(AttendanceCategory.class, index))
-                .withLessonId(idFromIndex(PlainLesson.class, index));
+        if(index % 10 == 0) {
+            return ImmutableAttendance.copyOf(a)
+                    .withAddedById(Optional.absent())
+                    .withCategoryId(idFromIndex(AttendanceCategory.class, index))
+                    .withLessonId(Optional.absent());
+        }else {
+            return ImmutableAttendance.copyOf(a)
+                    .withAddedById(idFromIndex(Teacher.class, index))
+                    .withCategoryId(idFromIndex(AttendanceCategory.class, index))
+                    .withLessonId(idFromIndex(PlainLesson.class, index));
+        }
+
     }
 
     private PlainLesson updatePlainLesson(PlainLesson pl, int index) {
@@ -145,13 +153,23 @@ class MockEntityRepository {
     }
 
     private Announcement updateAnnouncement(Announcement a, int index) {
-        return ImmutableAnnouncement.copyOf(a)
-                .withAddedById(idFromIndex(Teacher.class, index));
+        if(index == 1) {
+            return ImmutableAnnouncement.copyOf(a)
+                    .withAddedById(Optional.absent());
+        }else {
+            return ImmutableAnnouncement.copyOf(a)
+                    .withAddedById(idFromIndex(Teacher.class, index));
+        }
+
     }
 
     private GradeCategory updateGradeCategory(GradeCategory gc, int index) {
-        return ImmutableGradeCategory.copyOf(gc)
-                .withColorId(idFromIndex(LibrusColor.class, index));
+        ImmutableGradeCategory copy = ImmutableGradeCategory.copyOf(gc);
+        if (index == 0) {
+            return copy.withColorId(Optional.absent());
+        } else {
+            return copy.withColorId(idFromIndex(LibrusColor.class, index));
+        }
     }
 
     private String idFromIndex(Class<? extends Identifiable> clazz, int index) {

@@ -3,6 +3,7 @@ package pl.librus.client.datamodel.attendance;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Optional;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -25,12 +26,12 @@ public abstract class BaseAttendance {
     @JsonDeserialize(using = IdDeserializer.class)
     @JsonProperty("Lesson")
     @Column
-    public abstract String lessonId();
+    public abstract Optional<String> lessonId();
 
     @JsonDeserialize(using = IdDeserializer.class)
     @JsonProperty("AddedBy")
     @Column
-    public abstract String addedById();
+    public abstract Optional<String> addedById();
 
     @JsonDeserialize(using = IdDeserializer.class)
     @JsonProperty("Type")

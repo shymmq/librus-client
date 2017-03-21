@@ -16,10 +16,10 @@ import java.util.Locale;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.announcement.FullAnnouncement;
-import pl.librus.client.datamodel.Teacher;
 
 /**
  * Created by szyme on 28.12.2016. librus-client
@@ -54,10 +54,10 @@ class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.ViewHold
     public void bindViewHolder(FlexibleAdapter adapter, ViewHolder holder, int position, List payloads) {
         this.backgroundView = holder.background;
         this.title = holder.announcementSubject;
-        Teacher teacher = announcement.addedBy();
+
         holder.announcementSubject.setText(announcement.subject());
         holder.background.setTransitionName("announcement_background_" + announcement.id());
-        holder.announcementTeacherName.setText(teacher == null ? "" : teacher.name());
+        LibrusUtils.setTextViewValue(holder.announcementTeacherName, announcement.addedByName());
         holder.announcementContent.setText(announcement.content());
 
         Reader reader = new Reader(holder.itemView.getContext());

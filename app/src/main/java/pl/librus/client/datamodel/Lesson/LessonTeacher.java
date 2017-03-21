@@ -31,11 +31,11 @@ public abstract class LessonTeacher {
         return ImmutableLessonTeacher.builder();
     }
 
-    public String name() {
-        if(firstName().isPresent() && lastName().isPresent()) {
-            return firstName().get() + " " + lastName().get();
+    public Optional<String> name() {
+        if (firstName().isPresent() && lastName().isPresent()) {
+            return Optional.of(firstName().get() + " " + lastName().get());
         } else {
-            return id();
+            return Optional.absent();
         }
     }
 

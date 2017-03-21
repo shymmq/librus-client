@@ -12,10 +12,12 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.datamodel.attendance.EnrichedAttendance;
 import pl.librus.client.datamodel.attendance.FullAttendance;
+import pl.librus.client.datamodel.subject.Subject;
 
 class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, AttendanceHeaderItem> {
     private final EnrichedAttendance attendance;
@@ -52,7 +54,7 @@ class AttendanceItem extends AbstractSectionableItem<AttendanceItem.ViewHolder, 
         String lessonNumber = context.getString(R.string.lesson) + " " + attendance.lessonNumber();
         holder.lesson.setText(lessonNumber);
 
-        holder.subject.setText(fullAttendance.subject().name());
+        LibrusUtils.setTextViewValue(holder.subject, fullAttendance.subject().transform(Subject::name));
     }
 
     @Override

@@ -18,6 +18,7 @@ import java.util.List;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.datamodel.lesson.Lesson;
 
@@ -81,7 +82,7 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
 
 
         holder.subject.setText(lesson.subject().name());
-        holder.teacher.setText(lesson.teacher().name());
+        LibrusUtils.setTextViewValue(holder.teacher, lesson.teacher().name());
         holder.lessonNumber.setText(String.valueOf(lesson.lessonNo()));
 
         if (lesson.cancelled()) {

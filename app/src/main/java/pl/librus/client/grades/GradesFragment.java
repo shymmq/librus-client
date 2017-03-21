@@ -32,12 +32,12 @@ import io.reactivex.schedulers.Schedulers;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.grade.EnrichedGrade;
 import pl.librus.client.datamodel.grade.FullGrade;
-import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.grade.ImmutableEnrichedGrade;
 import pl.librus.client.datamodel.subject.ImmutableFullSubject;
 import pl.librus.client.ui.MainFragment;
@@ -170,11 +170,11 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
             View commentContainer = dialogLayout.findViewById(R.id.grade_details_comment_container);
             View weightContainer = dialogLayout.findViewById(R.id.grade_details_weight_container);
             View addDateContainer = dialogLayout.findViewById(R.id.grade_details_add_date_container);
+            View addedByContainer = dialogLayout.findViewById(R.id.grade_details_added_by_container);
 
             gradeTextView.setText(grade.grade());
             categoryTextView.setText(grade.category().name());
             subjectTextView.setText(grade.subject().name());
-            weightTextView.setText(String.valueOf(grade.category().weight()));
             dateTextView.setText(grade.date().toString(getString(R.string.date_format_no_year), new Locale("pl")));
             if (grade.addDate().toLocalDate().isEqual(grade.date())) {
                 addDateContainer.setVisibility(View.GONE);
@@ -184,11 +184,14 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                 addDateTextView.setText(grade.addDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
             }
 
+            LibrusUtils.setTextViewValue(
+                    weightContainer,
+                    weightTextView,
+                    grade.category()
+                            .weight()
+                            .transform(Object::toString));
 
-            FullGrade.GradeType type = grade.type();
-            weightContainer.setVisibility(type == FullGrade.GradeType.NORMAL ? View.VISIBLE : View.GONE);
-
-            addedByTextView.setText(grade.addedBy().name());
+            LibrusUtils.setTextViewValue(addedByContainer, addedByTextView, grade.addedBy().name());
 
             if (grade.comments() != null && !grade.comments().isEmpty()) {
                 commentContainer.setVisibility(View.VISIBLE);

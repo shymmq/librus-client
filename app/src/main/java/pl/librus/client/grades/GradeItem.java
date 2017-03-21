@@ -1,5 +1,6 @@
 package pl.librus.client.grades;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +15,8 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
-import pl.librus.client.datamodel.grade.EnrichedGrade;
-import pl.librus.client.datamodel.grade.FullGradeCategory;
-import pl.librus.client.datamodel.grade.Grade;
-import pl.librus.client.datamodel.grade.GradeCategory;
 import pl.librus.client.datamodel.LibrusColor;
+import pl.librus.client.datamodel.grade.EnrichedGrade;
 
 class GradeItem extends AbstractFlexibleItem<GradeItem.ViewHolder> {
     private final EnrichedGrade grade;
@@ -50,7 +48,11 @@ class GradeItem extends AbstractFlexibleItem<GradeItem.ViewHolder> {
         holder.grade.setText(grade.grade());
         holder.title.setText(grade.category().name());
         holder.subtitle.setText(grade.date().toString("EEEE, d MMMM", new Locale("pl")));
-        holder.color.setBackgroundColor(grade.category().color().colorInt());
+        Integer color = grade.category()
+                .color()
+                .transform(LibrusColor::colorInt)
+                .or(Color.TRANSPARENT);
+        holder.color.setBackgroundColor(color);
         holder.unreadBadge.setVisibility(
                 new Reader(holder.itemView.getContext()).isRead(grade) ? View.GONE : View.VISIBLE);
     }

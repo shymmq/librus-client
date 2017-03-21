@@ -1,6 +1,10 @@
 package pl.librus.client;
 
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+
+import com.google.common.base.Optional;
 
 import static pl.librus.client.LibrusConstants.DBG;
 import static pl.librus.client.LibrusConstants.TAG;
@@ -44,6 +48,19 @@ public class LibrusUtils {
         } catch (Exception e) {
             System.out.println(s);
         }
+    }
+
+    public static void setTextViewValue(View container, TextView textView, Optional<String> optional) {
+        if(optional.isPresent()) {
+            container.setVisibility(View.VISIBLE);
+            textView.setText(optional.get());
+        } else {
+            container.setVisibility(View.GONE);
+        }
+    }
+
+    public static void setTextViewValue(TextView textView, Optional<String> optional) {
+        setTextViewValue(textView, textView, optional);
     }
 
     public static void log(String text, Object... params) {

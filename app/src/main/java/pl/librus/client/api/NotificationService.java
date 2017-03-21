@@ -9,9 +9,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -159,7 +161,7 @@ public class NotificationService {
                     null);
         } else if (size > 1) {
             String title;
-            List<String> authorNames = new ArrayList<>();
+            LinkedHashSet<String> authorNames = new LinkedHashSet<>();
             if (2 <= size && size <= 4) title = size + " nowe wydarzenia";
             else if (5 <= size) title = size + " nowych wydarzeń";
             else title = "Nowe wydarzenia: " + size;
@@ -169,9 +171,11 @@ public class NotificationService {
             for (Event e : events) {
                 String date = e.date().toString("EEEE, d MMMM yyyy", new Locale("pl"));
                 style.addLine(e.content() + " - " + date);
-                String name = librusData
+                Optional<String> name = librusData
                         .findByKey(Teacher.class, e.addedBy()).blockingGet().name();
-                if (!authorNames.contains(name)) authorNames.add(name);
+                if (name.isPresent()) {
+                    authorNames.add(name.get());
+                }
             }
 
             sendNotification(title,

@@ -1,9 +1,8 @@
 package pl.librus.client.datamodel.grade;
 
-import android.support.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Optional;
 
 import io.requery.Column;
 import io.requery.Key;
@@ -17,9 +16,8 @@ public abstract class BaseGradeCategory implements Identifiable {
     @Key
     public abstract String id();
 
-    @Nullable
     @Column
-    public abstract Integer weight();
+    public abstract Optional<Integer> weight();
 
     @Column
     public abstract String name();
@@ -27,5 +25,5 @@ public abstract class BaseGradeCategory implements Identifiable {
     @Column
     @JsonDeserialize(using = IdDeserializer.class)
     @JsonProperty("Color")
-    public abstract String colorId();
+    public abstract Optional<String> colorId();
 }

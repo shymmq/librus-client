@@ -174,6 +174,7 @@ public class TimetableFragment extends MainFragment {
             View details = inflater.inflate(R.layout.lesson_details, null);
 
             ViewGroup eventContainer = (ViewGroup) details.findViewById(R.id.lesson_details_event_container);
+            ViewGroup teacherContainer = (ViewGroup) details.findViewById(R.id.lesson_details_teacher_container);
 
             TextView teacherTextView = (TextView) details.findViewById(R.id.lesson_details_teacher_value);
             TextView dateTextView = (TextView) details.findViewById(R.id.lesson_details_date_value);
@@ -193,20 +194,25 @@ public class TimetableFragment extends MainFragment {
                     .append(". lekcja", new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
 
             //TODO add Events
-
-            if (!lesson.substitutionClass() || lesson.orgTeacher() == null) {
-                teacherTextView.setText(new SpannableStringBuilder()
-                        .append(lesson.teacher().name(),
-                                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+            if (lesson.teacher().name().isPresent()) {
+                teacherContainer.setVisibility(View.VISIBLE);
+                SpannableStringBuilder ssb = new SpannableStringBuilder();
+                if (lesson.substitutionClass() && lesson.orgTeacher() != null) {
+                    Teacher orgTeacher = LibrusData.getInstance(getActivity())
+                            .findByKey(Teacher.class, lesson.orgTeacher()).blockingGet();
+                    if (orgTeacher.name().isPresent()) {
+                        ssb
+                                .append(orgTeacher.name().get())
+                                .append(" -> ");
+                    }
+                }
+                ssb.append(lesson.teacher().name().get(),
+                        new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                teacherTextView.setText(ssb);
             } else {
-                Teacher orgTeacher = LibrusData.getInstance(getActivity())
-                        .findByKey(Teacher.class, lesson.orgTeacher()).blockingGet();
-                teacherTextView.setText(new SpannableStringBuilder()
-                        .append(orgTeacher.name())
-                        .append(" -> ")
-                        .append(lesson.teacher().name(),
-                                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+                teacherContainer.setVisibility(View.GONE);
             }
+
             eventContainer.setVisibility(View.GONE);
 
             //TODO Ogarnianie odwołań

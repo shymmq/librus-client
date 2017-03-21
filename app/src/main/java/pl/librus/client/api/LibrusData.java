@@ -102,6 +102,15 @@ public class LibrusData {
         return "user-data-" + login;
     }
 
+    public <T extends Persistable & Identifiable> Single<Optional<T>> findByKey(Class<T> clazz, Optional<String> key) {
+        if(key.isPresent()) {
+            return findByKey(clazz, key.get())
+                    .map(Optional::of);
+        } else {
+            return Single.just(Optional.absent());
+        }
+    }
+
     public <T extends Persistable & Identifiable> Single<T> findByKey(Class<T> clazz, String key) {
         if (key == null) {
             return null;
@@ -194,7 +203,7 @@ public class LibrusData {
                 findByKey(Teacher.class, attendance.addedById()),
                 findByKey(AttendanceCategory.class, attendance.categoryId()),
                 findByKey(PlainLesson.class, attendance.lessonId())
-                        .flatMap(lesson -> findByKey(Subject.class, lesson.subject())),
+                        .flatMap(lesson -> findByKey(Subject.class, lesson.transform(PlainLesson::subject))),
                 (t, ac, s) -> ImmutableFullAttendance.builder()
                         .from(attendance)
                         .addedBy(t)
@@ -224,15 +233,18 @@ public class LibrusData {
     public Single<List<ImmutableFullAnnouncement>> findFullAnnouncements() {
         return findAll(Announcement.class)
                 .flattenAsObservable(l -> l)
-                .flatMap(announcement -> findByKey(Teacher.class, announcement.addedById())
-                        .map(teacher -> ImmutableFullAnnouncement.builder()
-                                .from(announcement)
-                                .addedBy(teacher)
-                                .build())
-                        .toObservable())
+                .flatMap(this::findFullAnnouncement)
                 .toList();
     }
 
+    private Observable<ImmutableFullAnnouncement> findFullAnnouncement(Announcement announcement) {
+        return findByKey(Teacher.class, announcement.addedById())
+                .map(teacher -> ImmutableFullAnnouncement.builder()
+                        .from(announcement)
+                        .addedBy(teacher)
+                        .build())
+                .toObservable();
+    }
 
     public Observable<ImmutableEnrichedGrade> findEnrichedGrades() {
         return findFullGradeCategories()
@@ -252,7 +264,7 @@ public class LibrusData {
                         .flattenAsObservable(l -> l)
                         .map(category -> ImmutableFullGradeCategory.builder()
                                 .from(category)
-                                .color(colorMap.get(category.colorId()))
+                                .color(category.colorId().transform(colorMap::get))
                                 .build())
                         .toMap(ImmutableFullGradeCategory::id));
     }

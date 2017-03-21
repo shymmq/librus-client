@@ -3,6 +3,7 @@ package pl.librus.client.datamodel.announcement;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Optional;
 
 import org.joda.time.LocalDate;
 
@@ -38,5 +39,5 @@ public abstract class BaseAnnouncement implements Identifiable, Serializable {
     @JsonDeserialize(using = IdDeserializer.class)
     @JsonProperty("AddedBy")
     @Column
-    public abstract String addedById();
+    public abstract Optional<String> addedById();
 }

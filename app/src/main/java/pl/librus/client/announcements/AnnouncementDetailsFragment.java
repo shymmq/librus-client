@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.announcement.FullAnnouncement;
@@ -63,9 +64,10 @@ public class AnnouncementDetailsFragment extends Fragment {
         TextView authorTextView = (TextView) root.findViewById(R.id.two_line_list_item_title);
         TextView dateTextView = (TextView) root.findViewById(R.id.two_line_list_item_content);
         View background = root.findViewById(R.id.fragment_announcement_details);
+
         titleTextView.setText(announcement.subject());
         contentTextView.setText(announcement.content());
-        authorTextView.setText(announcement.addedBy() == null ? "" : announcement.addedBy().name());
+        LibrusUtils.setTextViewValue(authorTextView, announcement.addedByName());
         dateTextView.setText(announcement.startDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
 
         background.setTransitionName("announcement_background_" + announcement.id());

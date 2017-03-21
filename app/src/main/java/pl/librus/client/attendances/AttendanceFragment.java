@@ -26,11 +26,13 @@ import eu.davidea.flexibleadapter.items.IFlexible;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.datamodel.attendance.AttendanceCategory;
 import pl.librus.client.datamodel.attendance.EnrichedAttendance;
 import pl.librus.client.datamodel.attendance.FullAttendance;
+import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.ui.MainFragment;
 
 /**
@@ -126,12 +128,8 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
             TextView dateValue = (TextView) root.findViewById(R.id.attendance_details_date_value);
             TextView addedByValue = (TextView) root.findViewById(R.id.attendance_details_added_by_value);
 
-            if (fullAttendance.subject() != null) {
-                addedByContainer.setVisibility(View.VISIBLE);
-                subjectValue.setText(fullAttendance.subject().name());
-            } else {
-                subjectContainer.setVisibility(View.GONE);
-            }
+            LibrusUtils.setTextViewValue(subjectContainer, subjectValue,
+                    fullAttendance.subject().transform(Subject::name));
 
             dateValue.setText(new StringBuilder()
                     .append(fullAttendance.date().toString(getContext().getString(R.string.date_format_no_year), new Locale("pl")))
@@ -139,12 +137,7 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
                     .append(String.valueOf(fullAttendance.lessonNumber()))
                     .append(". lekcja"));
 
-            if (fullAttendance.addedBy() != null) {
-                addedByContainer.setVisibility(View.VISIBLE);
-                addedByValue.setText(fullAttendance.addedBy().name());
-            } else {
-                addedByContainer.setVisibility(View.GONE);
-            }
+            LibrusUtils.setTextViewValue(addedByContainer, addedByValue, fullAttendance.addedByName());
 
             new MaterialDialog.Builder(getActivity())
                     .title(fullAttendance.category().name())

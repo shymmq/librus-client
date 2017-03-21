@@ -1,5 +1,7 @@
 package pl.librus.client.datamodel.grade;
 
+import com.google.common.base.Optional;
+
 import org.immutables.value.Value;
 
 import pl.librus.client.datamodel.LibrusColor;
@@ -11,6 +13,6 @@ import pl.librus.client.datamodel.LibrusColor;
 @Value.Immutable
 public abstract class FullGradeCategory extends BaseGradeCategory {
 
-    public abstract LibrusColor color();
+    public abstract Optional<LibrusColor> color();
 
 }

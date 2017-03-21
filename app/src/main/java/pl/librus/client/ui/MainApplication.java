@@ -9,7 +9,6 @@ import io.reactivex.plugins.RxJavaPlugins;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.Analytics;
 import pl.librus.client.api.HttpException;
-import pl.librus.client.api.OfflineException;
 
 
 public class MainApplication extends MultiDexApplication {
@@ -27,8 +26,10 @@ public class MainApplication extends MultiDexApplication {
                 //If there are many requests sent at once, first error is handler normally, the rest lands here
                 LibrusUtils.log("plugin handle");
                 LibrusUtils.log(throwable);
-            } else {
+            } else if(originalErrorHandler != null) {
                 originalErrorHandler.accept(throwable);
+            } else {
+                throwable.printStackTrace();
             }
         });
         MainApplication.context = getApplicationContext();
