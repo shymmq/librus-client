@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Optional;
 
 import org.immutables.value.Value;
 
@@ -18,9 +19,9 @@ public abstract class LessonTeacher {
 
     public abstract String id();
 
-    public abstract String firstName();
+    public abstract Optional<String> firstName();
 
-    public abstract String lastName();
+    public abstract Optional<String> lastName();
 
     @Nullable
     @JsonProperty("IsSchoolAdministrator")
@@ -31,9 +32,11 @@ public abstract class LessonTeacher {
     }
 
     public String name() {
-        return firstName() != null && lastName() != null
-                ? firstName() + ' ' + lastName()
-                : id();
+        if(firstName().isPresent() && lastName().isPresent()) {
+            return firstName().get() + " " + lastName().get();
+        } else {
+            return id();
+        }
     }
 
     public static LessonTeacher fromTeacher(Teacher teacher) {

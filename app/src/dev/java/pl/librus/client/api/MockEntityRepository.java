@@ -1,5 +1,6 @@
 package pl.librus.client.api;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import pl.librus.client.datamodel.Identifiable;
 import pl.librus.client.datamodel.ImmutableAverage;
 import pl.librus.client.datamodel.ImmutableEvent;
 import pl.librus.client.datamodel.ImmutablePlainLesson;
+import pl.librus.client.datamodel.ImmutableTeacher;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
@@ -54,7 +56,7 @@ class MockEntityRepository {
 
         createList(Subject.class, SUBJECTS.size(), this::updateSubject);
         createList(Average.class, SUBJECTS.size() - 1, this::updateAverage); // some missing averages
-        createList(Teacher.class, SUBJECTS.size() - 1); // more subjects than teachers
+        createList(Teacher.class, SUBJECTS.size() - 1, this::updateTeacher); // more subjects than teachers
         createList(PlainLesson.class, SUBJECTS.size(), this::updatePlainLesson);
 
         createList(Announcement.class, 15, this::updateAnnouncement);
@@ -102,6 +104,16 @@ class MockEntityRepository {
     private Average updateAverage(Average a, int index) {
         return ImmutableAverage.copyOf(a)
                 .withSubject(idFromIndex(Subject.class, index));
+    }
+
+    private Teacher updateTeacher(Teacher t, int index) {
+        if(index == 0) {
+            //One teacher without names
+            return ImmutableTeacher.copyOf(t)
+                    .withFirstName(Optional.absent())
+                    .withLastName(Optional.absent());
+        }
+        return t;
     }
 
     private Event updateEvent(Event e, int index) {

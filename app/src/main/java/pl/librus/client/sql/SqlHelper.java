@@ -1,5 +1,7 @@
 package pl.librus.client.sql;
 
+import java.lang.reflect.Method;
+
 import io.requery.Persistable;
 import io.requery.android.sqlite.DatabaseSource;
 import io.requery.cache.EntityCacheBuilder;
@@ -35,6 +37,8 @@ public class SqlHelper {
             addConverter(new LocalTimeConverter());
             addConverter(new LocalDateTimeConverter());
             addConverter(new MultipleIdsConverter());
+            addConverter(new OptionalConverter());
         }
+
     }
 }

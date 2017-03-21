@@ -58,4 +58,27 @@ public class TeacherTest extends BaseDBTest {
         Assert.assertThat(result, equalsNotSameInstance(original));
     }
 
+    @Test
+    public void shouldReadTeacherWithOptionalPresent() {
+        //given
+        String teacherId = "456";
+        Teacher original = ImmutableTeacher.builder()
+                .schoolAdministrator(true)
+                .firstName("firstName")
+                .id(teacherId)
+                .build();
+
+        data.upsert(original);
+        clearCache();
+
+        //when
+        Teacher result = data.select(Teacher.class)
+                .where(TeacherType.ID.eq(teacherId))
+                .get()
+                .first();
+
+        //then
+        Assert.assertThat(result, equalsNotSameInstance(original));
+    }
+
 }

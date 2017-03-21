@@ -75,6 +75,11 @@ public class EntityParserTest {
             .lastName("Problem")
             .id("12345")
             .build()));
+
+        assertThat(res, hasItem(ImmutableTeacher.builder()
+                .id("666")
+                .schoolAdministrator(true)
+                .build()));
     }
 
     @Test
