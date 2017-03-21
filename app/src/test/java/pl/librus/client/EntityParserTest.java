@@ -17,29 +17,43 @@ import pl.librus.client.api.EntityInfos;
 import pl.librus.client.api.EntityParser;
 import pl.librus.client.api.MaintenanceException;
 import pl.librus.client.api.ParseException;
-import pl.librus.client.datamodel.announcement.Announcement;
-import pl.librus.client.datamodel.attendance.Attendance;
-import pl.librus.client.datamodel.attendance.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
-import pl.librus.client.datamodel.grade.Grade;
-import pl.librus.client.datamodel.grade.GradeCategory;
-import pl.librus.client.datamodel.grade.GradeComment;
+import pl.librus.client.datamodel.ImmutableAverage;
+import pl.librus.client.datamodel.ImmutableEvent;
+import pl.librus.client.datamodel.ImmutableEventCategory;
+import pl.librus.client.datamodel.ImmutableLibrusAccount;
+import pl.librus.client.datamodel.ImmutableLibrusColor;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
-import pl.librus.client.datamodel.lesson.ImmutableJsonLesson;
-import pl.librus.client.datamodel.lesson.JsonLesson;
-import pl.librus.client.datamodel.lesson.LessonSubject;
-import pl.librus.client.datamodel.lesson.LessonTeacher;
+import pl.librus.client.datamodel.ImmutablePlainLesson;
+import pl.librus.client.datamodel.ImmutableTeacher;
 import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.announcement.ImmutableAnnouncement;
+import pl.librus.client.datamodel.attendance.Attendance;
+import pl.librus.client.datamodel.attendance.AttendanceCategory;
+import pl.librus.client.datamodel.attendance.ImmutableAttendance;
+import pl.librus.client.datamodel.attendance.ImmutableAttendanceCategory;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
+import pl.librus.client.datamodel.grade.GradeComment;
+import pl.librus.client.datamodel.grade.ImmutableGrade;
+import pl.librus.client.datamodel.grade.ImmutableGradeCategory;
+import pl.librus.client.datamodel.grade.ImmutableGradeComment;
+import pl.librus.client.datamodel.lesson.ImmutableJsonLesson;
+import pl.librus.client.datamodel.lesson.ImmutableLessonSubject;
+import pl.librus.client.datamodel.lesson.ImmutableLessonTeacher;
+import pl.librus.client.datamodel.lesson.JsonLesson;
 import pl.librus.client.datamodel.lesson.Timetable;
+import pl.librus.client.datamodel.subject.ImmutableSubject;
+import pl.librus.client.datamodel.subject.Subject;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -56,7 +70,7 @@ public class EntityParserTest {
         List<Teacher> res = parse("Teachers.json", Teacher.class);
 
         //then
-        assertThat(res, hasItem(new Teacher.Builder()
+        assertThat(res, hasItem(ImmutableTeacher.builder()
             .firstName("Tomasz")
             .lastName("Problem")
             .id("12345")
@@ -69,7 +83,7 @@ public class EntityParserTest {
         List<Me> res = parse("Me.json", Me.class);
 
         //then
-        LibrusAccount expectedAccount = new LibrusAccount.Builder()
+        LibrusAccount expectedAccount = ImmutableLibrusAccount.builder()
                 .firstName("Tomasz")
                 .lastName("Problem")
                 .login("12u")
@@ -91,12 +105,12 @@ public class EntityParserTest {
                 .hourFrom(LocalTime.parse("08:00"))
                 .hourTo(LocalTime.parse("08:45"))
                 .lessonNo(1)
-                .subject(new LessonSubject.Builder()
+                .subject(ImmutableLessonSubject.builder()
                         .id("44561")
                         .name("Godzina wychowawcza")
                         .build())
                 .substitutionClass(true)
-                .teacher(new LessonTeacher.Builder()
+                .teacher(ImmutableLessonTeacher.builder()
                         .id("1235088")
                         .firstName("Tomasz")
                         .lastName("Problem")
@@ -118,7 +132,7 @@ public class EntityParserTest {
         List<Grade> res = parse("Grades.json", Grade.class);
 
         //then
-        assertThat(res, hasItem(new Grade.Builder()
+        assertThat(res, hasItem(ImmutableGrade.builder()
             .addDate(LocalDateTime.parse("2016-09-29T08:30:41"))
             .addedById("1235106")
             .categoryId("164150")
@@ -144,7 +158,7 @@ public class EntityParserTest {
         List<GradeCategory> res = parse("GradeCategories.json", GradeCategory.class);
 
         //then
-        assertThat(res, hasItem(new GradeCategory.Builder()
+        assertThat(res, hasItem(ImmutableGradeCategory.builder()
             .name("sprawdzian")
             .id("164149")
             .colorId("26")
@@ -158,7 +172,7 @@ public class EntityParserTest {
         List<GradeComment> res = parse("GradeComments.json", GradeComment.class);
 
         //then
-        assertThat(res, hasItem(new GradeComment.Builder()
+        assertThat(res, hasItem(ImmutableGradeComment.builder()
                 .id("834777")
                 .text("Srodki artystycznego wyrazu")
                 .addedBy("1235106")
@@ -171,7 +185,7 @@ public class EntityParserTest {
         List<PlainLesson> res = parse("Lessons.json", PlainLesson.class);
 
         //then
-        assertThat(res, hasItem(new PlainLesson.Builder()
+        assertThat(res, hasItem(ImmutablePlainLesson.builder()
             .id("1822337")
             .teacher("1235090")
             .subject("44565")
@@ -184,7 +198,7 @@ public class EntityParserTest {
         List<Event> res = parse("HomeWorks.json", Event.class);
 
         //then
-        assertThat(res, hasItem(new Event.Builder()
+        assertThat(res, hasItem(ImmutableEvent.builder()
             .category("7323")
             .addedBy("1235072")
             .date(LocalDate.parse("2016-10-07"))
@@ -200,7 +214,7 @@ public class EntityParserTest {
         List<EventCategory> res = parse("HomeWorkCategories.json", EventCategory.class);
 
         //then
-        assertThat(res, hasItem(new EventCategory.Builder()
+        assertThat(res, hasItem(ImmutableEventCategory.builder()
             .id("7789")
             .name("praca klasowa")
             .build()));
@@ -212,7 +226,7 @@ public class EntityParserTest {
         List<Attendance> res = parse("Attendances.json", Attendance.class);
 
         //then
-        assertThat(res, hasItem(new Attendance.Builder()
+        assertThat(res, hasItem(ImmutableAttendance.builder()
             .id("t403209")
             .lessonId("2714880")
             .date(LocalDate.parse("2016-09-29"))
@@ -230,7 +244,7 @@ public class EntityParserTest {
         List<AttendanceCategory> res = parse("AttendanceTypes.json", AttendanceCategory.class);
 
         //then
-        assertThat(res, hasItem(new AttendanceCategory.Builder()
+        assertThat(res, hasItem(ImmutableAttendanceCategory.builder()
             .name("Spóźnienie")
             .id("2")
             .shortName("sp")
@@ -246,7 +260,7 @@ public class EntityParserTest {
         List<Subject> res = parse("Subjects.json", Subject.class);
         
         //then
-        assertThat(res, hasItem(new Subject.Builder()
+        assertThat(res, hasItem(ImmutableSubject.builder()
             .id("44908")
             .name("Matematyka i media")
             .build()));
@@ -270,7 +284,7 @@ public class EntityParserTest {
         List<Average> averages = parse("Averages.json", Average.class);
 
         //then
-        assertThat(averages, hasItem(new Average.Builder()
+        assertThat(averages, hasItem(ImmutableAverage.builder()
             .subject("44555")
             .fullYear(4.26)
             .semester1(4.29)
@@ -283,7 +297,7 @@ public class EntityParserTest {
         //when
         List<LibrusColor> colors = parse("Colors.json", LibrusColor.class);
         //then
-        LibrusColor goldenrod = new LibrusColor.Builder()
+        LibrusColor goldenrod = ImmutableLibrusColor.builder()
                 .id("13")
                 .name("goldenrod")
                 .rawColor("DAA520")
@@ -297,7 +311,7 @@ public class EntityParserTest {
         List<Announcement> res = parse("SchoolNotices.json", Announcement.class);
 
         //then
-        assertThat(res, hasItem(new Announcement.Builder()
+        assertThat(res, hasItem(ImmutableAnnouncement.builder()
             .id("167110")
             .startDate(LocalDate.parse("2016-09-21"))
             .endDate(LocalDate.parse("2017-06-14"))

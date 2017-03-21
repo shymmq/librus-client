@@ -70,31 +70,18 @@ public abstract class BaseGrade implements Identifiable {
 
     @JsonProperty("IsSemester")
     @Column
-    public abstract boolean semesterType();
+    public abstract Boolean semesterType();
 
     @JsonProperty("IsSemesterProposition")
     @Column
-    public abstract boolean semesterPropositionType();
+    public abstract Boolean semesterPropositionType();
 
     @JsonProperty("IsFinal")
     @Column
-    public abstract boolean finalType();
+    public abstract Boolean finalType();
 
     @JsonProperty("IsFinalProposition")
     @Column
-    public abstract boolean finalPropositionType();
-
-    public enum GradeType {
-        NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
-    }
-
-    public Grade.GradeType type() {
-        if (semesterPropositionType()) return GradeType.SEMESTER_PROPOSITION;
-        else if (semesterType()) return GradeType.SEMESTER;
-        else if (finalPropositionType()) return GradeType.FINAL_PROPOSITION;
-        else if (finalType()) return GradeType.FINAL;
-        else return GradeType.NORMAL;
-    }
-
+    public abstract Boolean finalPropositionType();
 
 }

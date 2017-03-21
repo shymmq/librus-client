@@ -11,9 +11,8 @@ import io.requery.Persistable;
 /**
  * Created by szyme on 07.12.2016. librus-client
  */
-@Entity
+@Entity(builder = ImmutableEventCategory.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableEventCategory.class)
 public abstract class EventCategory implements Persistable, Identifiable {
 
@@ -21,9 +20,5 @@ public abstract class EventCategory implements Persistable, Identifiable {
     public abstract String id();
 
     public abstract String name();
-
-    public static class Builder extends ImmutableEventCategory.Builder {
-
-    }
 
 }

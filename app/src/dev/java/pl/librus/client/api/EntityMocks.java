@@ -20,12 +20,12 @@ import pl.librus.client.datamodel.EventCategory;
 import pl.librus.client.datamodel.ImmutableAverage;
 import pl.librus.client.datamodel.ImmutableEvent;
 import pl.librus.client.datamodel.ImmutableEventCategory;
+import pl.librus.client.datamodel.ImmutableLibrusAccount;
 import pl.librus.client.datamodel.ImmutableLibrusColor;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
 import pl.librus.client.datamodel.ImmutablePlainLesson;
 import pl.librus.client.datamodel.ImmutableTeacher;
-import pl.librus.client.datamodel.LibrusAccount;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
@@ -41,13 +41,12 @@ import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.grade.GradeCategory;
 import pl.librus.client.datamodel.grade.GradeComment;
 import pl.librus.client.datamodel.grade.ImmutableGrade;
+import pl.librus.client.datamodel.grade.ImmutableGradeCategory;
 import pl.librus.client.datamodel.grade.ImmutableGradeComment;
 import pl.librus.client.datamodel.lesson.ImmutableJsonLesson;
 import pl.librus.client.datamodel.lesson.ImmutableLessonSubject;
 import pl.librus.client.datamodel.lesson.ImmutableLessonTeacher;
 import pl.librus.client.datamodel.lesson.Lesson;
-import pl.librus.client.datamodel.lesson.LessonSubject;
-import pl.librus.client.datamodel.lesson.LessonTeacher;
 import pl.librus.client.datamodel.subject.ImmutableSubject;
 import pl.librus.client.datamodel.subject.Subject;
 
@@ -94,14 +93,14 @@ class EntityMocks {
     }
 
     ImmutableLessonSubject lessonSubject() {
-        return new LessonSubject.Builder()
+        return ImmutableLessonSubject.builder()
                 .id(MOCK_ID)
                 .name(randomElement(SUBJECTS))
                 .build();
     }
 
     ImmutableLessonTeacher lessonTeacher() {
-        return new LessonTeacher.Builder()
+        return ImmutableLessonTeacher.builder()
                 .id(MOCK_ID)
                 .firstName(lorem.getFirstName())
                 .lastName(lorem.getLastName())
@@ -127,7 +126,7 @@ class EntityMocks {
     }
 
     public ImmutableGrade grade() {
-        return new Grade.Builder()
+        return ImmutableGrade.builder()
                 .id(idFor(Grade.class))
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
@@ -147,7 +146,7 @@ class EntityMocks {
     }
 
     public ImmutableSubject subject() {
-        return new Subject.Builder()
+        return ImmutableSubject.builder()
                 .id(idFor(Subject.class))
                 .name(randomElement(SUBJECTS))
                 .build();
@@ -156,7 +155,7 @@ class EntityMocks {
 
     public ImmutableAnnouncement announcement() {
         LocalDate start = randomPastDate();
-        return new Announcement.Builder()
+        return ImmutableAnnouncement.builder()
                 .id(idFor(Announcement.class))
                 .startDate(start)
                 .endDate(start.plusDays(random.nextInt(30)))
@@ -167,7 +166,7 @@ class EntityMocks {
     }
 
     public ImmutableMe me() {
-        return ImmutableMe.of(new LibrusAccount.Builder()
+        return ImmutableMe.of(ImmutableLibrusAccount.builder()
                 .firstName(lorem.getFirstName())
                 .lastName(lorem.getLastName())
                 .login("12222u")
@@ -175,7 +174,7 @@ class EntityMocks {
     }
 
     public ImmutableTeacher teacher() {
-        return new Teacher.Builder()
+        return ImmutableTeacher.builder()
                 .id(idFor(Teacher.class))
                 .firstName(lorem.getFirstName())
                 .lastName(lorem.getLastName())
@@ -183,14 +182,14 @@ class EntityMocks {
     }
 
     public ImmutableLuckyNumber luckyNumber() {
-        return new LuckyNumber.Builder()
+        return ImmutableLuckyNumber.builder()
                 .luckyNumber(random.nextInt(35))
                 .day(LocalDate.now())
                 .build();
     }
 
     public GradeCategory gradeCategory() {
-        return new GradeCategory.Builder()
+        return ImmutableGradeCategory.builder()
                 .id(idFor(GradeCategory.class))
                 .colorId(MOCK_ID)
                 .name(lorem.getWords(1, 5))
@@ -199,7 +198,7 @@ class EntityMocks {
     }
 
     public ImmutableGradeComment gradeComment() {
-        return new GradeComment.Builder()
+        return ImmutableGradeComment.builder()
                 .id(idFor(GradeComment.class))
                 .addedBy(MOCK_ID)
                 .text(lorem.getWords(1, 10))
@@ -207,7 +206,7 @@ class EntityMocks {
     }
 
     public ImmutablePlainLesson plainLesson() {
-        return new PlainLesson.Builder()
+        return ImmutablePlainLesson.builder()
                 .id(idFor(PlainLesson.class))
                 .subject(MOCK_ID)
                 .teacher(MOCK_ID)
@@ -215,7 +214,7 @@ class EntityMocks {
     }
 
     public ImmutableEvent event() {
-        return new Event.Builder()
+        return ImmutableEvent.builder()
                 .id(idFor(Event.class))
                 .addedBy(MOCK_ID)
                 .category(MOCK_ID)
@@ -226,14 +225,14 @@ class EntityMocks {
     }
 
     public ImmutableEventCategory eventCategory() {
-        return new EventCategory.Builder()
+        return ImmutableEventCategory.builder()
                 .id(idFor(EventCategory.class))
                 .name(lorem.getWords(1, 10))
                 .build();
     }
 
     public ImmutableAttendance attendance() {
-        return new Attendance.Builder()
+        return ImmutableAttendance.builder()
                 .id(idFor(Attendance.class))
                 .date(randomPastDate())
                 .addDate(LocalDateTime.now())
@@ -249,7 +248,7 @@ class EntityMocks {
         boolean presence = random.nextDouble() < 0.05;
         String shortName = presence ? "ob" :
                 random.nextBoolean() ? "sp" : "nb";
-        return new AttendanceCategory.Builder()
+        return ImmutableAttendanceCategory.builder()
                 .id(idFor(AttendanceCategory.class))
                 .colorRGB(randomElement(COLORS))
                 .name(lorem.getWords(1, 10))
@@ -261,7 +260,7 @@ class EntityMocks {
     }
 
     public ImmutableAverage average() {
-        return new Average.Builder()
+        return ImmutableAverage.builder()
                 .fullYear(randomAverage())
                 .semester1(randomAverage())
                 .semester2(randomAverage())
@@ -270,7 +269,7 @@ class EntityMocks {
     }
 
     public ImmutableLibrusColor librusColor() {
-        return new LibrusColor.Builder()
+        return ImmutableLibrusColor.builder()
                 .id(idFor(LibrusColor.class))
                 .name(lorem.getWords(1))
                 .rawColor(randomElement(COLORS))

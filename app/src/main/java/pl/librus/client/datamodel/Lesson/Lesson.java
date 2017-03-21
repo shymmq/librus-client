@@ -7,17 +7,12 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 
-@Entity
+@Entity(builder = ImmutableLesson.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 public abstract class Lesson extends BaseLesson implements Persistable, Comparable<Lesson> {
 
     @Key
     public abstract LocalDate date();
-
-    public static class Builder extends ImmutableLesson.Builder {
-
-    }
 
     @Override
     public int compareTo(Lesson lesson) {

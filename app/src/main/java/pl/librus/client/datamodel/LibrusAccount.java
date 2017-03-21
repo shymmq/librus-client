@@ -10,7 +10,6 @@ import io.requery.Key;
 
 @Embeddable
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableLibrusAccount.class)
 public abstract class LibrusAccount {
 
@@ -25,8 +24,8 @@ public abstract class LibrusAccount {
         return firstName() + " " + lastName();
     }
 
-    public static class Builder extends ImmutableLibrusAccount.Builder {
-
+    public static ImmutableLibrusAccount.Builder builder()  {
+        return ImmutableLibrusAccount.builder();
     }
 
 }

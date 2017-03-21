@@ -14,9 +14,8 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 
-@Entity
+@Entity(builder = ImmutableTeacher.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableTeacher.class)
 public abstract class Teacher implements Persistable, Serializable, Identifiable {
 
@@ -29,13 +28,11 @@ public abstract class Teacher implements Persistable, Serializable, Identifiable
     @Nullable
     public abstract String lastName();
 
-    @Nullable
     @JsonProperty("IsSchoolAdministrator")
-    public abstract Boolean schoolAdministrator();
-
-    public static class Builder extends ImmutableTeacher.Builder {
-
-    }
+    @Value.Default
+    public Boolean schoolAdministrator(){
+        return false;
+    };
 
     public String name() {
         return firstName() != null && lastName() != null

@@ -12,6 +12,9 @@ import java.util.Map;
 
 import io.requery.meta.Attribute;
 import io.requery.proxy.CompositeKey;
+import pl.librus.client.datamodel.lesson.ImmutableLesson;
+import pl.librus.client.datamodel.lesson.ImmutableLessonSubject;
+import pl.librus.client.datamodel.lesson.ImmutableLessonTeacher;
 import pl.librus.client.datamodel.lesson.Lesson;
 import pl.librus.client.datamodel.lesson.LessonSubject;
 import pl.librus.client.datamodel.lesson.LessonTeacher;
@@ -24,16 +27,16 @@ public class LessonTest extends BaseDBTest {
         //given
         LocalDate date = LocalDate.now();
         int lessonNo = 1;
-        final Lesson original = new Lesson.Builder()
+        final Lesson original = ImmutableLesson.builder()
                 .date(LocalDate.now())
                 .lessonNo(lessonNo)
                 .dayNo(1)
-                .teacher(new LessonTeacher.Builder()
+                .teacher(ImmutableLessonTeacher.builder()
                     .firstName("Tomasz")
                     .lastName("Problem")
                     .id("123")
                     .build())
-                .subject(new LessonSubject.Builder()
+                .subject(ImmutableLessonSubject.builder()
                     .id("456")
                     .name("Matematyka")
                     .build())

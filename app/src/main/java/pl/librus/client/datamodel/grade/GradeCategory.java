@@ -7,14 +7,9 @@ import org.immutables.value.Value;
 import io.requery.Entity;
 import io.requery.Persistable;
 
-@Entity
+@Entity(builder = ImmutableGradeCategory.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableGradeCategory.class)
 public abstract class GradeCategory extends BaseGradeCategory implements Persistable {
-
-    public static class Builder extends ImmutableGradeCategory.Builder {
-
-    }
 
 }

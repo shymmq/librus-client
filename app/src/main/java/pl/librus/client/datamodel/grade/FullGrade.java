@@ -21,4 +21,16 @@ public abstract class FullGrade extends BaseGrade {
     public abstract Teacher addedBy();
 
     public abstract Subject subject();
+
+    public enum GradeType {
+        NORMAL, SEMESTER_PROPOSITION, SEMESTER, FINAL_PROPOSITION, FINAL
+    }
+
+    public GradeType type() {
+        if (semesterPropositionType()) return GradeType.SEMESTER_PROPOSITION;
+        else if (semesterType()) return GradeType.SEMESTER;
+        else if (finalPropositionType()) return GradeType.FINAL_PROPOSITION;
+        else if (finalType()) return GradeType.FINAL;
+        else return GradeType.NORMAL;
+    }
 }

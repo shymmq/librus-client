@@ -16,9 +16,8 @@ import pl.librus.client.datamodel.Identifiable;
  * Created by Adam on 16.12.2016.
  */
 
-@Entity
+@Entity(builder = ImmutableAttendanceCategory.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableAttendanceCategory.class)
 public abstract class AttendanceCategory implements Persistable, Identifiable {
     @Key
@@ -32,15 +31,12 @@ public abstract class AttendanceCategory implements Persistable, Identifiable {
     @JsonProperty("Short")
     public abstract String shortName();
 
-    public abstract boolean standard();
+    public abstract Boolean standard();
 
     @JsonProperty("IsPresenceKind")
-    public abstract boolean presenceKind();
+    public abstract Boolean presenceKind();
 
     @JsonProperty("Order")
     public abstract int priority();
-
-    public static class Builder extends ImmutableAttendanceCategory.Builder {
-    }
 
 }

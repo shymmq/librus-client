@@ -13,7 +13,6 @@ import pl.librus.client.datamodel.Teacher;
 
 @Embeddable
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableLessonTeacher.class)
 public abstract class LessonTeacher {
 
@@ -27,8 +26,8 @@ public abstract class LessonTeacher {
     @JsonProperty("IsSchoolAdministrator")
     public abstract Boolean schoolAdministrator();
 
-    public static class Builder extends ImmutableLessonTeacher.Builder {
-
+    public static ImmutableLessonTeacher.Builder builder() {
+        return ImmutableLessonTeacher.builder();
     }
 
     public String name() {
@@ -38,7 +37,7 @@ public abstract class LessonTeacher {
     }
 
     public static LessonTeacher fromTeacher(Teacher teacher) {
-        return new Builder()
+        return builder()
                 .id(teacher.id())
                 .firstName(teacher.firstName())
                 .lastName(teacher.lastName())

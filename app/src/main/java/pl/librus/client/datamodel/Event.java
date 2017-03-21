@@ -12,9 +12,8 @@ import io.requery.Key;
 import io.requery.Persistable;
 import pl.librus.client.api.IdDeserializer;
 
-@Entity
+@Entity(builder = ImmutableEvent.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as=ImmutableEvent.class)
 public abstract class Event implements Persistable, Identifiable{
     @Key
@@ -32,8 +31,5 @@ public abstract class Event implements Persistable, Identifiable{
     @JsonProperty("CreatedBy")
     @JsonDeserialize(using = IdDeserializer.class)
     public abstract String addedBy();
-
-    public static class Builder extends ImmutableEvent.Builder{
-    }
 
 }

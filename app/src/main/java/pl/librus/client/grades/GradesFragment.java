@@ -184,8 +184,9 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                 addDateTextView.setText(grade.addDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
             }
 
-            Grade.GradeType type = grade.type();
-            weightContainer.setVisibility(type == Grade.GradeType.NORMAL ? View.VISIBLE : View.GONE);
+
+            FullGrade.GradeType type = grade.type();
+            weightContainer.setVisibility(type == FullGrade.GradeType.NORMAL ? View.VISIBLE : View.GONE);
 
             addedByTextView.setText(grade.addedBy().name());
 

@@ -9,6 +9,7 @@ import org.robolectric.annotation.Config;
 
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.AverageType;
+import pl.librus.client.datamodel.ImmutableAverage;
 import pl.librus.client.ui.MainApplication;
 
 /**
@@ -20,7 +21,7 @@ public class AverageTest extends BaseDBTest {
     public void shouldReadAverage() {
         //given
         String subjectId = "123";
-        final Average original = new Average.Builder()
+        final Average original = ImmutableAverage.builder()
                 .fullYear(4.18)
                 .semester1(3.66)
                 .semester2(0)

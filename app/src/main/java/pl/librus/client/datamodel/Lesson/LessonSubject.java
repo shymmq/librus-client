@@ -11,7 +11,6 @@ import io.requery.Persistable;
 import pl.librus.client.datamodel.subject.Subject;
 
 @Embeddable
-@Value.Style(builder = "new")
 @Value.Immutable
 @JsonDeserialize(as=ImmutableLessonSubject.class)
 public abstract class LessonSubject implements Persistable {
@@ -19,12 +18,12 @@ public abstract class LessonSubject implements Persistable {
 
     public abstract String name();
 
-    public static class Builder extends ImmutableLessonSubject.Builder {
-
+    public static ImmutableLessonSubject.Builder builder() {
+        return ImmutableLessonSubject.builder();
     }
 
     public static LessonSubject fromSubject(Subject subject) {
-        return new Builder()
+        return builder()
                 .id(subject.id())
                 .name(subject.name())
                 .build();

@@ -38,11 +38,11 @@ public abstract class BaseLesson {
 
     @Column
     @JsonProperty("IsSubstitutionClass")
-    public abstract boolean substitutionClass();
+    public abstract Boolean substitutionClass();
 
     @Column
     @JsonProperty("IsCanceled")
-    public abstract boolean cancelled();
+    public abstract Boolean cancelled();
 
     @Convert(LocalTimeConverter.class)
     public abstract LocalTime hourFrom();

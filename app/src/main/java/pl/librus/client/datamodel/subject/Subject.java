@@ -9,14 +9,9 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 
-@Entity
-@Value.Style(builder = "new")
+@Entity(builder = ImmutableSubject.Builder.class)
 @Value.Immutable
 @JsonDeserialize(as=ImmutableSubject.class)
 public abstract class Subject extends BaseSubject implements Persistable {
-
-    public static class Builder extends ImmutableSubject.Builder {
-
-    }
 
 }

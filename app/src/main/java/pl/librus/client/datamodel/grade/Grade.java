@@ -22,13 +22,9 @@ import pl.librus.client.datamodel.Identifiable;
 /**
  * Created by szyme on 08.12.2016. librus-client
  */
-@Entity
+@Entity(builder = ImmutableGrade.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableGrade.class)
 public abstract class Grade extends BaseGrade implements Persistable {
 
-    public static class Builder extends ImmutableGrade.Builder {
-
-    }
 }

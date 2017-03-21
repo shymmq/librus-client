@@ -3,23 +3,18 @@ package pl.librus.client.db;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import pl.librus.client.datamodel.announcement.Announcement;
-import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.ImmutableEvent;
+import pl.librus.client.datamodel.ImmutableLibrusAccount;
 import pl.librus.client.datamodel.ImmutableLuckyNumber;
 import pl.librus.client.datamodel.ImmutableMe;
 import pl.librus.client.datamodel.ImmutableTeacher;
-import pl.librus.client.datamodel.LibrusAccount;
-import pl.librus.client.datamodel.subject.ImmutableSubject;
-import pl.librus.client.datamodel.subject.Subject;
-import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.datamodel.announcement.ImmutableAnnouncement;
-import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.grade.ImmutableGrade;
+import pl.librus.client.datamodel.subject.ImmutableSubject;
 
 public class EntityTemplates {
     public static ImmutableGrade grade() {
-        return new Grade.Builder()
+        return ImmutableGrade.builder()
                 .date(LocalDate.now())
                 .addDate(LocalDateTime.now())
                 .addedById("12")
@@ -39,7 +34,7 @@ public class EntityTemplates {
     }
 
     public static ImmutableSubject subject() {
-        return new Subject.Builder()
+        return ImmutableSubject.builder()
                 .id("123")
                 .name("Matematyka")
                 .build();
@@ -47,7 +42,7 @@ public class EntityTemplates {
 
 
     public static ImmutableAnnouncement announcement() {
-        return new Announcement.Builder()
+        return ImmutableAnnouncement.builder()
                 .id("167110")
                 .startDate(LocalDate.parse("2016-09-21"))
                 .endDate(LocalDate.parse("2017-06-14"))
@@ -58,7 +53,7 @@ public class EntityTemplates {
     }
 
     public static ImmutableMe me() {
-        return ImmutableMe.of(new LibrusAccount.Builder()
+        return ImmutableMe.of(ImmutableLibrusAccount.builder()
                 .firstName("Tomasz")
                 .lastName("Problem")
                 .login("12u")
@@ -66,7 +61,7 @@ public class EntityTemplates {
     }
 
     public static ImmutableTeacher teacher() {
-        return new Teacher.Builder()
+        return ImmutableTeacher.builder()
                 .firstName("Ala")
                 .lastName("Makota")
                 .id("12345")
@@ -74,7 +69,7 @@ public class EntityTemplates {
     }
 
     public static ImmutableEvent event() {
-        return new Event.Builder()
+        return ImmutableEvent.builder()
                 .category("7323")
                 .addedBy("1235072")
                 .date(LocalDate.parse("2016-10-07"))

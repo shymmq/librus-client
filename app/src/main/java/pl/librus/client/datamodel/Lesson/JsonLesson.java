@@ -10,7 +10,7 @@ import org.joda.time.LocalDate;
 public abstract class JsonLesson extends BaseLesson {
 
     public Lesson convert(LocalDate date) {
-        return new Lesson.Builder()
+        return ImmutableLesson.builder()
                 .from(this)
                 .date(date)
                 .build();

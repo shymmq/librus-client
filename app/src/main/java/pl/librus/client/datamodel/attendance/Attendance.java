@@ -12,13 +12,9 @@ import io.requery.Persistable;
  * Class representing /Attendances item
  */
 
-@Entity
+@Entity(builder = ImmutableAttendance.Builder.class)
 @Value.Immutable
-@Value.Style(builder = "new")
 @JsonDeserialize(as = ImmutableAttendance.class)
 public abstract class Attendance extends BaseAttendance implements Persistable{
-
-    public static class Builder extends ImmutableAttendance.Builder{
-    }
 
 }
