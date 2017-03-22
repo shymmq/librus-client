@@ -11,6 +11,7 @@ import org.robolectric.annotation.Config;
 import io.reactivex.Single;
 import io.requery.BlockingEntityStore;
 import io.requery.Persistable;
+import pl.librus.client.AnalyticsShadow;
 import pl.librus.client.api.IAPIClient;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.ui.MainApplication;
@@ -20,7 +21,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
 
-@Config(application = MainApplication.class)
+@Config(application = MainApplication.class, shadows = AnalyticsShadow.class)
 public abstract class BaseDBTest {
 
     public static final String DB_NAME = "test";
