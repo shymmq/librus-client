@@ -1,5 +1,7 @@
 package pl.librus.client.datamodel.grade;
 
+import com.google.common.base.Optional;
+
 import org.immutables.value.Value;
 
 import java.util.List;
@@ -18,7 +20,7 @@ public abstract class FullGrade extends BaseGrade {
 
     public abstract List<GradeComment> comments();
 
-    public abstract Teacher addedBy();
+    public abstract Optional<Teacher> addedBy();
 
     public abstract Subject subject();
 
@@ -32,5 +34,10 @@ public abstract class FullGrade extends BaseGrade {
         else if (finalPropositionType()) return GradeType.FINAL_PROPOSITION;
         else if (finalType()) return GradeType.FINAL;
         else return GradeType.NORMAL;
+    }
+
+    public Optional<String> addedByName() {
+        return addedBy().isPresent() ?
+                addedBy().get().name() : Optional.absent();
     }
 }

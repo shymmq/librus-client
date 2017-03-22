@@ -8,6 +8,7 @@ import io.requery.Column;
 import io.requery.Key;
 import io.requery.Superclass;
 import pl.librus.client.api.IdDeserializer;
+import pl.librus.client.api.IdOptionalDeserializer;
 import pl.librus.client.datamodel.Identifiable;
 
 @Superclass
@@ -23,7 +24,7 @@ public abstract class BaseGradeCategory implements Identifiable {
     public abstract String name();
 
     @Column
-    @JsonDeserialize(using = IdDeserializer.class)
+    @JsonDeserialize(using = IdOptionalDeserializer.class)
     @JsonProperty("Color")
     public abstract Optional<String> colorId();
 }

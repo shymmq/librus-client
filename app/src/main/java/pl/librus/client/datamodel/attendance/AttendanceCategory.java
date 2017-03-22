@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Optional;
 
 import org.immutables.value.Value;
 
@@ -25,18 +26,12 @@ public abstract class AttendanceCategory implements Persistable, Identifiable {
 
     public abstract String name();
 
-    @Nullable
-    public abstract String colorRGB();
+    public abstract Optional<String> colorRGB();
 
     @JsonProperty("Short")
     public abstract String shortName();
 
-    public abstract Boolean standard();
-
     @JsonProperty("IsPresenceKind")
     public abstract Boolean presenceKind();
-
-    @JsonProperty("Order")
-    public abstract int priority();
 
 }

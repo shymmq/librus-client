@@ -253,9 +253,7 @@ class EntityMocks {
                 .colorRGB(randomElement(COLORS))
                 .name(lorem.getWords(1, 10))
                 .presenceKind(presence)
-                .priority(random.nextInt(10))
                 .shortName(shortName)
-                .standard(true)
                 .build();
     }
 

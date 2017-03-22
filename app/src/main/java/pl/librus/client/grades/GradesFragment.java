@@ -191,7 +191,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                             .weight()
                             .transform(Object::toString));
 
-            LibrusUtils.setTextViewValue(addedByContainer, addedByTextView, grade.addedBy().name());
+            LibrusUtils.setTextViewValue(addedByContainer, addedByTextView, grade.addedByName());
 
             if (grade.comments() != null && !grade.comments().isEmpty()) {
                 commentContainer.setVisibility(View.VISIBLE);

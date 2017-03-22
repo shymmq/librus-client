@@ -253,9 +253,7 @@ public class EntityParserTest {
             .name("Spóźnienie")
             .id("2")
             .shortName("sp")
-            .standard(true)
             .presenceKind(true)
-            .priority(2)
             .build()));
     }
 

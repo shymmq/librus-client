@@ -197,9 +197,9 @@ public class TimetableFragment extends MainFragment {
             if (lesson.teacher().name().isPresent()) {
                 teacherContainer.setVisibility(View.VISIBLE);
                 SpannableStringBuilder ssb = new SpannableStringBuilder();
-                if (lesson.substitutionClass() && lesson.orgTeacher() != null) {
+                if (lesson.substitutionClass() && lesson.orgTeacher().isPresent()) {
                     Teacher orgTeacher = LibrusData.getInstance(getActivity())
-                            .findByKey(Teacher.class, lesson.orgTeacher()).blockingGet();
+                            .findByKey(Teacher.class, lesson.orgTeacher().get()).blockingGet();
                     if (orgTeacher.name().isPresent()) {
                         ssb
                                 .append(orgTeacher.name().get())

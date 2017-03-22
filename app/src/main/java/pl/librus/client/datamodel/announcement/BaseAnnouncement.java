@@ -13,6 +13,7 @@ import io.requery.Column;
 import io.requery.Key;
 import io.requery.Superclass;
 import pl.librus.client.api.IdDeserializer;
+import pl.librus.client.api.IdOptionalDeserializer;
 import pl.librus.client.datamodel.Identifiable;
 
 @Superclass
@@ -36,7 +37,7 @@ public abstract class BaseAnnouncement implements Identifiable, Serializable {
     @Column
     public abstract String content();
 
-    @JsonDeserialize(using = IdDeserializer.class)
+    @JsonDeserialize(using = IdOptionalDeserializer.class)
     @JsonProperty("AddedBy")
     @Column
     public abstract Optional<String> addedById();

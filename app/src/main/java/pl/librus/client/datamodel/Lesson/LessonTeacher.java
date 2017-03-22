@@ -23,9 +23,11 @@ public abstract class LessonTeacher {
 
     public abstract Optional<String> lastName();
 
-    @Nullable
     @JsonProperty("IsSchoolAdministrator")
-    public abstract Boolean schoolAdministrator();
+    @Value.Default
+    public Boolean schoolAdministrator(){
+        return false;
+    };
 
     public static ImmutableLessonTeacher.Builder builder() {
         return ImmutableLessonTeacher.builder();

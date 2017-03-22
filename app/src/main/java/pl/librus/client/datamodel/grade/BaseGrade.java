@@ -3,6 +3,7 @@ package pl.librus.client.datamodel.grade;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Optional;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -13,6 +14,7 @@ import io.requery.Column;
 import io.requery.Key;
 import io.requery.Superclass;
 import pl.librus.client.api.IdDeserializer;
+import pl.librus.client.api.IdOptionalDeserializer;
 import pl.librus.client.datamodel.Identifiable;
 
 /**
@@ -44,10 +46,10 @@ public abstract class BaseGrade implements Identifiable {
     @Column
     public abstract String studentId();
 
-    @JsonDeserialize(using = IdDeserializer.class)
+    @JsonDeserialize(using = IdOptionalDeserializer.class)
     @JsonProperty("AddedBy")
     @Column
-    public abstract String addedById();
+    public abstract Optional<String> addedById();
 
     @Column
     public abstract String grade();

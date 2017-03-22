@@ -1,10 +1,10 @@
 package pl.librus.client.datamodel.lesson;
 
-import android.support.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Optional;
 
+import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
@@ -14,12 +14,8 @@ import io.requery.Column;
 import io.requery.Convert;
 import io.requery.Key;
 import io.requery.Superclass;
-import pl.librus.client.api.IdDeserializer;
+import pl.librus.client.api.IdOptionalDeserializer;
 import pl.librus.client.sql.LocalTimeConverter;
-
-/**
- * Created by robwys on 04/02/2017.
- */
 
 @Superclass
 public abstract class BaseLesson {
@@ -38,11 +34,17 @@ public abstract class BaseLesson {
 
     @Column
     @JsonProperty("IsSubstitutionClass")
-    public abstract Boolean substitutionClass();
+    @Value.Default
+    public Boolean substitutionClass(){
+        return false;
+    };
 
     @Column
     @JsonProperty("IsCanceled")
-    public abstract Boolean cancelled();
+    @Value.Default
+    public Boolean cancelled(){
+        return false;
+    };
 
     @Convert(LocalTimeConverter.class)
     public abstract LocalTime hourFrom();
@@ -50,31 +52,25 @@ public abstract class BaseLesson {
     @Convert(LocalTimeConverter.class)
     public abstract LocalTime hourTo();
 
-    @Nullable
     @Column
-    public abstract String substitutionNote();
+    public abstract Optional<String> substitutionNote();
 
-    @Nullable
     @Column
-    public abstract LocalDate orgDate();
+    public abstract Optional<LocalDate> orgDate();
 
-    @Nullable
     @Column
-    public abstract Integer orgLessonNo();
+    public abstract Optional<Integer> orgLessonNo();
 
-    @Nullable
     @Column
-    @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String orgLesson();
+    @JsonDeserialize(using = IdOptionalDeserializer.class)
+    public abstract Optional<String> orgLesson();
 
-    @Nullable
     @Column
-    @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String orgSubject();
+    @JsonDeserialize(using = IdOptionalDeserializer.class)
+    public abstract Optional<String> orgSubject();
 
-    @Nullable
     @Column
-    @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String orgTeacher();
+    @JsonDeserialize(using = IdOptionalDeserializer.class)
+    public abstract Optional<String> orgTeacher();
 
 }

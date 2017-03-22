@@ -12,6 +12,7 @@ import io.requery.Column;
 import io.requery.Key;
 import io.requery.Superclass;
 import pl.librus.client.api.IdDeserializer;
+import pl.librus.client.api.IdOptionalDeserializer;
 
 /**
  * Created by robwys on 02/03/2017.
@@ -23,12 +24,12 @@ public abstract class BaseAttendance {
     @Key
     public abstract String id();
 
-    @JsonDeserialize(using = IdDeserializer.class)
+    @JsonDeserialize(using = IdOptionalDeserializer.class)
     @JsonProperty("Lesson")
     @Column
     public abstract Optional<String> lessonId();
 
-    @JsonDeserialize(using = IdDeserializer.class)
+    @JsonDeserialize(using = IdOptionalDeserializer.class)
     @JsonProperty("AddedBy")
     @Column
     public abstract Optional<String> addedById();
