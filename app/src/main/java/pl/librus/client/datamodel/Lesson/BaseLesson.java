@@ -11,11 +11,9 @@ import org.joda.time.LocalTime;
 import javax.persistence.Embedded;
 
 import io.requery.Column;
-import io.requery.Convert;
 import io.requery.Key;
 import io.requery.Superclass;
 import pl.librus.client.api.IdOptionalDeserializer;
-import pl.librus.client.sql.LocalTimeConverter;
 
 @Superclass
 public abstract class BaseLesson {
@@ -35,22 +33,22 @@ public abstract class BaseLesson {
     @Column
     @JsonProperty("IsSubstitutionClass")
     @Value.Default
-    public Boolean substitutionClass(){
+    public Boolean substitutionClass() {
         return false;
-    };
+    }
 
     @Column
     @JsonProperty("IsCanceled")
     @Value.Default
-    public Boolean cancelled(){
+    public Boolean cancelled() {
         return false;
-    };
+    }
 
-    @Convert(LocalTimeConverter.class)
-    public abstract LocalTime hourFrom();
+    @Column
+    public abstract Optional<LocalTime> hourFrom();
 
-    @Convert(LocalTimeConverter.class)
-    public abstract LocalTime hourTo();
+    @Column
+    public abstract Optional<LocalTime> hourTo();
 
     @Column
     public abstract Optional<String> substitutionNote();

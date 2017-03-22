@@ -184,14 +184,17 @@ public class TimetableFragment extends MainFragment {
             dateTextView.setText(new SpannableStringBuilder()
                     .append(lesson.date().toString("EEEE, d MMMM yyyy", new Locale("pl")),
                             new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
-            timeTextView.setText(new SpannableStringBuilder()
-                    .append(lesson.hourFrom().toString("HH:mm"))
-                    .append(" - ")
-                    .append(lesson.hourTo().toString("HH:mm"))
-                    .append(' ')
-                    .append(String.valueOf(lesson.lessonNo()),
-                            new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                    .append(". lekcja", new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+            SpannableStringBuilder timeSSB = new SpannableStringBuilder();
+            if (lesson.hourFrom().isPresent() && lesson.hourTo().isPresent()) {
+                timeSSB.append(lesson.hourFrom().get().toString("HH:mm"))
+                        .append(" - ")
+                        .append(lesson.hourTo().get().toString("HH:mm"))
+                        .append(' ');
+            }
+            timeSSB.append(String.valueOf(lesson.lessonNo()),
+                    new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                    .append(". lekcja", new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            timeTextView.setText(timeSSB);
 
             //TODO add Events
             if (lesson.teacher().name().isPresent()) {

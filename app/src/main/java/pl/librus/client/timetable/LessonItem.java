@@ -107,8 +107,10 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
             if (preferences
                     .getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
                     LocalDate.now().isEqual(lesson.date()) &&
-                    timeNow.isAfter(lesson.hourFrom()) &&
-                    timeNow.isBefore(lesson.hourTo())) {
+                    lesson.hourFrom().isPresent() &&
+                    lesson.hourTo().isPresent() &&
+                    timeNow.isAfter(lesson.hourFrom().get()) &&
+                    timeNow.isBefore(lesson.hourTo().get())) {
                 holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
             } else {
                 holder.subject.setTypeface(null, Typeface.NORMAL);
