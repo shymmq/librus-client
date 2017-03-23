@@ -17,16 +17,15 @@ import com.google.common.collect.Ordering;
 import java.util.List;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
+import eu.davidea.flexibleadapter.items.IFlexible;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.announcement.FullAnnouncement;
 import pl.librus.client.ui.BaseFragment;
 import pl.librus.client.ui.MainActivity;
-import pl.librus.client.ui.MainFragment;
 
 import static java8.util.stream.Collectors.toList;
 
@@ -64,16 +63,19 @@ public class AnnouncementsFragment extends BaseFragment {
                 .compound(Ordering.natural()
                         .onResultOf(AnnouncementItem::getStartDate).reverse());
 
-        List<AnnouncementItem> announcementItems = StreamSupport.stream(announcements)
+        List<IFlexible> announcementItems = StreamSupport.stream(announcements)
                 .map(a -> new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())))
                 .sorted(ordering)
                 .collect(toList());
 
-        final FlexibleAdapter<AnnouncementItem> adapter = new FlexibleAdapter<>(announcementItems);
+        final FlexibleAdapter<IFlexible> adapter = new FlexibleAdapter<>(announcementItems);
         adapter.setDisplayHeadersAtStartUp(true);
         adapter.mItemClickListener = position -> {
-            AnnouncementItem item = adapter.getItem(position);
-            FullAnnouncement announcement = item.getAnnouncement();
+            IFlexible item = adapter.getItem(position);
+            if (!(item instanceof AnnouncementItem)) return false;
+
+            AnnouncementItem announcementItem = (AnnouncementItem) item;
+            FullAnnouncement announcement = announcementItem.getAnnouncement();
 
             FragmentManager fm = getFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
@@ -91,14 +93,11 @@ public class AnnouncementsFragment extends BaseFragment {
             announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
 
             ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
-            ft.addSharedElement(item.getBackgroundView(), item.getBackgroundView().getTransitionName());
+            ft.addSharedElement(announcementItem.getBackgroundView(), announcementItem.getBackgroundView().getTransitionName());
             ft.addToBackStack(null);
             ft.commit();
-            return false;
-        };
-        adapter.mItemLongClickListener = position -> {
-            new Reader(getContext()).modify(adapter.getItem(position).getAnnouncement(), false);
-            adapter.notifyItemChanged(position);
+
+            return true;
         };
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
