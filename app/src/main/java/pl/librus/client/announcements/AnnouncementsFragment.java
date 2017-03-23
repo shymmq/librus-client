@@ -3,6 +3,7 @@ package pl.librus.client.announcements;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.transition.Fade;
@@ -32,16 +33,10 @@ import static java8.util.stream.Collectors.toList;
 public class AnnouncementsFragment extends BaseFragment {
 
     private View root;
+    private SwipeRefreshLayout refreshLayout;
 
     public AnnouncementsFragment() {
         // Required empty public constructor
-    }
-
-    public static AnnouncementsFragment newInstance() {
-        Bundle args = new Bundle();
-        AnnouncementsFragment fragment = new AnnouncementsFragment();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -58,6 +53,8 @@ public class AnnouncementsFragment extends BaseFragment {
 
     private void displayList(List<? extends FullAnnouncement> announcements) {
         RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_announcements_refresh_layout);
+
         Ordering<AnnouncementItem> ordering = Ordering.natural()
                 .onResultOf(AnnouncementItem::getHeaderOrder)
                 .compound(Ordering.natural()
@@ -102,7 +99,15 @@ public class AnnouncementsFragment extends BaseFragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(adapter);
+
+        refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
+        refreshLayout.setOnRefreshListener(this::refresh);
+
         ((MainActivity) getActivity()).setBackArrow(false);
+    }
+
+    private void refresh() {
+        refreshLayout.setRefreshing(false);
     }
 
     @Override

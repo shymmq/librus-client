@@ -3,6 +3,7 @@ package pl.librus.client.attendances;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -34,7 +35,6 @@ import pl.librus.client.datamodel.attendance.EnrichedAttendance;
 import pl.librus.client.datamodel.attendance.FullAttendance;
 import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.ui.BaseFragment;
-import pl.librus.client.ui.MainFragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,6 +43,7 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
 
     private FlexibleAdapter<IFlexible> adapter;
     private View root;
+    private SwipeRefreshLayout refreshLayout;
 
     public AttendanceFragment() {
         // Required empty public constructor
@@ -65,11 +66,15 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
 
     private void displayList(List<? extends EnrichedAttendance> attendances) {
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_attendances_refresh_layout);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new FlexibleAdapter<>(null, this);
         recyclerView.setAdapter(adapter);
+
+        refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
+        refreshLayout.setOnRefreshListener(this::refresh);
 
         Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
         for (EnrichedAttendance attendance : attendances) {
@@ -92,6 +97,10 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
         for (AttendanceHeaderItem headerItem : headers) {
             adapter.addSection(headerItem);
         }
+    }
+
+    private void refresh() {
+        refreshLayout.setRefreshing(false);
     }
 
     @Override

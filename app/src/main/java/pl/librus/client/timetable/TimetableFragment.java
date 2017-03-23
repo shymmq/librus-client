@@ -4,6 +4,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -41,7 +42,6 @@ import pl.librus.client.api.LibrusData;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.datamodel.lesson.Lesson;
 import pl.librus.client.ui.BaseFragment;
-import pl.librus.client.ui.MainFragment;
 
 public class TimetableFragment extends BaseFragment {
     private final ProgressItem progressItem = new ProgressItem();
@@ -49,6 +49,7 @@ public class TimetableFragment extends BaseFragment {
     private SmoothScrollLinearLayoutManager layoutManager;
     private LocalDate weekStart;
     private IFlexible defaultHeader;
+    private SwipeRefreshLayout refreshLayout;
 
     public TimetableFragment() {
     }
@@ -115,12 +116,14 @@ public class TimetableFragment extends BaseFragment {
 
     private void displayInitial(List<IFlexible> elements) {
         weekStart = weekStart.plusWeeks(2);
-        final RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.fragment_timetable_recycler);
-
-        recyclerView.setVisibility(View.VISIBLE);
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.fragment_timetable_recycler);
+        refreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.fragment_timetable_refresh_layout);
 
         layoutManager = new SmoothScrollLinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
+
+        refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
+        refreshLayout.setOnRefreshListener(this::refresh);
 
         adapter = new TimetableAdapter(elements);
 
@@ -147,6 +150,10 @@ public class TimetableFragment extends BaseFragment {
             if (defaultHeader != null)
                 recyclerView.smoothScrollToPosition(adapter.getGlobalPositionOf(defaultHeader));
         }, 50);
+    }
+
+    private void refresh() {
+        refreshLayout.setRefreshing(false);
     }
 
     private void moreLoaded(List<IFlexible> elements) {

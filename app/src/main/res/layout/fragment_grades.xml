@@ -4,9 +4,15 @@
     android:layout_height="match_parent"
     tools:context="pl.librus.client.grades.GradesFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/fragment_grades_main_list"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/fragment_grades_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/fragment_grades_main_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </FrameLayout>

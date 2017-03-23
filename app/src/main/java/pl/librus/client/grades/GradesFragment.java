@@ -4,6 +4,7 @@ package pl.librus.client.grades;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -53,6 +54,7 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private Reader reader;
     private java8.util.function.Consumer<List<? extends MenuAction>> actionsHandler;
+    private SwipeRefreshLayout refreshLayout;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -68,8 +70,11 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
 
         //Setup RecyclerView
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_grades_main_list);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_grades_refresh);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.getItemAnimator().setChangeDuration(0);
+        refreshLayout.setOnRefreshListener(this::refresh);
+        refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
         adapter = new FlexibleAdapter<>(null, this);
 
         //TODO fix auto collapse
@@ -95,14 +100,18 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
         gradeObservable.toList()
                 .map(grades ->
                         new ReadAllMenuAction(
-                        grades,
-                        getContext(),
+                                grades,
+                                getContext(),
                                 this::allGradesChanged))
                 .map(Lists::newArrayList)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(actions -> actionsHandler.accept(actions));
 
         return root;
+    }
+
+    private void refresh() {
+        refreshLayout.setRefreshing(false);
     }
 
     private Map<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> mapGradesToSubjects(
