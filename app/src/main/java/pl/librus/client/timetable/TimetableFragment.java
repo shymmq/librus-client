@@ -64,18 +64,7 @@ public class TimetableFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        weekStart = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
-        List<LocalDate> initialWeekStarts = Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
-
-        Observable.fromIterable(initialWeekStarts)
-                .flatMap(ws -> LibrusData.getInstance(getActivity())
-                        .findLessonsForWeek(ws).toObservable()
-                        .map(mapLessonsForWeek(ws)))
-                .flatMapIterable(l -> l)
-                .toList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::displayInitial);
+        refresh();
     }
 
     private Function<List<Lesson>, List<IFlexible>> mapLessonsForWeek(LocalDate weekStart) {
@@ -124,6 +113,7 @@ public class TimetableFragment extends BaseFragment {
 
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
         refreshLayout.setOnRefreshListener(this::refresh);
+        refreshLayout.setRefreshing(false);
 
         adapter = new TimetableAdapter(elements);
 
@@ -153,7 +143,18 @@ public class TimetableFragment extends BaseFragment {
     }
 
     private void refresh() {
-        refreshLayout.setRefreshing(false);
+        weekStart = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
+        List<LocalDate> initialWeekStarts = Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
+
+        Observable.fromIterable(initialWeekStarts)
+                .flatMap(ws -> LibrusData.getInstance(getActivity())
+                        .findLessonsForWeek(ws).toObservable()
+                        .map(mapLessonsForWeek(ws)))
+                .flatMapIterable(l -> l)
+                .toList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayInitial);
     }
 
     private void moreLoaded(List<IFlexible> elements) {

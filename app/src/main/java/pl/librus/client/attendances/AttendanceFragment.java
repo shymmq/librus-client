@@ -44,6 +44,7 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
     private FlexibleAdapter<IFlexible> adapter;
     private View root;
     private SwipeRefreshLayout refreshLayout;
+    private RecyclerView recyclerView;
 
     public AttendanceFragment() {
         // Required empty public constructor
@@ -55,6 +56,16 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_attendances, container, false);
 
+        recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_attendances_refresh_layout);
+        adapter = new FlexibleAdapter<>(null, this);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+
+        refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
+        refreshLayout.setOnRefreshListener(this::refresh);
+
         LibrusData.getInstance(getActivity())
                 .findEnrichedAttendances()
                 .subscribeOn(Schedulers.io())
@@ -65,16 +76,7 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
     }
 
     private void displayList(List<? extends EnrichedAttendance> attendances) {
-        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.fragment_attendances_main_list);
-        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_attendances_refresh_layout);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        adapter = new FlexibleAdapter<>(null, this);
-        recyclerView.setAdapter(adapter);
-
-        refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
-        refreshLayout.setOnRefreshListener(this::refresh);
+        adapter.clear();
 
         Map<LocalDate, AttendanceHeaderItem> headerItemMap = new HashMap<>();
         for (EnrichedAttendance attendance : attendances) {
@@ -97,10 +99,16 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
         for (AttendanceHeaderItem headerItem : headers) {
             adapter.addSection(headerItem);
         }
+
+        refreshLayout.setRefreshing(false);
     }
 
     private void refresh() {
-        refreshLayout.setRefreshing(false);
+        LibrusData.getInstance(getActivity())
+                .findEnrichedAttendances()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayList);
     }
 
     @Override

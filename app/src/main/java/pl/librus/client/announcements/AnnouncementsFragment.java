@@ -34,6 +34,8 @@ public class AnnouncementsFragment extends BaseFragment {
 
     private View root;
     private SwipeRefreshLayout refreshLayout;
+    private FlexibleAdapter adapter;
+    private Ordering<AnnouncementItem> ordering;
 
     public AnnouncementsFragment() {
         // Required empty public constructor
@@ -55,7 +57,9 @@ public class AnnouncementsFragment extends BaseFragment {
         RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_announcements_refresh_layout);
 
-        Ordering<AnnouncementItem> ordering = Ordering.natural()
+        refreshLayout.setRefreshing(false);
+
+        ordering = Ordering.natural()
                 .onResultOf(AnnouncementItem::getHeaderOrder)
                 .compound(Ordering.natural()
                         .onResultOf(AnnouncementItem::getStartDate).reverse());
@@ -65,37 +69,9 @@ public class AnnouncementsFragment extends BaseFragment {
                 .sorted(ordering)
                 .collect(toList());
 
-        final FlexibleAdapter<IFlexible> adapter = new FlexibleAdapter<>(announcementItems);
+        adapter = new FlexibleAdapter<>(announcementItems);
         adapter.setDisplayHeadersAtStartUp(true);
-        adapter.mItemClickListener = position -> {
-            IFlexible item = adapter.getItem(position);
-            if (!(item instanceof AnnouncementItem)) return false;
-
-            AnnouncementItem announcementItem = (AnnouncementItem) item;
-            FullAnnouncement announcement = announcementItem.getAnnouncement();
-
-            FragmentManager fm = getFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-
-            AnnouncementDetailsFragment announcementDetailsFragment = AnnouncementDetailsFragment.newInstance(announcement);
-
-            TransitionInflater transitionInflater = TransitionInflater.from(getContext());
-            Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
-            Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
-
-            setSharedElementEnterTransition(details_enter);
-            setSharedElementReturnTransition(details_exit);
-            setExitTransition(new Fade());
-            announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
-            announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
-
-            ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
-            ft.addSharedElement(announcementItem.getBackgroundView(), announcementItem.getBackgroundView().getTransitionName());
-            ft.addToBackStack(null);
-            ft.commit();
-
-            return true;
-        };
+        adapter.mItemClickListener = this::onClick;
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(adapter);
@@ -106,8 +82,42 @@ public class AnnouncementsFragment extends BaseFragment {
         ((MainActivity) getActivity()).setBackArrow(false);
     }
 
+    private boolean onClick(int position) {
+        IFlexible item = adapter.getItem(position);
+        if (!(item instanceof AnnouncementItem)) return false;
+
+        AnnouncementItem announcementItem = (AnnouncementItem) item;
+        FullAnnouncement announcement = announcementItem.getAnnouncement();
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+
+        AnnouncementDetailsFragment announcementDetailsFragment = AnnouncementDetailsFragment.newInstance(announcement);
+
+        TransitionInflater transitionInflater = TransitionInflater.from(getContext());
+        Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
+        Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
+
+        setSharedElementEnterTransition(details_enter);
+        setSharedElementReturnTransition(details_exit);
+        setExitTransition(new Fade());
+        announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
+        announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
+
+        ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
+        ft.addSharedElement(announcementItem.getBackgroundView(), announcementItem.getBackgroundView().getTransitionName());
+        ft.addToBackStack(null);
+        ft.commit();
+
+        return true;
+    }
+
     private void refresh() {
-        refreshLayout.setRefreshing(false);
+        LibrusData.getInstance(getActivity())
+                .findFullAnnouncements()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayList);
     }
 
     @Override

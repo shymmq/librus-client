@@ -84,6 +84,13 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
 
         recyclerView.setAdapter(adapter);
 
+        refresh();
+
+        return root;
+    }
+
+    private void refresh() {
+
         Observable<ImmutableEnrichedGrade> gradeObservable = LibrusData.getInstance(getActivity())
                 .findEnrichedGrades()
                 .cache()
@@ -106,12 +113,6 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
                 .map(Lists::newArrayList)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(actions -> actionsHandler.accept(actions));
-
-        return root;
-    }
-
-    private void refresh() {
-        refreshLayout.setRefreshing(false);
     }
 
     private Map<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> mapGradesToSubjects(
@@ -125,6 +126,10 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
     }
 
     private void displayGrades(Map<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> mappedGrades) {
+
+        adapter.clear();
+        refreshLayout.setRefreshing(false);
+
         for (Map.Entry<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> entry : mappedGrades.entrySet()) {
             ImmutableFullSubject s = entry.getKey();
 
