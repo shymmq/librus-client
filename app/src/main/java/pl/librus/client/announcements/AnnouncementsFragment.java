@@ -24,12 +24,13 @@ import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.announcement.FullAnnouncement;
+import pl.librus.client.ui.BaseFragment;
 import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainFragment;
 
 import static java8.util.stream.Collectors.toList;
 
-public class AnnouncementsFragment extends MainFragment {
+public class AnnouncementsFragment extends BaseFragment {
 
     private View root;
 

@@ -9,37 +9,21 @@ import android.support.v4.app.Fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import java8.util.function.Consumer;
+
 /**
  * Created by szyme on 05.12.2016.
  * Interface for all directly shown fragments
  */
 
-public abstract class MainFragment extends Fragment {
+public interface MainFragment {
 
-    private Runnable onSetupComplete;
-
-    void runAfterSetup(Runnable r) {
-        this.onSetupComplete = r;
-    }
-
-    public List<? extends MenuAction> getMenuItems() {
-        return new ArrayList<>();
-    }
-
-    public interface OnSetupCompleteListener {
-        void run();
-    }
+    void setMenuActionsHandler(Consumer<List<? extends MenuAction>> handler);
 
     @StringRes
-    public abstract int getTitle();
+    int getTitle();
 
     @DrawableRes
-    public abstract int getIcon();
+    int getIcon();
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (onSetupComplete != null) onSetupComplete.run();
-        onSetupComplete = null;
-    }
 }

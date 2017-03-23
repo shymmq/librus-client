@@ -40,9 +40,10 @@ import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.datamodel.lesson.Lesson;
+import pl.librus.client.ui.BaseFragment;
 import pl.librus.client.ui.MainFragment;
 
-public class TimetableFragment extends MainFragment {
+public class TimetableFragment extends BaseFragment {
     private final ProgressItem progressItem = new ProgressItem();
     private TimetableAdapter adapter;
     private SmoothScrollLinearLayoutManager layoutManager;

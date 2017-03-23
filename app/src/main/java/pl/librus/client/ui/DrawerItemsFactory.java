@@ -1,5 +1,7 @@
 package pl.librus.client.ui;
 
+import android.support.v4.app.Fragment;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.mikepenz.materialdrawer.Drawer;
@@ -17,8 +19,8 @@ import pl.librus.client.timetable.TimetableFragment;
 
 
 public class DrawerItemsFactory {
-    public IDrawerItem[] getItems(Consumer<MainFragment> displayFragment) {
-        Function<MainFragment, Drawer.OnDrawerItemClickListener> clickListenerConverter = fragment ->
+    public IDrawerItem[] getItems(Consumer<BaseFragment> displayFragment) {
+        Function<BaseFragment, Drawer.OnDrawerItemClickListener> clickListenerConverter = fragment ->
                 (view, position, drawerItem) -> {
                     displayFragment.accept(fragment);
                     return false;

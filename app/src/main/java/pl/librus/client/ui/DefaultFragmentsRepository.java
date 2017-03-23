@@ -11,7 +11,7 @@ import pl.librus.client.timetable.TimetableFragment;
 
 public abstract class DefaultFragmentsRepository {
 
-    public List<MainFragment> getAll() {
+    public List<BaseFragment> getAll() {
         return ImmutableList.of(
                 new TimetableFragment(),
                 new GradesFragment(),

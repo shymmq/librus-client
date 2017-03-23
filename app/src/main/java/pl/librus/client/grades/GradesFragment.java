@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.collect.Lists;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,27 +39,23 @@ import pl.librus.client.datamodel.grade.EnrichedGrade;
 import pl.librus.client.datamodel.grade.FullGrade;
 import pl.librus.client.datamodel.grade.ImmutableEnrichedGrade;
 import pl.librus.client.datamodel.subject.ImmutableFullSubject;
-import pl.librus.client.ui.MainFragment;
+import pl.librus.client.ui.BaseFragment;
 import pl.librus.client.ui.MenuAction;
 import pl.librus.client.ui.ReadAllMenuAction;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GradesFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener {
+public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnItemClickListener {
 
     private final Comparator<GradeHeaderItem> headerComparator = GradeHeaderItem::compareTo;
 
-    List<? extends MenuAction> actions = new ArrayList<>();
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private Reader reader;
+    private java8.util.function.Consumer<List<? extends MenuAction>> actionsHandler;
 
     public GradesFragment() {
         // Required empty public constructor
-    }
-
-    public static GradesFragment newInstance() {
-        return new GradesFragment();
     }
 
     @Override
@@ -97,12 +92,15 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayGrades);
 
-
-        gradeObservable.toList().subscribe(grades ->
-                actions = Lists.newArrayList(new ReadAllMenuAction(
+        gradeObservable.toList()
+                .map(grades ->
+                        new ReadAllMenuAction(
                         grades,
                         getContext(),
-                        this::allGradesChanged)));
+                                this::allGradesChanged))
+                .map(Lists::newArrayList)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(actions -> actionsHandler.accept(actions));
 
         return root;
     }
@@ -212,8 +210,8 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     }
 
     @Override
-    public List<? extends MenuAction> getMenuItems() {
-        return actions;
+    public void setMenuActionsHandler(java8.util.function.Consumer<List<? extends MenuAction>> actionsHandler) {
+        this.actionsHandler = actionsHandler;
     }
 
     @Override

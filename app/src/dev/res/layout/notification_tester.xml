@@ -57,4 +57,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/button_lucky"
         android:text="@string/lucky_number" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/snackbar"
+        android:text="@string/snackbar" />
 </LinearLayout>

@@ -2,6 +2,7 @@ package pl.librus.client.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.announcement.Announcement;
 import pl.librus.client.datamodel.grade.Grade;
 
-public class NotificationTesterFragment extends MainFragment {
+public class NotificationTesterFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -73,6 +74,12 @@ public class NotificationTesterFragment extends MainFragment {
                 service::addLuckyNumber,
                 1
         );
+
+        v.findViewById(R.id.snackbar).setOnClickListener(snackView -> Snackbar.make(
+                getActivity().findViewById(R.id.activity_main_coordinator),
+                R.string.offline_data_error,
+                Snackbar.LENGTH_LONG)
+                .show());
 
         return v;
     }

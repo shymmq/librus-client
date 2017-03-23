@@ -7,4 +7,5 @@
     <string name="multiple_announcements">Wiele ogłoszeń</string>
     <string name="single_event">1 wydarzenie </string>
     <string name="multiple_events">Wiele wydarzeń</string>
+    <string name="snackbar">Snackbar</string>
 </resources>

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -59,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private Drawer drawer;
     private Toolbar toolbar;
     private Menu menu;
-    private MainFragment currentFragment;
     private MaterialDialog progressDialog;
+    private MainFragment currentFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            if (BuildConfig.DEBUG || prefs.getLong(getString(R.string.last_update), -1) < 0) {
+            if (!wasAlreadyOpen()) {
                 //database empty or null update and then setup()
 
                 progressDialog = new MaterialDialog.Builder(MainActivity.this)
@@ -107,12 +108,12 @@ public class MainActivity extends AppCompatActivity {
         LibrusUtils.log("Handle update error");
         if (exception instanceof OfflineException) {
             LibrusUtils.log("Offline mode");
+            setup();
             Snackbar.make(
                     findViewById(R.id.activity_main_coordinator),
                     R.string.offline_data_error,
                     Snackbar.LENGTH_LONG)
                     .show();
-            setup();
         } else if (exception instanceof HttpException && exception.getMessage().contains("Request is denied")) {
             LibrusUtils.log("Request denied, logout");
 
@@ -127,26 +128,6 @@ public class MainActivity extends AppCompatActivity {
                     Snackbar.LENGTH_SHORT)
                     .show();
         }
-    }
-
-    private void setInitialFragment() {
-        int fragmentTitle = getIntent().getIntExtra(INITIAL_FRAGMENT, -1);
-
-        if (fragmentTitle < 0) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            String defaultFragment = prefs.getString("defaultFragment", "-1");
-
-            fragmentTitle = Integer.valueOf(defaultFragment);
-        }
-
-        setFragment(fragmentTitle);
-    }
-
-    private void setFragment(int fragmentTitle) {
-        this.currentFragment = StreamSupport.stream(new FragmentsRepository().getAll())
-                .filter(f -> f.getTitle() == fragmentTitle)
-                .findFirst()
-                .orElseGet(TimetableFragment::new);
     }
 
     private void setup() {
@@ -165,8 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 .map(this::initDrawer)
                 .subscribe(drawer -> {
                     this.drawer = drawer;
-                    setInitialFragment();
-                    displayFragment(currentFragment);
+                    displayInitialFragment();
                 });
     }
 
@@ -197,9 +177,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private PrimaryDrawerItem getSettingsDrawerItem() {
+        SettingsFragment fragment = new SettingsFragment();
         return new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                .withName(R.string.settings_title)
-                .withIcon(R.drawable.ic_settings_black_48dp)
+                .withName(fragment.getTitle())
+                .withIcon(fragment.getIcon())
+                .withIdentifier(fragment.getTitle())
+                .withIconTintingEnabled(true)
                 .withOnDrawerItemClickListener(this::openSettings);
     }
 
@@ -277,8 +260,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean openSettings(View view, int position, IDrawerItem drawerItem) {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
+        displayFragment(new SettingsFragment());
         return false;
     }
 
@@ -314,17 +296,47 @@ public class MainActivity extends AppCompatActivity {
         startService(intent);
     }
 
-    private void displayFragment(MainFragment fragment) {
-        currentFragment = fragment;
-        drawer.setSelection(currentFragment.getTitle(), false);
+    private boolean wasAlreadyOpen() {
+        return getSupportFragmentManager().findFragmentById(R.id.content_main) != null;
+    }
+
+    private void displayInitialFragment() {
+        if(!wasAlreadyOpen()) {
+            displayFragment(getInitialFragment());
+        }
+    }
+
+    private BaseFragment getInitialFragment() {
+        int fragmentTitle = getIntent().getIntExtra(INITIAL_FRAGMENT, -1);
+
+        if (fragmentTitle < 0) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            String defaultFragment = prefs.getString("defaultFragment", "-1");
+
+            fragmentTitle = Integer.valueOf(defaultFragment);
+        }
+        return getFragmentForTitle(fragmentTitle);
+    }
+
+    private BaseFragment getFragmentForTitle(int fragmentTitle) {
+        return StreamSupport.stream(new FragmentsRepository().getAll())
+                .filter(f -> f.getTitle() == fragmentTitle)
+                .findFirst()
+                .orElseGet(TimetableFragment::new);
+    }
+
+    private <T extends Fragment & MainFragment> void displayFragment(T fragment) {
+        drawer.setSelection(fragment.getTitle(), false);
 
         getToolbar().setTitle(fragment.getTitle());
+
+        menu.clear();
+        this.currentFragment = fragment;
+        fragment.setMenuActionsHandler(this::setActions);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_main, fragment)
                 .commit();
-
-        fragment.runAfterSetup(this::updateMenu);
     }
 
     @Override
@@ -333,9 +345,12 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public void setActions(List<? extends MenuAction> actions) {
+        this.actions = actions;
+        updateMenu();
+    }
+
     private void updateMenu() {
-        actions = currentFragment.getMenuItems();
-        menu.clear();
         for (int id = 0; id < actions.size(); id++) {
             MenuAction action = actions.get(id);
             boolean enabled = action.isEnabled();
@@ -348,6 +363,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         actions.get(item.getItemId()).run();
+        menu.clear();
         updateMenu();
         return true;
     }

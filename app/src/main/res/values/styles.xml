@@ -50,6 +50,8 @@
         <item name="material_drawer_header_selection_text">
             @color/material_drawer_dark_header_selection_text
         </item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+
     </style>
 
     <style name="AppTheme.Light" parent="Theme.AppCompat.Light">
@@ -65,6 +67,8 @@
         <item name="defaultBackgroundColor">@color/md_light_background</item>
         <item name="solidCircleColor">?android:attr/textColorPrimaryInverse</item>
         <item name="itemDividerColor">@color/md_divider_black</item>
+
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
 
     <style name="AppTheme.Fullscreen" parent="Theme.AppCompat.Light.NoActionBar" />

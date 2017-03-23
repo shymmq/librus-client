@@ -33,12 +33,13 @@ import pl.librus.client.datamodel.attendance.AttendanceCategory;
 import pl.librus.client.datamodel.attendance.EnrichedAttendance;
 import pl.librus.client.datamodel.attendance.FullAttendance;
 import pl.librus.client.datamodel.subject.Subject;
+import pl.librus.client.ui.BaseFragment;
 import pl.librus.client.ui.MainFragment;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AttendanceFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener {
+public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.OnItemClickListener {
 
     private FlexibleAdapter<IFlexible> adapter;
     private View root;
