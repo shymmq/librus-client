@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
+def flavor
+
 android {
     compileSdkVersion 25
     buildToolsVersion '25.0.2'
@@ -20,9 +22,21 @@ android {
     }
 
     productFlavors {
-        full
-        foss
-        dev
+        full {
+            resValue "string", "app_name", "Dziennik"
+            flavor = "full"
+            applicationIdSuffix ""
+        }
+        foss {
+            resValue "string", "app_name", "Dziennik (foss)"
+            flavor = "foss"
+            applicationIdSuffix ".foss"
+        }
+        dev {
+            resValue "string", "app_name", "Dziennik (dev)"
+            flavor = "dev"
+            applicationIdSuffix ".dev"
+        }
     }
 
     applicationVariants.all { variant ->
@@ -103,4 +117,6 @@ dependencies {
     fullCompile 'com.google.firebase:firebase-core:10.2.0'
     provided 'org.immutables:value:2.4.4-SNAPSHOT'
 }
-apply plugin: 'com.google.gms.google-services'
+if (flavor == "full") {
+    apply plugin: 'com.google.gms.google-services'
+}
