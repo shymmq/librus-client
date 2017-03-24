@@ -20,16 +20,14 @@ public class MainApplication extends MultiDexApplication {
         super.onCreate();
         StrictMode.enableDefaults();
         new Analytics().init(this);
-        Consumer<Throwable> originalErrorHandler = RxJavaPlugins.getErrorHandler();
+
         RxJavaPlugins.setErrorHandler(throwable -> {
             if (throwable instanceof HttpException) {
                 //If there are many requests sent at once, first error is handler normally, the rest lands here
                 LibrusUtils.log("plugin handle");
                 LibrusUtils.log(throwable);
-            } else if(originalErrorHandler != null) {
-                originalErrorHandler.accept(throwable);
             } else {
-                throwable.printStackTrace();
+                RxJavaPlugins.onError(throwable);
             }
         });
         MainApplication.context = getApplicationContext();
