@@ -2,8 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
-def flavor
-
+def firebaseEnabled = false
 android {
     compileSdkVersion 25
     buildToolsVersion '25.0.2'
@@ -24,17 +23,17 @@ android {
     productFlavors {
         full {
             resValue "string", "app_name", "Dziennik"
-            flavor = "full"
+            firebaseEnabled = true
             applicationIdSuffix ""
         }
         foss {
             resValue "string", "app_name", "Dziennik (foss)"
-            flavor = "foss"
+            firebaseEnabled = false
             applicationIdSuffix ".foss"
         }
         dev {
             resValue "string", "app_name", "Dziennik (dev)"
-            flavor = "dev"
+            firebaseEnabled = false
             applicationIdSuffix ".dev"
         }
     }
@@ -113,10 +112,8 @@ dependencies {
     apt 'org.immutables:value:2.4.4-SNAPSHOT'
     devCompile 'com.thedeanda:lorem:2.1'
     fullCompile 'com.google.android.gms:play-services-gcm:10.2.0'
-    fullCompile 'com.google.android.gms:play-services:10.2.0'
     fullCompile 'com.google.firebase:firebase-core:10.2.0'
+    fullCompile 'com.google.firebase:firebase-crash:10.2.0'
     provided 'org.immutables:value:2.4.4-SNAPSHOT'
 }
-if (flavor == "full") {
-    apply plugin: 'com.google.gms.google-services'
-}
+apply plugin: 'com.google.gms.google-services'

@@ -1,5 +1,4 @@
 <resources>
-    <string name="google_app_id" translatable="false">1:934408527422:android:a551aae266aeafa2</string>
 
     <string name="lesson_empty">Okienko</string>
     <string name="placeholder_lesson_number">3</string>

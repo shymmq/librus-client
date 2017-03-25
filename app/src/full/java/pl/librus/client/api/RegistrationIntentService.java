@@ -2,14 +2,15 @@ package pl.librus.client.api;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 
 import pl.librus.client.LibrusConstants;
+import pl.librus.client.LibrusUtils;
 
 /**
  * Created by szyme on 15.12.2016. librus-client
@@ -17,7 +18,6 @@ import pl.librus.client.LibrusConstants;
 
 public class RegistrationIntentService extends IntentService {
 
-    private static final String TAG = "librus-client-logError";
     public static final String APP_ID = "431120868545";
 
     public RegistrationIntentService() {
@@ -31,14 +31,17 @@ public class RegistrationIntentService extends IntentService {
             if (register) {
                 String token = InstanceID.getInstance(this)
                         .getToken(APP_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-                new DefaultAPIClient(this).pushDevices(token).subscribe();
-                Log.d(TAG, "GCM token: " + token);
+                LibrusUtils.log("Retrieved GCM token " + token);
+                new DefaultAPIClient(this).pushDevices(token)
+                        .subscribe(o -> LibrusUtils.log("/PushDevices registration successful"));
             } else {
                 InstanceID.getInstance(this)
                         .deleteToken(APP_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE);
+                LibrusUtils.log("Unregistered GCM");
             }
-
         } catch (IOException e) {
+            LibrusUtils.logError("Failed to register GCM");
+            FirebaseCrash.report(e);
             e.printStackTrace();
         }
     }

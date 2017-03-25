@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "242197342244",
+    "firebase_url": "https://librus-client-dev.firebaseio.com",
+    "project_id": "librus-client-dev",
+    "storage_bucket": "librus-client-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242197342244:android:a0cc7e3b9014a24f",
+        "android_client_info": {
+          "package_name": "pl.librus.client.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "242197342244-2dk1m6j42enli7j7uv3al126jevfe5d7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMl0JFa3gP9ml0Blr8-SzDrXyyGkaGOG0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
