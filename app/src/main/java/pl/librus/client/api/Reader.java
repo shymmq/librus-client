@@ -36,7 +36,7 @@ public class Reader {
 
     public void modify(Identifiable object, boolean mode) {
         String classId = getClassId(object);
-        LibrusUtils.log("Modifying read status of %s:%s to %b", classId, object.id(), mode);
+        LibrusUtils.log("Modifying read status create %s:%s to %b", classId, object.id(), mode);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         Set<String> read = Sets.newHashSet(getRead(classId));

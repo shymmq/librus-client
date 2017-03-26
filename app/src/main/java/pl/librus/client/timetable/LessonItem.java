@@ -64,8 +64,8 @@ class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder
 
     /**
      * The Adapter is provided to be forwarded to the MyViewHolder.
-     * The unique instance of the LayoutInflater is also provided to simplify the
-     * creation of the VH.
+     * The unique instance create the LayoutInflater is also provided to simplify the
+     * creation create the VH.
      */
     @Override
     public LessonItemViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater,

@@ -2,8 +2,6 @@ package pl.librus.client.api;
 
 import android.content.Context;
 
-import com.google.common.collect.Lists;
-
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -13,8 +11,8 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
-import java8.util.stream.StreamSupport;
 import pl.librus.client.datamodel.Identifiable;
 import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Teacher;
@@ -119,19 +117,20 @@ public class APIClient implements IAPIClient {
     }
 
     public <T> Single<T> getObject(String endpoint, String topLevelName, Class<T> clazz) {
-        return Single.just(repository.getObject(clazz));
+        return Single.fromCallable(() -> repository.getList(clazz).get(0))
+                .subscribeOn(Schedulers.computation());
     }
 
     public <T> Observable<T> getAll(String endpoint, String topLevelName, Class<T> clazz) {
-        return Observable.fromIterable(repository.getList(clazz));
+        return Observable.fromCallable(() -> repository.getList(clazz))
+                .flatMapIterable(i -> i)
+                .subscribeOn(Schedulers.computation());
     }
 
     @Override
     public <T extends Persistable & Identifiable> Single<T> getById(Class<T> clazz, String id) {
-        return StreamSupport.stream(repository.getList(clazz))
+        return getAll(clazz)
                 .filter(e -> e.id().equals(id))
-                .findFirst()
-                .map(Single::just)
-                .orElseGet(() -> Single.error(new RuntimeException("No element")));
+                .firstOrError();
     }
 }

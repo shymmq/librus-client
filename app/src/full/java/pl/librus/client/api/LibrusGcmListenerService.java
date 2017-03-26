@@ -3,14 +3,10 @@ package pl.librus.client.api;
 import android.os.Bundle;
 
 import com.google.android.gms.gcm.GcmListenerService;
-import com.google.android.gms.nearby.messages.internal.Update;
 
-import java.util.List;
-
+import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
-import java8.util.stream.Collectors;
-import java8.util.stream.StreamSupport;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.announcement.Announcement;
@@ -47,30 +43,30 @@ public class LibrusGcmListenerService extends GcmListenerService {
     public void onMessageReceived(String s, Bundle bundle) {
 
         updateHelper.reload(Grade.class)
-                .map(this::filterAdded)
-                .observeOn(Schedulers.trampoline())
+                .compose(this::filterAdded)
+                .toList()
                 .subscribe(notificationService::addGrades);
 
         updateHelper.reload(Announcement.class)
-                .map(this::filterAdded)
-                .observeOn(Schedulers.trampoline())
+                .compose(this::filterAdded)
+                .toList()
                 .subscribe(notificationService::addAnnouncements);
 
         updateHelper.reload(Event.class)
-                .map(this::filterAdded)
-                .observeOn(Schedulers.trampoline())
+                .compose(this::filterAdded)
+                .toList()
                 .subscribe(notificationService::addEvents);
 
         updateHelper.reload(LuckyNumber.class)
-                .map(this::filterAdded)
-                .observeOn(Schedulers.trampoline())
+                .compose(this::filterAdded)
+                .toList()
                 .subscribe(notificationService::addLuckyNumber);
     }
 
-    private <T extends Persistable> List<T> filterAdded(List<EntityChange<T>> changes) {
-        return StreamSupport.stream(changes)
+    private <T extends Persistable> Observable<T> filterAdded(Observable<EntityChange<T>> upstream) {
+        return upstream
                 .filter(change -> change.type() == ADDED)
                 .map(EntityChange::entity)
-                .collect(Collectors.toList());
+                .observeOn(Schedulers.trampoline());
     }
 }

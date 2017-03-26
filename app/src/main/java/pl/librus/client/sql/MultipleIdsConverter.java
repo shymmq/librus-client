@@ -36,6 +36,6 @@ public class MultipleIdsConverter implements Converter<List, String> {
 
     @Override
     public List convertToMapped(Class<? extends List> type, String value) {
-        return value == null ? null : Lists.newArrayList(Splitter.on(";").split(value));
+        return value == null ? null : Lists.newArrayList(Splitter.on(";").omitEmptyStrings().split(value));
     }
 }

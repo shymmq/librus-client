@@ -13,7 +13,6 @@ import io.requery.Persistable;
 import java8.util.function.Consumer;
 import pl.librus.client.R;
 import pl.librus.client.api.DatabaseStrategy;
-import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.NotificationService;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.LuckyNumber;
@@ -24,7 +23,7 @@ public class NotificationTesterFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        NotificationService service = new NotificationService(getContext(), LibrusData.getInstance(getContext()));
+        NotificationService service = new NotificationService(getContext());
         View v = inflater.inflate(R.layout.notification_tester, container, false);
 
         addListener(

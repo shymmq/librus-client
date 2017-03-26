@@ -2,7 +2,6 @@ package pl.librus.client.sql;
 
 import android.content.Context;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,24 +23,23 @@ import pl.librus.client.LibrusUtils;
 import pl.librus.client.api.APIClient;
 import pl.librus.client.api.DatabaseStrategy;
 import pl.librus.client.api.IAPIClient;
-import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.ProgressReporter;
-import pl.librus.client.datamodel.announcement.Announcement;
-import pl.librus.client.datamodel.attendance.Attendance;
-import pl.librus.client.datamodel.attendance.AttendanceCategory;
 import pl.librus.client.datamodel.Average;
 import pl.librus.client.datamodel.Event;
 import pl.librus.client.datamodel.EventCategory;
-import pl.librus.client.datamodel.grade.Grade;
-import pl.librus.client.datamodel.grade.GradeCategory;
-import pl.librus.client.datamodel.grade.GradeComment;
 import pl.librus.client.datamodel.Identifiable;
 import pl.librus.client.datamodel.LibrusColor;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
 import pl.librus.client.datamodel.PlainLesson;
-import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.datamodel.Teacher;
+import pl.librus.client.datamodel.announcement.Announcement;
+import pl.librus.client.datamodel.attendance.Attendance;
+import pl.librus.client.datamodel.attendance.AttendanceCategory;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
+import pl.librus.client.datamodel.grade.GradeComment;
+import pl.librus.client.datamodel.subject.Subject;
 
 import static pl.librus.client.sql.EntityChange.Type.ADDED;
 import static pl.librus.client.sql.EntityChange.Type.CHANGED;
@@ -114,13 +112,18 @@ public class UpdateHelper {
                 .doOnSuccess(list -> LibrusUtils.log("Loaded %s %s", list.size(), clazz.getSimpleName()));
     }
 
-    public <T extends Identifiable, E> Single<List<EntityChange<T>>> reload(Class<T> clazz) {
+    public <T extends Identifiable> Observable<EntityChange<T>> reload(Class<T> clazz) {
         return Single.zip(
                 databaseStrategy.getAll(clazz).toList(),
                 serverStrategy.getAll(clazz).toList(),
                 ImmutableListTuple::of)
                 .doOnSuccess(tuple -> databaseStrategy.upsert(tuple.fromServer()))
-                .map(this::detectChanges);
+                .flattenAsObservable(this::detectChanges);
+    }
+
+    public Observable<EntityChange<? extends Identifiable>> reloadMany(Class<? extends Identifiable>... classes) {
+        return Observable.fromArray(classes)
+                .flatMap(this::reload);
     }
 
     private <T extends Identifiable> List<EntityChange<T>> detectChanges(ListTuple<T> listTuple) {

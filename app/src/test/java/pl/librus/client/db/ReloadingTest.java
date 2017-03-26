@@ -42,7 +42,9 @@ public class ReloadingTest extends BaseDBTest {
         mockApiClient(newGrade);
 
         //when
-        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class)
+                .toList()
+                .blockingGet();
 
         //then
         assertThat(result, contains(ImmutableEntityChange.of(ADDED, newGrade)));
@@ -56,7 +58,9 @@ public class ReloadingTest extends BaseDBTest {
         mockApiClient(grade);
 
         //when
-        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class)
+                .toList()
+                .blockingGet();
 
         //then
         assertThat(result, empty());
@@ -72,7 +76,9 @@ public class ReloadingTest extends BaseDBTest {
         mockApiClient(newGrade);
 
         //when
-        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class)
+                .toList()
+                .blockingGet();
 
         //then
         assertThat(result, contains(ImmutableEntityChange.of(CHANGED, newGrade)));
@@ -91,7 +97,9 @@ public class ReloadingTest extends BaseDBTest {
         mockApiClient(newGrade, changedGrade);
 
         //when
-        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class)
+                .toList()
+                .blockingGet();
 
         //then
         assertThat(result, containsInAnyOrder(
@@ -112,7 +120,9 @@ public class ReloadingTest extends BaseDBTest {
         mockApiClient(grade);
 
         //when
-        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class).blockingGet();
+        List<EntityChange<Grade>> result = updateHelper.reload(Grade.class)
+                .toList()
+                .blockingGet();
 
         //then
         assertThat(result, empty());
@@ -128,7 +138,9 @@ public class ReloadingTest extends BaseDBTest {
         mockApiClient(newGrade);
 
         //when
-        updateHelper.reload(Grade.class).blockingGet();
+        updateHelper.reload(Grade.class)
+                .toList()
+                .blockingGet();
 
         //then
         List<Grade> res = data.select(Grade.class).get().toList();

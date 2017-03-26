@@ -27,7 +27,6 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -36,11 +35,15 @@ import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.Reader;
+import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.datamodel.grade.EnrichedGrade;
 import pl.librus.client.datamodel.grade.FullGrade;
-import pl.librus.client.datamodel.grade.ImmutableEnrichedGrade;
+import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.datamodel.grade.GradeCategory;
+import pl.librus.client.datamodel.grade.GradeComment;
 import pl.librus.client.datamodel.subject.FullSubject;
-import pl.librus.client.datamodel.subject.ImmutableFullSubject;
+import pl.librus.client.datamodel.subject.Subject;
+import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.ui.BaseFragment;
 import pl.librus.client.ui.MenuAction;
 import pl.librus.client.ui.ReadAllMenuAction;
@@ -85,12 +88,33 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
 
         recyclerView.setAdapter(adapter);
 
-        refresh();
+        loadAndRefresh();
 
         return root;
     }
 
     private void refresh() {
+        UpdateHelper updateHelper = new UpdateHelper(getContext());
+
+        updateHelper.reloadMany(
+                Grade.class,
+                GradeCategory.class,
+                Teacher.class,
+                Subject.class,
+                GradeComment.class)
+                .isEmpty()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(empty -> {
+                    if (empty) {
+                        refreshLayout.setRefreshing(false);
+                    } else {
+                        loadAndRefresh();
+                    }
+                });
+    }
+
+    private void loadAndRefresh() {
         LibrusData data = LibrusData.getInstance(getActivity());
         Observable<EnrichedGrade> gradeObservable = data
                 .findEnrichedGrades()

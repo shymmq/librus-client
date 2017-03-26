@@ -18,7 +18,7 @@ import pl.librus.client.ui.MainActivity;
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link AnnouncementDetailsFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * create an instance create this fragment.
  */
 public class AnnouncementDetailsFragment extends Fragment {
     private static final String ARG_ANNOUNCEMENT = "librus-client:AnnouncementDetailsFragment:announcement";
@@ -29,11 +29,11 @@ public class AnnouncementDetailsFragment extends Fragment {
     }
 
     /**
-     * Use this factory method to create a new instance of
+     * Use this factory method to create a new instance create
      * this fragment using the provided parameters.
      *
      * @param announcement Announcement to show
-     * @return A new instance of fragment AnnouncementDetailsFragment.
+     * @return A new instance create fragment AnnouncementDetailsFragment.
      */
     public static AnnouncementDetailsFragment newInstance(FullAnnouncement announcement) {
         AnnouncementDetailsFragment fragment = new AnnouncementDetailsFragment();

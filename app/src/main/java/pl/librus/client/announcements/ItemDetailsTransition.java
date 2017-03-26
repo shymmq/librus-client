@@ -18,7 +18,7 @@ import android.widget.TextView;
 import pl.librus.client.R;
 
 /**
- * A transition that animates the elevation of a View from a given value down to zero.
+ * A transition that animates the elevation create a View from a given value down to zero.
  * <p>
  * Useful for creating parent↔child navigation transitions
  * (https://www.google.com/design/spec/patterns/navigational-transitions.html#navigational-transitions-parent-to-child)
