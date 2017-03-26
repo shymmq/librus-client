@@ -47,6 +47,7 @@ public class AnnouncementsFragment extends BaseFragment {
 
         LibrusData.getInstance(getActivity())
                 .findFullAnnouncements()
+                .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);
@@ -115,6 +116,7 @@ public class AnnouncementsFragment extends BaseFragment {
     private void refresh() {
         LibrusData.getInstance(getActivity())
                 .findFullAnnouncements()
+                .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);

@@ -6,6 +6,7 @@ import org.immutables.value.Value;
 
 import io.requery.Entity;
 import io.requery.Persistable;
+import pl.librus.client.datamodel.Identifiable;
 
 /**
  * Created by Adam on 13.12.2016.
@@ -15,6 +16,6 @@ import io.requery.Persistable;
 @Entity(builder = ImmutableAttendance.Builder.class)
 @Value.Immutable
 @JsonDeserialize(as = ImmutableAttendance.class)
-public abstract class Attendance extends BaseAttendance implements Persistable{
+public abstract class Attendance extends BaseAttendance implements Identifiable {
 
 }

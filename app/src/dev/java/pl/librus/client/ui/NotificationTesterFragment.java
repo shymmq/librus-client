@@ -12,6 +12,7 @@ import java.util.List;
 import io.requery.Persistable;
 import java8.util.function.Consumer;
 import pl.librus.client.R;
+import pl.librus.client.api.DatabaseStrategy;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.NotificationService;
 import pl.librus.client.datamodel.Event;
@@ -89,12 +90,11 @@ public class NotificationTesterFragment extends BaseFragment {
     }
 
     private <T extends Persistable> List<T> getMany(Class<T> clazz, int count) {
-        return LibrusData.getInstance(getContext())
-                .getDataStore()
-                .select(clazz)
-                .limit(count)
-                .get()
-                .toList();
+        return DatabaseStrategy.getInstance(getContext())
+                .getAll(clazz)
+                .take(count)
+                .toList()
+                .blockingGet();
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.requery.Persistable;
 import okhttp3.FormBody;
@@ -23,6 +24,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.datamodel.Identifiable;
+import pl.librus.client.datamodel.lesson.Lesson;
 import pl.librus.client.datamodel.lesson.Timetable;
 
 import static pl.librus.client.LibrusUtils.log;
@@ -162,22 +164,21 @@ class DefaultAPIClient implements IAPIClient {
         }
     }
 
-    public Single<Timetable> getTimetable(final LocalDate weekStart) {
+    public Observable<Lesson> getLessonsForWeek(final LocalDate weekStart) {
 
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
-
-        return getList(endpoint, "Timetable", Timetable.class)
-                .map(Iterables::getOnlyElement);
+        return getAll(endpoint, "Timetable", Timetable.class)
+                .concatMapIterable(Timetable::toLessons);
     }
 
-    public <T extends Persistable> Single<List<T>> getAll(Class<T> clazz) {
+    public <T extends Persistable> Observable<T> getAll(Class<T> clazz) {
         EntityInfo info = EntityInfos.infoFor(clazz);
-        return getList(info.endpoint(), info.topLevelName(), clazz);
+        return getAll(info.endpoint(), info.topLevelName(), clazz);
     }
 
-    public <T> Single<List<T>> getList(String endpoint, final String topLevelName, final Class<T> clazz) {
+    public <T> Observable<T> getAll(String endpoint, final String topLevelName, final Class<T> clazz) {
         return APIRequest(endpoint)
-                .map(s -> EntityParser.parseList(s, topLevelName, clazz));
+                .flattenAsObservable(s -> EntityParser.parseList(s, topLevelName, clazz));
     }
 
     @Override

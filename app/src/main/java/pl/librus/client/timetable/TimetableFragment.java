@@ -125,6 +125,7 @@ public class TimetableFragment extends BaseFragment {
             adapter.notifyItemChanged(adapter.getGlobalPositionOf(progressItem));
 
             LibrusData.getInstance(getActivity()).findLessonsForWeek(weekStart)
+                    .toList()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .map(mapLessonsForWeek(weekStart))
@@ -147,13 +148,14 @@ public class TimetableFragment extends BaseFragment {
         List<LocalDate> initialWeekStarts = Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
 
         Observable.fromIterable(initialWeekStarts)
-                .flatMap(ws -> LibrusData.getInstance(getActivity())
-                        .findLessonsForWeek(ws).toObservable()
+                .flatMapSingle(ws -> LibrusData.getInstance(getActivity())
+                        .findLessonsForWeek(ws)
+                        .toList()
                         .map(mapLessonsForWeek(ws)))
-                .flatMapIterable(l -> l)
-                .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .concatMapIterable(i -> i)
+                .toList()
                 .subscribe(this::displayInitial);
     }
 
@@ -210,8 +212,8 @@ public class TimetableFragment extends BaseFragment {
                 teacherContainer.setVisibility(View.VISIBLE);
                 SpannableStringBuilder ssb = new SpannableStringBuilder();
                 if (lesson.substitutionClass() && lesson.orgTeacher().isPresent()) {
-                    Teacher orgTeacher = LibrusData.getInstance(getActivity())
-                            .findByKey(Teacher.class, lesson.orgTeacher().get()).blockingGet();
+                    Teacher orgTeacher = LibrusData.getInstance(getActivity()).blocking()
+                            .getById(Teacher.class, lesson.orgTeacher().get());
                     if (orgTeacher.name().isPresent()) {
                         ssb
                                 .append(orgTeacher.name().get())

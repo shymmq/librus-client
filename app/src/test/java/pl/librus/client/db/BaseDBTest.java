@@ -12,6 +12,7 @@ import io.reactivex.Single;
 import io.requery.BlockingEntityStore;
 import io.requery.Persistable;
 import pl.librus.client.AnalyticsShadow;
+import pl.librus.client.api.DatabaseStrategy;
 import pl.librus.client.api.IAPIClient;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.ui.MainApplication;
@@ -28,28 +29,31 @@ public abstract class BaseDBTest {
     protected BlockingEntityStore<Persistable> data;
     protected IAPIClient apiClient;
     protected LibrusData librusData;
+    protected DatabaseStrategy databaseStrategy;
+
 
     @Before
     public void setup() {
-        Answer singleAnswer = invocation -> Single.never();
-        apiClient = Mockito.mock(IAPIClient.class, singleAnswer);
+        apiClient = Mockito.mock(IAPIClient.class);
 
         setupData();
     }
 
     private void setupData() {
-        librusData = LibrusData.getInstance(RuntimeEnvironment.application, apiClient, DB_NAME);
-        data = librusData.getDataStore().toBlocking();
+        databaseStrategy = DatabaseStrategy.getInstance(RuntimeEnvironment.application, DB_NAME);
+
+        librusData = LibrusData.getInstance(databaseStrategy, apiClient);
+        data = databaseStrategy.getDataStore().toBlocking();
     }
 
     protected void clearCache() {
-        LibrusData.close();
+        DatabaseStrategy.close();
         setupData();
     }
 
     @After
     public void teardown() {
-        LibrusData.delete(RuntimeEnvironment.application, DB_NAME);
+        DatabaseStrategy.delete(RuntimeEnvironment.application, DB_NAME);
     }
 
     protected <T> Matcher<T> equalsNotSameInstance(T obj) {

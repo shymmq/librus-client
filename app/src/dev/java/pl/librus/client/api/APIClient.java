@@ -11,6 +11,7 @@ import org.joda.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.requery.Persistable;
 import java8.util.stream.StreamSupport;
@@ -19,6 +20,7 @@ import pl.librus.client.datamodel.PlainLesson;
 import pl.librus.client.datamodel.Teacher;
 import pl.librus.client.datamodel.lesson.ImmutableJsonLesson;
 import pl.librus.client.datamodel.lesson.JsonLesson;
+import pl.librus.client.datamodel.lesson.Lesson;
 import pl.librus.client.datamodel.lesson.LessonSubject;
 import pl.librus.client.datamodel.lesson.LessonTeacher;
 import pl.librus.client.datamodel.lesson.Timetable;
@@ -39,7 +41,7 @@ public class APIClient implements IAPIClient {
         return Single.just(username);
     }
 
-    public Single<Timetable> getTimetable(LocalDate weekStart) {
+    public Observable<Lesson> getLessonsForWeek(LocalDate weekStart) {
         Timetable result = new Timetable();
         for (int dayNo = DateTimeConstants.MONDAY; dayNo <= DateTimeConstants.FRIDAY; dayNo++) {
             List<List<JsonLesson>> schoolDay = new ArrayList<>();
@@ -65,7 +67,7 @@ public class APIClient implements IAPIClient {
         //Empty lesson
         result.get(weekStart.plusDays(2)).remove(2);
 
-        return Single.just(result);
+        return Observable.fromIterable(result.toLessons());
     }
 
     private ImmutableJsonLesson withLessonNumber(ImmutableJsonLesson lesson, int lessonNo) {
@@ -105,14 +107,14 @@ public class APIClient implements IAPIClient {
                 .withOrgDate(LocalDate.parse("2017-01-01"));
     }
 
-    public <T extends Persistable> Single<List<T>> getAll(Class<T> clazz) {
+    public <T extends Persistable> Observable<T> getAll(Class<T> clazz) {
         EntityInfo info = EntityInfos.infoFor(clazz);
         if (info.single()) {
             //noinspection unchecked
             return getObject(info.endpoint(), info.topLevelName(), clazz)
-                    .map(Lists::newArrayList);
+                    .toObservable();
         } else {
-            return getList(info.endpoint(), info.topLevelName(), clazz);
+            return getAll(info.endpoint(), info.topLevelName(), clazz);
         }
     }
 
@@ -120,8 +122,8 @@ public class APIClient implements IAPIClient {
         return Single.just(repository.getObject(clazz));
     }
 
-    public <T> Single<List<T>> getList(String endpoint, String topLevelName, Class<T> clazz) {
-        return Single.just(repository.getList(clazz));
+    public <T> Observable<T> getAll(String endpoint, String topLevelName, Class<T> clazz) {
+        return Observable.fromIterable(repository.getList(clazz));
     }
 
     @Override
@@ -130,6 +132,6 @@ public class APIClient implements IAPIClient {
                 .filter(e -> e.id().equals(id))
                 .findFirst()
                 .map(Single::just)
-                .get();
+                .orElseGet(() -> Single.error(new RuntimeException("No element")));
     }
 }

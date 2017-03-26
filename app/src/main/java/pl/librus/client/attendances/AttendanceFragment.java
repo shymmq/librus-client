@@ -68,6 +68,7 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
 
         LibrusData.getInstance(getActivity())
                 .findEnrichedAttendances()
+                .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);
@@ -106,6 +107,7 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
     private void refresh() {
         LibrusData.getInstance(getActivity())
                 .findEnrichedAttendances()
+                .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayList);
@@ -126,43 +128,39 @@ public class AttendanceFragment extends BaseFragment implements FlexibleAdapter.
         IFlexible item = adapter.getItem(position);
         if (!(item instanceof AttendanceItem)) return true;
         AttendanceItem attendanceItem = (AttendanceItem) item;
-        EnrichedAttendance attendance = attendanceItem.getAttendance();
-        LibrusData.getInstance(getActivity())
-                .findFullAttendance(attendance)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(displayPopup(position));
-
+        FullAttendance fullAttendance = LibrusData.getInstance(getActivity())
+                .blocking()
+                .makeFullAttendance(attendanceItem.getAttendance());
+        displayPopup(fullAttendance);
+        adapter.notifyItemChanged(position);
         return true;
     }
 
-    private Consumer<FullAttendance> displayPopup(int position) {
-        return fullAttendance -> {
-            View root = LayoutInflater.from(getContext()).inflate(R.layout.attendance_details, null);
+    private void displayPopup(FullAttendance fullAttendance) {
+        View root = LayoutInflater.from(getContext()).inflate(R.layout.attendance_details, null);
 
-            View subjectContainer = root.findViewById(R.id.attendance_details_subject_container);
-            View addedByContainer = root.findViewById(R.id.attendance_details_added_by_container);
+        View subjectContainer = root.findViewById(R.id.attendance_details_subject_container);
+        View addedByContainer = root.findViewById(R.id.attendance_details_added_by_container);
 
-            TextView subjectValue = (TextView) root.findViewById(R.id.attendance_details_subject_value);
-            TextView dateValue = (TextView) root.findViewById(R.id.attendance_details_date_value);
-            TextView addedByValue = (TextView) root.findViewById(R.id.attendance_details_added_by_value);
+        TextView subjectValue = (TextView) root.findViewById(R.id.attendance_details_subject_value);
+        TextView dateValue = (TextView) root.findViewById(R.id.attendance_details_date_value);
+        TextView addedByValue = (TextView) root.findViewById(R.id.attendance_details_added_by_value);
 
-            LibrusUtils.setTextViewValue(subjectContainer, subjectValue,
-                    fullAttendance.subject().transform(Subject::name));
+        LibrusUtils.setTextViewValue(subjectContainer, subjectValue,
+                fullAttendance.subject().transform(Subject::name));
 
-            dateValue.setText(new StringBuilder()
-                    .append(fullAttendance.date().toString(getContext().getString(R.string.date_format_no_year), new Locale("pl")))
-                    .append(", ")
-                    .append(String.valueOf(fullAttendance.lessonNumber()))
-                    .append(". lekcja"));
+        dateValue.setText(new StringBuilder()
+                .append(fullAttendance.date().toString(getContext().getString(R.string.date_format_no_year), new Locale("pl")))
+                .append(", ")
+                .append(String.valueOf(fullAttendance.lessonNumber()))
+                .append(". lekcja"));
 
-            LibrusUtils.setTextViewValue(addedByContainer, addedByValue, fullAttendance.addedByName());
+        LibrusUtils.setTextViewValue(addedByContainer, addedByValue, fullAttendance.addedByName());
 
-            new MaterialDialog.Builder(getActivity())
-                    .title(fullAttendance.category().name())
-                    .customView(root, true)
-                    .positiveText(R.string.close)
-                    .dismissListener(dialog -> adapter.notifyItemChanged(position))
-                    .show();
-        };
+        new MaterialDialog.Builder(getActivity())
+                .title(fullAttendance.category().name())
+                .customView(root, true)
+                .positiveText(R.string.close)
+                .show();
     }
 }

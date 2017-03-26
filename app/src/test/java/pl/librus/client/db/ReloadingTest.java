@@ -1,7 +1,5 @@
 package pl.librus.client.db;
 
-import com.google.common.collect.Lists;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +9,7 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import io.reactivex.Single;
+import io.reactivex.Observable;
 import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.grade.ImmutableGrade;
 import pl.librus.client.sql.EntityChange;
@@ -34,7 +32,7 @@ public class ReloadingTest extends BaseDBTest {
 
     @Before
     public void setUpdateHelper() {
-        updateHelper = new UpdateHelper(librusData);
+        updateHelper = new UpdateHelper(databaseStrategy, apiClient);
     }
 
     @Test
@@ -140,6 +138,6 @@ public class ReloadingTest extends BaseDBTest {
 
     private void mockApiClient(Grade... grades) {
         Mockito.when(apiClient.getAll(eq(Grade.class)))
-                .thenReturn(Single.just(Lists.newArrayList(grades)));
+                .thenReturn(Observable.fromArray(grades));
     }
 }

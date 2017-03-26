@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import java8.util.stream.IntStreams;
 import pl.librus.client.api.LibrusGcmListenerService;
@@ -37,6 +38,7 @@ import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.datamodel.subject.Subject;
 import pl.librus.client.db.BaseDBTest;
 import pl.librus.client.db.EntityTemplates;
+import pl.librus.client.sql.UpdateHelper;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.Matchers.is;
@@ -251,31 +253,31 @@ public class NotificationTest extends BaseDBTest {
 
     private LibrusGcmListenerService serviceWithMockClient() {
         LibrusGcmListenerService service = new LibrusGcmListenerService(
-                new NotificationService(RuntimeEnvironment.application, librusData),
-                librusData);
+                new NotificationService(RuntimeEnvironment.application, databaseStrategy),
+                new UpdateHelper(databaseStrategy, apiClient));
         when(apiClient.getAll(any()))
-                .thenReturn(Single.just(Collections.emptyList()));
+                .thenReturn(Observable.empty());
         return service;
     }
 
     private void addMockGrades(Grade... grades) {
         when(apiClient.getAll(eq(Grade.class)))
-                .thenReturn(Single.just(newArrayList(grades)));
+                .thenReturn(Observable.fromArray(grades));
     }
 
     private void addMockAnnouncements(Announcement... announcements) {
         when(apiClient.getAll(eq(Announcement.class)))
-                .thenReturn(Single.just(newArrayList(announcements)));
+                .thenReturn(Observable.fromArray(announcements));
     }
 
     private void addMockLuckyNumber(LuckyNumber luckyNumber) {
         when(apiClient.getAll(eq(LuckyNumber.class)))
-                .thenReturn(Single.just(newArrayList(luckyNumber)));
+                .thenReturn(Observable.fromArray(luckyNumber));
     }
 
     private void addMockEvents(Event... events) {
         when(apiClient.getAll(eq(Event.class)))
-                .thenReturn(Single.just(newArrayList(events)));
+                .thenReturn(Observable.fromArray(events));
     }
 
     private Bundle mockBundle() {

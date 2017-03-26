@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.immutables.value.Value;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
@@ -14,10 +15,15 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.requery.Persistable;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
+import pl.librus.client.LibrusUtils;
+import pl.librus.client.api.APIClient;
+import pl.librus.client.api.DatabaseStrategy;
+import pl.librus.client.api.IAPIClient;
 import pl.librus.client.api.LibrusData;
 import pl.librus.client.api.ProgressReporter;
 import pl.librus.client.datamodel.announcement.Announcement;
@@ -64,18 +70,23 @@ public class UpdateHelper {
             LuckyNumber.class,
             Me.class
     );
-    private final LibrusData librusData;
+    private final DatabaseStrategy databaseStrategy;
+    private final IAPIClient serverStrategy;
 
-    public UpdateHelper(LibrusData librusData) {
-        this.librusData = librusData;
+    public UpdateHelper(Context context) {
+        this(DatabaseStrategy.getInstance(context), new APIClient(context));
+    }
+
+    public UpdateHelper(DatabaseStrategy databaseStrategy, IAPIClient serverStrategy) {
+        this.databaseStrategy = databaseStrategy;
+        this.serverStrategy = serverStrategy;
     }
 
     public Flowable<Object> updateAll(ProgressReporter progressReporter) {
         ImmutableList.Builder<Single<?>> builder = ImmutableList.builder();
 
         for (Class<? extends Persistable> entityClass : entitiesToUpdate) {
-            builder.add(librusData
-                    .updateAllFromServer(entityClass));
+            builder.add(update(entityClass));
         }
         builder.addAll(updateNearestTimetables());
         List<Single<?>> tasks = builder.build();
@@ -86,27 +97,37 @@ public class UpdateHelper {
     private List<Single<?>> updateNearestTimetables() {
         LocalDate lastMonday = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
         List<LocalDate> weekStarts = Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
+
+
         return StreamSupport.stream(weekStarts)
-                .map(librusData::updateTimetableFromServer)
+                .map(ws -> serverStrategy.getLessonsForWeek(ws)
+                        .toList()
+                        .doOnSuccess(databaseStrategy::upsert)
+                        .doOnSuccess(list -> LibrusUtils.log("Loaded timetable for %s", ws)))
                 .collect(Collectors.toList());
     }
 
-    public <T extends Persistable & Identifiable, E> Single<List<EntityChange<T>>> reload(Class<T> clazz) {
-        return Single.concat(
-                librusData.findAllInDb(clazz),
-                librusData.updateAllFromServer(clazz))
-                .toList(2)
+    private <T extends Persistable> Single<?> update(Class<T> clazz) {
+        return serverStrategy.getAll(clazz)
+                .toList()
+                .doOnSuccess(databaseStrategy::upsert)
+                .doOnSuccess(list -> LibrusUtils.log("Loaded %s %s", list.size(), clazz.getSimpleName()));
+    }
+
+    public <T extends Identifiable, E> Single<List<EntityChange<T>>> reload(Class<T> clazz) {
+        return Single.zip(
+                databaseStrategy.getAll(clazz).toList(),
+                serverStrategy.getAll(clazz).toList(),
+                ImmutableListTuple::of)
+                .doOnSuccess(tuple -> databaseStrategy.upsert(tuple.fromServer()))
                 .map(this::detectChanges);
     }
 
-    private <T extends Persistable & Identifiable> List<EntityChange<T>> detectChanges(List<List<T>> result) {
-        Preconditions.checkArgument(result.size() == 2);
-        List<T> fromDb = result.get(0);
-        List<T> fromServer = result.get(1);
-        Map<String, T> byId = Maps.uniqueIndex(fromDb, t -> t.id());
+    private <T extends Identifiable> List<EntityChange<T>> detectChanges(ListTuple<T> listTuple) {
+        Map<String, T> byId = Maps.uniqueIndex(listTuple.fromDb(), t -> t.id());
 
         ImmutableList.Builder builder = ImmutableList.<EntityChange<T>>builder();
-        for (T newEntity : fromServer) {
+        for (T newEntity : listTuple.fromServer()) {
             T inDB = byId.get(newEntity.id());
             if (inDB == null) {
                 builder.add(ImmutableEntityChange.of(ADDED, newEntity));
@@ -115,6 +136,15 @@ public class UpdateHelper {
             }
         }
         return builder.build();
+    }
+
+    @Value.Immutable
+    interface ListTuple<T> {
+        @Value.Parameter
+        List<T> fromDb();
+
+        @Value.Parameter
+        List<T> fromServer();
     }
 
 }

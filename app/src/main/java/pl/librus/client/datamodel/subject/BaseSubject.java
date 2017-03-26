@@ -8,7 +8,7 @@ import io.requery.Superclass;
 import pl.librus.client.datamodel.Identifiable;
 
 @Superclass
-public abstract class BaseSubject implements Identifiable {
+public abstract class BaseSubject {
 
     @Key
     @Value.Parameter

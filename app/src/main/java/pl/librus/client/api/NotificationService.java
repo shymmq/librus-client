@@ -40,11 +40,16 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NotificationService {
     private final Context context;
-    private final LibrusData librusData;
+    private final DataLoadStrategy strategy;
 
-    public NotificationService(Context context, LibrusData data) {
+    public NotificationService(Context context) {
         this.context = context;
-        this.librusData = data;
+        this.strategy = DatabaseStrategy.getInstance(context);
+    }
+
+    public NotificationService(Context context, DataLoadStrategy strategy) {
+        this.context = context;
+        this.strategy = strategy;
     }
 
     private void sendNotification(
@@ -114,8 +119,9 @@ public class NotificationService {
         int size = grades.size();
         if (size == 1) {
             Grade grade = grades.get(0);
-            String subject = librusData
-                    .findByKey(Subject.class, grade.subjectId()).blockingGet().name();
+            String subject = strategy.getById(Subject.class, grade.subjectId())
+                    .blockingGet()
+                    .name();
             sendNotification(
                     "Nowa ocena",
                     subject + " " + grade.grade(),
@@ -131,8 +137,8 @@ public class NotificationService {
             Notification.InboxStyle style = new Notification.InboxStyle()
                     .setBigContentTitle(title);
             for (Grade g : grades) {
-                String subject = librusData
-                        .findByKey(Subject.class, g.subjectId())
+                String subject = strategy
+                        .getById(Subject.class, g.subjectId())
                         .blockingGet()
                         .name();
                 style.addLine(subject + " " + g.grade());
@@ -171,8 +177,10 @@ public class NotificationService {
             for (Event e : events) {
                 String date = e.date().toString("EEEE, d MMMM yyyy", new Locale("pl"));
                 style.addLine(e.content() + " - " + date);
-                Optional<String> name = librusData
-                        .findByKey(Teacher.class, e.addedBy()).blockingGet().name();
+                Optional<String> name = strategy
+                        .getById(Teacher.class, e.addedBy())
+                        .blockingGet()
+                        .name();
                 if (name.isPresent()) {
                     authorNames.add(name.get());
                 }

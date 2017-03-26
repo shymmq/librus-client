@@ -3,6 +3,7 @@ package pl.librus.client.api;
 import android.os.Bundle;
 
 import com.google.android.gms.gcm.GcmListenerService;
+import com.google.android.gms.nearby.messages.internal.Update;
 
 import java.util.List;
 
@@ -25,26 +26,25 @@ import static pl.librus.client.sql.EntityChange.Type.ADDED;
 
 public class LibrusGcmListenerService extends GcmListenerService {
     private NotificationService notificationService;
-    private LibrusData librusData;
+    private UpdateHelper updateHelper;
 
     public LibrusGcmListenerService() {
     }
 
-    public LibrusGcmListenerService(NotificationService notificationService, LibrusData librusData) {
+    public LibrusGcmListenerService(NotificationService notificationService, UpdateHelper updateHelper) {
         this.notificationService = notificationService;
-        this.librusData = librusData;
+        this.updateHelper = updateHelper;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        librusData = LibrusData.getInstance(this);
-        notificationService = new NotificationService(this, librusData);
+        updateHelper = new UpdateHelper(this);
+        notificationService = new NotificationService(this);
     }
 
     @Override
     public void onMessageReceived(String s, Bundle bundle) {
-        UpdateHelper updateHelper = new UpdateHelper(librusData);
 
         updateHelper.reload(Grade.class)
                 .map(this::filterAdded)

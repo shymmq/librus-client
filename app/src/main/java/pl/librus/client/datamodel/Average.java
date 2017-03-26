@@ -17,7 +17,7 @@ import pl.librus.client.api.IdDeserializer;
 @Entity(builder = ImmutableAverage.Builder.class)
 @Value.Immutable
 @JsonDeserialize(as = ImmutableAverage.class)
-public abstract class Average implements Persistable {
+public abstract class Average implements Identifiable {
 
     @Key
     @JsonDeserialize(using = IdDeserializer.class)
@@ -28,5 +28,9 @@ public abstract class Average implements Persistable {
     public abstract double semester2();
 
     public abstract double fullYear();
+
+    public String id(){
+        return subject();
+    }
 
 }

@@ -27,7 +27,9 @@ public class MainApplication extends MultiDexApplication {
                 LibrusUtils.log("plugin handle");
                 LibrusUtils.log(throwable);
             } else {
-                RxJavaPlugins.onError(throwable);
+                Thread currentThread = Thread.currentThread();
+                Thread.UncaughtExceptionHandler handler = currentThread.getUncaughtExceptionHandler();
+                handler.uncaughtException(currentThread, throwable);
             }
         });
         MainApplication.context = getApplicationContext();

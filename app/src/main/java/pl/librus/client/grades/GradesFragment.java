@@ -39,6 +39,7 @@ import pl.librus.client.api.Reader;
 import pl.librus.client.datamodel.grade.EnrichedGrade;
 import pl.librus.client.datamodel.grade.FullGrade;
 import pl.librus.client.datamodel.grade.ImmutableEnrichedGrade;
+import pl.librus.client.datamodel.subject.FullSubject;
 import pl.librus.client.datamodel.subject.ImmutableFullSubject;
 import pl.librus.client.ui.BaseFragment;
 import pl.librus.client.ui.MenuAction;
@@ -90,17 +91,20 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
     }
 
     private void refresh() {
-
-        Observable<ImmutableEnrichedGrade> gradeObservable = LibrusData.getInstance(getActivity())
+        LibrusData data = LibrusData.getInstance(getActivity());
+        Observable<EnrichedGrade> gradeObservable = data
                 .findEnrichedGrades()
-                .cache()
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(Schedulers.io())
+                .publish()
+                .autoConnect(2);
 
-        Single.zip(
-                gradeObservable.toMultimap(g -> g.subjectId()),
-                LibrusData.getInstance(getActivity())
-                        .findFullSubjects(),
-                this::mapGradesToSubjects)
+        Single<Map<String, Collection<EnrichedGrade>>> gradesBySubjectId = gradeObservable.toMultimap(g -> g.subjectId());
+        Single<List<FullSubject>> subjects = data.findFullSubjects().toList();
+        Single<Map<FullSubject, Collection<EnrichedGrade>>> gradesBySubject = Single.zip(
+                gradesBySubjectId,
+                subjects,
+                this::mapGradesToSubjects);
+        gradesBySubject
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayGrades);
 
@@ -115,23 +119,23 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
                 .subscribe(actions -> actionsHandler.accept(actions));
     }
 
-    private Map<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> mapGradesToSubjects(
-            Map<String, Collection<ImmutableEnrichedGrade>> gradesBySubject,
-            List<ImmutableFullSubject> subjects) {
+    private Map<FullSubject, Collection<EnrichedGrade>> mapGradesToSubjects(
+            Map<String, Collection<EnrichedGrade>> gradesBySubjectId,
+            List<FullSubject> subjects) {
         return StreamSupport.stream(subjects)
                 .collect(Collectors.toMap(s -> s,
-                        s -> Optional.ofNullable(gradesBySubject.get(s.id()))
+                        s -> Optional.ofNullable(gradesBySubjectId.get(s.id()))
                                 .orElse(Collections.emptyList())
                 ));
     }
 
-    private void displayGrades(Map<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> mappedGrades) {
+    private void displayGrades(Map<FullSubject, Collection<EnrichedGrade>> mappedGrades) {
 
         adapter.clear();
         refreshLayout.setRefreshing(false);
 
-        for (Map.Entry<ImmutableFullSubject, Collection<ImmutableEnrichedGrade>> entry : mappedGrades.entrySet()) {
-            ImmutableFullSubject s = entry.getKey();
+        for (Map.Entry<FullSubject, Collection<EnrichedGrade>> entry : mappedGrades.entrySet()) {
+            FullSubject s = entry.getKey();
 
             final GradeHeaderItem headerItem = new GradeHeaderItem(s, getContext());
 
@@ -153,12 +157,12 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
         AbstractFlexibleItem item = adapter.getItem(position);
         if (item instanceof GradeItem) {
             GradeItem gradeItem = (GradeItem) item;
-            EnrichedGrade grade = gradeItem.getGrade();
-            LibrusData.getInstance(getActivity())
-                    .findFullGrade(grade)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this.displayGradeDetails(position));
+            FullGrade fullGrade = LibrusData.getInstance(getActivity())
+                    .blocking()
+                    .makeFullGrade(gradeItem.getGrade());
+            displayGradeDetails(fullGrade);
+            reader.read(fullGrade);
+            adapter.notifyItemChanged(position);
 
         } else //noinspection StatementWithEmptyBody
             if (item instanceof AverageItem) {
@@ -168,59 +172,55 @@ public class GradesFragment extends BaseFragment implements FlexibleAdapter.OnIt
         return false;
     }
 
-    private Consumer<FullGrade> displayGradeDetails(int position) {
-        return grade -> {
-            @SuppressLint("InflateParams")
-            View dialogLayout = LayoutInflater.from(getContext()).inflate(R.layout.grade_details, null, false);
-            TextView gradeTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_grade);
-            TextView categoryTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_category);
-            TextView subjectTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_subject);
-            TextView dateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_date);
-            TextView addedByTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_addedBy);
-            TextView weightTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_weight);
+    private void displayGradeDetails(FullGrade grade) {
+        @SuppressLint("InflateParams")
+        View dialogLayout = LayoutInflater.from(getContext()).inflate(R.layout.grade_details, null, false);
+        TextView gradeTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_grade);
+        TextView categoryTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_category);
+        TextView subjectTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_subject);
+        TextView dateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_date);
+        TextView addedByTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_addedBy);
+        TextView weightTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_weight);
 
-            View commentContainer = dialogLayout.findViewById(R.id.grade_details_comment_container);
-            View weightContainer = dialogLayout.findViewById(R.id.grade_details_weight_container);
-            View addDateContainer = dialogLayout.findViewById(R.id.grade_details_add_date_container);
-            View addedByContainer = dialogLayout.findViewById(R.id.grade_details_added_by_container);
+        View commentContainer = dialogLayout.findViewById(R.id.grade_details_comment_container);
+        View weightContainer = dialogLayout.findViewById(R.id.grade_details_weight_container);
+        View addDateContainer = dialogLayout.findViewById(R.id.grade_details_add_date_container);
+        View addedByContainer = dialogLayout.findViewById(R.id.grade_details_added_by_container);
 
-            gradeTextView.setText(grade.grade());
-            categoryTextView.setText(grade.category().name());
-            subjectTextView.setText(grade.subject().name());
-            dateTextView.setText(grade.date().toString(getString(R.string.date_format_no_year), new Locale("pl")));
-            if (grade.addDate().toLocalDate().isEqual(grade.date())) {
-                addDateContainer.setVisibility(View.GONE);
-            } else {
-                addDateContainer.setVisibility(View.VISIBLE);
-                TextView addDateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_add_date);
-                addDateTextView.setText(grade.addDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
-            }
+        gradeTextView.setText(grade.grade());
+        categoryTextView.setText(grade.category().name());
+        subjectTextView.setText(grade.subject().name());
+        dateTextView.setText(grade.date().toString(getString(R.string.date_format_no_year), new Locale("pl")));
+        if (grade.addDate().toLocalDate().isEqual(grade.date())) {
+            addDateContainer.setVisibility(View.GONE);
+        } else {
+            addDateContainer.setVisibility(View.VISIBLE);
+            TextView addDateTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_add_date);
+            addDateTextView.setText(grade.addDate().toString(getString(R.string.date_format_no_year), new Locale("pl")));
+        }
 
-            LibrusUtils.setTextViewValue(
-                    weightContainer,
-                    weightTextView,
-                    grade.category()
-                            .weight()
-                            .transform(Object::toString));
+        LibrusUtils.setTextViewValue(
+                weightContainer,
+                weightTextView,
+                grade.category()
+                        .weight()
+                        .transform(Object::toString));
 
-            LibrusUtils.setTextViewValue(addedByContainer, addedByTextView, grade.addedByName());
+        LibrusUtils.setTextViewValue(addedByContainer, addedByTextView, grade.addedByName());
 
-            if (grade.comments() != null && !grade.comments().isEmpty()) {
-                commentContainer.setVisibility(View.VISIBLE);
-                TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
-                commentTextView.setText(grade.comments().get(0).text());
-            } else {
-                commentContainer.setVisibility(View.GONE);
-            }
-            new MaterialDialog.Builder(getContext())
-                    .title(grade.subject().name())
-                    .customView(dialogLayout, true)
-                    .positiveText(R.string.close)
-                    .dismissListener(dialog -> adapter.notifyItemChanged(position))
-                    .show();
+        if (grade.comments() != null && !grade.comments().isEmpty()) {
+            commentContainer.setVisibility(View.VISIBLE);
+            TextView commentTextView = (TextView) dialogLayout.findViewById(R.id.grade_details_comment);
+            commentTextView.setText(grade.comments().get(0).text());
+        } else {
+            commentContainer.setVisibility(View.GONE);
+        }
+        new MaterialDialog.Builder(getContext())
+                .title(grade.subject().name())
+                .customView(dialogLayout, true)
+                .positiveText(R.string.close)
+                .show();
 
-            reader.read(grade);
-        };
     }
 
     @Override

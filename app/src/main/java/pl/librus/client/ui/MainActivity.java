@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.amulyakhare.textdrawable.TextDrawable;
-import com.google.common.base.Optional;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -33,23 +32,22 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Single;
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import java8.util.stream.StreamSupport;
-import pl.librus.client.BuildConfig;
 import pl.librus.client.LibrusConstants;
 import pl.librus.client.LibrusUtils;
 import pl.librus.client.R;
-import pl.librus.client.api.DrawerData;
+import pl.librus.client.api.DatabaseStrategy;
 import pl.librus.client.api.HttpException;
-import pl.librus.client.api.ImmutableDrawerData;
 import pl.librus.client.api.LibrusData;
-import pl.librus.client.api.MaintenanceException;
 import pl.librus.client.api.OfflineException;
 import pl.librus.client.api.ProgressReporter;
+import pl.librus.client.api.Reader;
 import pl.librus.client.api.RegistrationIntentService;
 import pl.librus.client.datamodel.LuckyNumber;
 import pl.librus.client.datamodel.Me;
+import pl.librus.client.datamodel.grade.Grade;
 import pl.librus.client.sql.UpdateHelper;
 import pl.librus.client.timetable.TimetableFragment;
 
@@ -61,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Menu menu;
     private MaterialDialog progressDialog;
-    private MainFragment currentFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -82,26 +79,34 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         } else {
-            if (!wasAlreadyOpen()) {
-                //database empty or null update and then setup()
-
-                progressDialog = new MaterialDialog.Builder(MainActivity.this)
-                        .title("Pobieranie danych")
-                        .content("")
-                        .progress(false, 100)
-                        .cancelable(false)
-                        .show();
-                ProgressReporter reporter = new ProgressReporter(100, p -> runOnUiThread(() -> progressDialog.setProgress(p)));
-                new UpdateHelper(LibrusData.getInstance(this)).updateAll(reporter)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                reporter::report,
-                                this::handleUpdateError,
-                                this::setup);
-            } else {
-                setup();
-            }
+            DatabaseStrategy.getInstance(this, login)
+                    .getAll(Me.class)
+                    .singleOrError()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            me -> this.setup(), //Some data in DB, proceed
+                            t -> this.doOneTimeUpdate()); //No data in db. Load everything
         }
+    }
+
+    private void doOneTimeUpdate() {
+        progressDialog = new MaterialDialog.Builder(MainActivity.this)
+                .title("Pobieranie danych")
+                .content("")
+                .progress(false, 100)
+                .cancelable(false)
+                .show();
+        ProgressReporter reporter = new ProgressReporter(100, p -> progressDialog.setProgress(p));
+        new UpdateHelper(this)
+                .updateAll(reporter)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> DatabaseStrategy.getInstance(this)
+                    .getAll(Grade.class)
+                    .subscribe(new Reader(this)::read))
+                .subscribe(
+                        reporter::report,
+                        this::handleUpdateError,
+                        this::setup);
     }
 
     private void handleUpdateError(Throwable exception) {
@@ -137,34 +142,10 @@ public class MainActivity extends AppCompatActivity {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
-        Single
-                .zip(
-                        LibrusData.getInstance(this).findMe(),
-                        LibrusData.getInstance(this).findLuckyNumber(),
-                        ImmutableDrawerData::of)
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(this::initDrawer)
-                .subscribe(drawer -> {
-                    this.drawer = drawer;
-                    displayInitialFragment();
-                });
-    }
-
-    private Drawer initDrawer(DrawerData drawerData) {
-        TextDrawable icon = getIcon(drawerData.me());
-        ProfileDrawerItem profile = getProfileDrawerItem(drawerData.me(), icon);
-        AccountHeader header = getDrawerHeader(profile);
-
         final DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
-                .withAccountHeader(header)
-                .addDrawerItems(new DrawerItemsFactory().getItems(this::displayFragment));
-
-        if (drawerData.luckyNumber().isPresent()) {
-            drawerBuilder.addDrawerItems(new DividerDrawerItem(), getLuckyNumberDrawerItem(drawerData.luckyNumber()));
-        }
-
-        drawerBuilder.addStickyDrawerItems(getSettingsDrawerItem())
+                .addDrawerItems(new DrawerItemsFactory().getItems(this::displayFragment))
+                .addStickyDrawerItems(getSettingsDrawerItem())
                 .withDelayOnDrawerClose(50)
                 .withOnDrawerNavigationListener(clickedView -> {
                     onBackPressed();
@@ -173,7 +154,28 @@ public class MainActivity extends AppCompatActivity {
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
                 .withToolbar(toolbar);
-        return drawerBuilder.build();
+
+        LibrusData data = LibrusData.getInstance(this);
+
+        Completable meCompletable = data.findMe()
+                .doOnSuccess(me -> {
+                    TextDrawable icon = getIcon(me);
+                    ProfileDrawerItem profile = getProfileDrawerItem(me, icon);
+                    AccountHeader header = getDrawerHeader(profile);
+                    drawerBuilder.withAccountHeader(header);
+                })
+                .toCompletable();
+        Completable luckyNumberCompletable = data.findLuckyNumber()
+                .doOnSuccess(luckyNumber -> drawerBuilder.addDrawerItems(
+                        new DividerDrawerItem(),
+                        getLuckyNumberDrawerItem(luckyNumber)))
+                .ignoreElement();
+
+        Completable.mergeArray(meCompletable, luckyNumberCompletable)
+                .subscribe(() -> {
+                    this.drawer = drawerBuilder.build();
+                    displayInitialFragment();
+                });
     }
 
     private PrimaryDrawerItem getSettingsDrawerItem() {
@@ -201,11 +203,11 @@ public class MainActivity extends AppCompatActivity {
                 .build();
     }
 
-    private PrimaryDrawerItem getLuckyNumberDrawerItem(Optional<LuckyNumber> luckyNumber) {
+    private PrimaryDrawerItem getLuckyNumberDrawerItem(LuckyNumber luckyNumber) {
         return new PrimaryDrawerItem().withIconTintingEnabled(true).withSelectable(false)
-                .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.get().luckyNumber()))
+                .withName(getString(R.string.lucky_number) + ": " + (luckyNumber == null ? 0 : luckyNumber.luckyNumber()))
                 .withIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp)
-                .withOnDrawerItemClickListener(showLuckyNumber(luckyNumber.get()));
+                .withOnDrawerItemClickListener(showLuckyNumber(luckyNumber));
     }
 
     private ProfileDrawerItem getProfileDrawerItem(Me me, TextDrawable icon) {
@@ -277,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
                     .clear()
                     .apply();
 
-            LibrusData.delete(getApplicationContext(), login);
+            DatabaseStrategy.delete(getApplicationContext(), login);
 
             disableNotifications();
 
@@ -329,9 +331,9 @@ public class MainActivity extends AppCompatActivity {
         drawer.setSelection(fragment.getTitle(), false);
 
         getToolbar().setTitle(fragment.getTitle());
-
-        menu.clear();
-        this.currentFragment = fragment;
+        if (menu != null) {
+            menu.clear();
+        }
         fragment.setMenuActionsHandler(this::setActions);
 
         getSupportFragmentManager().beginTransaction()
@@ -351,6 +353,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateMenu() {
+        menu.clear();
         for (int id = 0; id < actions.size(); id++) {
             MenuAction action = actions.get(id);
             boolean enabled = action.isEnabled();
@@ -363,7 +366,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         actions.get(item.getItemId()).run();
-        menu.clear();
         updateMenu();
         return true;
     }
@@ -379,6 +381,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LibrusData.close();
+        DatabaseStrategy.close();
     }
 }

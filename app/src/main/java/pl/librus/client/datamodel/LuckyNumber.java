@@ -13,7 +13,7 @@ import io.requery.Persistable;
 @Entity(builder = ImmutableLuckyNumber.Builder.class)
 @Value.Immutable
 @JsonDeserialize(as = ImmutableLuckyNumber.class)
-public abstract class LuckyNumber implements Persistable, Identifiable{
+public abstract class LuckyNumber implements Persistable, Identifiable {
 
     @JsonProperty("LuckyNumberDay")
     @Key
