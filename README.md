@@ -1,4 +1,4 @@
-# librus-client
+# librus-client [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/r6Ugyk2)
 Nieoficjalna aplikacja do systemów Librus i Librus Synergia
 
 
