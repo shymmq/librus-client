@@ -11,23 +11,29 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import javax.inject.Inject;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import pl.librus.client.LibrusConstants;
+import pl.librus.client.MainApplication;
 import pl.librus.client.R;
-import pl.librus.client.api.APIClient;
-import pl.librus.client.api.HttpException;
-import pl.librus.client.api.MaintenanceException;
-import pl.librus.client.api.OfflineException;
-import pl.librus.client.api.RegistrationIntentService;
+import pl.librus.client.data.server.APIClient;
+import pl.librus.client.data.server.HttpException;
+import pl.librus.client.data.server.OfflineException;
+import pl.librus.client.notification.RegistrationIntentService;
+import pl.librus.client.util.LibrusConstants;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "librus-schedule-debug";
     private ProgressBar progress;
 
+    @Inject
+    APIClient apiClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MainApplication.component().inject(this);
         setTheme(R.style.AppTheme);
 
         setContentView(R.layout.activity_login);
@@ -42,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
             //log in normally
             String username = usernameInput.getText().toString();
             String password = passwordInput.getText().toString();
-            new APIClient(getApplicationContext()).login(username, password)
+            apiClient.login(username, password)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             this::loginSuccessful,

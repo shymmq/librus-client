@@ -12,13 +12,11 @@ import java.util.Map;
 
 import io.requery.meta.Attribute;
 import io.requery.proxy.CompositeKey;
-import pl.librus.client.datamodel.lesson.ImmutableLesson;
-import pl.librus.client.datamodel.lesson.ImmutableLessonSubject;
-import pl.librus.client.datamodel.lesson.ImmutableLessonTeacher;
-import pl.librus.client.datamodel.lesson.Lesson;
-import pl.librus.client.datamodel.lesson.LessonSubject;
-import pl.librus.client.datamodel.lesson.LessonTeacher;
-import pl.librus.client.datamodel.lesson.LessonType;
+import pl.librus.client.domain.lesson.ImmutableLesson;
+import pl.librus.client.domain.lesson.ImmutableLessonSubject;
+import pl.librus.client.domain.lesson.ImmutableLessonTeacher;
+import pl.librus.client.domain.lesson.Lesson;
+import pl.librus.client.domain.lesson.LessonType;
 
 @RunWith(RobolectricTestRunner.class)
 public class LessonTest extends BaseDBTest {

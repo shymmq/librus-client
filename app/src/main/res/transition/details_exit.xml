@@ -4,7 +4,7 @@
     <changeBounds android:interpolator="@android:interpolator/decelerate_cubic" />
     <changeTransform />
     <transition
-        class="pl.librus.client.announcements.ItemDetailsTransition"
+        class="pl.librus.client.ui.announcements.ItemDetailsTransition"
         app:finalElevation="0dp"
         app:initialElevation="8dp" />
 </transitionSet>

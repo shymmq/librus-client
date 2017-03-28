@@ -5,12 +5,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import pl.librus.client.datamodel.Average;
-import pl.librus.client.datamodel.AverageType;
-import pl.librus.client.datamodel.ImmutableAverage;
-import pl.librus.client.datamodel.ImmutableTeacher;
-import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.datamodel.TeacherType;
+import pl.librus.client.domain.ImmutableTeacher;
+import pl.librus.client.domain.Teacher;
+import pl.librus.client.domain.TeacherType;
 
 @RunWith(RobolectricTestRunner.class)
 public class TeacherTest extends BaseDBTest {

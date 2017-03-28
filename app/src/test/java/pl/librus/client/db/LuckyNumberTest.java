@@ -5,9 +5,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import pl.librus.client.datamodel.ImmutableLuckyNumber;
-import pl.librus.client.datamodel.LuckyNumber;
-import pl.librus.client.datamodel.LuckyNumberType;
+import pl.librus.client.domain.ImmutableLuckyNumber;
+import pl.librus.client.domain.LuckyNumber;
+import pl.librus.client.domain.LuckyNumberType;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

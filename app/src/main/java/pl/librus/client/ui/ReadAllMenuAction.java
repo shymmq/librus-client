@@ -6,8 +6,8 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import pl.librus.client.R;
-import pl.librus.client.api.Reader;
-import pl.librus.client.datamodel.Identifiable;
+import pl.librus.client.data.Reader;
+import pl.librus.client.domain.Identifiable;
 
 /**
  * Created by szyme on 05.02.2017.

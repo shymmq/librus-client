@@ -1,0 +1,29 @@
+package pl.librus.client.presentation;
+
+import com.google.common.collect.Ordering;
+
+import java.util.List;
+import java.util.Set;
+
+import java8.util.stream.Collectors;
+import java8.util.stream.StreamSupport;
+import pl.librus.client.ui.MainActivityOps;
+
+/**
+ * Created by robwys on 28/03/2017.
+ */
+
+public abstract class MainFragmentPresenter extends FragmentPresenter {
+
+    protected MainFragmentPresenter(MainActivityOps mainActivity) {
+        super(mainActivity);
+    }
+
+    public abstract int getOrder();
+
+    public static List<MainFragmentPresenter> sorted(Set<MainFragmentPresenter> presenters) {
+        return StreamSupport.stream(presenters)
+                .sorted(Ordering.natural().onResultOf(MainFragmentPresenter::getOrder))
+                .collect(Collectors.toList());
+    }
+}

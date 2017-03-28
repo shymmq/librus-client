@@ -10,19 +10,19 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Observable;
-import pl.librus.client.datamodel.grade.Grade;
-import pl.librus.client.datamodel.grade.ImmutableGrade;
-import pl.librus.client.sql.EntityChange;
-import pl.librus.client.sql.ImmutableEntityChange;
-import pl.librus.client.sql.UpdateHelper;
+import pl.librus.client.data.ImmutableEntityChange;
+import pl.librus.client.domain.grade.Grade;
+import pl.librus.client.domain.grade.ImmutableGrade;
+import pl.librus.client.data.EntityChange;
+import pl.librus.client.data.UpdateHelper;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
-import static pl.librus.client.sql.EntityChange.Type.ADDED;
-import static pl.librus.client.sql.EntityChange.Type.CHANGED;
+import static pl.librus.client.data.EntityChange.Type.ADDED;
+import static pl.librus.client.data.EntityChange.Type.CHANGED;
 
 @SuppressWarnings("unchecked")
 @RunWith(RobolectricTestRunner.class)
@@ -32,7 +32,7 @@ public class ReloadingTest extends BaseDBTest {
 
     @Before
     public void setUpdateHelper() {
-        updateHelper = new UpdateHelper(databaseStrategy, apiClient);
+        updateHelper = new UpdateHelper(databaseManager, apiClient);
     }
 
     @Test

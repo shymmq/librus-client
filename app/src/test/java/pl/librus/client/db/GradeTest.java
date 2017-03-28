@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import pl.librus.client.datamodel.grade.Grade;
+import pl.librus.client.domain.grade.Grade;
 
 /**
  * Created by robwys on 05/02/2017.

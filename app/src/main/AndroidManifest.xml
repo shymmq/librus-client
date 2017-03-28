@@ -9,7 +9,7 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <application
-        android:name=".ui.MainApplication"
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -42,17 +42,17 @@
         </receiver>
 
         <service
-            android:name=".api.LibrusGcmListenerService"
+            android:name=".notification.LibrusGcmListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
         <service
-            android:name=".api.RegistrationIntentService"
+            android:name=".notification.RegistrationIntentService"
             android:exported="false" />
         <service
-            android:name=".api.LibrusInstanceIDListenerService"
+            android:name=".notification.LibrusInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />

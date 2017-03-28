@@ -3,14 +3,14 @@ package pl.librus.client.db;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import pl.librus.client.datamodel.ImmutableEvent;
-import pl.librus.client.datamodel.ImmutableLibrusAccount;
-import pl.librus.client.datamodel.ImmutableLuckyNumber;
-import pl.librus.client.datamodel.ImmutableMe;
-import pl.librus.client.datamodel.ImmutableTeacher;
-import pl.librus.client.datamodel.announcement.ImmutableAnnouncement;
-import pl.librus.client.datamodel.grade.ImmutableGrade;
-import pl.librus.client.datamodel.subject.ImmutableSubject;
+import pl.librus.client.domain.ImmutableEvent;
+import pl.librus.client.domain.ImmutableLibrusAccount;
+import pl.librus.client.domain.ImmutableLuckyNumber;
+import pl.librus.client.domain.ImmutableMe;
+import pl.librus.client.domain.ImmutableTeacher;
+import pl.librus.client.domain.announcement.ImmutableAnnouncement;
+import pl.librus.client.domain.grade.ImmutableGrade;
+import pl.librus.client.domain.subject.ImmutableSubject;
 
 public class EntityTemplates {
     public static ImmutableGrade grade() {

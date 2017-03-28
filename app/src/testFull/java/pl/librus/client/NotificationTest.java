@@ -21,24 +21,22 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ResourceHelper;
 import org.robolectric.shadows.ShadowNotification;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import java8.util.stream.IntStreams;
-import pl.librus.client.api.LibrusGcmListenerService;
-import pl.librus.client.api.NotificationService;
-import pl.librus.client.datamodel.Event;
-import pl.librus.client.datamodel.LuckyNumber;
-import pl.librus.client.datamodel.Teacher;
-import pl.librus.client.datamodel.announcement.Announcement;
-import pl.librus.client.datamodel.grade.Grade;
-import pl.librus.client.datamodel.subject.Subject;
+import pl.librus.client.notification.LibrusGcmListenerService;
+import pl.librus.client.domain.Event;
+import pl.librus.client.domain.LuckyNumber;
+import pl.librus.client.domain.Teacher;
+import pl.librus.client.domain.announcement.Announcement;
+import pl.librus.client.domain.grade.Grade;
+import pl.librus.client.domain.subject.Subject;
 import pl.librus.client.db.BaseDBTest;
 import pl.librus.client.db.EntityTemplates;
-import pl.librus.client.sql.UpdateHelper;
+import pl.librus.client.data.UpdateHelper;
+import pl.librus.client.notification.NotificationService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.Matchers.is;
@@ -253,8 +251,8 @@ public class NotificationTest extends BaseDBTest {
 
     private LibrusGcmListenerService serviceWithMockClient() {
         LibrusGcmListenerService service = new LibrusGcmListenerService(
-                new NotificationService(RuntimeEnvironment.application, databaseStrategy),
-                new UpdateHelper(databaseStrategy, apiClient));
+                new NotificationService(RuntimeEnvironment.application, databaseManager),
+                new UpdateHelper(databaseManager, apiClient));
         when(apiClient.getAll(any()))
                 .thenReturn(Observable.empty());
         return service;

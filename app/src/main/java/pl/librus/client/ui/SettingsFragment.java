@@ -5,15 +5,19 @@ import android.support.v14.preference.SwitchPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 
-import com.google.common.collect.Lists;
+import javax.inject.Inject;
 
-import java.util.List;
-
-import java8.util.function.Consumer;
 import java8.util.stream.StreamSupport;
+import pl.librus.client.MainActivityScope;
+import pl.librus.client.MainApplication;
 import pl.librus.client.R;
+import pl.librus.client.presentation.MainFragmentPresenter;
+import pl.librus.client.presentation.SettingsPresenter;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements MainFragment {
+public class SettingsFragment extends PreferenceFragmentCompat {
+
+    @Inject
+    SettingsPresenter presenter;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -21,6 +25,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements MainFr
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        MainApplication.getMainActivityComponent()
+                .inject(this);
+        presenter.setFragment(this);
         addPreferencesFromResource(R.xml.preferences);
         updateAvailableFragments();
         addThemeChangeListener();
@@ -28,14 +35,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements MainFr
 
     private void updateAvailableFragments() {
         ListPreference list = (ListPreference) getPreferenceScreen().findPreference("defaultFragment");
-        List<BaseFragment> fragments = new FragmentsRepository().getAll();
 
-        CharSequence[] labels = StreamSupport.stream(fragments)
-                .map(MainFragment::getTitle)
+        CharSequence[] labels = StreamSupport.stream(presenter.getFragmentPresenters())
+                .map(MainFragmentPresenter::getTitle)
                 .map(this::getString)
                 .toArray(CharSequence[]::new);
-        CharSequence[] values = StreamSupport.stream(fragments)
-                .map(MainFragment::getTitle)
+        CharSequence[] values = StreamSupport.stream(presenter.getFragmentPresenters())
+                .map(MainFragmentPresenter::getTitle)
                 .map(String::valueOf)
                 .toArray(CharSequence[]::new);
 
@@ -51,18 +57,4 @@ public class SettingsFragment extends PreferenceFragmentCompat implements MainFr
         });
     }
 
-    @Override
-    public void setMenuActionsHandler(Consumer<List<? extends MenuAction>> handler) {
-        //ignore
-    }
-
-    @Override
-    public int getTitle() {
-        return R.string.settings_title;
-    }
-
-    @Override
-    public int getIcon() {
-        return R.drawable.ic_settings_black_48dp;
-    }
 }

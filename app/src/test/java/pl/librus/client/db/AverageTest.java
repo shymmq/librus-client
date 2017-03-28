@@ -1,21 +1,17 @@
 package pl.librus.client.db;
 
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-import pl.librus.client.datamodel.Average;
-import pl.librus.client.datamodel.AverageType;
-import pl.librus.client.datamodel.ImmutableAverage;
-import pl.librus.client.ui.MainApplication;
+import pl.librus.client.domain.Average;
+import pl.librus.client.domain.AverageType;
+import pl.librus.client.domain.ImmutableAverage;
 
 /**
  * Created by robwys on 05/02/2017.
  */
-@RunWith(RobolectricTestRunner.class)
 public class AverageTest extends BaseDBTest {
     @Test
     public void shouldReadAverage() {

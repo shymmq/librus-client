@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    tools:context="pl.librus.client.announcements.AnnouncementsFragment">
+    tools:context=".ui.announcements.AnnouncementsFragment">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/fragment_announcements_refresh_layout"

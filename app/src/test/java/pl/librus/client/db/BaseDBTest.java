@@ -3,34 +3,36 @@ package pl.librus.client.db;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import io.reactivex.Single;
 import io.requery.BlockingEntityStore;
 import io.requery.Persistable;
-import pl.librus.client.AnalyticsShadow;
-import pl.librus.client.api.DatabaseStrategy;
-import pl.librus.client.api.IAPIClient;
-import pl.librus.client.api.LibrusData;
-import pl.librus.client.ui.MainApplication;
+import pl.librus.client.TestApplication;
+import pl.librus.client.data.ServerFallbackStrategy;
+import pl.librus.client.data.db.DatabaseManager;
+import pl.librus.client.data.server.APIClient;
+import pl.librus.client.data.LibrusData;
+import pl.librus.client.MainApplication;
+import pl.librus.client.data.server.IAPIClient;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
 
-@Config(application = MainApplication.class, shadows = AnalyticsShadow.class)
+@Config(application = TestApplication.class)
+@RunWith(RobolectricTestRunner.class)
 public abstract class BaseDBTest {
 
     public static final String DB_NAME = "test";
     protected BlockingEntityStore<Persistable> data;
     protected IAPIClient apiClient;
     protected LibrusData librusData;
-    protected DatabaseStrategy databaseStrategy;
-
+    protected DatabaseManager databaseManager;
 
     @Before
     public void setup() {
@@ -40,20 +42,22 @@ public abstract class BaseDBTest {
     }
 
     private void setupData() {
-        databaseStrategy = DatabaseStrategy.getInstance(RuntimeEnvironment.application, DB_NAME);
+        databaseManager = new DatabaseManager(RuntimeEnvironment.application, DB_NAME);
 
-        librusData = LibrusData.getInstance(databaseStrategy, apiClient);
-        data = databaseStrategy.getDataStore().toBlocking();
+        ServerFallbackStrategy serverFallbackStrategy = new ServerFallbackStrategy(apiClient, databaseManager);
+
+        librusData = new LibrusData(serverFallbackStrategy);
+        data = databaseManager.getDataStore().toBlocking();
     }
 
     protected void clearCache() {
-        DatabaseStrategy.close();
+        databaseManager.close();
         setupData();
     }
 
     @After
     public void teardown() {
-        DatabaseStrategy.delete(RuntimeEnvironment.application, DB_NAME);
+        databaseManager.delete();
     }
 
     protected <T> Matcher<T> equalsNotSameInstance(T obj) {
