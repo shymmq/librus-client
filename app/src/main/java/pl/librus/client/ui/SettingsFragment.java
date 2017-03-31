@@ -1,9 +1,13 @@
 package pl.librus.client.ui;
 
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v14.preference.SwitchPreference;
 import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
 
 import javax.inject.Inject;
 
@@ -14,7 +18,7 @@ import pl.librus.client.R;
 import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.SettingsPresenter;
 
-public class SettingsFragment extends PreferenceFragmentCompat {
+public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject
     SettingsPresenter presenter;
@@ -29,8 +33,38 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 .inject(this);
         presenter.setFragment(this);
         addPreferencesFromResource(R.xml.preferences);
+        PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, false);
         updateAvailableFragments();
         addThemeChangeListener();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+        Resources r = getResources();
+        Preference p = findPreference(key);
+
+        if(p instanceof SwitchPreference) {
+            if(p.getKey().equals(r.getString(R.string.prefs_enable_notifications_key))) {
+                if (!((SwitchPreference) p).isChecked()) {
+                    findPreference(r.getString(R.string.prefs_enabled_notification_types_key))
+                            .setEnabled(false);
+                } else {
+                    findPreference(r.getString(R.string.prefs_enabled_notification_types_key))
+                            .setEnabled(true);
+                }
+            }
+        }
     }
 
     private void updateAvailableFragments() {

@@ -58,6 +58,12 @@
     <string name="prefs_grey_out_finished_lessons">greyOutFinishedLessons</string>
     <string name="prefs_use_tabs">useTabs</string>
     <string name="prefs_currrent_lesson_bold">currentLessonBold</string>
+    <string name="prefs_enable_notifications_key">enableNotifications</string>
+    <string name="enable_notifications">Pokazuj powiadomienia</string>
+    <string name="prefs_enabled_notification_types_key">enabledNotificationTypes</string>
+    <string name="notification_types">Typy powiadomień</string>
+    <string name="received_notifications">Otrzymywane powiadomienia</string>
+
     <string name="close">Zamknij</string>
     <string name="prefs_dark_theme">selectTheme</string>
     <string name="refresh">Synchronizuj</string>
