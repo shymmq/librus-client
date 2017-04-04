@@ -5,11 +5,15 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -41,6 +45,8 @@ public class LoginActivity extends AppCompatActivity {
         final EditText passwordInput = (EditText) findViewById(R.id.password_input);
         final EditText usernameInput = (EditText) findViewById(R.id.username_input);
         final Button loginButton = (Button) findViewById(R.id.login_btn);
+        TextView forgotPassView = (TextView) findViewById(R.id.forgot_password);
+        forgotPassView.setMovementMethod(LinkMovementMethod.getInstance());
         progress = (ProgressBar) findViewById(R.id.progressBar);
         progress.setVisibility(View.INVISIBLE);
 

@@ -61,7 +61,7 @@
 
         <activity
             android:name=".ui.LoginActivity"
-            android:label="Zaloguj się"
+            android:label="Dziennik"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.SettingsActivity" />

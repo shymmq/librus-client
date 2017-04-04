@@ -34,6 +34,7 @@
     <string name="lucky_number">"Szczęśliwy numerek"</string>
     <string name="lesson">lekcja</string>
     <string name="message_no_lessons">Brak lekcji. \n¯\\_(ツ)_/¯</string>
+    <string name="forgot_password"><a href="https://synergia.librus.pl/zapomnialem_hasla">Zapomniałem hasła</a></string>
 
     <string name="timetable_view_title">Plan lekcji</string>
     <string name="grades_view_title">Oceny</string>
