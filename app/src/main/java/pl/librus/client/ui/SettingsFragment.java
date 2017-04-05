@@ -3,23 +3,29 @@ package pl.librus.client.ui;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.SwitchPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
+import com.google.common.collect.Sets;
+
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import java8.util.J8Arrays;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.SettingsPresenter;
+import pl.librus.client.util.LibrusConstants;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements SettingsView,SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragmentCompat implements SettingsView {
 
     @Inject
     SettingsPresenter presenter;
@@ -32,40 +38,27 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         MainApplication.getMainActivityComponent()
                 .inject(this);
-        presenter.attachView(this);
         addPreferencesFromResource(R.xml.preferences);
-        PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, false);
-        updateAvailableFragments();
         addThemeChangeListener();
-    }
-    @Override
-    public void onResume() {
-        super.onResume();
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        presenter.attachView(this);
+        PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, false);
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    public void updateAvailableNotifications() {
+        MultiSelectListPreference list = (MultiSelectListPreference) getPreferenceScreen().findPreference(LibrusConstants.ENABLED_NOTIFICATION_TYPES);
+        String[] labels = J8Arrays.stream(LibrusConstants.NOTIFICATION_TYPES)
+                .map(type -> getResources().getIdentifier(type, "string", getContext().getPackageName()))
+                .map(getResources()::getString)
+                .toArray(String[]::new);
+
+        Set<String> values = PreferenceManager.getDefaultSharedPreferences(getContext())
+                .getStringSet(LibrusConstants.ENABLED_NOTIFICATION_TYPES, Sets.newHashSet(LibrusConstants.NOTIFICATION_TYPES));
+        list.setValues(values);
+        list.setEntryValues(LibrusConstants.NOTIFICATION_TYPES);
+        list.setEntries(labels);
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
-        Resources r = getResources();
-        Preference p = findPreference(key);
-
-        if(p instanceof SwitchPreference) {
-            if(p.getKey().equals(r.getString(R.string.prefs_enable_notifications_key))) {
-                if (!((SwitchPreference) p).isChecked()) {
-                    findPreference(r.getString(R.string.prefs_enabled_notification_types_key))
-                            .setEnabled(false);
-                } else {
-                    findPreference(r.getString(R.string.prefs_enabled_notification_types_key))
-                            .setEnabled(true);
-                }
-            }
-        }
-    }
     @Override
     public void updateAvailableFragments(List<? extends MainFragmentPresenter> presenters) {
         ListPreference list = (ListPreference) getPreferenceScreen().findPreference("defaultFragment");

@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="notification_types">
-        <item>Ogłoszenia</item>
-        <item>Oceny</item>
-        <item>Wpisy w terminarzu</item>
-        <item>Szczęśliwe numerki</item>
-    </string-array>
 
-    <string-array name="notification_types_values">
-        <item>announcements</item>
-        <item>grades</item>
-        <item>events</item>
-        <item>luckyNumbers</item>
-    </string-array>
-
-    <string-array name="notification_types_default">
-        <item>announcements</item>
-        <item>grades</item>
-        <item>events</item>
-        <item>luckyNumbers</item>
-    </string-array>
 </resources>

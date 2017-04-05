@@ -13,10 +13,9 @@ import android.text.TextUtils;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +37,7 @@ import pl.librus.client.domain.subject.Subject;
 import pl.librus.client.presentation.AnnouncementsPresenter;
 import pl.librus.client.presentation.GradesPresenter;
 import pl.librus.client.ui.MainActivity;
+import pl.librus.client.util.LibrusConstants;
 import pl.librus.client.util.LibrusUtils;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -49,20 +49,22 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class NotificationService {
     private final Context context;
     private final DataLoadStrategy strategy;
-    private SharedPreferences prefs;
-    private List<String> enabledNotifs;
-
 
     @Inject
     public NotificationService(Context context,
                                DatabaseManager strategy) {
         this.context = context;
         this.strategy = strategy;
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> def = new HashSet<>(Arrays.asList(context.getResources().getStringArray(R.array.notification_types_default)));
-        this.enabledNotifs = new ArrayList<>(Arrays.asList(
-                prefs.getStringSet(context.getResources().getString(R.string.prefs_enabled_notification_types_key), def)
-                        .toArray(new String[]{})));
+    }
+
+    private Set<String> getEnabledTypes() {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getStringSet(LibrusConstants.ENABLED_NOTIFICATION_TYPES, Sets.newHashSet(LibrusConstants.NOTIFICATION_TYPES));
+    }
+
+    private boolean isEnabled() {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+            .getBoolean(LibrusConstants.ENABLE_NOTIFICATIONS, true);
     }
 
     private void sendNotification(
@@ -95,8 +97,7 @@ public class NotificationService {
     }
 
     public NotificationService addAnnouncements(List<Announcement> announcements) {
-        if (prefs.getBoolean(context.getResources().getString(R.string.prefs_enable_notifications_key), true)
-                && enabledNotifs.contains("announcements")) {
+        if (isEnabled() && getEnabledTypes().contains("announcements")) {
             int size = announcements.size();
             if (size == 1) {
                 Announcement announcement = announcements.get(0);
@@ -131,8 +132,7 @@ public class NotificationService {
     }
 
     public NotificationService addGrades(List<Grade> grades) {
-        if (prefs.getBoolean(context.getResources().getString(R.string.prefs_enable_notifications_key), true)
-                && enabledNotifs.contains("grades")) {
+        if (isEnabled() && getEnabledTypes().contains("grades")) {
             int size = grades.size();
             if (size == 1) {
                 Grade grade = grades.get(0);
@@ -173,8 +173,7 @@ public class NotificationService {
     }
 
     public NotificationService addEvents(List<Event> events) {
-        if (prefs.getBoolean(context.getResources().getString(R.string.prefs_enable_notifications_key), true)
-                && enabledNotifs.contains("events")) {
+        if (isEnabled() && getEnabledTypes().contains("events")) {
             int size = events.size();
             if (size == 1) {
                 Event event = events.get(0);
@@ -216,8 +215,7 @@ public class NotificationService {
     }
 
     public NotificationService addLuckyNumber(List<LuckyNumber> luckyNumbers) {
-        if (prefs.getBoolean(context.getResources().getString(R.string.prefs_enable_notifications_key), true)
-                && enabledNotifs.contains("luckyNumbers")) {
+        if (isEnabled() && getEnabledTypes().contains("lucky_numbers")) {
             if (luckyNumbers == null || luckyNumbers.isEmpty()) return this;
             LuckyNumber ln = Iterables.getOnlyElement(luckyNumbers);
             sendNotification(

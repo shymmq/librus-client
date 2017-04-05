@@ -64,7 +64,6 @@
             android:label="Dziennik"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.SettingsActivity" />
         <activity
             android:name=".ui.AboutActivity"
             android:theme="@style/AppTheme.Fullscreen">

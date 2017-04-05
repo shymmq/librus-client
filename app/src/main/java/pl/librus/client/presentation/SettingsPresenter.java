@@ -46,6 +46,7 @@ public class SettingsPresenter extends FragmentPresenter<SettingsView> {
     @Override
     protected void onViewAttached() {
         view.updateAvailableFragments(getFragmentPresenters());
+        view.updateAvailableNotifications();
     }
 
     private List<MainFragmentPresenter> getFragmentPresenters() {

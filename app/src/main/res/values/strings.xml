@@ -81,6 +81,11 @@
     <string name="average_">"Średnia: "</string>
     <string name="mark_all_as_read">Oznacz wszystkie jako przeczytane</string>
 
+    <string name="announcements">Ogłoszenia</string>
+    <string name="grades">Oceny</string>
+    <string name="events">Wpisy w terminarzu</string>
+    <string name="lucky_numbers">Szczęśliwe numerki</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="md_icons_about">&lt;a href="https://github.com/google/material-design-icons/">Material design icons&lt;/a>by Google</string>

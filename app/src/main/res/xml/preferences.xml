@@ -23,14 +23,11 @@
     <PreferenceCategory android:title="Powiadomienia">
         <SwitchPreference
             android:defaultValue="1"
-            android:key="@string/prefs_enable_notifications_key"
+            android:key="enable_notifications"
             android:title="@string/enable_notifications"/>
         <MultiSelectListPreference
-            android:key="@string/prefs_enabled_notification_types_key"
-            android:title="@string/received_notifications"
-            android:entries="@array/notification_types"
-            android:entryValues="@array/notification_types_values"
-            android:defaultValue="@array/notification_types_default"/>
+            android:key="enabled_notification_types"
+            android:title="@string/received_notifications"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Więcej">
         <Preference android:title="Informacje">

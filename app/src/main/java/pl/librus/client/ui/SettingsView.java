@@ -9,5 +9,7 @@ import pl.librus.client.presentation.MainFragmentPresenter;
  */
 
 public interface SettingsView extends View {
+    void updateAvailableNotifications();
+
     void updateAvailableFragments(List<? extends MainFragmentPresenter> presenters);
 }
