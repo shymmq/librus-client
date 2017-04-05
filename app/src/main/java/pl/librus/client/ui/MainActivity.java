@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.common.base.Optional;
+import com.google.common.collect.Ordering;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -144,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps {
 
 
         StreamSupport.stream(fragmentPresenters)
+                .sorted(Ordering.natural().onResultOf(MainFragmentPresenter::getOrder))
                 .map(FragmentPresenter::convertToDrawerItem)
                 .forEach(drawerBuilder::addDrawerItems);
 
@@ -259,7 +261,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps {
         updateMenu();
     }
 
-    private void updateMenu() {
+    @Override
+    public void updateMenu() {
         menu.clear();
         for (int id = 0; id < actions.size(); id++) {
             MenuAction action = actions.get(id);

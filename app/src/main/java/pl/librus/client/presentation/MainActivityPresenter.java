@@ -177,26 +177,22 @@ public class MainActivityPresenter {
     }
 
     private FragmentPresenter getInitialFragment() {
-        Integer fragmentTitle = mainActivity.getInitialFragmentTitle();
+        Integer fragmentFromNotification = mainActivity.getInitialFragmentTitle();
 
-        if (fragmentTitle != null && fragmentTitle > 0) {
-            fragmentTitle = preferences.getString("defaultFragment")
+        if (fragmentFromNotification != null && fragmentFromNotification > 0) {
+            return getFragmentForTitle(fragmentFromNotification);
+        } else {
+            Integer defaultFragment = preferences.getString("defaultFragment")
                     .transform(Integer::valueOf)
                     .or(-1);
+            return getFragmentForTitle(defaultFragment);
         }
-        return getFragmentForTitle(fragmentTitle);
+
     }
 
     private MainFragmentPresenter getFragmentForTitle(int fragmentTitle) {
         return StreamSupport.stream(fragmentPresenters)
                 .filter(f -> f.getTitle() == fragmentTitle)
-                .findFirst()
-                .orElse(MainFragmentPresenter.sorted(fragmentPresenters).get(0));
-    }
-
-    private MainFragmentPresenter getPresenterForFragmentId(int fragmentId) {
-        return StreamSupport.stream(fragmentPresenters)
-                .filter(f -> f.getFragment().getId() == fragmentId)
                 .findFirst()
                 .orElse(MainFragmentPresenter.sorted(fragmentPresenters).get(0));
     }

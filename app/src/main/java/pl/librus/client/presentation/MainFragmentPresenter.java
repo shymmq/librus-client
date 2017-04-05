@@ -8,12 +8,13 @@ import java.util.Set;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.ui.MainActivityOps;
+import pl.librus.client.ui.MainView;
 
 /**
  * Created by robwys on 28/03/2017.
  */
 
-public abstract class MainFragmentPresenter extends FragmentPresenter {
+public abstract class MainFragmentPresenter<T extends MainView> extends FragmentPresenter<T> {
 
     protected MainFragmentPresenter(MainActivityOps mainActivity) {
         super(mainActivity);

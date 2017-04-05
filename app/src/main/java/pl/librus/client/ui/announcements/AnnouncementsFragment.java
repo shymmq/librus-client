@@ -18,26 +18,33 @@ import com.google.common.collect.Ordering;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.IFlexible;
 import java8.util.stream.StreamSupport;
+import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.domain.announcement.FullAnnouncement;
 import pl.librus.client.presentation.AnnouncementsPresenter;
 
 import static java8.util.stream.Collectors.toList;
 
-public class AnnouncementsFragment extends Fragment {
+public class AnnouncementsFragment
+        extends Fragment
+        implements AnnouncementsView {
 
     private View root;
     private SwipeRefreshLayout refreshLayout;
-    private FlexibleAdapter adapter;
+    private RecyclerView recyclerView;
+    private FlexibleAdapter<IFlexible> adapter;
     private Ordering<AnnouncementItem> ordering = Ordering.natural()
             .onResultOf(AnnouncementItem::getHeaderOrder)
             .compound(Ordering.natural()
                     .onResultOf(AnnouncementItem::getStartDate).reverse());
 
-    private AnnouncementsPresenter presenter;
+    @Inject
+    AnnouncementsPresenter presenter;
 
     public AnnouncementsFragment() {
         // Required empty public constructor
@@ -45,15 +52,30 @@ public class AnnouncementsFragment extends Fragment {
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        MainApplication.getMainActivityComponent()
+                .inject(this);
+
         root = inflater.inflate(R.layout.fragment_announcements, container, false);
 
-        presenter.refresh();
+        recyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_announcements_refresh_layout);
+
+        adapter = new FlexibleAdapter<>(null);
+        adapter.setDisplayHeadersAtStartUp(true);
+        adapter.mItemClickListener = this::onClick;
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+
+        refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
+        refreshLayout.setOnRefreshListener(presenter::reload);
+
+        presenter.attachView(this);
         return root;
     }
 
-    public void displayList(List<? extends FullAnnouncement> announcements) {
-        RecyclerView mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
-        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_announcements_refresh_layout);
+    @Override
+    public void display(List<? extends FullAnnouncement> announcements) {
 
         refreshLayout.setRefreshing(false);
 
@@ -62,15 +84,8 @@ public class AnnouncementsFragment extends Fragment {
                 .sorted(ordering)
                 .collect(toList());
 
-        adapter = new FlexibleAdapter<>(announcementItems);
-        adapter.setDisplayHeadersAtStartUp(true);
-        adapter.mItemClickListener = this::onClick;
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setAdapter(adapter);
-
-        refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
-        refreshLayout.setOnRefreshListener(presenter::refresh);
+        adapter.clear();
+        adapter.addItems(0, announcementItems);
     }
 
     private boolean onClick(int position) {
@@ -83,6 +98,7 @@ public class AnnouncementsFragment extends Fragment {
         return true;
     }
 
+    @Override
     public void displayDetails(AnnouncementItem announcementItem) {
         FullAnnouncement announcement = announcementItem.getAnnouncement();
 
@@ -107,7 +123,9 @@ public class AnnouncementsFragment extends Fragment {
         ft.commit();
     }
 
-    public void setPresenter(AnnouncementsPresenter presenter) {
-        this.presenter = presenter;
+    @Override
+    public void setRefreshing(boolean b) {
+        refreshLayout.setRefreshing(b);
     }
+
 }

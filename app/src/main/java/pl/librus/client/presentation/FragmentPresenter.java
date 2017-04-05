@@ -7,12 +7,15 @@ import android.support.v4.app.Fragment;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 
 import pl.librus.client.ui.MainActivityOps;
+import pl.librus.client.ui.View;
 
 /**
  * Created by robwys on 28/03/2017.
  */
 
-public abstract class FragmentPresenter {
+public abstract class FragmentPresenter<T extends View> {
+
+    protected T view;
 
     protected final MainActivityOps mainActivity;
 
@@ -44,4 +47,12 @@ public abstract class FragmentPresenter {
         return false;
     }
 
+    public final void attachView(T view) {
+        this.view = view;
+        onViewAttached();
+    }
+
+    protected void onViewAttached() {
+
+    }
 }

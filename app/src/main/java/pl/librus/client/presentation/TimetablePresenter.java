@@ -1,66 +1,50 @@
 package pl.librus.client.presentation;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
-import eu.davidea.flexibleadapter.items.IFlexible;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import java8.util.stream.Collectors;
-import java8.util.stream.StreamSupport;
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
 import pl.librus.client.data.LibrusData;
 import pl.librus.client.domain.Teacher;
+import pl.librus.client.domain.lesson.ImmutableSchoolWeek;
 import pl.librus.client.domain.lesson.Lesson;
+import pl.librus.client.domain.lesson.SchoolWeek;
 import pl.librus.client.ui.MainActivityOps;
-import pl.librus.client.ui.timetable.EmptyDayItem;
-import pl.librus.client.ui.timetable.LessonHeaderItem;
-import pl.librus.client.ui.timetable.LessonItem;
-import pl.librus.client.ui.timetable.MissingLessonItem;
 import pl.librus.client.ui.timetable.TimetableFragment;
+import pl.librus.client.ui.timetable.TimetableView;
 
 /**
  * Created by robwys on 28/03/2017.
  */
 
 @MainActivityScope
-public class TimetablePresenter extends MainFragmentPresenter {
+public class TimetablePresenter extends MainFragmentPresenter<TimetableView> {
 
     private final LibrusData data;
 
-    private final Context context;
-    private TimetableFragment fragment;
     private LocalDate weekStart;
 
     @Inject
-    public TimetablePresenter(LibrusData data, Context context, MainActivityOps mainActivity) {
+    public TimetablePresenter(LibrusData data, MainActivityOps mainActivity) {
         super(mainActivity);
         this.data = data;
-        this.context = context;
-        this.fragment = new TimetableFragment();
-        fragment.setPresenter(this);
     }
 
     @Override
     public Fragment getFragment() {
-        return fragment;
+        return new TimetableFragment();
     }
 
     @Override
@@ -78,7 +62,8 @@ public class TimetablePresenter extends MainFragmentPresenter {
         return 1;
     }
 
-    public void refresh() {
+    @Override
+    protected void onViewAttached() {
         weekStart = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
         List<LocalDate> initialWeekStarts = Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
 
@@ -86,13 +71,18 @@ public class TimetablePresenter extends MainFragmentPresenter {
                 .flatMapSingle(ws -> data
                         .findLessonsForWeek(ws)
                         .toList()
-                        .map(mapLessonsForWeek(ws)))
+                        .map(lessons -> ImmutableSchoolWeek.of(ws, lessons))
+                        .cast(SchoolWeek.class))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .concatMapIterable(i -> i)
                 .toList()
-                .doOnSuccess(list -> weekStart = weekStart.plusWeeks(2))
-                .subscribe(fragment::displayInitial);
+                .subscribe(this::initialLoaded);
+    }
+
+    private void initialLoaded(List<SchoolWeek> schoolWeeks) {
+        weekStart = weekStart.plusWeeks(2);
+        view.display(schoolWeeks);
+        view.scrollToDay(LocalDate.now());
     }
 
     public void loadMore() {
@@ -100,50 +90,14 @@ public class TimetablePresenter extends MainFragmentPresenter {
                 .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(mapLessonsForWeek(weekStart))
+                .map(l -> ImmutableSchoolWeek.of(weekStart, l))
                 .subscribe(this::moreLoaded);
     }
 
-    private void moreLoaded(List<IFlexible> elements) {
-        fragment.setProgress(false);
-        fragment.updateElements(elements);
+    private void moreLoaded(SchoolWeek schoolWeek) {
+        view.setProgress(false);
+        view.displayMore(schoolWeek);
         weekStart = weekStart.plusWeeks(1);
-    }
-
-    private Function<List<Lesson>, List<IFlexible>> mapLessonsForWeek(LocalDate weekStart) {
-        return lessons -> {
-            List<IFlexible> result = new ArrayList<>();
-
-            Map<LocalDate, List<Lesson>> days = StreamSupport.stream(lessons)
-                    .collect(Collectors.groupingBy(Lesson::date));
-            for (LocalDate date = weekStart; date.isBefore(weekStart.plusWeeks(1)); date = date.plusDays(1)) {
-                LessonHeaderItem header = new LessonHeaderItem(date);
-                if (date.equals(LocalDate.now())) {
-                    fragment.setDefaultHeader(header);
-                }
-                List<Lesson> schoolDay = days.get(date);
-                if (schoolDay == null || schoolDay.isEmpty()) {
-                    result.add(new EmptyDayItem(header, date));
-                } else {
-                    ImmutableMap<Integer, Lesson> lessonMap = Maps.uniqueIndex(schoolDay, Lesson::lessonNo);
-
-                    int maxLessonNumber = Collections.max(lessonMap.keySet());
-                    int minLessonNumber = Collections.min(lessonMap.keySet());
-
-                    minLessonNumber = Math.min(1, minLessonNumber);
-
-                    for (int l = minLessonNumber; l <= maxLessonNumber; l++) {
-                        Lesson lesson = lessonMap.get(l);
-                        if (lesson != null) {
-                            result.add(new LessonItem(header, lesson, context));
-                        } else {
-                            result.add(new MissingLessonItem(header, l));
-                        }
-                    }
-                }
-            }
-            return result;
-        };
     }
 
     //FIXME should be inside FullLesson

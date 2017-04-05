@@ -4,19 +4,17 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import java8.util.Optional;
+import java8.util.function.Function;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.MainActivityScope;
@@ -25,24 +23,25 @@ import pl.librus.client.data.LibrusData;
 import pl.librus.client.data.Reader;
 import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.domain.Teacher;
-import pl.librus.client.domain.grade.BaseGrade;
 import pl.librus.client.domain.grade.EnrichedGrade;
 import pl.librus.client.domain.grade.FullGrade;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
 import pl.librus.client.domain.grade.GradeComment;
+import pl.librus.client.domain.grade.GradesForSubject;
 import pl.librus.client.domain.subject.FullSubject;
 import pl.librus.client.domain.subject.Subject;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.ReadAllMenuAction;
 import pl.librus.client.ui.grades.GradesFragment;
+import pl.librus.client.ui.grades.GradesView;
 
 /**
  * Created by robwys on 28/03/2017.
  */
 
 @MainActivityScope
-public class GradesPresenter extends MainFragmentPresenter {
+public class GradesPresenter extends MainFragmentPresenter<GradesView> {
 
 
     public static final int TITLE = R.string.grades_view_title;
@@ -51,7 +50,6 @@ public class GradesPresenter extends MainFragmentPresenter {
     private final LibrusData data;
     private final Context context;
     private final Reader reader;
-    private final GradesFragment fragment;
 
     @Inject
     public GradesPresenter(UpdateHelper updateHelper, LibrusData data, MainActivityOps mainActivity, Context context, Reader reader) {
@@ -60,13 +58,11 @@ public class GradesPresenter extends MainFragmentPresenter {
         this.data = data;
         this.context = context;
         this.reader = reader;
-        this.fragment = new GradesFragment();
-        fragment.setPresenter(this);
     }
 
     @Override
     public Fragment getFragment() {
-        return fragment;
+        return new GradesFragment();
     }
 
     @Override
@@ -84,8 +80,35 @@ public class GradesPresenter extends MainFragmentPresenter {
         return 2;
     }
 
-    public void refresh() {
+    @Override
+    protected void onViewAttached() {
+        refreshView();
+    }
 
+    private void refreshView() {
+        Single<List<EnrichedGrade>> gradeSingle = data.findEnrichedGrades().toList().cache();
+
+        Single<List<FullSubject>> subjectsSingle = data.findFullSubjects().toList();
+
+        Single.zip(
+                subjectsSingle,
+                gradeSingle,
+                this::mapGradesToSubjects)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(view::display, RuntimeException::new);
+
+        gradeSingle
+                .map(grades ->
+                        new ReadAllMenuAction(
+                                grades,
+                                context,
+                                view::updateGrades))
+                .map(Lists::newArrayList)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mainActivity::displayMenuActions);
+    }
+
+    public void reload() {
         updateHelper.reloadMany(
                 Grade.class,
                 GradeCategory.class,
@@ -97,9 +120,9 @@ public class GradesPresenter extends MainFragmentPresenter {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(empty -> {
                     if (empty) {
-                        fragment.setRefreshing(false);
+                        view.setRefreshing(false);
                     } else {
-                        loadAndRefresh();
+                        refreshView();
                     }
                 });
     }
@@ -109,45 +132,20 @@ public class GradesPresenter extends MainFragmentPresenter {
                 .blocking()
                 .makeFullGrade(grade);
         reader.read(grade);
-        fragment.updateGrade(position);
-        fragment.displayGradeDetails(fullGrade);
+        view.updateGrade(position);
+        view.displayGradeDetails(fullGrade);
+        mainActivity.updateMenu();
     }
 
-    public void loadAndRefresh() {
-        Observable<EnrichedGrade> gradeObservable = data
-                .findEnrichedGrades()
-                .subscribeOn(Schedulers.io())
-                .publish()
-                .autoConnect(2);
+    private List<GradesForSubject> mapGradesToSubjects(List<FullSubject> subjects, List<EnrichedGrade> grades) {
+        Map<String, FullSubject> subjectMap = Maps.uniqueIndex(subjects, FullSubject::id);
 
-        Single<Map<String, Collection<EnrichedGrade>>> gradesBySubjectId = gradeObservable.toMultimap(BaseGrade::subjectId);
-        Single<List<FullSubject>> subjects = data.findFullSubjects().toList();
-        Single<Map<FullSubject, Collection<EnrichedGrade>>> gradesBySubject = Single.zip(
-                gradesBySubjectId,
-                subjects,
-                this::mapGradesToSubjects);
-        gradesBySubject
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(fragment::displayGrades);
+        Function<EnrichedGrade, FullSubject> gradeKey = grade -> subjectMap.get(grade.subjectId());
 
-        gradeObservable.toList()
-                .map(grades ->
-                        new ReadAllMenuAction(
-                                grades,
-                                context,
-                                fragment::updateGrades))
-                .map(Lists::newArrayList)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mainActivity::displayMenuActions);
-    }
-
-    private Map<FullSubject, Collection<EnrichedGrade>> mapGradesToSubjects(
-            Map<String, Collection<EnrichedGrade>> gradesBySubjectId,
-            List<FullSubject> subjects) {
-        return StreamSupport.stream(subjects)
-                .collect(Collectors.toMap(s -> s,
-                        s -> Optional.ofNullable(gradesBySubjectId.get(s.id()))
-                                .orElse(Collections.emptyList())
-                ));
+        Map<FullSubject, List<EnrichedGrade>> gradeMap = StreamSupport.stream(grades)
+                .collect(Collectors.groupingBy(gradeKey));
+        return StreamSupport.stream(gradeMap.entrySet())
+                .map(GradesForSubject::fromMapEntry)
+                .collect(Collectors.toList());
     }
 }

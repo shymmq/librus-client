@@ -9,16 +9,17 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import java8.util.stream.StreamSupport;
-import pl.librus.client.MainActivityScope;
 import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.SettingsPresenter;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragmentCompat implements SettingsView,SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject
     SettingsPresenter presenter;
@@ -31,13 +32,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         MainApplication.getMainActivityComponent()
                 .inject(this);
-        presenter.setFragment(this);
+        presenter.attachView(this);
         addPreferencesFromResource(R.xml.preferences);
         PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, false);
         updateAvailableFragments();
         addThemeChangeListener();
     }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -66,15 +66,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             }
         }
     }
-
-    private void updateAvailableFragments() {
+    @Override
+    public void updateAvailableFragments(List<? extends MainFragmentPresenter> presenters) {
         ListPreference list = (ListPreference) getPreferenceScreen().findPreference("defaultFragment");
 
-        CharSequence[] labels = StreamSupport.stream(presenter.getFragmentPresenters())
+        CharSequence[] labels = StreamSupport.stream(presenters)
                 .map(MainFragmentPresenter::getTitle)
                 .map(this::getString)
                 .toArray(CharSequence[]::new);
-        CharSequence[] values = StreamSupport.stream(presenter.getFragmentPresenters())
+        CharSequence[] values = StreamSupport.stream(presenters)
                 .map(MainFragmentPresenter::getTitle)
                 .map(String::valueOf)
                 .toArray(CharSequence[]::new);

@@ -14,17 +14,19 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+
+import javax.inject.Inject;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import java8.util.stream.StreamSupport;
+import pl.librus.client.MainApplication;
 import pl.librus.client.R;
-import pl.librus.client.domain.grade.EnrichedGrade;
 import pl.librus.client.domain.grade.FullGrade;
+import pl.librus.client.domain.grade.GradesForSubject;
 import pl.librus.client.domain.subject.FullSubject;
 import pl.librus.client.presentation.GradesPresenter;
 import pl.librus.client.util.LibrusUtils;
@@ -32,14 +34,15 @@ import pl.librus.client.util.LibrusUtils;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemClickListener {
+public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemClickListener, GradesView {
 
     private final Comparator<GradeHeaderItem> headerComparator = GradeHeaderItem::compareTo;
 
     private FlexibleAdapter<AbstractFlexibleItem> adapter;
     private SwipeRefreshLayout refreshLayout;
 
-    private GradesPresenter presenter;
+    @Inject
+    GradesPresenter presenter;
 
     public GradesFragment() {
         // Required empty public constructor
@@ -48,6 +51,9 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        MainApplication.getMainActivityComponent()
+                .inject(this);
+
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
 
@@ -56,7 +62,7 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_grades_refresh);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.getItemAnimator().setChangeDuration(0);
-        refreshLayout.setOnRefreshListener(presenter::refresh);
+        refreshLayout.setOnRefreshListener(presenter::reload);
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
         adapter = new FlexibleAdapter<>(null, this);
 
@@ -67,34 +73,16 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
 
         recyclerView.setAdapter(adapter);
 
-        presenter.loadAndRefresh();
-
+        presenter.attachView(this);
         return root;
     }
 
-    public void displayGrades(Map<FullSubject, Collection<EnrichedGrade>> mappedGrades) {
-
-        adapter.clear();
-        refreshLayout.setRefreshing(false);
-
-        for (Map.Entry<FullSubject, Collection<EnrichedGrade>> entry : mappedGrades.entrySet()) {
-            FullSubject s = entry.getKey();
-
-            final GradeHeaderItem headerItem = new GradeHeaderItem(s, getContext());
-
-            StreamSupport.stream(entry.getValue())
-                    .sorted((g1, g2) -> g2.date().compareTo(g1.date()))
-                    .forEach(grade ->
-                            headerItem.addSubItem(new GradeItem(headerItem, grade)));
-
-            getActivity().runOnUiThread(() -> adapter.addSection(headerItem, headerComparator));
-        }
-    }
-
+    @Override
     public void updateGrades() {
         adapter.notifyItemRangeChanged(0, adapter.getItemCount());
     }
 
+    @Override
     public void updateGrade(int position) {
         adapter.notifyItemChanged(position);
     }
@@ -114,6 +102,7 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
         return false;
     }
 
+    @Override
     public void displayGradeDetails(FullGrade grade) {
         @SuppressLint("InflateParams")
         View dialogLayout = LayoutInflater.from(getContext()).inflate(R.layout.grade_details, null, false);
@@ -165,11 +154,27 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
 
     }
 
-    public void setPresenter(GradesPresenter presenter) {
-        this.presenter = presenter;
-    }
-
+    @Override
     public void setRefreshing(boolean b) {
         refreshLayout.setRefreshing(b);
+    }
+
+    @Override
+    public void display(List<GradesForSubject> content) {
+        adapter.clear();
+        refreshLayout.setRefreshing(false);
+
+        for (GradesForSubject gfs : content) {
+            FullSubject s = gfs.subject();
+
+            final GradeHeaderItem headerItem = new GradeHeaderItem(s, getContext());
+
+            StreamSupport.stream(gfs.grades())
+                    .sorted((g1, g2) -> g2.date().compareTo(g1.date()))
+                    .forEach(grade ->
+                            headerItem.addSubItem(new GradeItem(headerItem, grade)));
+
+            adapter.addSection(headerItem, headerComparator);
+        }
     }
 }

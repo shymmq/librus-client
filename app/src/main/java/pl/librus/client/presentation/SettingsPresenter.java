@@ -11,27 +11,26 @@ import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.SettingsFragment;
+import pl.librus.client.ui.SettingsView;
 
 /**
  * Created by robwys on 28/03/2017.
  */
 
 @MainActivityScope
-public class SettingsPresenter extends FragmentPresenter {
+public class SettingsPresenter extends FragmentPresenter<SettingsView> {
 
     private final Set<MainFragmentPresenter> fragmentPresenters;
-    private SettingsFragment fragment;
 
     @Inject
     public SettingsPresenter(MainActivityOps mainActivity, Set<MainFragmentPresenter> fragmentPresenters) {
         super(mainActivity);
         this.fragmentPresenters = fragmentPresenters;
-        this.fragment = new SettingsFragment();
     }
 
     @Override
     public Fragment getFragment() {
-        return fragment;
+        return new SettingsFragment();
     }
 
     @Override
@@ -44,11 +43,12 @@ public class SettingsPresenter extends FragmentPresenter {
         return R.drawable.ic_settings_black_48dp;
     }
 
-    public List<MainFragmentPresenter> getFragmentPresenters() {
-        return MainFragmentPresenter.sorted(fragmentPresenters);
+    @Override
+    protected void onViewAttached() {
+        view.updateAvailableFragments(getFragmentPresenters());
     }
 
-    public void setFragment(SettingsFragment fragment) {
-        this.fragment = fragment;
+    private List<MainFragmentPresenter> getFragmentPresenters() {
+        return MainFragmentPresenter.sorted(fragmentPresenters);
     }
 }

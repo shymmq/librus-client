@@ -9,24 +9,23 @@ import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
 import pl.librus.client.data.LibrusData;
+import pl.librus.client.domain.attendance.FullAttendance;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.attendances.AttendanceFragment;
+import pl.librus.client.ui.attendances.AttendancesView;
 
 /**
  * Created by robwys on 28/03/2017.
  */
 @MainActivityScope
-public class AttendancesPresenter extends MainFragmentPresenter {
+public class AttendancesPresenter extends MainFragmentPresenter<AttendancesView> {
 
     private final LibrusData data;
-    private final AttendanceFragment fragment;
 
     @Inject
     public AttendancesPresenter(MainActivityOps mainActivity, LibrusData data) {
         super(mainActivity);
         this.data = data;
-        this.fragment = new AttendanceFragment();
-        fragment.setPresenter(this);
     }
 
     @Override
@@ -36,7 +35,7 @@ public class AttendancesPresenter extends MainFragmentPresenter {
 
     @Override
     public Fragment getFragment() {
-        return fragment;
+        return new AttendanceFragment();
     }
 
     @Override
@@ -49,12 +48,20 @@ public class AttendancesPresenter extends MainFragmentPresenter {
         return R.drawable.ic_person_outline_black_48dp;
     }
 
-    public void refresh() {
+    @Override
+    protected void onViewAttached() {
+        refreshView();
+    }
+
+    private void refreshView() {
         data.findFullAttendances()
                 .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(fragment::displayList);
+                .subscribe(view::display);
     }
 
+    public void attendanceClicked(FullAttendance attendance) {
+        view.displayPopup(attendance);
+    }
 }

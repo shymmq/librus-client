@@ -34,7 +34,7 @@ public class MainApplication extends MultiDexApplication {
         applicationComponent.inject(this);
 
         StrictMode.enableDefaults();
-        if(analytics.isPresent()) {
+        if (analytics.isPresent()) {
             analytics.get().init();
         }
 

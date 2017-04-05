@@ -3,7 +3,6 @@ package pl.librus.client.ui.timetable;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
@@ -16,55 +15,64 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
+import org.joda.time.LocalDate;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
 
 import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
 import eu.davidea.flexibleadapter.common.TopSnappedSmoothScroller;
 import eu.davidea.flexibleadapter.items.IFlexible;
+import eu.davidea.flexibleadapter.items.IHeader;
+import java8.util.stream.Collectors;
+import java8.util.stream.RefStreams;
+import java8.util.stream.Stream;
+import java8.util.stream.StreamSupport;
+import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.lesson.Lesson;
+import pl.librus.client.domain.lesson.SchoolWeek;
 import pl.librus.client.presentation.TimetablePresenter;
 
-public class TimetableFragment extends Fragment {
+public class TimetableFragment extends Fragment implements TimetableView {
     private final ProgressItem progressItem = new ProgressItem();
     private TimetableAdapter adapter;
-    private SmoothScrollLinearLayoutManager layoutManager;
-    private IFlexible defaultHeader;
     private SwipeRefreshLayout refreshLayout;
 
-    private TimetablePresenter presenter;
+    @Inject
+    TimetablePresenter presenter;
+    private RecyclerView recyclerView;
 
     public TimetableFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         TopSnappedSmoothScroller.MILLISECONDS_PER_INCH = 15f;
-        return inflater.inflate(R.layout.fragment_timetable, container, false);
-    }
 
-    @Override
-    public void onViewCreated(View view, @Nullable final Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        presenter.refresh();
-    }
+        MainApplication.getMainActivityComponent()
+                .inject(this);
 
+        View root = inflater.inflate(R.layout.fragment_timetable, container, false);
 
-    public void displayInitial(List<IFlexible> elements) {
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.fragment_timetable_recycler);
-        refreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.fragment_timetable_refresh_layout);
+        recyclerView = (RecyclerView) root.findViewById(R.id.fragment_timetable_recycler);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_timetable_refresh_layout);
 
-        layoutManager = new SmoothScrollLinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new SmoothScrollLinearLayoutManager(getContext()));
 
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
-        refreshLayout.setOnRefreshListener(presenter::refresh);
         refreshLayout.setRefreshing(false);
 
-        adapter = new TimetableAdapter(elements);
+        adapter = new TimetableAdapter(null);
 
         adapter.setDisplayHeadersAtStartUp(true);
         adapter.setEndlessProgressItem(progressItem);
@@ -75,24 +83,17 @@ public class TimetableFragment extends Fragment {
             presenter.loadMore();
         };
 
-
         adapter.mItemClickListener = this::onItemClick;
         recyclerView.setAdapter(adapter);
 
-        //Scroll to default position after a delay to let recyclerview complete layout
-        new Handler().postDelayed(() -> {
-            if (defaultHeader != null)
-                recyclerView.smoothScrollToPosition(adapter.getGlobalPositionOf(defaultHeader));
-        }, 50);
+        presenter.attachView(this);
+
+        return root;
     }
 
-
+    @Override
     public void setProgress(boolean enabled) {
         progressItem.setStatus(enabled ? ProgressItem.LOADING : ProgressItem.IDLE);
-    }
-
-    public void updateElements(List<IFlexible> elements) {
-        adapter.onLoadMoreComplete(elements);
     }
 
     public boolean onItemClick(int position) {
@@ -156,11 +157,61 @@ public class TimetableFragment extends Fragment {
         }
     }
 
-    public void setDefaultHeader(IFlexible defaultHeader) {
-        this.defaultHeader = defaultHeader;
+    private Stream<IFlexible> mapLessonsForWeek(SchoolWeek schoolWeek) {
+        Stream.Builder<IFlexible> builder = RefStreams.builder();
+
+        Map<LocalDate, List<Lesson>> days = StreamSupport.stream(schoolWeek.lessons())
+                .collect(Collectors.groupingBy(Lesson::date));
+        for (LocalDate date = schoolWeek.weekStart(); date.isBefore(schoolWeek.weekStart().plusWeeks(1)); date = date.plusDays(1)) {
+            LessonHeaderItem header = new LessonHeaderItem(date);
+            List<Lesson> schoolDay = days.get(date);
+            if (schoolDay == null || schoolDay.isEmpty()) {
+                builder.add(new EmptyDayItem(header, date));
+            } else {
+                ImmutableMap<Integer, Lesson> lessonMap = Maps.uniqueIndex(schoolDay, Lesson::lessonNo);
+
+                int maxLessonNumber = Collections.max(lessonMap.keySet());
+                int minLessonNumber = Collections.min(lessonMap.keySet());
+
+                minLessonNumber = Math.min(1, minLessonNumber);
+
+                for (int l = minLessonNumber; l <= maxLessonNumber; l++) {
+                    Lesson lesson = lessonMap.get(l);
+                    if (lesson != null) {
+                        builder.add(new LessonItem(header, lesson, getContext()));
+                    } else {
+                        builder.add(new MissingLessonItem(header, l));
+                    }
+                }
+            }
+        }
+        return builder.build();
     }
 
-    public void setPresenter(TimetablePresenter presenter) {
-        this.presenter = presenter;
+    @Override
+    public void display(List<SchoolWeek> content) {
+        adapter.clear();
+        List<IFlexible> elements = StreamSupport.stream(content)
+                .flatMap(this::mapLessonsForWeek)
+                .collect(Collectors.toList());
+
+        adapter.addItems(0, elements);
+    }
+
+    @Override
+    public void displayMore(SchoolWeek schoolWeek) {
+        adapter.onLoadMoreComplete(mapLessonsForWeek(schoolWeek)
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void scrollToDay(LocalDate day) {
+        //Scroll to default position after a delay to let recyclerview complete layout
+        IHeader header = StreamSupport.stream(adapter.getHeaderItems())
+                .filter(h -> ((LessonHeaderItem) h).getDate().equals(day))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No header item for " + day));
+        new Handler().postDelayed(() -> recyclerView.smoothScrollToPosition(adapter.getGlobalPositionOf(header)), 50);
+
     }
 }

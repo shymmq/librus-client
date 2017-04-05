@@ -40,4 +40,5 @@ public interface MainActivityOps {
 
     void finish();
 
+    void updateMenu();
 }

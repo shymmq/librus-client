@@ -4,10 +4,12 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import java8.util.function.BiFunction;
 import java8.util.function.Predicate;
@@ -38,6 +40,7 @@ import pl.librus.client.domain.grade.ImmutableGrade;
 import pl.librus.client.domain.grade.ImmutableGradeCategory;
 import pl.librus.client.domain.subject.ImmutableSubject;
 import pl.librus.client.domain.subject.Subject;
+import pl.librus.client.util.LibrusUtils;
 
 import static java8.util.stream.Collectors.toList;
 
@@ -50,6 +53,7 @@ class MockEntityRepository {
     private static final Map<Class<?>, List<?>> lists = Maps.newHashMap();
     private final EntityMocks templates = new EntityMocks();
     private final Random random = new Random(42);
+    private final AtomicInteger refreshCounter = new AtomicInteger();
 
     private final ImmutableMultimap<Class<?>, Class<?>> entitiesRelations = ImmutableMultimap.<Class<?>, Class<?>>builder()
             .putAll(PlainLesson.class, Teacher.class, Subject.class)
@@ -82,13 +86,40 @@ class MockEntityRepository {
 
     <T> List<T> getList(Class<T> clazz) {
         tryCreateList(clazz);
+        if (refreshCounter.incrementAndGet() % 3 == 0 &&
+                Sets.newHashSet(
+                        Grade.class,
+                        Announcement.class,
+                        Attendance.class
+                ).contains(clazz)) {
+            addItem(clazz);
+        }
         return (List<T>) lists.get(clazz);
     }
 
+    public <T> void addItem(Class<T> clazz) {
+        LibrusUtils.log("addItem " + clazz.getSimpleName());
+        List<T> list = (List<T>) lists.get(clazz);
+        EntityUpdate<T> entityUpdate = findUpdateForClass(clazz);
+        ImmutableList<Object> list1 = ImmutableList.builder()
+                .addAll(list)
+                .add(entityUpdate.update().apply(templates.forClass(clazz), list.size() + 1))
+                .build();
+        lists.put(clazz, list1);
+    }
+
     private void tryCreateList(Class<?> clazz) {
-        if(lists.get(clazz) == null) {
+        if (lists.get(clazz) == null) {
             createList(clazz);
         }
+    }
+
+    private <T> EntityUpdate<T> findUpdateForClass(Class<T> clazz) {
+        Predicate<EntityUpdate> classEqual = u -> u.clazz().equals(clazz);
+        return (EntityUpdate<T>) StreamSupport.stream(updates)
+                .filter(classEqual)
+                .findAny()
+                .get();
     }
 
     private static <T> EntityUpdate<T> makeUpdate(Class<T> clazz, int count, BiFunction<T, Integer, T> update) {
@@ -99,11 +130,7 @@ class MockEntityRepository {
         for (Class dependency : entitiesRelations.get(clazz)) {
             tryCreateList(dependency);
         }
-        Predicate<EntityUpdate> classEqual = u -> u.clazz().equals(clazz);
-        EntityUpdate<T> entityUpdate = (EntityUpdate<T>) StreamSupport.stream(updates)
-                .filter(classEqual)
-                .findAny()
-                .get();
+        EntityUpdate<T> entityUpdate = findUpdateForClass(clazz);
         List<T> list = IntStreams.range(0, entityUpdate.count())
                 .mapToObj(i ->
                         entityUpdate.update().apply(templates.forClass(clazz), i))
@@ -141,6 +168,7 @@ class MockEntityRepository {
     private EventCategory updateEventCategory(EventCategory ec, Integer integer) {
         return ec;
     }
+
     private LibrusColor updateColor(LibrusColor c, Integer integer) {
         return c;
     }
@@ -159,12 +187,12 @@ class MockEntityRepository {
     }
 
     private Attendance updateAttendance(Attendance a, int index) {
-        if(index % 10 == 0) {
+        if (index % 10 == 0) {
             return ImmutableAttendance.copyOf(a)
                     .withAddedById(Optional.absent())
                     .withCategoryId(idFromIndex(AttendanceCategory.class, index))
                     .withLessonId(Optional.absent());
-        }else {
+        } else {
             return ImmutableAttendance.copyOf(a)
                     .withAddedById(idFromIndex(Teacher.class, index))
                     .withCategoryId(idFromIndex(AttendanceCategory.class, index))
@@ -183,10 +211,10 @@ class MockEntityRepository {
     }
 
     private Announcement updateAnnouncement(Announcement a, int index) {
-        if(index == 1) {
+        if (index == 1) {
             return ImmutableAnnouncement.copyOf(a)
                     .withAddedById(Optional.absent());
-        }else {
+        } else {
             return ImmutableAnnouncement.copyOf(a)
                     .withAddedById(idFromIndex(Teacher.class, index));
         }
