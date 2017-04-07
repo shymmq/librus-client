@@ -4,9 +4,12 @@ import android.os.Bundle;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import pl.librus.client.MainApplication;
@@ -45,32 +48,34 @@ public class LibrusGcmListenerService extends GcmListenerService {
     @Override
     public void onMessageReceived(String s, Bundle bundle) {
 
-
-        updateHelper.reload(Grade.class)
+        List<Grade> grades = updateHelper.reload(Grade.class)
                 .compose(this::filterAdded)
                 .toList()
-                .subscribe(notificationService::addGrades);
+                .blockingGet();
+        notificationService.addGrades(grades);
 
-        updateHelper.reload(Announcement.class)
+        List<Announcement> announcements = updateHelper.reload(Announcement.class)
                 .compose(this::filterAdded)
                 .toList()
-                .subscribe(notificationService::addAnnouncements);
+                .blockingGet();
+        notificationService.addAnnouncements(announcements);
 
-        updateHelper.reload(Event.class)
+        List<Event> events = updateHelper.reload(Event.class)
                 .compose(this::filterAdded)
                 .toList()
-                .subscribe(notificationService::addEvents);
+                .blockingGet();
+        notificationService.addEvents(events);
 
-        updateHelper.reload(LuckyNumber.class)
+        List<LuckyNumber> luckyNumbers = updateHelper.reload(LuckyNumber.class)
                 .compose(this::filterAdded)
                 .toList()
-                .subscribe(notificationService::addLuckyNumber);
+                .blockingGet();
+        notificationService.addLuckyNumber(luckyNumbers);
     }
 
     private <T extends Persistable> Observable<T> filterAdded(Observable<EntityChange<T>> upstream) {
         return upstream
                 .filter(change -> change.type() == EntityChange.Type.ADDED)
-                .map(EntityChange::entity)
-                .observeOn(Schedulers.trampoline());
+                .map(EntityChange::entity);
     }
 }
