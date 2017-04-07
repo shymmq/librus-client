@@ -1,5 +1,6 @@
 package pl.librus.client.presentation;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
 import com.google.common.collect.Lists;
@@ -17,6 +18,8 @@ import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
 import pl.librus.client.data.LibrusData;
+import pl.librus.client.data.UpdateHelper;
+import pl.librus.client.domain.Identifiable;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.lesson.ImmutableSchoolWeek;
 import pl.librus.client.domain.lesson.Lesson;
@@ -30,15 +33,15 @@ import pl.librus.client.ui.timetable.TimetableView;
  */
 
 @MainActivityScope
-public class TimetablePresenter extends MainFragmentPresenter<TimetableView> {
+public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
 
     private final LibrusData data;
 
     private LocalDate weekStart;
 
     @Inject
-    public TimetablePresenter(LibrusData data, MainActivityOps mainActivity) {
-        super(mainActivity);
+    public TimetablePresenter(LibrusData data, MainActivityOps mainActivity, UpdateHelper updateHelper) {
+        super(mainActivity, updateHelper);
         this.data = data;
     }
 
@@ -64,19 +67,30 @@ public class TimetablePresenter extends MainFragmentPresenter<TimetableView> {
 
     @Override
     protected void onViewAttached() {
-        weekStart = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
-        List<LocalDate> initialWeekStarts = Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
+        refreshView();
+    }
+
+    @Override
+    protected void refreshView() {
+        List<LocalDate> initialWeekStarts = resetWeekStart();
 
         Observable.fromIterable(initialWeekStarts)
-                .flatMapSingle(ws -> data
+                .concatMapEager(ws -> data
                         .findLessonsForWeek(ws)
                         .toList()
                         .map(lessons -> ImmutableSchoolWeek.of(ws, lessons))
-                        .cast(SchoolWeek.class))
+                        .cast(SchoolWeek.class)
+                        .toObservable())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .toList()
                 .subscribe(this::initialLoaded);
+    }
+
+    @NonNull
+    private List<LocalDate> resetWeekStart() {
+        weekStart = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
+        return Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
     }
 
     private void initialLoaded(List<SchoolWeek> schoolWeeks) {
@@ -100,9 +114,31 @@ public class TimetablePresenter extends MainFragmentPresenter<TimetableView> {
         weekStart = weekStart.plusWeeks(1);
     }
 
+    @Override
+    protected List<Class<? extends Identifiable>> dependentEntities() {
+        return Lists.newArrayList(
+                Lesson.class,
+                Teacher.class);
+
+    }
+
     //FIXME should be inside FullLesson
     public Teacher getTeacher(Lesson lesson) {
         return data.blocking()
                 .getById(Teacher.class, lesson.orgTeacher().get());
+    }
+
+    @Override
+    public void reload() {
+        view.setRefreshing(true);
+        updateHelper.reloadLessons(resetWeekStart())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doFinally(() -> view.setRefreshing(false))
+                .isEmpty()
+                .subscribe(empty -> {
+                    if (!empty) {
+                        refreshView();
+                    }
+                });
     }
 }

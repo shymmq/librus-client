@@ -1,6 +1,8 @@
 package pl.librus.client.data.db;
 
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
 import io.requery.Converter;
 
@@ -8,7 +10,7 @@ import io.requery.Converter;
  * Created by robwys on 04/02/2017.
  */
 
-public class LocalDateConverter implements Converter<LocalDate, String> {
+public class LocalDateConverter implements Converter<LocalDate, Long> {
 
     @Override
     public Class<LocalDate> getMappedType() {
@@ -16,8 +18,8 @@ public class LocalDateConverter implements Converter<LocalDate, String> {
     }
 
     @Override
-    public Class<String> getPersistedType() {
-        return String.class;
+    public Class<Long> getPersistedType() {
+        return Long.class;
     }
 
     @Override
@@ -26,18 +28,18 @@ public class LocalDateConverter implements Converter<LocalDate, String> {
     }
 
     @Override
-    public String convertToPersisted(LocalDate value) {
+    public Long convertToPersisted(LocalDate value) {
         if (value == null) {
             return null;
         }
-        return value.toString();
+        return value.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
     }
 
     @Override
-    public LocalDate convertToMapped(Class<? extends LocalDate> type, String value) {
+    public LocalDate convertToMapped(Class<? extends LocalDate> type, Long value) {
         if (value == null) {
             return null;
         }
-        return LocalDate.parse(value);
+        return new LocalDate(value, DateTimeZone.UTC);
     }
 }

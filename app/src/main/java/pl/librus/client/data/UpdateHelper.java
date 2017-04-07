@@ -38,6 +38,7 @@ import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
 import pl.librus.client.domain.grade.GradeComment;
+import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.subject.Subject;
 import pl.librus.client.ui.ProgressReporter;
 import pl.librus.client.util.LibrusUtils;
@@ -95,7 +96,6 @@ public class UpdateHelper {
         LocalDate lastMonday = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
         List<LocalDate> weekStarts = Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
 
-
         return StreamSupport.stream(weekStarts)
                 .map(ws -> serverStrategy.getLessonsForWeek(ws)
                         .toList()
@@ -111,6 +111,22 @@ public class UpdateHelper {
                 .doOnSuccess(list -> LibrusUtils.log("Loaded %s %s", list.size(), clazz.getSimpleName()));
     }
 
+    public Observable<EntityChange<Lesson>> reloadLessons(List<LocalDate> weekStarts) {
+        return Single.zip(
+                Observable.fromIterable(weekStarts)
+                        .flatMap(databaseStrategy::getLessonsForWeek)
+                        .toList(),
+                Observable.fromIterable(weekStarts)
+                        .flatMap(serverStrategy::getLessonsForWeek)
+                        .toList(),
+                ImmutableListTuple::of)
+                .doOnSuccess(tuple -> {
+                    databaseStrategy.clearAll(Lesson.class);
+                    databaseStrategy.upsert(tuple.fromServer());
+                })
+                .flattenAsObservable(this::detectChanges);
+    }
+
     public <T extends Identifiable> Observable<EntityChange<T>> reload(Class<T> clazz) {
         return Single.zip(
                 databaseStrategy.getAll(clazz).toList(),
@@ -120,8 +136,8 @@ public class UpdateHelper {
                 .flattenAsObservable(this::detectChanges);
     }
 
-    public Observable<EntityChange<? extends Identifiable>> reloadMany(Class<? extends Identifiable>... classes) {
-        return Observable.fromArray(classes)
+    public Observable<EntityChange<? extends Identifiable>> reloadMany(List<Class<? extends Identifiable>> classes) {
+        return Observable.fromIterable(classes)
                 .flatMap(this::reload);
     }
 

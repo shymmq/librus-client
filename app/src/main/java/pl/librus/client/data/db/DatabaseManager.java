@@ -12,6 +12,7 @@ import javax.inject.Named;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import io.requery.android.sqlite.DatabaseSource;
 import io.requery.reactivex.ReactiveEntityStore;
@@ -36,7 +37,7 @@ public class DatabaseManager implements DataLoadStrategy {
     public DatabaseManager(Context context, @Named("login") String login) {
         this.context = context;
         this.login = login;
-        DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 17);
+        DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 18);
         if (BuildConfig.DEBUG) {
             source.setLoggingEnabled(true);
             source.setTableCreationMode(TableCreationMode.DROP_CREATE);
@@ -63,25 +64,35 @@ public class DatabaseManager implements DataLoadStrategy {
                 .where(LessonType.DATE.gte(weekStart))
                 .and(LessonType.DATE.lt(weekStart.plusWeeks(1)))
                 .get()
-                .observable();
+                .observable()
+                .subscribeOn(Schedulers.io());
     }
 
     @Override
     public <T extends Persistable> Observable<T> getAll(Class<T> clazz) {
         return dataStore.select(clazz)
                 .get()
-                .observable();
+                .observable()
+                .subscribeOn(Schedulers.io());
     }
 
     @Override
     public <T extends Persistable & Identifiable> Single<T> getById(Class<T> clazz, String id) {
         return dataStore.findByKey(clazz, id)
-                .toSingle();
+                .toSingle()
+                .subscribeOn(Schedulers.io());
     }
 
-    public <T extends Persistable> void upsert(List<T> elements) {
+    public void upsert(List<? extends Persistable> elements) {
         dataStore.upsert(elements)
             .blockingGet();
+    }
+
+    public void clearAll(Class<? extends Persistable> clazz) {
+        dataStore.delete(clazz)
+                .get()
+                .single()
+                .blockingGet();
     }
 
     public ReactiveEntityStore<Persistable> getDataStore() {

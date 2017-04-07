@@ -22,6 +22,8 @@ import pl.librus.client.R;
 import pl.librus.client.data.LibrusData;
 import pl.librus.client.data.Reader;
 import pl.librus.client.data.UpdateHelper;
+import pl.librus.client.domain.Identifiable;
+import pl.librus.client.domain.LibrusColor;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.grade.EnrichedGrade;
 import pl.librus.client.domain.grade.FullGrade;
@@ -29,6 +31,7 @@ import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
 import pl.librus.client.domain.grade.GradeComment;
 import pl.librus.client.domain.grade.GradesForSubject;
+import pl.librus.client.domain.grade.ImmutableGradesForSubject;
 import pl.librus.client.domain.subject.FullSubject;
 import pl.librus.client.domain.subject.Subject;
 import pl.librus.client.ui.MainActivityOps;
@@ -41,11 +44,10 @@ import pl.librus.client.ui.grades.GradesView;
  */
 
 @MainActivityScope
-public class GradesPresenter extends MainFragmentPresenter<GradesView> {
+public class GradesPresenter extends ReloadablePresenter<GradesView> {
 
 
     public static final int TITLE = R.string.grades_view_title;
-    private final UpdateHelper updateHelper;
 
     private final LibrusData data;
     private final Context context;
@@ -53,8 +55,7 @@ public class GradesPresenter extends MainFragmentPresenter<GradesView> {
 
     @Inject
     public GradesPresenter(UpdateHelper updateHelper, LibrusData data, MainActivityOps mainActivity, Context context, Reader reader) {
-        super(mainActivity);
-        this.updateHelper = updateHelper;
+        super(mainActivity, updateHelper);
         this.data = data;
         this.context = context;
         this.reader = reader;
@@ -80,12 +81,7 @@ public class GradesPresenter extends MainFragmentPresenter<GradesView> {
         return 2;
     }
 
-    @Override
-    protected void onViewAttached() {
-        refreshView();
-    }
-
-    private void refreshView() {
+    protected void refreshView() {
         Single<List<EnrichedGrade>> gradeSingle = data.findEnrichedGrades().toList().cache();
 
         Single<List<FullSubject>> subjectsSingle = data.findFullSubjects().toList();
@@ -94,6 +90,7 @@ public class GradesPresenter extends MainFragmentPresenter<GradesView> {
                 subjectsSingle,
                 gradeSingle,
                 this::mapGradesToSubjects)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(view::display, RuntimeException::new);
 
@@ -106,25 +103,6 @@ public class GradesPresenter extends MainFragmentPresenter<GradesView> {
                 .map(Lists::newArrayList)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mainActivity::displayMenuActions);
-    }
-
-    public void reload() {
-        updateHelper.reloadMany(
-                Grade.class,
-                GradeCategory.class,
-                Teacher.class,
-                Subject.class,
-                GradeComment.class)
-                .isEmpty()
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(empty -> {
-                    if (empty) {
-                        view.setRefreshing(false);
-                    } else {
-                        refreshView();
-                    }
-                });
     }
 
     public void gradeClicked(int position, EnrichedGrade grade) {
@@ -144,8 +122,19 @@ public class GradesPresenter extends MainFragmentPresenter<GradesView> {
 
         Map<FullSubject, List<EnrichedGrade>> gradeMap = StreamSupport.stream(grades)
                 .collect(Collectors.groupingBy(gradeKey));
-        return StreamSupport.stream(gradeMap.entrySet())
-                .map(GradesForSubject::fromMapEntry)
+        return StreamSupport.stream(gradeMap.keySet())
+                .map(subject -> ImmutableGradesForSubject.of(subject, gradeMap.get(subject)))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    protected List<Class<? extends Identifiable>> dependentEntities() {
+        return Lists.newArrayList(
+                Grade.class,
+                GradeCategory.class,
+                Teacher.class,
+                Subject.class,
+                GradeComment.class,
+                LibrusColor.class);
     }
 }

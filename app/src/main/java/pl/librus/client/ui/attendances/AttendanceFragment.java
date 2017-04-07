@@ -68,6 +68,7 @@ public class AttendanceFragment extends Fragment implements FlexibleAdapter.OnIt
         recyclerView.setAdapter(adapter);
 
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
+        refreshLayout.setOnRefreshListener(presenter::reload);
 
         presenter.attachView(this);
 
@@ -137,6 +138,10 @@ public class AttendanceFragment extends Fragment implements FlexibleAdapter.OnIt
             adapter.addSection(headerItem);
         }
 
-        refreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void setRefreshing(boolean b) {
+        refreshLayout.setRefreshing(b);
     }
 }

@@ -70,7 +70,7 @@ public class TimetableFragment extends Fragment implements TimetableView {
         recyclerView.setLayoutManager(new SmoothScrollLinearLayoutManager(getContext()));
 
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
-        refreshLayout.setRefreshing(false);
+        refreshLayout.setOnRefreshListener(presenter::reload);
 
         adapter = new TimetableAdapter(null);
 
@@ -212,6 +212,10 @@ public class TimetableFragment extends Fragment implements TimetableView {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No header item for " + day));
         new Handler().postDelayed(() -> recyclerView.smoothScrollToPosition(adapter.getGlobalPositionOf(header)), 50);
+    }
 
+    @Override
+    public void setRefreshing(boolean b) {
+        refreshLayout.setRefreshing(b);
     }
 }

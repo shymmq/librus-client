@@ -42,10 +42,12 @@ import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
+import pl.librus.client.notification.RegistrationIntentService;
 import pl.librus.client.presentation.FragmentPresenter;
 import pl.librus.client.presentation.MainActivityPresenter;
 import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.SettingsPresenter;
+import pl.librus.client.util.LibrusConstants;
 
 public class MainActivity extends AppCompatActivity implements MainActivityOps {
     public static final String INITIAL_FRAGMENT = "initial_fragment";
@@ -80,8 +82,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps {
         String login =  PreferenceManager.getDefaultSharedPreferences(this)
                 .getString("login", null);
         if (login == null) {
-            Intent i = new Intent(this, LoginActivity.class);
-            startActivity(i);
+            navigateToLogin();
             super.onCreate(savedInstanceState);
             return;
         } else {
@@ -91,6 +92,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps {
             super.onCreate(savedInstanceState);
         }
 
+    }
+
+    @Override
+    public void navigateToLogin() {
+        Intent i = new Intent(this, LoginActivity.class);
+        startActivity(i);
     }
 
     @Override
@@ -295,5 +302,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps {
             presenter.destroy();
         }
         MainApplication.releaseMainActivityComponent();
+    }
+
+    @Override
+    public void unregisterGCM() {
+        Intent intent = new Intent(getApplicationContext(), RegistrationIntentService.class);
+        intent.putExtra(LibrusConstants.REGISTER, false);
+        startService(intent);
     }
 }

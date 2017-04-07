@@ -6,13 +6,19 @@ import org.joda.time.LocalDate;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
+import pl.librus.client.domain.Identifiable;
 
 @Entity(builder = ImmutableLesson.Builder.class)
 @Value.Immutable
-public abstract class Lesson extends BaseLesson implements Persistable, Comparable<Lesson> {
+public abstract class Lesson extends BaseLesson implements Identifiable, Comparable<Lesson> {
 
     @Key
     public abstract LocalDate date();
+
+    @Override
+    public String id() {
+        return date().toString() + ":" + lessonNo();
+    }
 
     @Override
     public int compareTo(Lesson lesson) {

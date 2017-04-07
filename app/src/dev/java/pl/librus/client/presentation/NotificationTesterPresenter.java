@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import io.requery.Persistable;
 import pl.librus.client.R;
+import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.data.db.DatabaseManager;
 import pl.librus.client.domain.Event;
 import pl.librus.client.domain.LuckyNumber;
@@ -28,7 +29,9 @@ public class NotificationTesterPresenter extends MainFragmentPresenter {
     private final NotificationService notificationService;
 
     @Inject
-    protected NotificationTesterPresenter(MainActivityOps mainActivity, DatabaseManager database, NotificationService notificationService) {
+    protected NotificationTesterPresenter(MainActivityOps mainActivity,
+                                          DatabaseManager database,
+                                          NotificationService notificationService) {
         super(mainActivity);
         this.database = database;
         this.notificationService = notificationService;
@@ -75,4 +78,5 @@ public class NotificationTesterPresenter extends MainFragmentPresenter {
             notificationService.addAnnouncements(getMany(Announcement.class, count));
         }
     }
+
 }

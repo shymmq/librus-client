@@ -7,4 +7,6 @@ package pl.librus.client.ui;
 public interface MainView<T> extends View {
 
     void display(T content);
+
+    void setRefreshing(boolean b);
 }

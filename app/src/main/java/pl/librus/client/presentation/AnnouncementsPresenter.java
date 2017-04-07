@@ -2,6 +2,10 @@ package pl.librus.client.presentation;
 
 import android.support.v4.app.Fragment;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -10,6 +14,7 @@ import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
 import pl.librus.client.data.LibrusData;
 import pl.librus.client.data.UpdateHelper;
+import pl.librus.client.domain.Identifiable;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.ui.MainActivityOps;
@@ -22,41 +27,19 @@ import pl.librus.client.ui.announcements.AnnouncementsView;
  */
 
 @MainActivityScope
-public class AnnouncementsPresenter extends MainFragmentPresenter<AnnouncementsView> {
+public class AnnouncementsPresenter extends ReloadablePresenter<AnnouncementsView> {
 
     public static final int TITLE = R.string.announcements_view_title;
-    private final UpdateHelper updateHelper;
     private final LibrusData data;
 
     @Inject
     public AnnouncementsPresenter(UpdateHelper updateHelper, LibrusData data, MainActivityOps mainActivity) {
-        super(mainActivity);
-        this.updateHelper = updateHelper;
+        super(mainActivity, updateHelper);
         this.data = data;
     }
 
     @Override
-    protected void onViewAttached() {
-        refreshView();
-    }
-
-    public void reload() {
-        updateHelper.reloadMany(
-                Announcement.class,
-                Teacher.class)
-                .isEmpty()
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(empty -> {
-                    if (empty) {
-                        view.setRefreshing(false);
-                    } else {
-                        refreshView();
-                    }
-                });
-    }
-
-    private void refreshView() {
+    protected void refreshView() {
         data.findFullAnnouncements()
                 .toList()
                 .subscribeOn(Schedulers.io())
@@ -88,5 +71,12 @@ public class AnnouncementsPresenter extends MainFragmentPresenter<AnnouncementsV
     @Override
     public int getOrder() {
         return 3;
+    }
+
+    @Override
+    protected List<Class<? extends Identifiable>> dependentEntities() {
+        return Lists.newArrayList(
+                Announcement.class,
+                Teacher.class);
     }
 }

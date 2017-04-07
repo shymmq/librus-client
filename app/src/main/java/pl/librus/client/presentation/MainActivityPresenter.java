@@ -27,7 +27,6 @@ import pl.librus.client.data.server.OfflineException;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
 import pl.librus.client.domain.grade.Grade;
-import pl.librus.client.ui.IntentRunner;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.ProgressReporter;
 import pl.librus.client.ui.SettingsFragment;
@@ -47,7 +46,6 @@ public class MainActivityPresenter {
     private final MainActivityOps mainActivity;
     private final UpdateHelper updateHelper;
     private final Reader reader;
-    private final IntentRunner intentRunner;
     private final ToastDisplay toast;
     private final PreferencesManager preferences;
     private final Set<MainFragmentPresenter> fragmentPresenters;
@@ -60,7 +58,6 @@ public class MainActivityPresenter {
             MainActivityOps mainActivity,
             UpdateHelper updateHelper,
             Reader reader,
-            IntentRunner intentRunner,
             ToastDisplay toast,
             PreferencesManager preferences,
             Set<MainFragmentPresenter> fragmentPresenters,
@@ -70,7 +67,6 @@ public class MainActivityPresenter {
         this.mainActivity = mainActivity;
         this.updateHelper = updateHelper;
         this.reader = reader;
-        this.intentRunner = intentRunner;
         this.toast = toast;
         this.preferences = preferences;
         this.fragmentPresenters = fragmentPresenters;
@@ -110,8 +106,9 @@ public class MainActivityPresenter {
         Single.zip(
                 data.findMe(),
                 singleLuckyNumber,
-                ImmutableDrawerTuple::of
-        ).subscribe(drawerTuple -> {
+                ImmutableDrawerTuple::of)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(drawerTuple -> {
             mainActivity.setupDrawer(drawerTuple.me(), drawerTuple.luckyNumber());
             displayInitialFragment();
         });
@@ -145,18 +142,15 @@ public class MainActivityPresenter {
 
             toast.display("Wylogowano", Toast.LENGTH_SHORT);
         }
-        disableNotifications();
+        mainActivity.unregisterGCM();
 
         MainApplication.releaseMainActivityComponent();
 
-        intentRunner.navigateToLogin();
+        mainActivity.navigateToLogin();
 
         mainActivity.finish();
     }
 
-    private void disableNotifications() {
-        intentRunner.runRegistrationService(false);
-    }
 
     public void luckyNumberClicked(LuckyNumber luckyNumber) {
         if (luckyNumber != null) {

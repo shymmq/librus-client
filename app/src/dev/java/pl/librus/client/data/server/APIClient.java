@@ -6,6 +6,7 @@ import org.joda.time.LocalTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,6 +36,8 @@ public class APIClient implements IAPIClient {
 
     private final MockEntityRepository repository = new MockEntityRepository();
     private final EntityMocks templates = new EntityMocks();
+
+    private final AtomicInteger lessonLoadCount = new AtomicInteger();
 
     @Inject
     public APIClient() {
@@ -69,6 +72,11 @@ public class APIClient implements IAPIClient {
 
         //Empty lesson
         result.get(weekStart.plusDays(2)).remove(2);
+
+        //Sometimes empty lesson
+        if(lessonLoadCount.getAndIncrement() % 6 == 0) {
+            result.get(weekStart.plusDays(2)).remove(5);
+        }
 
         return Observable.fromIterable(result.toLessons());
     }

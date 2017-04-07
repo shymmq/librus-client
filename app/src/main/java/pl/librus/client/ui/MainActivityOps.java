@@ -19,6 +19,8 @@ public interface MainActivityOps {
 
     void displayMenuActions(List<? extends MenuAction> actions);
 
+    void navigateToLogin();
+
     ProgressReporter displayProgressDialog();
 
     void hideProgressDialog();
@@ -41,4 +43,6 @@ public interface MainActivityOps {
     void finish();
 
     void updateMenu();
+
+    void unregisterGCM();
 }

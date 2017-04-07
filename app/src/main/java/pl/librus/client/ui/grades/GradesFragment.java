@@ -162,7 +162,6 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
     @Override
     public void display(List<GradesForSubject> content) {
         adapter.clear();
-        refreshLayout.setRefreshing(false);
 
         for (GradesForSubject gfs : content) {
             FullSubject s = gfs.subject();

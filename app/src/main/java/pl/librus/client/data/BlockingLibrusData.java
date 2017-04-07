@@ -10,6 +10,7 @@ import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import java8.util.function.Function;
 import java8.util.stream.Collectors;
@@ -62,6 +63,7 @@ public class BlockingLibrusData {
                         .toMap(Identifiable::id)
                         .doOnSuccess(res -> objects.put(c, res)))
                 .ignoreElements()
+                .subscribeOn(Schedulers.io())
                 .toSingle(() -> new BlockingLibrusData(objects, strategy));
     }
 

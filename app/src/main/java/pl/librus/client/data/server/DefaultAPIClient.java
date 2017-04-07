@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -82,7 +83,7 @@ abstract class DefaultAPIClient implements IAPIClient {
                 e.getMessage().contains("Access Token expired");
     }
 
-    private Single<String> APIRequest(String endpoint) {
+    private Single<String> makeRequest(String endpoint) {
         return fetchData(endpoint)
                 .onErrorResumeNext(cause -> {
                     if (tokenExpired(cause)) {
@@ -93,7 +94,7 @@ abstract class DefaultAPIClient implements IAPIClient {
                     } else {
                         return Single.error(cause);
                     }
-                });
+                }).subscribeOn(Schedulers.io());
     }
 
     private Single<String> fetchData(final String endpoint) {
@@ -176,7 +177,7 @@ abstract class DefaultAPIClient implements IAPIClient {
     }
 
     public <T> Observable<T> getAll(String endpoint, final String topLevelName, final Class<T> clazz) {
-        return APIRequest(endpoint)
+        return makeRequest(endpoint)
                 .flattenAsObservable(s -> EntityParser.parseList(s, topLevelName, clazz));
     }
 
@@ -184,7 +185,7 @@ abstract class DefaultAPIClient implements IAPIClient {
     public <T extends Persistable & Identifiable> Single<T> getById(Class<T> clazz, String id) {
         EntityInfo info = EntityInfos.infoFor(clazz);
 
-        return APIRequest(info.endpoint(id))
+        return makeRequest(info.endpoint(id))
                 .map(s -> EntityParser.parseObject(s, info.name(), clazz))
                 .filter(Optional::isPresent)
                 .map(Optional::get)

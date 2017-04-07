@@ -38,7 +38,7 @@ public class AnnouncementsFragment
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
     private FlexibleAdapter<IFlexible> adapter;
-    private Ordering<AnnouncementItem> ordering = Ordering.natural()
+    private final Ordering<AnnouncementItem> ordering = Ordering.natural()
             .onResultOf(AnnouncementItem::getHeaderOrder)
             .compound(Ordering.natural()
                     .onResultOf(AnnouncementItem::getStartDate).reverse());
@@ -76,8 +76,6 @@ public class AnnouncementsFragment
 
     @Override
     public void display(List<? extends FullAnnouncement> announcements) {
-
-        refreshLayout.setRefreshing(false);
 
         List<IFlexible> announcementItems = StreamSupport.stream(announcements)
                 .map(a -> new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())))
