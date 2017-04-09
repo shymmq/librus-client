@@ -57,6 +57,10 @@ class EntityMocks {
     private final Lorem lorem = new LoremIpsum(SEED);
     private final Random random = new Random(SEED);
 
+    private LocalDate today = LocalDate.now();
+
+    private LocalDateTime todayMorning = LocalDateTime.now().withHourOfDay(6).withMinuteOfHour(30);
+
     private Map<Class<?>, Supplier<?>> templates = ImmutableMap.<Class<?>, Supplier<?>>builder()
             .put(Announcement.class, this::announcement)
             .put(Subject.class, this::subject)
@@ -113,8 +117,6 @@ class EntityMocks {
                 .subject(lessonSubject())
                 .substitutionClass(false)
                 .teacher(lessonTeacher())
-                .orgDate(randomDate())
-                .orgLessonNo(2)
                 .orgLesson(MOCK_ID)
                 .orgSubject(MOCK_ID)
                 .orgTeacher(MOCK_ID)
@@ -124,8 +126,8 @@ class EntityMocks {
     public ImmutableGrade grade() {
         return ImmutableGrade.builder()
                 .id(idFor(Grade.class))
-                .date(LocalDate.now())
-                .addDate(LocalDateTime.now())
+                .date(today)
+                .addDate(todayMorning)
                 .addedById(MOCK_ID)
                 .categoryId(MOCK_ID)
                 .finalPropositionType(false)
@@ -180,7 +182,7 @@ class EntityMocks {
     public ImmutableLuckyNumber luckyNumber() {
         return ImmutableLuckyNumber.builder()
                 .luckyNumber(random.nextInt(35))
-                .day(LocalDate.now())
+                .day(today)
                 .build();
     }
 
@@ -231,7 +233,7 @@ class EntityMocks {
         return ImmutableAttendance.builder()
                 .id(idFor(Attendance.class))
                 .date(randomPastDate())
-                .addDate(LocalDateTime.now())
+                .addDate(todayMorning)
                 .addedById(MOCK_ID)
                 .lessonId(MOCK_ID)
                 .lessonNumber(randomLessonNo())

@@ -40,9 +40,11 @@ import pl.librus.client.R;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.SchoolWeek;
+import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.TimetablePresenter;
+import pl.librus.client.ui.MainFragment;
 
-public class TimetableFragment extends Fragment implements TimetableView {
+public class TimetableFragment extends MainFragment implements TimetableView {
     private final ProgressItem progressItem = new ProgressItem();
     private TimetableAdapter adapter;
     private SwipeRefreshLayout refreshLayout;
@@ -59,9 +61,6 @@ public class TimetableFragment extends Fragment implements TimetableView {
 
         TopSnappedSmoothScroller.MILLISECONDS_PER_INCH = 15f;
 
-        MainApplication.getMainActivityComponent()
-                .inject(this);
-
         View root = inflater.inflate(R.layout.fragment_timetable, container, false);
 
         recyclerView = (RecyclerView) root.findViewById(R.id.fragment_timetable_recycler);
@@ -70,7 +69,6 @@ public class TimetableFragment extends Fragment implements TimetableView {
         recyclerView.setLayoutManager(new SmoothScrollLinearLayoutManager(getContext()));
 
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
-        refreshLayout.setOnRefreshListener(presenter::reload);
 
         adapter = new TimetableAdapter(null);
 
@@ -86,9 +84,20 @@ public class TimetableFragment extends Fragment implements TimetableView {
         adapter.mItemClickListener = this::onItemClick;
         recyclerView.setAdapter(adapter);
 
-        presenter.attachView(this);
-
         return root;
+    }
+
+    @Override
+    protected void injectPresenter() {
+        MainApplication.getMainActivityComponent()
+                .inject(this);
+        refreshLayout.setOnRefreshListener(presenter::reload);
+        presenter.attachView(this);
+    }
+
+    @Override
+    protected MainFragmentPresenter getPresenter() {
+        return presenter;
     }
 
     @Override

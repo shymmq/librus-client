@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 
 import javax.inject.Inject;
 
+import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 import pl.librus.client.analytics.IAnalytics;
 import pl.librus.client.data.server.HttpException;
@@ -39,7 +40,7 @@ public class MainApplication extends MultiDexApplication {
         }
 
         RxJavaPlugins.setErrorHandler(throwable -> {
-            if (throwable instanceof HttpException) {
+            if (throwable instanceof UndeliverableException && throwable.getCause() instanceof HttpException) {
                 //If there are many requests sent at once, first error is handler normally, the rest lands here
                 LibrusUtils.log("plugin handle");
                 LibrusUtils.log(throwable);

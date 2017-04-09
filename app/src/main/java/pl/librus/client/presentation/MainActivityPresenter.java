@@ -1,20 +1,19 @@
 package pl.librus.client.presentation;
 
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
 import com.google.common.base.Optional;
 
 import org.immutables.value.Value;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import java8.util.stream.StreamSupport;
+import io.reactivex.functions.Consumer;
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.MainApplication;
 import pl.librus.client.R;
@@ -26,10 +25,12 @@ import pl.librus.client.data.server.HttpException;
 import pl.librus.client.data.server.OfflineException;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
+import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.ui.MainActivityOps;
+import pl.librus.client.ui.MenuAction;
+import pl.librus.client.ui.NavigationOps;
 import pl.librus.client.ui.ProgressReporter;
-import pl.librus.client.ui.SettingsFragment;
 import pl.librus.client.ui.ToastDisplay;
 import pl.librus.client.util.LibrusUtils;
 import pl.librus.client.util.PreferencesManager;
@@ -42,36 +43,33 @@ import pl.librus.client.util.PreferencesManager;
 public class MainActivityPresenter {
 
     private final DatabaseManager database;
-    private final LibrusData data;
     private final MainActivityOps mainActivity;
     private final UpdateHelper updateHelper;
     private final Reader reader;
-    private final ToastDisplay toast;
     private final PreferencesManager preferences;
-    private final Set<MainFragmentPresenter> fragmentPresenters;
-    private final SettingsPresenter settingsPresenter;
+    private final ToastDisplay toast;
+    private final ErrorHandler errorHandler;
+
+    private final MainNavigationPresenter navigationPresenter;
 
     @Inject
-    public MainActivityPresenter(
-            DatabaseManager database,
-            LibrusData data,
-            MainActivityOps mainActivity,
-            UpdateHelper updateHelper,
-            Reader reader,
-            ToastDisplay toast,
-            PreferencesManager preferences,
-            Set<MainFragmentPresenter> fragmentPresenters,
-            SettingsPresenter settingsPresenter) {
+    public MainActivityPresenter(DatabaseManager database,
+                                 MainActivityOps mainActivity,
+                                 UpdateHelper updateHelper,
+                                 Reader reader,
+                                 PreferencesManager preferences,
+                                 ToastDisplay toast,
+                                 ErrorHandler errorHandler, MainNavigationPresenter navigationPresenter) {
         this.database = database;
-        this.data = data;
         this.mainActivity = mainActivity;
         this.updateHelper = updateHelper;
         this.reader = reader;
-        this.toast = toast;
         this.preferences = preferences;
-        this.fragmentPresenters = fragmentPresenters;
-        this.settingsPresenter = settingsPresenter;
+        this.toast = toast;
+        this.errorHandler = errorHandler;
+        this.navigationPresenter = navigationPresenter;
     }
+
 
     public void setup() {
         database
@@ -79,7 +77,7 @@ public class MainActivityPresenter {
                 .singleOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        me -> this.displayInitialData(), //Some data in DB, proceed
+                        me -> navigationPresenter.setupInitial(), //Some data in DB, proceed
                         t -> this.doOneTimeUpdate()); //No data in db. Load everything
     }
 
@@ -89,47 +87,32 @@ public class MainActivityPresenter {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> database.getAll(Grade.class)
                         .subscribe(reader::read))
+                .doOnComplete(() -> database.getAll(Announcement.class)
+                        .subscribe(reader::read))
                 .doFinally(mainActivity::hideProgressDialog)
                 .subscribe(
-                        reporter::report,
-                        this::handleUpdateError,
-                        this::displayInitialData);
+                        navigationPresenter::setupInitial,
+                        this::handleServerError);
     }
 
-    private void displayInitialData() {
-        mainActivity.setupToolbar();
-
-        Single<Optional<LuckyNumber>> singleLuckyNumber = data.findLuckyNumber()
-                .map(Optional::of)
-                .toSingle()
-                .onErrorReturnItem(Optional.absent());
-        Single.zip(
-                data.findMe(),
-                singleLuckyNumber,
-                ImmutableDrawerTuple::of)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(drawerTuple -> {
-            mainActivity.setupDrawer(drawerTuple.me(), drawerTuple.luckyNumber());
-            displayInitialFragment();
-        });
-    }
-
-    private void handleUpdateError(Throwable exception) {
-        LibrusUtils.log("Handle update error");
-        if (exception instanceof OfflineException) {
-            LibrusUtils.log("Offline mode");
-            mainActivity.showSnackBar(R.string.offline_data_error, Snackbar.LENGTH_LONG);
-            displayInitialData();
-
-        } else if (exception instanceof HttpException && exception.getMessage().contains("Request is denied")) {
+    public void handleServerError(Throwable t) throws Exception {
+        if (t instanceof HttpException && t.getMessage().contains("Request is denied")) {
             LibrusUtils.log("Request denied, logout");
 
             //User probably changed password
             logout();
+            return;
+        }
+        errorHandler.handler(navigationPresenter::setupInitial)
+                .accept(t);
+    }
+
+    public void luckyNumberClicked(LuckyNumber luckyNumber) {
+        if (luckyNumber != null) {
+            String luckyDate = luckyNumber.day().toString("EEEE, d MMMM");
+            toast.display(luckyDate, Toast.LENGTH_LONG);
         } else {
-            LibrusUtils.logError("Unknown error");
-            exception.printStackTrace();
-            mainActivity.showSnackBar(R.string.unknown_error, Snackbar.LENGTH_LONG);
+            toast.display("Brak danych", Toast.LENGTH_LONG);
         }
     }
 
@@ -151,46 +134,6 @@ public class MainActivityPresenter {
         mainActivity.finish();
     }
 
-
-    public void luckyNumberClicked(LuckyNumber luckyNumber) {
-        if (luckyNumber != null) {
-            String luckyDate = luckyNumber.day().toString("EEEE, d MMMM");
-            toast.display(luckyDate, Toast.LENGTH_LONG);
-        } else {
-            toast.display("Brak danych", Toast.LENGTH_LONG);
-        }
-    }
-
-    private void displayInitialFragment() {
-        Fragment currentFragment = mainActivity.getCurrentFragmentId();
-        if (currentFragment != null && currentFragment instanceof SettingsFragment) {
-            mainActivity.displayFragment(settingsPresenter);
-        } else {
-            mainActivity.displayFragment(getInitialFragment());
-        }
-    }
-
-    private FragmentPresenter getInitialFragment() {
-        Integer fragmentFromNotification = mainActivity.getInitialFragmentTitle();
-
-        if (fragmentFromNotification != null && fragmentFromNotification > 0) {
-            return getFragmentForTitle(fragmentFromNotification);
-        } else {
-            Integer defaultFragment = preferences.getString("defaultFragment")
-                    .transform(Integer::valueOf)
-                    .or(-1);
-            return getFragmentForTitle(defaultFragment);
-        }
-
-    }
-
-    private MainFragmentPresenter getFragmentForTitle(int fragmentTitle) {
-        return StreamSupport.stream(fragmentPresenters)
-                .filter(f -> f.getTitle() == fragmentTitle)
-                .findFirst()
-                .orElse(MainFragmentPresenter.sorted(fragmentPresenters).get(0));
-    }
-
     public void destroy() {
         database.close();
     }
@@ -203,4 +146,5 @@ public class MainActivityPresenter {
         @Value.Parameter
         Optional<LuckyNumber> luckyNumber();
     }
+
 }

@@ -40,8 +40,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
                 .inject(this);
         addPreferencesFromResource(R.xml.preferences);
         addThemeChangeListener();
+        addRefreshAllListener();
         presenter.attachView(this);
         PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, false);
+    }
+
+    private void addRefreshAllListener() {
+        Preference reloadAll = getPreferenceScreen().findPreference("reload_all");
+        reloadAll.setOnPreferenceClickListener(pref -> {
+            presenter.refreshAll();
+            return true;
+        });
     }
 
     @Override

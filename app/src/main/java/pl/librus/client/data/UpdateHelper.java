@@ -1,27 +1,36 @@
 package pl.librus.client.data;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.immutables.value.Value;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import io.reactivex.Flowable;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.UserScope;
 import pl.librus.client.data.db.DatabaseManager;
-import pl.librus.client.data.server.APIClient;
 import pl.librus.client.data.server.IAPIClient;
 import pl.librus.client.domain.Average;
 import pl.librus.client.domain.Event;
@@ -54,7 +63,7 @@ import static pl.librus.client.data.EntityChange.Type.CHANGED;
 @UserScope
 public class UpdateHelper {
     @SuppressWarnings("unchecked")
-    private static final List<Class<? extends Persistable>> entitiesToUpdate = Lists.newArrayList(
+    private static final List<Class<? extends Identifiable>> entitiesToUpdate = Lists.newArrayList(
             Announcement.class,
             Subject.class,
             Teacher.class,
@@ -80,63 +89,87 @@ public class UpdateHelper {
         this.serverStrategy = serverStrategy;
     }
 
-    public Flowable<Object> updateAll(ProgressReporter progressReporter) {
-        ImmutableList.Builder<Single<?>> builder = ImmutableList.builder();
+    public Observable<EntityChange<?>> tryReloadAll() {
+        LibrusUtils.log("Trying to reload all");
+        ImmutableList.Builder<Observable<EntityChange<?>>> builder = ImmutableList.builder();
 
-        for (Class<? extends Persistable> entityClass : entitiesToUpdate) {
-            builder.add(update(entityClass));
+        for (Class<? extends Identifiable> entityClass : entitiesToUpdate) {
+            builder.add(shouldUpdate(entityClass)
+                    .flatMapObservable(should -> reload(entityClass)));
         }
-        builder.addAll(updateNearestTimetables());
-        List<Single<?>> tasks = builder.build();
-        progressReporter.setTotal(tasks.size());
-        return Single.merge(tasks);
+        builder.add(shouldUpdate(Lesson.class)
+                .flatMapObservable(should -> reloadLessons()));
+
+        return Observable.merge(builder.build());
     }
 
-    private List<Single<?>> updateNearestTimetables() {
-        LocalDate lastMonday = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
-        List<LocalDate> weekStarts = Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
+    public Completable updateAll(ProgressReporter progressReporter) {
+        ImmutableList.Builder<Completable> builder = ImmutableList.builder();
 
-        return StreamSupport.stream(weekStarts)
+        for (Class<? extends Persistable> entityClass : entitiesToUpdate) {
+            builder.add(update(entityClass, progressReporter));
+        }
+        builder.addAll(updateNearestTimetables(progressReporter));
+        List<Completable> tasks = builder.build();
+        progressReporter.setTotal(tasks.size());
+        return Completable.merge(tasks);
+    }
+
+    private List<Completable> updateNearestTimetables(ProgressReporter progressReporter) {
+        return StreamSupport.stream(weekStarts())
                 .map(ws -> serverStrategy.getLessonsForWeek(ws)
                         .toList()
-                        .doOnSuccess(databaseStrategy::upsert)
-                        .doOnSuccess(list -> LibrusUtils.log("Loaded timetable for %s", ws)))
+                        .doOnSuccess(list -> LibrusUtils.log("Loaded timetable for %s", ws))
+                        .doOnSuccess(progressReporter::report)
+                        .flatMapCompletable(databaseStrategy::upsert))
                 .collect(Collectors.toList());
     }
 
-    private <T extends Persistable> Single<?> update(Class<T> clazz) {
-        return serverStrategy.getAll(clazz)
-                .toList()
-                .doOnSuccess(databaseStrategy::upsert)
-                .doOnSuccess(list -> LibrusUtils.log("Loaded %s %s", list.size(), clazz.getSimpleName()));
+    @NonNull
+    private List<LocalDate> weekStarts() {
+        LocalDate lastMonday = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
+        return Lists.newArrayList(lastMonday, lastMonday.plusWeeks(1));
     }
 
-    public Observable<EntityChange<Lesson>> reloadLessons(List<LocalDate> weekStarts) {
+    private <T extends Persistable> Completable update(Class<T> clazz, ProgressReporter progressReporter) {
+        return serverStrategy.getAll(clazz)
+                .toList()
+                .doOnSuccess(list -> LibrusUtils.log("Loaded %s %s", list.size(), clazz.getSimpleName()))
+                .doOnSuccess(progressReporter::report)
+                .flatMapCompletable(databaseStrategy::upsert);
+    }
+
+    public Observable<EntityChange<Lesson>> reloadLessons() {
+        LibrusUtils.log("Reloading lessons");
+
         return Single.zip(
-                Observable.fromIterable(weekStarts)
+                Observable.fromIterable(weekStarts())
                         .flatMap(databaseStrategy::getLessonsForWeek)
                         .toList(),
-                Observable.fromIterable(weekStarts)
+                Observable.fromIterable(weekStarts())
                         .flatMap(serverStrategy::getLessonsForWeek)
                         .toList(),
                 ImmutableListTuple::of)
-                .doOnSuccess(tuple -> {
-                    databaseStrategy.clearAll(Lesson.class);
-                    databaseStrategy.upsert(tuple.fromServer());
-                })
+                .flatMap(tuple -> databaseStrategy.clearAll(Lesson.class)
+                        .andThen(databaseStrategy.upsert(tuple.fromServer()))
+                        .toSingleDefault(tuple))
+                .observeOn(Schedulers.computation())
                 .flattenAsObservable(this::detectChanges);
     }
 
     public <T extends Identifiable> Observable<EntityChange<T>> reload(Class<T> clazz) {
+        LibrusUtils.log("Reloading %s", clazz.getSimpleName());
         return Single.zip(
                 databaseStrategy.getAll(clazz).toList(),
                 serverStrategy.getAll(clazz).toList(),
                 ImmutableListTuple::of)
-                .doOnSuccess(tuple -> databaseStrategy.upsert(tuple.fromServer()))
+                .flatMap(tuple -> databaseStrategy.upsert(tuple.fromServer())
+                        .toSingleDefault(tuple))
+                .observeOn(Schedulers.computation())
                 .flattenAsObservable(this::detectChanges);
     }
 
-    public Observable<EntityChange<? extends Identifiable>> reloadMany(List<Class<? extends Identifiable>> classes) {
+    public Observable<EntityChange<? extends Identifiable>> reloadMany(Collection<Class<? extends Identifiable>> classes) {
         return Observable.fromIterable(classes)
                 .flatMap(this::reload);
     }
@@ -149,8 +182,10 @@ public class UpdateHelper {
             T inDB = byId.get(newEntity.id());
             if (inDB == null) {
                 builder.add(ImmutableEntityChange.of(ADDED, newEntity));
+                LibrusUtils.log("New %s", newEntity);
             } else if (!inDB.equals(newEntity)) {
                 builder.add(ImmutableEntityChange.of(CHANGED, newEntity));
+                LibrusUtils.log("Changed: \n%s -> \n%s", inDB, newEntity);
             }
         }
         return builder.build();
@@ -163,6 +198,17 @@ public class UpdateHelper {
 
         @Value.Parameter
         List<T> fromServer();
+    }
+
+    @VisibleForTesting
+    public Maybe<?> shouldUpdate(Class<? extends Persistable> clazz) {
+        return databaseStrategy.findLastUpdate(clazz)
+                .observeOn(Schedulers.computation())
+                .map(LastUpdate::date)
+                .map(date -> Days.daysBetween(date, LocalDate.now()).getDays())
+                .map(diff -> diff > EntityInfos.infoFor(clazz).refreshDays())
+                .toSingle(true)
+                .filter(should -> should);
     }
 
 }

@@ -1,5 +1,6 @@
 package pl.librus.client.db;
 
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +12,8 @@ import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Observable;
 import pl.librus.client.data.ImmutableEntityChange;
+import pl.librus.client.data.LastUpdate;
+import pl.librus.client.domain.LibrusColor;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.ImmutableGrade;
 import pl.librus.client.data.EntityChange;
@@ -145,7 +148,26 @@ public class ReloadingTest extends BaseDBTest {
         //then
         List<Grade> res = data.select(Grade.class).get().toList();
         assertThat(res, contains(newGrade));
+    }
 
+    @Test
+    public void shouldConsiderUpdatable() {
+        LastUpdate lastUpdate = LastUpdate.of(LibrusColor.class, LocalDate.now().minusDays(40));
+        data.upsert(lastUpdate);
+
+        updateHelper.shouldUpdate(LibrusColor.class)
+                .test()
+                .assertValueCount(1);
+    }
+
+    @Test
+    public void shouldNotConsiderUpdatable() {
+        LastUpdate lastUpdate = LastUpdate.of(LibrusColor.class, LocalDate.now().minusDays(20));
+        data.upsert(lastUpdate);
+
+        updateHelper.shouldUpdate(LibrusColor.class)
+                .test()
+                .assertValueCount(0);
     }
 
     private void mockApiClient(Grade... grades) {

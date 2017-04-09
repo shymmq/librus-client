@@ -25,20 +25,9 @@ public interface MainActivityOps {
 
     void hideProgressDialog();
 
-    void setupToolbar();
-
     void showSnackBar(int message, int duration);
 
-    void setupDrawer(Me me, Optional<LuckyNumber> luckyNumber);
-
     void setBackArrow(boolean enable);
-
-    Fragment getCurrentFragmentId();
-
-    @Nullable
-    Integer getInitialFragmentTitle();
-
-    void displayFragment(FragmentPresenter fragmentPresenter);
 
     void finish();
 

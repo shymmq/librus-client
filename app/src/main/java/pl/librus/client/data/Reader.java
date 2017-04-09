@@ -29,7 +29,7 @@ public class Reader {
     }
 
     public boolean isRead(Identifiable object) {
-        String classId = getClassId(object);
+        String classId = LibrusUtils.getClassId(object);
         return getRead(classId)
                 .contains(object.id());
     }
@@ -39,7 +39,7 @@ public class Reader {
     }
 
     public void modify(Identifiable object, boolean mode) {
-        String classId = getClassId(object);
+        String classId = LibrusUtils.getClassId(object);
         LibrusUtils.log("Modifying read status create %s:%s to %b", classId, object.id(), mode);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
@@ -54,13 +54,5 @@ public class Reader {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getStringSet(classId, new HashSet<>());
 
-    }
-
-    private String getClassId(Identifiable identifiable) {
-        Class<?> clazz = identifiable.getClass();
-        while(!clazz.getSuperclass().equals(Object.class)){
-            clazz = clazz.getSuperclass();
-        }
-        return clazz.getSimpleName();
     }
 }

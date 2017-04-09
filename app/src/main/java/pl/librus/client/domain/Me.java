@@ -15,10 +15,14 @@ import io.requery.Persistable;
 @Entity(builder = ImmutableMe.Builder.class)
 @Value.Immutable
 @JsonDeserialize(as = ImmutableMe.class)
-public abstract class Me implements Persistable {
+public abstract class Me implements Identifiable {
 
     @Embedded
     @Value.Parameter
     public abstract LibrusAccount account();
 
+    @Override
+    public String id() {
+        return account().login();
+    }
 }

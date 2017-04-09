@@ -3,11 +3,14 @@ package pl.librus.client.presentation;
 import android.support.v4.app.Fragment;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.MainActivityScope;
@@ -33,19 +36,18 @@ public class AnnouncementsPresenter extends ReloadablePresenter<AnnouncementsVie
     private final LibrusData data;
 
     @Inject
-    public AnnouncementsPresenter(UpdateHelper updateHelper, LibrusData data, MainActivityOps mainActivity) {
-        super(mainActivity, updateHelper);
+    protected AnnouncementsPresenter(UpdateHelper updateHelper, LibrusData data, ErrorHandler errorHandler) {
+        super(updateHelper, errorHandler);
         this.data = data;
     }
 
     @Override
-    protected void refreshView() {
-        data.findFullAnnouncements()
+    protected Completable refreshView() {
+        return data.findFullAnnouncements()
                 .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSuccess(l -> mainActivity.setBackArrow(false))
-                .subscribe(view::display);
+                .flatMapCompletable(announcements -> Completable.fromAction(() -> view.display(announcements)));
     }
 
     @Override
@@ -64,7 +66,6 @@ public class AnnouncementsPresenter extends ReloadablePresenter<AnnouncementsVie
     }
 
     public void displayDetails(AnnouncementItem announcementItem) {
-        mainActivity.setBackArrow(true);
         view.displayDetails(announcementItem);
     }
 
@@ -74,8 +75,8 @@ public class AnnouncementsPresenter extends ReloadablePresenter<AnnouncementsVie
     }
 
     @Override
-    protected List<Class<? extends Identifiable>> dependentEntities() {
-        return Lists.newArrayList(
+    protected Set<Class<? extends Identifiable>> dependentEntities() {
+        return Sets.newHashSet(
                 Announcement.class,
                 Teacher.class);
     }

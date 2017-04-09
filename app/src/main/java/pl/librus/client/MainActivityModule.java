@@ -12,7 +12,9 @@ import pl.librus.client.presentation.AttendancesPresenter;
 import pl.librus.client.presentation.GradesPresenter;
 import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.TimetablePresenter;
+import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainActivityOps;
+import pl.librus.client.ui.NavigationOps;
 
 /**
  * Created by robwys on 28/03/2017.
@@ -20,15 +22,21 @@ import pl.librus.client.ui.MainActivityOps;
 @Module
 public class MainActivityModule {
 
-    private final MainActivityOps mainActivity;
+    private final MainActivity mainActivity;
 
-    public MainActivityModule(MainActivityOps mainActivity) {
+    public MainActivityModule(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
 
     @Provides
     @MainActivityScope
     MainActivityOps provideMainActivity() {
+        return mainActivity;
+    }
+
+    @Provides
+    @MainActivityScope
+    NavigationOps provideNavigationOps() {
         return mainActivity;
     }
 

@@ -86,12 +86,11 @@ class MockEntityRepository {
 
     <T> List<T> getList(Class<T> clazz) {
         tryCreateList(clazz);
-        if (refreshCounter.incrementAndGet() % 3 == 0 &&
-                Sets.newHashSet(
+        if (Sets.newHashSet(
                         Grade.class,
                         Announcement.class,
                         Attendance.class
-                ).contains(clazz)) {
+                ).contains(clazz) && refreshCounter.incrementAndGet() % 3 == 0) {
             addItem(clazz);
         }
         return (List<T>) lists.get(clazz);
@@ -127,6 +126,7 @@ class MockEntityRepository {
     }
 
     private <T> List<T> createList(Class<T> clazz) {
+        LibrusUtils.log("Creating entries for %s", clazz.getSimpleName());
         for (Class dependency : entitiesRelations.get(clazz)) {
             tryCreateList(dependency);
         }

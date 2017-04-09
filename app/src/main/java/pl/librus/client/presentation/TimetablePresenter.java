@@ -4,19 +4,23 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
+import pl.librus.client.data.EntityChange;
 import pl.librus.client.data.LibrusData;
 import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.domain.Identifiable;
@@ -24,7 +28,6 @@ import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.lesson.ImmutableSchoolWeek;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.SchoolWeek;
-import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.timetable.TimetableFragment;
 import pl.librus.client.ui.timetable.TimetableView;
 
@@ -40,8 +43,8 @@ public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
     private LocalDate weekStart;
 
     @Inject
-    public TimetablePresenter(LibrusData data, MainActivityOps mainActivity, UpdateHelper updateHelper) {
-        super(mainActivity, updateHelper);
+    protected TimetablePresenter(UpdateHelper updateHelper, LibrusData data, ErrorHandler errorHandler) {
+        super(updateHelper, errorHandler);
         this.data = data;
     }
 
@@ -66,15 +69,10 @@ public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
     }
 
     @Override
-    protected void onViewAttached() {
-        refreshView();
-    }
-
-    @Override
-    protected void refreshView() {
+    protected Completable refreshView() {
         List<LocalDate> initialWeekStarts = resetWeekStart();
 
-        Observable.fromIterable(initialWeekStarts)
+        return Observable.fromIterable(initialWeekStarts)
                 .concatMapEager(ws -> data
                         .findLessonsForWeek(ws)
                         .toList()
@@ -84,7 +82,7 @@ public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .toList()
-                .subscribe(this::initialLoaded);
+                .flatMapCompletable(weeks -> Completable.fromAction(() -> initialLoaded(weeks)));
     }
 
     @NonNull
@@ -100,12 +98,12 @@ public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
     }
 
     public void loadMore() {
-        data.findLessonsForWeek(weekStart)
+        subscription = data.findLessonsForWeek(weekStart)
                 .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(l -> ImmutableSchoolWeek.of(weekStart, l))
-                .subscribe(this::moreLoaded);
+                .subscribe(this::moreLoaded, errorHandler);
     }
 
     private void moreLoaded(SchoolWeek schoolWeek) {
@@ -114,9 +112,8 @@ public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
         weekStart = weekStart.plusWeeks(1);
     }
 
-    @Override
-    protected List<Class<? extends Identifiable>> dependentEntities() {
-        return Lists.newArrayList(
+    protected Set<Class<? extends Identifiable>> dependentEntities() {
+        return Sets.newHashSet(
                 Lesson.class,
                 Teacher.class);
 
@@ -129,16 +126,7 @@ public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
     }
 
     @Override
-    public void reload() {
-        view.setRefreshing(true);
-        updateHelper.reloadLessons(resetWeekStart())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doFinally(() -> view.setRefreshing(false))
-                .isEmpty()
-                .subscribe(empty -> {
-                    if (!empty) {
-                        refreshView();
-                    }
-                });
+    protected Observable<? extends EntityChange<? extends Identifiable>> reloadRelevantEntities() {
+        return updateHelper.reloadLessons();
     }
 }

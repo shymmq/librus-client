@@ -22,10 +22,6 @@ import pl.librus.client.ui.MainView;
 
 public abstract class MainFragmentPresenter<T extends MainView> extends FragmentPresenter<T> {
 
-    protected MainFragmentPresenter(MainActivityOps mainActivity) {
-        super(mainActivity);
-    }
-
     public abstract int getOrder();
 
     public static List<MainFragmentPresenter> sorted(Set<MainFragmentPresenter> presenters) {
@@ -33,6 +29,5 @@ public abstract class MainFragmentPresenter<T extends MainView> extends Fragment
                 .sorted(Ordering.natural().onResultOf(MainFragmentPresenter::getOrder))
                 .collect(Collectors.toList());
     }
-
 
 }

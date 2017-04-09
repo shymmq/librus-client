@@ -8,7 +8,7 @@ import io.requery.sql.ConfigurationBuilder;
 import io.requery.sql.EntityDataStore;
 import io.requery.sql.GenericMapping;
 import io.requery.sql.platform.SQLite;
-import pl.librus.client.domain.Models;
+import pl.librus.client.Models;
 
 /**
  * Created by robwys on 05/02/2017.

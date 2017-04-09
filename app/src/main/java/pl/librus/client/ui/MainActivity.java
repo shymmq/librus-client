@@ -49,7 +49,7 @@ import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.SettingsPresenter;
 import pl.librus.client.util.LibrusConstants;
 
-public class MainActivity extends AppCompatActivity implements MainActivityOps {
+public class MainActivity extends AppCompatActivity implements MainActivityOps, NavigationOps {
     public static final String INITIAL_FRAGMENT = "initial_fragment";
 
     List<? extends MenuAction> actions = new ArrayList<>();
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps {
 
         DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
-                .addStickyDrawerItems(settingsPresenter.convertToDrawerItem())
+                .addStickyDrawerItems(settingsPresenter.convertToDrawerItem(this::displayFragment))
                 .withDelayOnDrawerClose(50)
                 .withOnDrawerNavigationListener(clickedView -> {
                     onBackPressed();
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps {
 
         StreamSupport.stream(fragmentPresenters)
                 .sorted(Ordering.natural().onResultOf(MainFragmentPresenter::getOrder))
-                .map(FragmentPresenter::convertToDrawerItem)
+                .map(presenter -> presenter.convertToDrawerItem(p -> displayFragment(presenter)))
                 .forEach(drawerBuilder::addDrawerItems);
 
         if (luckyNumber.isPresent()) {
@@ -270,14 +270,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps {
 
     @Override
     public void updateMenu() {
-        menu.clear();
-        for (int id = 0; id < actions.size(); id++) {
-            MenuAction action = actions.get(id);
-            boolean enabled = action.isEnabled();
-            MenuItem menuItem = menu.add(Menu.NONE, id, Menu.NONE, action.getName());
-            menuItem.setEnabled(enabled);
-            menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-        }
+        runOnUiThread(() -> {
+            menu.clear();
+            for (int id = 0; id < actions.size(); id++) {
+                MenuAction action = actions.get(id);
+                boolean enabled = action.isEnabled();
+                MenuItem menuItem = menu.add(Menu.NONE, id, Menu.NONE, action.getName());
+                menuItem.setEnabled(enabled);
+                menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+            }
+        });
     }
 
     @Override

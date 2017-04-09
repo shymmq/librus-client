@@ -10,7 +10,7 @@ import io.requery.Persistable;
 
 @Value.Immutable
 public abstract class EntityChange<T extends Persistable>{
-    public static enum Type {
+    public enum Type {
         ADDED, CHANGED
     }
 

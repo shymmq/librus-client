@@ -6,6 +6,9 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 
+import io.requery.Persistable;
+import pl.librus.client.domain.Identifiable;
+
 import static pl.librus.client.util.LibrusConstants.DBG;
 import static pl.librus.client.util.LibrusConstants.TAG;
 
@@ -81,5 +84,17 @@ public class LibrusUtils {
             log += String.valueOf(text) + '\n';
         }
         log(log);
+    }
+
+    public static String getClassId(Class<?> clazz) {
+        while(!clazz.getSuperclass().equals(Object.class)){
+            clazz = clazz.getSuperclass();
+        }
+        return clazz.getSimpleName();
+    }
+
+    public static String getClassId(Object obj) {
+        Class<?> clazz = obj.getClass();
+        return getClassId(clazz);
     }
 }

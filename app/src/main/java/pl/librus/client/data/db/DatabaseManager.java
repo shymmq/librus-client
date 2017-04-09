@@ -10,6 +10,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -19,12 +21,14 @@ import io.requery.reactivex.ReactiveEntityStore;
 import io.requery.reactivex.ReactiveSupport;
 import io.requery.sql.TableCreationMode;
 import pl.librus.client.BuildConfig;
+import pl.librus.client.Models;
 import pl.librus.client.UserScope;
 import pl.librus.client.data.DataLoadStrategy;
+import pl.librus.client.data.LastUpdate;
 import pl.librus.client.domain.Identifiable;
-import pl.librus.client.domain.Models;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.LessonType;
+import pl.librus.client.util.LibrusUtils;
 
 @UserScope
 public class DatabaseManager implements DataLoadStrategy {
@@ -37,7 +41,7 @@ public class DatabaseManager implements DataLoadStrategy {
     public DatabaseManager(Context context, @Named("login") String login) {
         this.context = context;
         this.login = login;
-        DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 18);
+        DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 19);
         if (BuildConfig.DEBUG) {
             source.setLoggingEnabled(true);
             source.setTableCreationMode(TableCreationMode.DROP_CREATE);
@@ -83,16 +87,36 @@ public class DatabaseManager implements DataLoadStrategy {
                 .subscribeOn(Schedulers.io());
     }
 
-    public void upsert(List<? extends Persistable> elements) {
-        dataStore.upsert(elements)
-            .blockingGet();
+    public <T extends Persistable> Completable upsert(List<T> elements) {
+        return dataStore.upsert(elements)
+                .toCompletable()
+                .andThen(setLastUpdate(elements))
+                .subscribeOn(Schedulers.io());
     }
 
-    public void clearAll(Class<? extends Persistable> clazz) {
-        dataStore.delete(clazz)
+    private Completable setLastUpdate(List<? extends Persistable> elements) {
+        if (elements.isEmpty()) {
+            return Completable.complete();
+        } else {
+            Class<? extends Persistable> clazz = elements.get(0).getClass();
+            LastUpdate lastUpdate = LastUpdate.of(clazz, LocalDate.now());
+            return dataStore.upsert(lastUpdate)
+                    .subscribeOn(Schedulers.io())
+                    .toCompletable();
+        }
+
+    }
+
+    public Completable clearAll(Class<? extends Persistable> clazz) {
+        return dataStore.delete(clazz)
                 .get()
                 .single()
-                .blockingGet();
+                .toCompletable();
+    }
+
+    public Maybe<LastUpdate> findLastUpdate(Class<? extends Persistable> clazz) {
+        return dataStore.findByKey(LastUpdate.class, LibrusUtils.getClassId(clazz))
+                .subscribeOn(Schedulers.io());
     }
 
     public ReactiveEntityStore<Persistable> getDataStore() {

@@ -32,12 +32,14 @@ import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.attendance.FullAttendance;
 import pl.librus.client.domain.subject.Subject;
 import pl.librus.client.presentation.AttendancesPresenter;
+import pl.librus.client.presentation.MainFragmentPresenter;
+import pl.librus.client.ui.MainFragment;
 import pl.librus.client.util.LibrusUtils;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AttendanceFragment extends Fragment implements FlexibleAdapter.OnItemClickListener, AttendancesView {
+public class AttendanceFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener, AttendancesView {
 
     private FlexibleAdapter<IFlexible> adapter;
     private View root;
@@ -54,9 +56,6 @@ public class AttendanceFragment extends Fragment implements FlexibleAdapter.OnIt
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        MainApplication.getMainActivityComponent()
-                .inject(this);
-
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_attendances, container, false);
 
@@ -68,11 +67,21 @@ public class AttendanceFragment extends Fragment implements FlexibleAdapter.OnIt
         recyclerView.setAdapter(adapter);
 
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
-        refreshLayout.setOnRefreshListener(presenter::reload);
-
-        presenter.attachView(this);
 
         return root;
+    }
+
+    @Override
+    protected void injectPresenter() {
+        MainApplication.getMainActivityComponent()
+                .inject(this);
+        refreshLayout.setOnRefreshListener(presenter::reload);
+        presenter.attachView(this);
+    }
+
+    @Override
+    protected MainFragmentPresenter getPresenter() {
+        return presenter;
     }
 
     @Override

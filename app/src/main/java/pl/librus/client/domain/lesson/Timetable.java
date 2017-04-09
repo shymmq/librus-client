@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 
 import org.joda.time.LocalDate;
 
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,5 +24,11 @@ public class Timetable extends HashMap<LocalDate, List<List<JsonLesson>>> {
             }
         }
         return builder.build();
+    }
+
+    public Timetable shallowCopy() {
+        Timetable result = new Timetable();
+        result.putAll(this);
+        return result;
     }
 }

@@ -46,4 +46,9 @@ public abstract class AbstractEntityInfo {
         return false;
     }
 
+    @Value.Default
+    public int refreshDays() {
+        return 1;
+    }
+
 }

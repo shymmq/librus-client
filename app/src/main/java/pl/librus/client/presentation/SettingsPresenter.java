@@ -9,6 +9,8 @@ import javax.inject.Inject;
 
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
+import pl.librus.client.data.LastUpdate;
+import pl.librus.client.data.db.DatabaseManager;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.SettingsFragment;
 import pl.librus.client.ui.SettingsView;
@@ -21,12 +23,14 @@ import pl.librus.client.ui.SettingsView;
 public class SettingsPresenter extends FragmentPresenter<SettingsView> {
 
     private final Set<MainFragmentPresenter> fragmentPresenters;
+    private final DatabaseManager database;
 
     @Inject
-    public SettingsPresenter(MainActivityOps mainActivity, Set<MainFragmentPresenter> fragmentPresenters) {
-        super(mainActivity);
+    protected SettingsPresenter(Set<MainFragmentPresenter> fragmentPresenters, DatabaseManager database) {
         this.fragmentPresenters = fragmentPresenters;
+        this.database = database;
     }
+
 
     @Override
     public Fragment getFragment() {
@@ -45,11 +49,13 @@ public class SettingsPresenter extends FragmentPresenter<SettingsView> {
 
     @Override
     protected void onViewAttached() {
-        view.updateAvailableFragments(getFragmentPresenters());
+        List<MainFragmentPresenter> sortedPresenters = MainFragmentPresenter.sorted(fragmentPresenters);
+        view.updateAvailableFragments(sortedPresenters);
         view.updateAvailableNotifications();
     }
 
-    private List<MainFragmentPresenter> getFragmentPresenters() {
-        return MainFragmentPresenter.sorted(fragmentPresenters);
+    public void refreshAll() {
+        database.clearAll(LastUpdate.class)
+            .blockingAwait();
     }
 }

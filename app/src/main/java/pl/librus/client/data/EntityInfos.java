@@ -19,6 +19,7 @@ import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
 import pl.librus.client.domain.grade.GradeComment;
+import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.subject.Subject;
 
 /**
@@ -33,6 +34,7 @@ public class EntityInfos {
             .put(AttendanceCategory.class, EntityInfo.builder()
                     .name("Type")
                     .endpointPrefix("Attendances")
+                    .refreshDays(30)
                     .build())
             .put(Average.class, EntityInfo.builder()
                     .name("Average")
@@ -43,12 +45,14 @@ public class EntityInfos {
                     .name("Category")
                     .pluralName("Categories")
                     .endpointPrefix("HomeWorks")
+                    .refreshDays(30)
                     .build())
             .put(Grade.class, EntityInfo.of("Grade"))
             .put(GradeCategory.class, EntityInfo.builder()
                     .name("Category")
                     .pluralName("Categories")
                     .endpointPrefix("Grades")
+                    .refreshDays(30)
                     .build())
             .put(GradeComment.class, EntityInfo.builder()
                     .name("Comment")
@@ -57,16 +61,32 @@ public class EntityInfos {
             .put(Me.class, EntityInfo.builder()
                     .name("Me")
                     .single(true)
+                    .refreshDays(30)
                     .build())
-            .put(LibrusColor.class, EntityInfo.of("Color"))
+            .put(LibrusColor.class, EntityInfo.builder()
+                    .refreshDays(30)
+                    .name("Color")
+                    .build())
             .put(LuckyNumber.class, EntityInfo.builder()
                     .name("LuckyNumbers")
                     .topLevelName("LuckyNumber")
                     .single(true)
                     .build())
-            .put(PlainLesson.class, EntityInfo.of("Lesson"))
-            .put(Subject.class, EntityInfo.of("Subject"))
-            .put(Teacher.class, EntityInfo.of("User"))
+            .put(PlainLesson.class, EntityInfo.builder()
+                    .refreshDays(30)
+                    .name("Lesson")
+                    .build())
+            .put(Subject.class, EntityInfo.builder()
+                    .name("Subject")
+                    .refreshDays(30)
+                    .build())
+            .put(Teacher.class, EntityInfo.builder()
+                    .name("User")
+                    .refreshDays(30)
+                    .build())
+            .put(Lesson.class, EntityInfo.builder()
+                    .name("Timetable")
+                    .build())
             .build();
 
     public static EntityInfo infoFor(Class<? extends Persistable> clazz) {

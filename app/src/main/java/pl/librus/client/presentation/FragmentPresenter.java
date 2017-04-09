@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 
+import java8.util.function.Consumer;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.View;
 
@@ -17,12 +18,6 @@ public abstract class FragmentPresenter<T extends View> {
 
     protected T view;
 
-    protected final MainActivityOps mainActivity;
-
-    protected FragmentPresenter(MainActivityOps mainActivity) {
-        this.mainActivity = mainActivity;
-    }
-
     public abstract Fragment getFragment();
 
     @StringRes
@@ -31,7 +26,7 @@ public abstract class FragmentPresenter<T extends View> {
     @DrawableRes
     public abstract int getIcon();
 
-    public PrimaryDrawerItem convertToDrawerItem() {
+    public PrimaryDrawerItem convertToDrawerItem(Consumer<FragmentPresenter> displayFragment) {
         return new PrimaryDrawerItem()
                 .withIconTintingEnabled(true)
                 .withSelectable(false)
@@ -39,12 +34,10 @@ public abstract class FragmentPresenter<T extends View> {
                 .withIcon(getIcon())
                 .withIdentifier(getTitle())
                 .withIconTintingEnabled(true)
-                .withOnDrawerItemClickListener((v, p, d) -> drawerItemClicked());
-    }
-
-    protected boolean drawerItemClicked() {
-        mainActivity.displayFragment(this);
-        return false;
+                .withOnDrawerItemClickListener((v, p, d) -> {
+                    displayFragment.accept(this);
+                    return false;
+                });
     }
 
     public final void attachView(T view) {
@@ -53,6 +46,15 @@ public abstract class FragmentPresenter<T extends View> {
     }
 
     protected void onViewAttached() {
+
+    }
+
+    public final void detachView() {
+        this.view = null;
+        onViewDetached();
+    }
+
+    protected void onViewDetached() {
 
     }
 }

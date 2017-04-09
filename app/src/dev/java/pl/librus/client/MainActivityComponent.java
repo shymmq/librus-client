@@ -1,6 +1,7 @@
 package pl.librus.client;
 
 import dagger.Subcomponent;
+import pl.librus.client.ui.NotificationTesterFragment;
 import pl.librus.client.ui.SettingsFragment;
 import pl.librus.client.ui.announcements.AnnouncementsFragment;
 import pl.librus.client.ui.attendances.AttendanceFragment;
@@ -17,6 +18,6 @@ import pl.librus.client.ui.timetable.TimetableFragment;
         NotificationTesterModule.class
 })
 public interface MainActivityComponent extends BaseMainActivityComponent {
-
+    void inject(NotificationTesterFragment fragment);
 }
 

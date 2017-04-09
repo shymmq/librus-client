@@ -29,12 +29,14 @@ import pl.librus.client.domain.grade.FullGrade;
 import pl.librus.client.domain.grade.GradesForSubject;
 import pl.librus.client.domain.subject.FullSubject;
 import pl.librus.client.presentation.GradesPresenter;
+import pl.librus.client.presentation.MainFragmentPresenter;
+import pl.librus.client.ui.MainFragment;
 import pl.librus.client.util.LibrusUtils;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemClickListener, GradesView {
+public class GradesFragment extends MainFragment implements FlexibleAdapter.OnItemClickListener, GradesView {
 
     private final Comparator<GradeHeaderItem> headerComparator = GradeHeaderItem::compareTo;
 
@@ -51,9 +53,6 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        MainApplication.getMainActivityComponent()
-                .inject(this);
-
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_grades, container, false);
 
@@ -62,7 +61,6 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.fragment_grades_refresh);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.getItemAnimator().setChangeDuration(0);
-        refreshLayout.setOnRefreshListener(presenter::reload);
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
         adapter = new FlexibleAdapter<>(null, this);
 
@@ -73,8 +71,20 @@ public class GradesFragment extends Fragment implements FlexibleAdapter.OnItemCl
 
         recyclerView.setAdapter(adapter);
 
-        presenter.attachView(this);
         return root;
+    }
+
+    @Override
+    protected void injectPresenter() {
+        MainApplication.getMainActivityComponent()
+                .inject(this);
+        refreshLayout.setOnRefreshListener(presenter::reload);
+        presenter.attachView(this);
+    }
+
+    @Override
+    protected MainFragmentPresenter getPresenter() {
+        return presenter;
     }
 
     @Override

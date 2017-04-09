@@ -17,26 +17,22 @@ import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.notification.NotificationService;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.NotificationTesterFragment;
+import pl.librus.client.ui.NotificationTesterView;
 
 /**
  * Created by robwys on 28/03/2017.
  */
 
-public class NotificationTesterPresenter extends MainFragmentPresenter {
+public class NotificationTesterPresenter extends MainFragmentPresenter<NotificationTesterView> {
 
-    private final NotificationTesterFragment fragment;
     private final DatabaseManager database;
     private final NotificationService notificationService;
 
     @Inject
-    protected NotificationTesterPresenter(MainActivityOps mainActivity,
-                                          DatabaseManager database,
+    protected NotificationTesterPresenter(DatabaseManager database,
                                           NotificationService notificationService) {
-        super(mainActivity);
         this.database = database;
         this.notificationService = notificationService;
-        fragment = new NotificationTesterFragment();
-        fragment.setPresenter(this);
     }
 
     @Override
@@ -46,7 +42,7 @@ public class NotificationTesterPresenter extends MainFragmentPresenter {
 
     @Override
     public Fragment getFragment() {
-        return fragment;
+        return new NotificationTesterFragment();
     }
 
     @Override

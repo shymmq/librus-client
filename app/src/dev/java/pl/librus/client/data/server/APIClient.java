@@ -1,11 +1,16 @@
 package pl.librus.client.data.server;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
@@ -16,6 +21,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
+import java8.util.stream.StreamSupport;
 import pl.librus.client.data.EntityInfo;
 import pl.librus.client.data.EntityInfos;
 import pl.librus.client.domain.Identifiable;
@@ -28,6 +34,7 @@ import pl.librus.client.domain.lesson.LessonSubject;
 import pl.librus.client.domain.lesson.LessonTeacher;
 import pl.librus.client.domain.lesson.Timetable;
 import pl.librus.client.domain.subject.Subject;
+import pl.librus.client.util.LibrusUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -39,6 +46,8 @@ public class APIClient implements IAPIClient {
 
     private final AtomicInteger lessonLoadCount = new AtomicInteger();
 
+    private Map<LocalDate, Timetable> lessonsForWeeks = Maps.newHashMap();
+
     @Inject
     public APIClient() {
     }
@@ -48,13 +57,34 @@ public class APIClient implements IAPIClient {
     }
 
     public Observable<Lesson> getLessonsForWeek(LocalDate weekStart) {
+        Timetable timetable = lessonsForWeeks.get(weekStart);
+        if(timetable == null) {
+            timetable = createLessonsForWeek(weekStart);
+            lessonsForWeeks.put(weekStart, timetable);
+        }
+
+        //Sometimes substitution lesson
+        timetable = timetable.shallowCopy();
+        LocalDate date = weekStart.plusDays(3);
+        List<List<JsonLesson>> day = Lists.newArrayList(timetable.get(date));
+        int lessonNo = 3;
+        JsonLesson lesson = lessonLoadCount.incrementAndGet() % 6 == 0 ? substitutionLesson() : day.get(lessonNo).get(0);
+        day.set(lessonNo, withLessonNumber(lesson, lessonNo));
+        timetable.put(date, day);
+
+        return Observable.fromIterable(timetable.toLessons())
+                .doOnSubscribe(d -> LibrusUtils.log("Fetching lessons"))
+                .subscribeOn(Schedulers.computation());
+    }
+
+    private Timetable createLessonsForWeek(LocalDate weekStart) {
         Timetable result = new Timetable();
         for (int dayNo = DateTimeConstants.MONDAY; dayNo <= DateTimeConstants.FRIDAY; dayNo++) {
             List<List<JsonLesson>> schoolDay = new ArrayList<>();
             for (int lessonNo = 0; lessonNo < repository.getList(PlainLesson.class).size(); lessonNo++) {
                 ImmutableJsonLesson lesson = templates.jsonLesson()
                         .withDayNo(dayNo);
-                schoolDay.add(newArrayList(withLessonNumber(lesson, lessonNo)));
+                schoolDay.add(withLessonNumber(lesson, lessonNo));
             }
             result.put(weekStart.plusDays(dayNo - 1), schoolDay);
         }
@@ -62,41 +92,33 @@ public class APIClient implements IAPIClient {
         result.put(weekStart.plusDays(5), newArrayList());
         result.put(weekStart.plusDays(6), newArrayList());
 
-        result.get(weekStart).add(newArrayList(
-                withLessonNumber(cancelledLesson(), 7)
-        ));
+        result.get(weekStart).add(withLessonNumber(cancelledLesson(), 7));
 
-        result.get(weekStart.plusDays(1)).add(newArrayList(
-                withLessonNumber(substitutionLesson(), 7)
-        ));
+        result.get(weekStart.plusDays(1)).add(withLessonNumber(substitutionLesson(), 7));
 
         //Empty lesson
         result.get(weekStart.plusDays(2)).remove(2);
 
-        //Sometimes empty lesson
-        if(lessonLoadCount.getAndIncrement() % 6 == 0) {
-            result.get(weekStart.plusDays(2)).remove(5);
-        }
-
-        return Observable.fromIterable(result.toLessons());
+        return result;
     }
 
-    private ImmutableJsonLesson withLessonNumber(ImmutableJsonLesson lesson, int lessonNo) {
+    private List<JsonLesson> withLessonNumber(JsonLesson lesson, int lessonNo) {
         List<PlainLesson> plainLessons = repository.getList(PlainLesson.class);
         PlainLesson plainLesson = plainLessons.get(lessonNo % plainLessons.size());
-        Subject subject = getById(Subject.class, plainLesson.subject()).blockingGet();
-        Teacher teacher = getById(Teacher.class, plainLesson.teacher()).blockingGet();
+        Subject subject = fromRepoById(Subject.class, plainLesson.subject());
+        Teacher teacher = fromRepoById(Teacher.class, plainLesson.teacher());
 
         LocalTime startTime = LocalTime.parse("08:00");
         LocalTime lessonStart = startTime.plusHours(lessonNo);
         LocalTime lessonEnd = lessonStart.plusMinutes(45);
 
-        return lesson
+        JsonLesson res = ImmutableJsonLesson.copyOf(lesson)
                 .withSubject(LessonSubject.fromSubject(subject))
                 .withTeacher(LessonTeacher.fromTeacher(teacher))
                 .withLessonNo(lessonNo)
                 .withHourFrom(lessonStart)
                 .withHourTo(lessonEnd);
+        return Lists.newArrayList(res);
     }
 
     private ImmutableJsonLesson cancelledLesson() {
@@ -131,11 +153,13 @@ public class APIClient implements IAPIClient {
 
     public <T> Single<T> getObject(String endpoint, String topLevelName, Class<T> clazz) {
         return Single.fromCallable(() -> repository.getList(clazz).get(0))
+                .doOnSubscribe(d -> LibrusUtils.log("Fetching %s", clazz.getSimpleName()))
                 .subscribeOn(Schedulers.computation());
     }
 
     public <T> Observable<T> getAll(String endpoint, String topLevelName, Class<T> clazz) {
         return Observable.fromCallable(() -> repository.getList(clazz))
+                .doOnSubscribe(d -> LibrusUtils.log("Fetching %s", clazz.getSimpleName()))
                 .flatMapIterable(i -> i)
                 .subscribeOn(Schedulers.computation());
     }
@@ -150,5 +174,12 @@ public class APIClient implements IAPIClient {
         return getAll(clazz)
                 .filter(e -> e.id().equals(id))
                 .firstOrError();
+    }
+
+    private <T extends Persistable & Identifiable> T fromRepoById(Class<T> clazz, String id) {
+        return StreamSupport.stream(repository.getList(clazz))
+                .filter(e -> e.id().equals(id))
+                .findFirst()
+                .get();
     }
 }

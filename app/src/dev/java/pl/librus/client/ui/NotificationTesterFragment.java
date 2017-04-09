@@ -8,19 +8,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
+
+import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.domain.Event;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.grade.Grade;
+import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.NotificationTesterPresenter;
 
-public class NotificationTesterFragment extends Fragment {
+public class NotificationTesterFragment extends MainFragment implements NotificationTesterView {
 
-    private NotificationTesterPresenter presenter;
+    @Inject
+    NotificationTesterPresenter presenter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View mv = inflater.inflate(R.layout.notification_tester, container, false);
 
         mv.findViewById(R.id.button_grade).setOnClickListener(v -> presenter.sendNotificationClicked(Grade.class, 1));
@@ -39,11 +45,32 @@ public class NotificationTesterFragment extends Fragment {
                 R.string.offline_data_error,
                 Snackbar.LENGTH_LONG)
                 .show());
-
         return mv;
+    }
+
+    @Override
+    protected void injectPresenter() {
+        MainApplication.getMainActivityComponent()
+                .inject(this);
+        presenter.attachView(this);
+    }
+
+    @Override
+    protected MainFragmentPresenter getPresenter() {
+        return presenter;
     }
 
     public void setPresenter(NotificationTesterPresenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    public void display(Object content) {
+        //Do nothing
+    }
+
+    @Override
+    public void setRefreshing(boolean b) {
+        //Do nothing
     }
 }

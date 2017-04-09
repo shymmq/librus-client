@@ -27,11 +27,14 @@ import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.domain.announcement.FullAnnouncement;
 import pl.librus.client.presentation.AnnouncementsPresenter;
+import pl.librus.client.presentation.MainFragmentPresenter;
+import pl.librus.client.ui.MainActivityOps;
+import pl.librus.client.ui.MainFragment;
 
 import static java8.util.stream.Collectors.toList;
 
 public class AnnouncementsFragment
-        extends Fragment
+        extends MainFragment
         implements AnnouncementsView {
 
     private View root;
@@ -46,15 +49,15 @@ public class AnnouncementsFragment
     @Inject
     AnnouncementsPresenter presenter;
 
+    @Inject
+    MainActivityOps mainActivity;
+
     public AnnouncementsFragment() {
         // Required empty public constructor
     }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        MainApplication.getMainActivityComponent()
-                .inject(this);
-
         root = inflater.inflate(R.layout.fragment_announcements, container, false);
 
         recyclerView = (RecyclerView) root.findViewById(R.id.recycler_announcements);
@@ -68,15 +71,26 @@ public class AnnouncementsFragment
         recyclerView.setAdapter(adapter);
 
         refreshLayout.setColorSchemeResources(R.color.md_blue_grey_400, R.color.md_blue_grey_500, R.color.md_blue_grey_600);
-        refreshLayout.setOnRefreshListener(presenter::reload);
 
-        presenter.attachView(this);
         return root;
     }
 
     @Override
-    public void display(List<? extends FullAnnouncement> announcements) {
+    protected void injectPresenter() {
+        MainApplication.getMainActivityComponent()
+                .inject(this);
+        refreshLayout.setOnRefreshListener(presenter::reload);
+        presenter.attachView(this);
+    }
 
+    @Override
+    protected MainFragmentPresenter getPresenter() {
+        return presenter;
+    }
+
+    @Override
+    public void display(List<? extends FullAnnouncement> announcements) {
+        mainActivity.setBackArrow(false);
         List<IFlexible> announcementItems = StreamSupport.stream(announcements)
                 .map(a -> new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())))
                 .sorted(ordering)
@@ -98,6 +112,7 @@ public class AnnouncementsFragment
 
     @Override
     public void displayDetails(AnnouncementItem announcementItem) {
+        mainActivity.setBackArrow(true);
         FullAnnouncement announcement = announcementItem.getAnnouncement();
 
         FragmentManager fm = getFragmentManager();

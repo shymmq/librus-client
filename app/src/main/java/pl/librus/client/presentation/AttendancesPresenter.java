@@ -3,11 +3,14 @@ package pl.librus.client.presentation;
 import android.support.v4.app.Fragment;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.MainActivityScope;
@@ -34,8 +37,8 @@ public class AttendancesPresenter extends ReloadablePresenter<AttendancesView> {
     private final LibrusData data;
 
     @Inject
-    public AttendancesPresenter(MainActivityOps mainActivity, LibrusData data, UpdateHelper updateHelper) {
-        super(mainActivity, updateHelper);
+    protected AttendancesPresenter(UpdateHelper updateHelper, LibrusData data, ErrorHandler errorHandler) {
+        super(updateHelper, errorHandler);
         this.data = data;
     }
 
@@ -59,12 +62,12 @@ public class AttendancesPresenter extends ReloadablePresenter<AttendancesView> {
         return R.drawable.ic_person_outline_black_48dp;
     }
 
-    protected void refreshView() {
-        data.findFullAttendances()
+    protected Completable refreshView() {
+        return data.findFullAttendances()
                 .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(view::display);
+                .flatMapCompletable(attendances -> Completable.fromAction(() -> view.display(attendances)));
     }
 
     public void attendanceClicked(FullAttendance attendance) {
@@ -72,8 +75,8 @@ public class AttendancesPresenter extends ReloadablePresenter<AttendancesView> {
     }
 
     @Override
-    protected List<Class<? extends Identifiable>> dependentEntities() {
-        return Lists.newArrayList(
+    protected Set<Class<? extends Identifiable>> dependentEntities() {
+        return Sets.newHashSet(
                 Attendance.class,
                 AttendanceCategory.class,
                 Teacher.class,
