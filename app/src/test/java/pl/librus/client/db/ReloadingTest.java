@@ -151,22 +151,24 @@ public class ReloadingTest extends BaseDBTest {
     }
 
     @Test
-    public void shouldConsiderUpdatable() {
+    public void shouldConsiderUpdatable() throws InterruptedException {
         LastUpdate lastUpdate = LastUpdate.of(LibrusColor.class, LocalDate.now().minusDays(40));
         data.upsert(lastUpdate);
 
         updateHelper.shouldUpdate(LibrusColor.class)
                 .test()
+                .await()
                 .assertValueCount(1);
     }
 
     @Test
-    public void shouldNotConsiderUpdatable() {
+    public void shouldNotConsiderUpdatable() throws InterruptedException {
         LastUpdate lastUpdate = LastUpdate.of(LibrusColor.class, LocalDate.now().minusDays(20));
         data.upsert(lastUpdate);
 
         updateHelper.shouldUpdate(LibrusColor.class)
                 .test()
+                .await()
                 .assertValueCount(0);
     }
 
