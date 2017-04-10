@@ -62,7 +62,7 @@ public abstract class ReloadablePresenter<T extends MainView> extends MainFragme
         }
     }
 
-    private Completable reloadAllComplete(List<EntityChange<?>> changes) {
+    private Completable reloadAllComplete(List<EntityChange> changes) {
         boolean anyRelevantChange = StreamSupport.stream(changes)
                 .map(EntityChange::entity)
                 .filter(ent -> dependentEntities().contains(ent.getClass()))

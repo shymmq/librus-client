@@ -89,9 +89,9 @@ public class UpdateHelper {
         this.serverStrategy = serverStrategy;
     }
 
-    public Observable<EntityChange<?>> tryReloadAll() {
+    public Observable<EntityChange> tryReloadAll() {
         LibrusUtils.log("Trying to reload all");
-        ImmutableList.Builder<Observable<EntityChange<?>>> builder = ImmutableList.builder();
+        ImmutableList.Builder<Observable<EntityChange>> builder = ImmutableList.builder();
 
         for (Class<? extends Identifiable> entityClass : entitiesToUpdate) {
             builder.add(shouldUpdate(entityClass)
