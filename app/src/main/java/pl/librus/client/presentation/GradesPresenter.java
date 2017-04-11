@@ -3,6 +3,7 @@ package pl.librus.client.presentation;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -38,6 +39,7 @@ import pl.librus.client.domain.grade.ImmutableGradesForSubject;
 import pl.librus.client.domain.subject.FullSubject;
 import pl.librus.client.domain.subject.Subject;
 import pl.librus.client.ui.MainActivityOps;
+import pl.librus.client.ui.MenuAction;
 import pl.librus.client.ui.ReadAllMenuAction;
 import pl.librus.client.ui.grades.GradesFragment;
 import pl.librus.client.ui.grades.GradesView;
@@ -47,14 +49,13 @@ import pl.librus.client.ui.grades.GradesView;
  */
 
 @MainActivityScope
-public class GradesPresenter extends ReloadablePresenter<GradesView> {
+public class GradesPresenter extends ReloadablePresenter<List<GradesForSubject>, GradesView> {
 
     public static final int TITLE = R.string.grades_view_title;
 
     private final LibrusData data;
     private final Context context;
     private final Reader reader;
-    private final MainActivityOps mainActivity;
 
     @Inject
     protected GradesPresenter(UpdateHelper updateHelper,
@@ -63,11 +64,10 @@ public class GradesPresenter extends ReloadablePresenter<GradesView> {
                               Reader reader,
                               MainActivityOps mainActivity,
                               ErrorHandler errorHandler) {
-        super(updateHelper, errorHandler);
+        super(mainActivity, updateHelper, errorHandler);
         this.data = data;
         this.context = context;
         this.reader = reader;
-        this.mainActivity = mainActivity;
     }
 
     @Override
@@ -90,27 +90,26 @@ public class GradesPresenter extends ReloadablePresenter<GradesView> {
         return 2;
     }
 
-    protected Completable refreshView() {
-        Single<List<EnrichedGrade>> gradeSingle = data.findEnrichedGrades().toList()
-                .doOnSuccess(this::displayMenuActions);
-
-        Single<List<FullSubject>> subjectsSingle = data.findFullSubjects().toList();
-
+    @Override
+    protected Single<List<GradesForSubject>> fetchData() {
         return Single.zip(
-                subjectsSingle,
-                gradeSingle,
-                this::mapGradesToSubjects)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMapCompletable(grades -> Completable.fromAction(() -> view.display(grades)));
+                data.findFullSubjects().toList(),
+                data.findEnrichedGrades().toList(),
+                this::mapGradesToSubjects);
     }
 
-    private void displayMenuActions(List<EnrichedGrade> grades) {
-        ReadAllMenuAction action = new ReadAllMenuAction(
-                grades,
-                context,
-                view::updateGrades);
-        mainActivity.displayMenuActions(Lists.newArrayList(action));
+    @Override
+    protected List<MenuAction> getMenuActions(List<GradesForSubject> data) {
+        List<EnrichedGrade> grades = StreamSupport.stream(data)
+                .flatMap(gfs -> StreamSupport.stream(gfs.grades()))
+                .collect(Collectors.toList());
+
+        ReadAllMenuAction reloadAll = new ReadAllMenuAction(grades, context, this);
+
+        return ImmutableList.<MenuAction>builder()
+                .add(reloadAll)
+                .addAll(super.getMenuActions(data))
+                .build();
     }
 
     public void gradeClicked(int position, EnrichedGrade grade) {

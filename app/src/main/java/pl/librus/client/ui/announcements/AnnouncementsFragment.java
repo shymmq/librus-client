@@ -1,7 +1,6 @@
 package pl.librus.client.ui.announcements;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -28,7 +27,6 @@ import pl.librus.client.R;
 import pl.librus.client.domain.announcement.FullAnnouncement;
 import pl.librus.client.presentation.AnnouncementsPresenter;
 import pl.librus.client.presentation.MainFragmentPresenter;
-import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.MainFragment;
 
 import static java8.util.stream.Collectors.toList;
@@ -48,9 +46,6 @@ public class AnnouncementsFragment
 
     @Inject
     AnnouncementsPresenter presenter;
-
-    @Inject
-    MainActivityOps mainActivity;
 
     public AnnouncementsFragment() {
         // Required empty public constructor
@@ -89,14 +84,15 @@ public class AnnouncementsFragment
     }
 
     @Override
-    public void display(List<? extends FullAnnouncement> announcements) {
-        mainActivity.setBackArrow(false);
+    public void display(List<FullAnnouncement> announcements) {
+        AnnouncementHeaders headers = new AnnouncementHeaders(getContext());
         List<IFlexible> announcementItems = StreamSupport.stream(announcements)
-                .map(a -> new AnnouncementItem(a, AnnouncementUtils.getHeaderOf(a, getContext())))
+                .map(a -> new AnnouncementItem(a, headers.getHeaderOf(a)))
                 .sorted(ordering)
                 .collect(toList());
 
         adapter.clear();
+        adapter.setDisplayHeadersAtStartUp(true);
         adapter.addItems(0, announcementItems);
     }
 
@@ -112,7 +108,6 @@ public class AnnouncementsFragment
 
     @Override
     public void displayDetails(AnnouncementItem announcementItem) {
-        mainActivity.setBackArrow(true);
         FullAnnouncement announcement = announcementItem.getAnnouncement();
 
         FragmentManager fm = getFragmentManager();

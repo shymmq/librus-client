@@ -8,6 +8,8 @@ import java.util.List;
 import pl.librus.client.R;
 import pl.librus.client.data.Reader;
 import pl.librus.client.domain.Identifiable;
+import pl.librus.client.presentation.MainFragmentPresenter;
+import pl.librus.client.presentation.ReloadablePresenter;
 
 /**
  * Created by szyme on 05.02.2017.
@@ -15,21 +17,19 @@ import pl.librus.client.domain.Identifiable;
 
 public class ReadAllMenuAction implements MenuAction {
     private final List<? extends Identifiable> items;
-    private final Runnable callback;
-    private final Context context;
     private final Reader reader;
+    private final ReloadablePresenter presenter;
 
-    public ReadAllMenuAction(List<? extends Identifiable> items, Context context, @Nullable Runnable callback) {
+    public ReadAllMenuAction(List<? extends Identifiable> items, Context context, ReloadablePresenter presenter) {
         this.items = items;
-        this.callback = callback;
-        this.context = context;
         reader = new Reader(context);
 
+        this.presenter = presenter;
     }
 
     @Override
-    public String getName() {
-        return context.getString(R.string.mark_all_as_read);
+    public int getName() {
+        return R.string.mark_all_as_read;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ReadAllMenuAction implements MenuAction {
         for (Identifiable i : items) {
             reader.read(i);
         }
-        if (callback != null) callback.run();
+        presenter.refresh();
     }
 
     @Override

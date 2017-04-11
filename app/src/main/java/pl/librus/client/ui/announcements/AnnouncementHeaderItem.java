@@ -47,7 +47,7 @@ class AnnouncementHeaderItem extends AbstractHeaderItem<AnnouncementHeaderItem.V
 //                        AnnouncementItem a = (AnnouncementItem) c;
 //                        a.setRead(true);
 //                        Reader.read(Reader.TYPE_ANNOUNCEMENT, a.getAnnouncement().id(), v.getContext());
-//                        adapter.addItemToSection(a, AnnouncementUtils.getHeaderOf(a.getAnnouncement(), v.getContext()), AnnouncementUtils.getItemComparator());
+//                        adapter.addItemToSection(a, AnnouncementHeaders.getHeaderOf(a.getAnnouncement(), v.getContext()), AnnouncementHeaders.getItemComparator());
 //                    }
 //                }
 //            });

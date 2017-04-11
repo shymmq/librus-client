@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.MainActivityScope;
@@ -24,6 +25,7 @@ import pl.librus.client.domain.attendance.Attendance;
 import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.attendance.FullAttendance;
 import pl.librus.client.domain.subject.Subject;
+import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.attendances.AttendanceFragment;
 import pl.librus.client.ui.attendances.AttendancesView;
@@ -32,13 +34,13 @@ import pl.librus.client.ui.attendances.AttendancesView;
  * Created by robwys on 28/03/2017.
  */
 @MainActivityScope
-public class AttendancesPresenter extends ReloadablePresenter<AttendancesView> {
+public class AttendancesPresenter extends ReloadablePresenter<List<FullAttendance>, AttendancesView> {
 
     private final LibrusData data;
 
     @Inject
-    protected AttendancesPresenter(UpdateHelper updateHelper, LibrusData data, ErrorHandler errorHandler) {
-        super(updateHelper, errorHandler);
+    protected AttendancesPresenter(MainActivityOps mainActivity, UpdateHelper updateHelper, LibrusData data, ErrorHandler errorHandler) {
+        super(mainActivity, updateHelper, errorHandler);
         this.data = data;
     }
 
@@ -62,12 +64,10 @@ public class AttendancesPresenter extends ReloadablePresenter<AttendancesView> {
         return R.drawable.ic_person_outline_black_48dp;
     }
 
-    protected Completable refreshView() {
+    @Override
+    protected Single<List<FullAttendance>> fetchData() {
         return data.findFullAttendances()
-                .toList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMapCompletable(attendances -> Completable.fromAction(() -> view.display(attendances)));
+                .toList();
     }
 
     public void attendanceClicked(FullAttendance attendance) {

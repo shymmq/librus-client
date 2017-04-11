@@ -14,8 +14,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.MainActivityScope;
@@ -28,6 +28,8 @@ import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.lesson.ImmutableSchoolWeek;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.SchoolWeek;
+import pl.librus.client.ui.MainActivity;
+import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.timetable.TimetableFragment;
 import pl.librus.client.ui.timetable.TimetableView;
 
@@ -36,15 +38,15 @@ import pl.librus.client.ui.timetable.TimetableView;
  */
 
 @MainActivityScope
-public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
+public class TimetablePresenter extends ReloadablePresenter<List<SchoolWeek>, TimetableView> {
 
     private final LibrusData data;
 
-    private LocalDate weekStart;
+    private LocalDate currentWeekStart;
 
     @Inject
-    protected TimetablePresenter(UpdateHelper updateHelper, LibrusData data, ErrorHandler errorHandler) {
-        super(updateHelper, errorHandler);
+    protected TimetablePresenter(MainActivityOps mainActivity, UpdateHelper updateHelper, LibrusData data, ErrorHandler errorHandler) {
+        super(mainActivity, updateHelper, errorHandler);
         this.data = data;
     }
 
@@ -69,47 +71,44 @@ public class TimetablePresenter extends ReloadablePresenter<TimetableView> {
     }
 
     @Override
-    protected Completable refreshView() {
+    protected Single<List<SchoolWeek>> fetchData() {
         List<LocalDate> initialWeekStarts = resetWeekStart();
-
         return Observable.fromIterable(initialWeekStarts)
                 .concatMapEager(ws -> data
                         .findLessonsForWeek(ws)
                         .toList()
                         .map(lessons -> ImmutableSchoolWeek.of(ws, lessons))
                         .cast(SchoolWeek.class)
+                        .doOnSuccess(this::incrementCurrentWeek)
                         .toObservable())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .toList()
-                .flatMapCompletable(weeks -> Completable.fromAction(() -> initialLoaded(weeks)));
+                .toList();
     }
 
     @NonNull
     private List<LocalDate> resetWeekStart() {
-        weekStart = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
-        return Lists.newArrayList(weekStart, weekStart.plusWeeks(1));
+        currentWeekStart = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY);
+        return Lists.newArrayList(currentWeekStart, currentWeekStart.plusWeeks(1));
     }
 
-    private void initialLoaded(List<SchoolWeek> schoolWeeks) {
-        weekStart = weekStart.plusWeeks(2);
-        view.display(schoolWeeks);
+    @Override
+    protected void displayData(List<SchoolWeek> data) {
+        super.displayData(data);
         view.scrollToDay(LocalDate.now());
     }
 
     public void loadMore() {
-        subscription = data.findLessonsForWeek(weekStart)
+        subscription = data.findLessonsForWeek(currentWeekStart)
                 .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(l -> ImmutableSchoolWeek.of(weekStart, l))
-                .subscribe(this::moreLoaded, errorHandler);
+                .map(l -> ImmutableSchoolWeek.of(currentWeekStart, l))
+                .doFinally(() -> view.setProgress(false))
+                .doOnSuccess(this::incrementCurrentWeek)
+                .subscribe(view::displayMore, errorHandler);
     }
 
-    private void moreLoaded(SchoolWeek schoolWeek) {
-        view.setProgress(false);
-        view.displayMore(schoolWeek);
-        weekStart = weekStart.plusWeeks(1);
+    private void incrementCurrentWeek(SchoolWeek schoolWeek) {
+        currentWeekStart = currentWeekStart.plusWeeks(1);
     }
 
     protected Set<Class<? extends Identifiable>> dependentEntities() {

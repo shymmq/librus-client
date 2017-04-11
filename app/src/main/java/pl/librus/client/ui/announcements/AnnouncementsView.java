@@ -9,7 +9,7 @@ import pl.librus.client.ui.MainView;
  * Created by szyme on 04.04.2017.
  */
 
-public interface AnnouncementsView extends MainView<List<? extends FullAnnouncement>> {
+public interface AnnouncementsView extends MainView<List<FullAnnouncement>> {
     void displayDetails(AnnouncementItem announcementItem);
 
     void setRefreshing(boolean b);
