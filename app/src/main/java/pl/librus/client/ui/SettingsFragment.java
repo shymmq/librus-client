@@ -1,7 +1,5 @@
 package pl.librus.client.ui;
 
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.SwitchPreference;
@@ -41,17 +39,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
         addPreferencesFromResource(R.xml.preferences);
         addThemeChangeListener();
         addRefreshAllListener();
+        addOnEnableNotificationsChangeListener();
         presenter.attachView(this);
         PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, false);
     }
 
-    private void addRefreshAllListener() {
-        Preference reloadAll = getPreferenceScreen().findPreference("reload_all");
-        reloadAll.setOnPreferenceClickListener(pref -> {
-            presenter.refreshAll();
-            return true;
-        });
-    }
 
     @Override
     public void updateAvailableNotifications() {
@@ -85,10 +77,27 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
         list.setEntryValues(values);
     }
 
+    private void addRefreshAllListener() {
+        Preference reloadAll = getPreferenceScreen().findPreference("reload_all");
+        reloadAll.setOnPreferenceClickListener(pref -> {
+            presenter.refreshAll();
+            return true;
+        });
+    }
+
     private void addThemeChangeListener() {
         SwitchPreference pref = (SwitchPreference) getPreferenceScreen().findPreference("selectTheme");
         pref.setOnPreferenceChangeListener((prev, val) -> {
             getActivity().recreate();
+            return true;
+        });
+    }
+
+    private void addOnEnableNotificationsChangeListener() {
+        SwitchPreference enableNotifications = (SwitchPreference) getPreferenceScreen().findPreference("enable_notifications");
+        Preference notificationTypes = getPreferenceScreen().findPreference("enabled_notification_types");
+        enableNotifications.setOnPreferenceChangeListener((preference, newValue) -> {
+            notificationTypes.setEnabled((Boolean) newValue);
             return true;
         });
     }
