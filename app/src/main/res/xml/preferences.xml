@@ -28,10 +28,6 @@
             android:key="enabled_notification_types"
             android:title="@string/received_notifications"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Pobieranie danych">
-        <Preference android:title="Odśwież wszystko"
-            android:key="reload_all"/>
-    </PreferenceCategory>
     <PreferenceCategory android:title="Więcej">
         <Preference android:title="Informacje">
             <intent android:action=".ui.AboutActivity" />
