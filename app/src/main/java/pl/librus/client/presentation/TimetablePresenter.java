@@ -118,14 +118,14 @@ public class TimetablePresenter extends ReloadablePresenter<List<SchoolWeek>, Ti
 
     }
 
-    //FIXME should be inside FullLesson
-    public Teacher getTeacher(Lesson lesson) {
-        return data.blocking()
-                .getById(Teacher.class, lesson.orgTeacher().get());
-    }
-
     @Override
     protected Observable<? extends EntityChange<? extends Identifiable>> reloadRelevantEntities() {
         return updateHelper.reloadLessons();
+    }
+
+    public void lessonClicked(Lesson lesson) {
+        subscription = data.makeFullLesson(lesson)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(view::displayDetails, errorHandler);
     }
 }

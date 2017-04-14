@@ -88,11 +88,6 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
     }
 
     @Override
-    public void updateGrades() {
-        adapter.notifyItemRangeChanged(0, adapter.getItemCount());
-    }
-
-    @Override
     public void updateGrade(int position) {
         adapter.notifyItemChanged(position);
     }

@@ -4,6 +4,7 @@ import org.joda.time.LocalDate;
 
 import java.util.List;
 
+import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.SchoolWeek;
 import pl.librus.client.ui.MainView;
 
@@ -17,4 +18,6 @@ public interface TimetableView extends MainView<List<SchoolWeek>> {
     void displayMore(SchoolWeek schoolWeek);
 
     void scrollToDay(LocalDate day);
+
+    void displayDetails(FullLesson lesson);
 }

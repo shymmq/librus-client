@@ -69,6 +69,7 @@ public abstract class BaseLesson {
 
     @Column
     @JsonDeserialize(using = IdOptionalDeserializer.class)
-    public abstract Optional<String> orgTeacher();
+    @JsonProperty("orgTeacher")
+    public abstract Optional<String> orgTeacherId();
 
 }

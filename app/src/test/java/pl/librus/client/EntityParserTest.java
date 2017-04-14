@@ -125,7 +125,7 @@ public class EntityParserTest {
                 .orgLessonNo(2)
                 .orgLesson("1822337")
                 .orgSubject("44565")
-                .orgTeacher("1235090")
+                .orgTeacherId("1235090")
                 .build();
         assertEquals(expected, actual);
 

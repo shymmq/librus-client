@@ -42,10 +42,10 @@ public class DatabaseManager implements DataLoadStrategy {
     public DatabaseManager(Context context, @Named("login") String login) {
         this.context = context;
         this.login = login;
-        DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 19);
+        DatabaseSource source = new DatabaseSource(context, Models.DEFAULT, databaseName(login), 20);
+        source.setTableCreationMode(TableCreationMode.DROP_CREATE);
         if (BuildConfig.DEBUG) {
             source.setLoggingEnabled(true);
-            source.setTableCreationMode(TableCreationMode.DROP_CREATE);
         }
         dataStore = ReactiveSupport.toReactiveStore(SqlHelper.getDataStore(source));
     }

@@ -113,13 +113,13 @@ public class GradesPresenter extends ReloadablePresenter<List<GradesForSubject>,
     }
 
     public void gradeClicked(int position, EnrichedGrade grade) {
-        FullGrade fullGrade = data
-                .blocking()
-                .makeFullGrade(grade);
         reader.read(grade);
         view.updateGrade(position);
-        view.displayGradeDetails(fullGrade);
         mainActivity.updateMenu();
+
+        subscription = data.makeFullGrade(grade)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(view::displayGradeDetails, errorHandler);
     }
 
     private List<GradesForSubject> mapGradesToSubjects(List<FullSubject> subjects, List<EnrichedGrade> grades) {

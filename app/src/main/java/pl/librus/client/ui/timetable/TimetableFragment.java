@@ -38,6 +38,8 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.domain.Teacher;
+import pl.librus.client.domain.grade.FullGrade;
+import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.SchoolWeek;
 import pl.librus.client.presentation.MainFragmentPresenter;
@@ -109,57 +111,7 @@ public class TimetableFragment extends MainFragment implements TimetableView {
         IFlexible item = adapter.getItem(position);
         if (item instanceof LessonItem) {
             Lesson lesson = ((LessonItem) item).getLesson();
-            MaterialDialog.Builder builder = new MaterialDialog.Builder(getContext()).title(lesson.subject().name()).positiveText("Zamknij");
-
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            View details = inflater.inflate(R.layout.lesson_details, null);
-
-            ViewGroup eventContainer = (ViewGroup) details.findViewById(R.id.lesson_details_event_container);
-            ViewGroup teacherContainer = (ViewGroup) details.findViewById(R.id.lesson_details_teacher_container);
-
-            TextView teacherTextView = (TextView) details.findViewById(R.id.lesson_details_teacher_value);
-            TextView dateTextView = (TextView) details.findViewById(R.id.lesson_details_date_value);
-            TextView timeTextView = (TextView) details.findViewById(R.id.lesson_details_time_value);
-            TextView eventTextView = (TextView) details.findViewById(R.id.lesson_details_event_value);
-
-            dateTextView.setText(new SpannableStringBuilder()
-                    .append(lesson.date().toString("EEEE, d MMMM yyyy", new Locale("pl")),
-                            new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
-            SpannableStringBuilder timeSSB = new SpannableStringBuilder();
-            if (lesson.hourFrom().isPresent() && lesson.hourTo().isPresent()) {
-                timeSSB.append(lesson.hourFrom().get().toString("HH:mm"))
-                        .append(" - ")
-                        .append(lesson.hourTo().get().toString("HH:mm"))
-                        .append(' ');
-            }
-            timeSSB.append(String.valueOf(lesson.lessonNo()),
-                    new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                    .append(". lekcja", new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-            timeTextView.setText(timeSSB);
-
-            //TODO add Events
-            if (lesson.teacher().name().isPresent()) {
-                teacherContainer.setVisibility(View.VISIBLE);
-                SpannableStringBuilder ssb = new SpannableStringBuilder();
-                if (lesson.substitutionClass() && lesson.orgTeacher().isPresent()) {
-                    Teacher orgTeacher = presenter.getTeacher(lesson);
-                    if (orgTeacher.name().isPresent()) {
-                        ssb
-                                .append(orgTeacher.name().get())
-                                .append(" -> ");
-                    }
-                }
-                ssb.append(lesson.teacher().name().get(),
-                        new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                teacherTextView.setText(ssb);
-            } else {
-                teacherContainer.setVisibility(View.GONE);
-            }
-
-            eventContainer.setVisibility(View.GONE);
-
-            //TODO Ogarnianie odwołań
-            builder.customView(details, true).show();
+            presenter.lessonClicked(lesson);
             return true;
         } else {
             return false;
@@ -221,6 +173,61 @@ public class TimetableFragment extends MainFragment implements TimetableView {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No header item for " + day));
         new Handler().postDelayed(() -> recyclerView.smoothScrollToPosition(adapter.getGlobalPositionOf(header)), 50);
+    }
+
+    @Override
+    public void displayDetails(FullLesson lesson) {
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(getContext()).title(lesson.subject().name()).positiveText("Zamknij");
+
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        android.view.View details = inflater.inflate(R.layout.lesson_details, null);
+
+        ViewGroup eventContainer = (ViewGroup) details.findViewById(R.id.lesson_details_event_container);
+        ViewGroup teacherContainer = (ViewGroup) details.findViewById(R.id.lesson_details_teacher_container);
+
+        TextView teacherTextView = (TextView) details.findViewById(R.id.lesson_details_teacher_value);
+        TextView dateTextView = (TextView) details.findViewById(R.id.lesson_details_date_value);
+        TextView timeTextView = (TextView) details.findViewById(R.id.lesson_details_time_value);
+        TextView eventTextView = (TextView) details.findViewById(R.id.lesson_details_event_value);
+
+        dateTextView.setText(new SpannableStringBuilder()
+                .append(lesson.date().toString("EEEE, d MMMM yyyy", new Locale("pl")),
+                        new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+        SpannableStringBuilder timeSSB = new SpannableStringBuilder();
+        if (lesson.hourFrom().isPresent() && lesson.hourTo().isPresent()) {
+            timeSSB.append(lesson.hourFrom().get().toString("HH:mm"))
+                    .append(" - ")
+                    .append(lesson.hourTo().get().toString("HH:mm"))
+                    .append(' ');
+        }
+        timeSSB.append(String.valueOf(lesson.lessonNo()),
+                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                .append(". lekcja", new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        timeTextView.setText(timeSSB);
+
+        //TODO add Events
+        if (lesson.teacher().name().isPresent()) {
+            teacherContainer.setVisibility(android.view.View.VISIBLE);
+            SpannableStringBuilder ssb = new SpannableStringBuilder();
+            if (lesson.substitutionClass() && lesson.orgTeacher().isPresent()) {
+                Teacher orgTeacher = lesson.orgTeacher().get();
+                if (orgTeacher.name().isPresent()) {
+                    ssb
+                            .append(orgTeacher.name().get())
+                            .append(" -> ");
+                }
+            }
+            ssb.append(lesson.teacher().name().get(),
+                    new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            teacherTextView.setText(ssb);
+        } else {
+            teacherContainer.setVisibility(android.view.View.GONE);
+        }
+
+        eventContainer.setVisibility(android.view.View.GONE);
+
+        //TODO Ogarnianie odwołań
+        builder.customView(details, true).show();
     }
 
     @Override

@@ -11,7 +11,6 @@ import pl.librus.client.ui.MainView;
  */
 
 public interface GradesView extends MainView<List<GradesForSubject>> {
-    void updateGrades();
 
     void updateGrade(int position);
 

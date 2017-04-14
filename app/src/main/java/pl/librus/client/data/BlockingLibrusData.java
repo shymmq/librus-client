@@ -40,6 +40,10 @@ import pl.librus.client.domain.grade.GradeComment;
 import pl.librus.client.domain.grade.ImmutableEnrichedGrade;
 import pl.librus.client.domain.grade.ImmutableFullGrade;
 import pl.librus.client.domain.grade.ImmutableFullGradeCategory;
+import pl.librus.client.domain.lesson.BaseLesson;
+import pl.librus.client.domain.lesson.FullLesson;
+import pl.librus.client.domain.lesson.ImmutableFullLesson;
+import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.subject.BaseSubject;
 import pl.librus.client.domain.subject.FullSubject;
 import pl.librus.client.domain.subject.ImmutableFullSubject;
@@ -182,6 +186,14 @@ public class BlockingLibrusData {
                 .comments(getMany(GradeComment.class, grade.commentIds()))
                 .addedBy(getOptionalById(Teacher.class, grade.addedById()))
                 .subject(getById(Subject.class, grade.subjectId()))
+                .build();
+    }
+
+    public FullLesson makeFullLesson(Lesson lesson) {
+        return ImmutableFullLesson.builder()
+                .from(lesson)
+                .date(lesson.date())
+                .orgTeacher(getOptionalById(Teacher.class, lesson.orgTeacherId()))
                 .build();
     }
 

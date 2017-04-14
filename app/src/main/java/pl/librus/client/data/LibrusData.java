@@ -20,8 +20,11 @@ import pl.librus.client.domain.attendance.Attendance;
 import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.attendance.FullAttendance;
 import pl.librus.client.domain.grade.EnrichedGrade;
+import pl.librus.client.domain.grade.FullGrade;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
+import pl.librus.client.domain.lesson.BaseLesson;
+import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.subject.FullSubject;
 import pl.librus.client.domain.subject.Subject;
@@ -78,8 +81,14 @@ public class LibrusData {
                 .flattenAsObservable(BlockingLibrusData::findFullSubjects);
     }
 
-    public BlockingLibrusData blocking() {
-        return BlockingLibrusData.get(strategy);
+    public Single<FullGrade> makeFullGrade(EnrichedGrade grade) {
+        return BlockingLibrusData.preload(strategy)
+                .map(data -> data.makeFullGrade(grade));
+    }
+
+    public Single<FullLesson> makeFullLesson(Lesson lesson) {
+        return BlockingLibrusData.preload(strategy)
+                .map(data -> data.makeFullLesson(lesson));
     }
 
 }

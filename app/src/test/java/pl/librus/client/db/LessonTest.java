@@ -46,7 +46,7 @@ public class LessonTest extends BaseDBTest {
                 .orgLesson("5443")
                 .orgDate(LocalDate.parse("2017-02-02"))
                 .orgSubject("4432")
-                .orgTeacher("7584")
+                .orgTeacherId("7584")
                 .substitutionNote("zastępstwo")
                 .build();
 
