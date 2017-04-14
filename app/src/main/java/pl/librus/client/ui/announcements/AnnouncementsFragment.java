@@ -128,7 +128,7 @@ public class AnnouncementsFragment
         ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
         ft.addSharedElement(announcementItem.getBackgroundView(), announcementItem.getBackgroundView().getTransitionName());
         ft.addToBackStack(null);
-        ft.commit();
+        ft.commitAllowingStateLoss();
     }
 
     @Override

@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps, 
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_main, fragmentPresenter.getFragment())
-                .commit();
+                .commitAllowingStateLoss();
     }
 
     @Override
