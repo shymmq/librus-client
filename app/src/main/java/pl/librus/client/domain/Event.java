@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 
+import io.requery.Column;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
@@ -20,6 +21,7 @@ public abstract class Event implements Persistable, Identifiable{
 
     public abstract String content();
 
+    @Column(name = "\"date\"")
     public abstract LocalDate date();
 
     @JsonDeserialize(using = IdDeserializer.class)

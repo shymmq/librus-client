@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 
+import io.requery.Column;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
@@ -18,6 +19,7 @@ public abstract class LuckyNumber implements Persistable, Identifiable {
     @JsonProperty("LuckyNumberDay")
     @Key
     @Value.Parameter
+    @Column(name = "\"day\"")
     public abstract LocalDate day();
 
     @Value.Parameter

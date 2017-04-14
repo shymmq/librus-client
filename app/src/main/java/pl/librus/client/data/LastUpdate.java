@@ -3,6 +3,7 @@ package pl.librus.client.data;
 import org.immutables.value.Value;
 import org.joda.time.LocalDate;
 
+import io.requery.Column;
 import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
@@ -21,6 +22,7 @@ public abstract class LastUpdate implements Persistable{
     public abstract String name();
 
     @Value.Parameter
+    @Column(name = "\"date\"")
     public abstract LocalDate date();
 
     public static LastUpdate of(Class clazz, LocalDate date) {

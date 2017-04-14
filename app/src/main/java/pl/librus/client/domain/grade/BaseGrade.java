@@ -55,7 +55,7 @@ public abstract class BaseGrade implements Identifiable {
     public abstract String grade();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Column
+    @Column(name = "\"date\"")
     public abstract LocalDate date();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
