@@ -119,7 +119,7 @@ class EntityMocks {
                 .teacher(lessonTeacher())
                 .orgLesson(MOCK_ID)
                 .orgSubject(MOCK_ID)
-                .orgTeacher(MOCK_ID)
+                .orgTeacherId(MOCK_ID)
                 .build();
     }
 
