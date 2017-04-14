@@ -27,6 +27,7 @@ import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
 import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.grade.Grade;
+import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.MenuAction;
 import pl.librus.client.ui.NavigationOps;
@@ -128,14 +129,11 @@ public class MainActivityPresenter {
         mainActivity.unregisterGCM();
 
         MainApplication.releaseMainActivityComponent();
+        MainApplication.releaseUserComponent();
 
         mainActivity.navigateToLogin();
 
         mainActivity.finish();
-    }
-
-    public void destroy() {
-        database.close();
     }
 
     @Value.Immutable

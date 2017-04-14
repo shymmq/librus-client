@@ -35,17 +35,21 @@ public class MainNavigationPresenter {
 
     private final PreferencesManager preferences;
 
+    private final ErrorHandler errorHandler;
+
     @Inject
     public MainNavigationPresenter(NavigationOps navigation,
                                    LibrusData data,
                                    Set<MainFragmentPresenter> fragmentPresenters,
                                    SettingsPresenter settingsPresenter,
-                                   PreferencesManager preferences) {
+                                   PreferencesManager preferences,
+                                   ErrorHandler errorHandler) {
         this.navigation = navigation;
         this.data = data;
         this.fragmentPresenters = fragmentPresenters;
         this.settingsPresenter = settingsPresenter;
         this.preferences = preferences;
+        this.errorHandler = errorHandler;
     }
 
 
@@ -64,7 +68,7 @@ public class MainNavigationPresenter {
                 .subscribe(drawerTuple -> {
                     navigation.setupDrawer(drawerTuple.me(), drawerTuple.luckyNumber());
                     displayInitialFragment();
-                });
+                }, errorHandler);
     }
 
     private void displayInitialFragment() {

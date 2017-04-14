@@ -74,6 +74,10 @@ public class LibrusUtils {
         log(text, Log.ERROR, true);
     }
 
+    public static void handleError(Throwable t) {
+        logError(t.getMessage());
+    }
+
     public static void log(String text, boolean trim) {
         log(text, Log.DEBUG, trim);
     }

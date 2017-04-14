@@ -81,12 +81,11 @@ public class MainApplication extends MultiDexApplication {
     }
 
     public static void releaseMainActivityComponent() {
-        if (userComponent != null) {
-            userComponent = null;
-        }
-        if (mainActivityComponent != null) {
-            mainActivityComponent = null;
-        }
+        mainActivityComponent = null;
+    }
+
+    public static void releaseUserComponent() {
+        userComponent = null;
     }
 
     public static ApplicationComponent component() {

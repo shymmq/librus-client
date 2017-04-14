@@ -2,6 +2,7 @@ package pl.librus.client.data.db;
 
 
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 
 import org.joda.time.LocalDate;
 
@@ -54,12 +55,7 @@ public class DatabaseManager implements DataLoadStrategy {
     }
 
     public void delete() {
-        close();
         context.deleteDatabase(databaseName(login));
-    }
-
-    public void close() {
-        dataStore.close();
     }
 
     @Override
@@ -119,6 +115,7 @@ public class DatabaseManager implements DataLoadStrategy {
                 .subscribeOn(Schedulers.io());
     }
 
+    @VisibleForTesting
     public ReactiveEntityStore<Persistable> getDataStore() {
         return dataStore;
     }

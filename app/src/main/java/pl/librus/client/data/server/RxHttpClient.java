@@ -40,11 +40,19 @@ public class RxHttpClient {
                     LibrusUtils.log("data fetched succesfully from " + request.url());
                     observer.onSuccess(message);
                 } else {
-                    observer.onError(new HttpException(response.code(), message, request.url().toString()));
+                    observer.onError(createException(response.code(), message, request.url().toString()));
                 }
             } catch (Exception e) {
                 observer.onError(new HttpException(e, request.url().toString()));
             }
         }).subscribeOn(Schedulers.io());
+    }
+
+    private HttpException createException(int code, String message, String url) {
+        if(EntityParser.isMaintenance(message)) {
+            return new MaintenanceException(url);
+        } else {
+            return new HttpException(code, message, url);
+        }
     }
 }

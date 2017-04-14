@@ -8,6 +8,7 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import pl.librus.client.R;
 import pl.librus.client.data.server.HttpException;
+import pl.librus.client.data.server.MaintenanceException;
 import pl.librus.client.data.server.OfflineException;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.util.LibrusUtils;
@@ -33,7 +34,7 @@ public class ErrorHandler implements Consumer<Throwable> {
     public Consumer<Throwable> handler(Runnable normalExecution) {
         return exception -> {
             LibrusUtils.log("Handle update error");
-            if (exception instanceof OfflineException) {
+            if (exception instanceof OfflineException || exception instanceof MaintenanceException) {
                 LibrusUtils.log("Offline mode");
                 mainActivity.showSnackBar(R.string.offline_data_error, Snackbar.LENGTH_LONG);
                 normalExecution.run();

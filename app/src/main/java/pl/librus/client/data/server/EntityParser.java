@@ -37,19 +37,28 @@ public class EntityParser {
             throw new ParseException(input, e);
         }
         JsonNode status = root.at("/Status");
-        if (!status.isMissingNode()) {
-            if (status.textValue().equals("Disabled")) {
-                return Optional.absent();
-            }
-            if (status.textValue().equals("Maintenance")) {
-                throw new MaintenanceException();
-            }
+        if (!status.isMissingNode() && status.textValue().equals("Disabled")) {
+            return Optional.absent();
         }
         JsonNode message = root.at("/Message");
         if (!message.isMissingNode() && message.textValue().contains("is not active")) {
             return Optional.absent();
         }
         throw new ParseException(input, "Parsing failed");
+
+    }
+
+    public static boolean isMaintenance(String message) {
+        ObjectMapper mapper = createMapper();
+        try {
+            JsonNode root = mapper.readTree(message);
+            JsonNode status = root.at("/Status");
+            if (!status.isMissingNode() && status.textValue().equals("Maintenance")) {
+                return true;
+            }
+        } catch (IOException e) {
+        }
+        return false;
 
     }
 

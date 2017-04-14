@@ -51,7 +51,6 @@ public abstract class BaseDBTest {
     }
 
     protected void clearCache() {
-        databaseManager.close();
         setupData();
     }
 
