@@ -135,7 +135,7 @@ public class APIClient implements IAPIClient {
                 .withSubject(templates.lessonSubject().withName("Marynowanie śledzi"))
                 .withSubstitutionClass(true)
                 .withSubstitutionNote("Zabrakło śledzi")
-                .withOrgTeacher(repository.getList(Teacher.class).get(3).id())
+                .withOrgTeacherId(repository.getList(Teacher.class).get(3).id())
                 .withOrgSubject(repository.getList(Subject.class).get(3).id())
                 .withOrgDate(LocalDate.parse("2017-01-01"));
     }
