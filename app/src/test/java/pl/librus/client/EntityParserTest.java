@@ -59,7 +59,9 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 
 public class EntityParserTest {
@@ -348,10 +350,18 @@ public class EntityParserTest {
         parse("Malformed.json", Average.class);
     }
 
-    @Test(expected = MaintenanceException.class)
-    public void shouldHandleMaintenance() {
+    @Test
+    public void shouldDiscoverMaintenance() {
         //when
-        parse("Maintenance.json", Average.class);
+        boolean maintenance = EntityParser.isMaintenance(readFile("Maintenance.json"));
+        assertTrue(maintenance);
+    }
+
+    @Test
+    public void shouldNotDiscoverMaintenance() {
+        //when
+        boolean maintenance = EntityParser.isMaintenance(readFile("SchoolNotices.json"));
+        assertFalse(maintenance);
     }
 
     private static String readFile(String fileName) {
