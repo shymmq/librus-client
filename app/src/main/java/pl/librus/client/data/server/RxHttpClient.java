@@ -24,7 +24,7 @@ public class RxHttpClient {
         return Single.<String>create(observer -> {
             try {
                 NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-                if(networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
+                if (networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
                     observer.onError(new OfflineException(request.url().toString()));
                     return;
                 }
@@ -36,7 +36,7 @@ public class RxHttpClient {
                         .build()
                         .newCall(request).execute();
                 String message = response.body().string();
-                if(response.isSuccessful()) {
+                if (response.isSuccessful()) {
                     LibrusUtils.log("data fetched succesfully from " + request.url());
                     observer.onSuccess(message);
                 } else {
@@ -49,8 +49,10 @@ public class RxHttpClient {
     }
 
     private HttpException createException(int code, String message, String url) {
-        if(EntityParser.isMaintenance(message)) {
+        if (EntityParser.isMaintenance(message)) {
             return new MaintenanceException(url);
+        } else if (message.equals("Server offline")) {
+            return new OfflineException(url);
         } else {
             return new HttpException(code, message, url);
         }
