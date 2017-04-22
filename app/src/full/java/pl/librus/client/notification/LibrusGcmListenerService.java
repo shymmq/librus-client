@@ -9,12 +9,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
 import io.requery.Persistable;
 import pl.librus.client.MainApplication;
 import pl.librus.client.data.EntityChange;
-import pl.librus.client.domain.Event;
+import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.grade.Grade;

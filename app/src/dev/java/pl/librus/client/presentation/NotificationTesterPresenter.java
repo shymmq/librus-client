@@ -8,14 +8,12 @@ import javax.inject.Inject;
 
 import io.requery.Persistable;
 import pl.librus.client.R;
-import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.data.db.DatabaseManager;
-import pl.librus.client.domain.Event;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.announcement.Announcement;
+import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.notification.NotificationService;
-import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.NotificationTesterFragment;
 import pl.librus.client.ui.NotificationTesterView;
 

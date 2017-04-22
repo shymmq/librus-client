@@ -6,8 +6,8 @@ import java.util.Map;
 
 import io.requery.Persistable;
 import pl.librus.client.domain.Average;
-import pl.librus.client.domain.Event;
-import pl.librus.client.domain.EventCategory;
+import pl.librus.client.domain.event.Event;
+import pl.librus.client.domain.event.EventCategory;
 import pl.librus.client.domain.LibrusColor;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;

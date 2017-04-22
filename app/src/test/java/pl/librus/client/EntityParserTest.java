@@ -15,14 +15,9 @@ import java.util.List;
 import io.requery.Persistable;
 import pl.librus.client.data.EntityInfos;
 import pl.librus.client.data.server.EntityParser;
-import pl.librus.client.data.server.MaintenanceException;
 import pl.librus.client.data.server.ParseException;
 import pl.librus.client.domain.Average;
-import pl.librus.client.domain.Event;
-import pl.librus.client.domain.EventCategory;
 import pl.librus.client.domain.ImmutableAverage;
-import pl.librus.client.domain.ImmutableEvent;
-import pl.librus.client.domain.ImmutableEventCategory;
 import pl.librus.client.domain.ImmutableLibrusAccount;
 import pl.librus.client.domain.ImmutableLibrusColor;
 import pl.librus.client.domain.ImmutableLuckyNumber;
@@ -41,6 +36,10 @@ import pl.librus.client.domain.attendance.Attendance;
 import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.attendance.ImmutableAttendance;
 import pl.librus.client.domain.attendance.ImmutableAttendanceCategory;
+import pl.librus.client.domain.event.Event;
+import pl.librus.client.domain.event.EventCategory;
+import pl.librus.client.domain.event.ImmutableEvent;
+import pl.librus.client.domain.event.ImmutableEventCategory;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
 import pl.librus.client.domain.grade.GradeComment;
@@ -73,10 +72,10 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableTeacher.builder()
-            .firstName("Tomasz")
-            .lastName("Problem")
-            .id("12345")
-            .build()));
+                .firstName("Tomasz")
+                .lastName("Problem")
+                .id("12345")
+                .build()));
 
         assertThat(res, hasItem(ImmutableTeacher.builder()
                 .id("666")
@@ -140,23 +139,23 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableGrade.builder()
-            .addDate(LocalDateTime.parse("2016-09-29T08:30:41"))
-            .addedById("1235106")
-            .categoryId("164150")
-            .addCommentIds("834777")
-            .date(LocalDate.parse("2016-09-29"))
-            .finalPropositionType(false)
-            .finalType(false)
-            .grade("np")
-            .id("2539299")
-            .lessonId("2732545")
-            .subjectId("44569")
-            .categoryId("392450")
-            .semester(1)
-            .semesterPropositionType(false)
-            .semesterType(false)
-            .studentId("1402361")
-            .build()));
+                .addDate(LocalDateTime.parse("2016-09-29T08:30:41"))
+                .addedById("1235106")
+                .categoryId("164150")
+                .addCommentIds("834777")
+                .date(LocalDate.parse("2016-09-29"))
+                .finalPropositionType(false)
+                .finalType(false)
+                .grade("np")
+                .id("2539299")
+                .lessonId("2732545")
+                .subjectId("44569")
+                .categoryId("392450")
+                .semester(1)
+                .semesterPropositionType(false)
+                .semesterType(false)
+                .studentId("1402361")
+                .build()));
     }
 
     @Test
@@ -166,11 +165,11 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableGradeCategory.builder()
-            .name("sprawdzian")
-            .id("164149")
-            .colorId("26")
-            .weight(7)
-            .build()));
+                .name("sprawdzian")
+                .id("164149")
+                .colorId("26")
+                .weight(7)
+                .build()));
     }
 
     @Test
@@ -193,10 +192,10 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutablePlainLesson.builder()
-            .id("1822337")
-            .teacher("1235090")
-            .subject("44565")
-            .build()));
+                .id("1822337")
+                .teacher("1235090")
+                .subject("44565")
+                .build()));
     }
 
     @Test
@@ -206,13 +205,13 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableEvent.builder()
-            .category("7323")
-            .addedBy("1235072")
-            .date(LocalDate.parse("2016-10-07"))
-            .id("1810676")
-            .content("Węglowodory.")
-            .lessonNo(5)
-            .build()));
+                .category("7323")
+                .addedBy("1235072")
+                .date(LocalDate.parse("2016-10-07"))
+                .id("1810676")
+                .content("Węglowodory.")
+                .lessonNo(5)
+                .build()));
     }
 
     @Test
@@ -222,9 +221,9 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableEventCategory.builder()
-            .id("7789")
-            .name("praca klasowa")
-            .build()));
+                .id("7789")
+                .name("Kraca plasowa")
+                .build()));
     }
 
     @Test
@@ -234,15 +233,15 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableAttendance.builder()
-            .id("t403209")
-            .lessonId("2714880")
-            .date(LocalDate.parse("2016-09-29"))
-            .addDate(LocalDateTime.parse("2016-09-28T16:19:22"))
-            .lessonNumber(3)
-            .semester(1)
-            .categoryId("100")
-            .addedById("1234988")
-            .build()));
+                .id("t403209")
+                .lessonId("2714880")
+                .date(LocalDate.parse("2016-09-29"))
+                .addDate(LocalDateTime.parse("2016-09-28T16:19:22"))
+                .lessonNumber(3)
+                .semester(1)
+                .categoryId("100")
+                .addedById("1234988")
+                .build()));
     }
 
     @Test
@@ -252,23 +251,23 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableAttendanceCategory.builder()
-            .name("Spóźnienie")
-            .id("2")
-            .shortName("sp")
-            .presenceKind(true)
-            .build()));
+                .name("Spóźnienie")
+                .id("2")
+                .shortName("sp")
+                .presenceKind(true)
+                .build()));
     }
 
     @Test
     public void shouldParseSubject() throws IOException {
         //when
         List<Subject> res = parse("Subjects.json", Subject.class);
-        
+
         //then
         assertThat(res, hasItem(ImmutableSubject.builder()
-            .id("44908")
-            .name("Matematyka i media")
-            .build()));
+                .id("44908")
+                .name("Matematyka i media")
+                .build()));
     }
 
     @Test
@@ -290,11 +289,11 @@ public class EntityParserTest {
 
         //then
         assertThat(averages, hasItem(ImmutableAverage.builder()
-            .subject("44555")
-            .fullYear(4.26)
-            .semester1(4.29)
-            .semester2(4.17)
-            .build()));
+                .subject("44555")
+                .fullYear(4.26)
+                .semester1(4.29)
+                .semester2(4.17)
+                .build()));
     }
 
     @Test
@@ -317,13 +316,13 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableAnnouncement.builder()
-            .id("167110")
-            .startDate(LocalDate.parse("2016-09-21"))
-            .endDate(LocalDate.parse("2017-06-14"))
-            .subject("Konsultacje z \"matematyki\"")
-            .content("Konsultacje z matematyki dla uczniów klas: 1B  2D2A 3A3D")
-            .addedById("1575831")
-            .build()));
+                .id("167110")
+                .startDate(LocalDate.parse("2016-09-21"))
+                .endDate(LocalDate.parse("2017-06-14"))
+                .subject("Konsultacje z \"matematyki\"")
+                .content("Konsultacje z matematyki dla uczniów klas: 1B  2D2A 3A3D")
+                .addedById("1575831")
+                .build()));
     }
 
     @Test

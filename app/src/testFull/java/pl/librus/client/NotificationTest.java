@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 import io.reactivex.Observable;
 import java8.util.stream.IntStreams;
 import pl.librus.client.notification.LibrusGcmListenerService;
-import pl.librus.client.domain.Event;
+import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.announcement.Announcement;

@@ -3,7 +3,6 @@ package pl.librus.client.ui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +11,9 @@ import javax.inject.Inject;
 
 import pl.librus.client.MainApplication;
 import pl.librus.client.R;
-import pl.librus.client.domain.Event;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.announcement.Announcement;
+import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.NotificationTesterPresenter;

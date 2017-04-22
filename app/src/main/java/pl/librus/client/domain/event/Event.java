@@ -1,4 +1,4 @@
-package pl.librus.client.domain;
+package pl.librus.client.domain.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -11,11 +11,12 @@ import io.requery.Entity;
 import io.requery.Key;
 import io.requery.Persistable;
 import pl.librus.client.data.server.IdDeserializer;
+import pl.librus.client.domain.Identifiable;
 
 @Entity(builder = ImmutableEvent.Builder.class)
 @Value.Immutable
 @JsonDeserialize(as=ImmutableEvent.class)
-public abstract class Event implements Persistable, Identifiable{
+public abstract class Event implements Persistable, Identifiable {
     @Key
     public abstract String id();
 

@@ -16,11 +16,8 @@ import java8.util.function.Predicate;
 import java8.util.stream.IntStreams;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.domain.Average;
-import pl.librus.client.domain.Event;
-import pl.librus.client.domain.EventCategory;
 import pl.librus.client.domain.Identifiable;
 import pl.librus.client.domain.ImmutableAverage;
-import pl.librus.client.domain.ImmutableEvent;
 import pl.librus.client.domain.ImmutablePlainLesson;
 import pl.librus.client.domain.ImmutableTeacher;
 import pl.librus.client.domain.LibrusColor;
@@ -33,6 +30,9 @@ import pl.librus.client.domain.announcement.ImmutableAnnouncement;
 import pl.librus.client.domain.attendance.Attendance;
 import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.attendance.ImmutableAttendance;
+import pl.librus.client.domain.event.Event;
+import pl.librus.client.domain.event.EventCategory;
+import pl.librus.client.domain.event.ImmutableEvent;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
 import pl.librus.client.domain.grade.GradeComment;
@@ -87,10 +87,10 @@ class MockEntityRepository {
     <T> List<T> getList(Class<T> clazz) {
         tryCreateList(clazz);
         if (Sets.newHashSet(
-                        Grade.class,
-                        Announcement.class,
-                        Attendance.class
-                ).contains(clazz) && refreshCounter.incrementAndGet() % 3 == 0) {
+                Grade.class,
+                Announcement.class,
+                Attendance.class
+        ).contains(clazz) && refreshCounter.incrementAndGet() % 3 == 0) {
             addItem(clazz);
         }
         return (List<T>) lists.get(clazz);
