@@ -222,7 +222,7 @@ public class EntityParserTest {
         //then
         assertThat(res, hasItem(ImmutableEventCategory.builder()
                 .id("7789")
-                .name("Kraca plasowa")
+                .name("praca klasowa")
                 .build()));
     }
 
