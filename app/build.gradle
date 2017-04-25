@@ -23,17 +23,14 @@ android {
     productFlavors {
         full {
             resValue "string", "app_name", "Dziennik"
-            firebaseEnabled = true
             applicationIdSuffix ""
         }
         foss {
             resValue "string", "app_name", "Dziennik (foss)"
-            firebaseEnabled = false
-            applicationIdSuffix ".foss"
+            applicationIdSuffix ""
         }
         dev {
             resValue "string", "app_name", "Dziennik (dev)"
-            firebaseEnabled = false
             applicationIdSuffix ".dev"
         }
     }
