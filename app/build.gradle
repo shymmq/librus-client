@@ -111,4 +111,10 @@ dependencies {
     provided 'javax.annotation:jsr250-api:1.0'
 
 }
-apply plugin: 'com.google.gms.google-services'
+if (getGradle().getStartParameter().getTaskRequests().toString()
+        .contains("Full")){
+    apply plugin: 'com.google.gms.google-services'
+    System.out.println("applying plugin")
+}else{
+    System.out.println("skipping applying plugin")
+}
