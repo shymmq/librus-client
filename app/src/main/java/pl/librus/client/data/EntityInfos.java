@@ -69,7 +69,6 @@ public class EntityInfos {
                     .build())
             .put(LuckyNumber.class, EntityInfo.builder()
                     .name("LuckyNumbers")
-                    .topLevelName("LuckyNumber")
                     .single(true)
                     .build())
             .put(PlainLesson.class, EntityInfo.builder()

@@ -9,7 +9,7 @@ public interface IAPIClient extends DataLoadStrategy {
 
     Single<String> login(String username, String password);
 
-    <T> Observable<T> getAll(String endpoint, String topLevelName, Class<T> clazz);
+    <T> Observable<T> getAll(String endpoint, Class<T> clazz);
 
     Completable pushDevices(final String regToken);
 }

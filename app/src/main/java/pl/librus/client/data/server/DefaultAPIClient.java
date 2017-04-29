@@ -167,18 +167,18 @@ abstract class DefaultAPIClient implements IAPIClient {
     public Observable<Lesson> getLessonsForWeek(final LocalDate weekStart) {
 
         String endpoint = "/Timetables?weekStart=" + weekStart.toString("yyyy-MM-dd");
-        return getAll(endpoint, "Timetable", Timetable.class)
+        return getAll(endpoint, Timetable.class)
                 .concatMapIterable(Timetable::toLessons);
     }
 
     public <T extends Persistable> Observable<T> getAll(Class<T> clazz) {
         EntityInfo info = EntityInfos.infoFor(clazz);
-        return getAll(info.endpoint(), info.topLevelName(), clazz);
+        return getAll(info.endpoint(), clazz);
     }
 
-    public <T> Observable<T> getAll(String endpoint, final String topLevelName, final Class<T> clazz) {
+    public <T> Observable<T> getAll(String endpoint, final Class<T> clazz) {
         return makeRequest(endpoint)
-                .flattenAsObservable(s -> EntityParser.parseList(s, topLevelName, clazz));
+                .flattenAsObservable(s -> EntityParser.parseList(s, clazz));
     }
 
     @Override
@@ -186,7 +186,7 @@ abstract class DefaultAPIClient implements IAPIClient {
         EntityInfo info = EntityInfos.infoFor(clazz);
 
         return makeRequest(info.endpoint(id))
-                .map(s -> EntityParser.parseObject(s, info.name(), clazz))
+                .map(s -> EntityParser.parseObject(s, clazz))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toSingle();

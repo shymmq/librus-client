@@ -144,20 +144,20 @@ public class APIClient implements IAPIClient {
         EntityInfo info = EntityInfos.infoFor(clazz);
         if (info.single()) {
             //noinspection unchecked
-            return getObject(info.endpoint(), info.topLevelName(), clazz)
+            return getObject(info.endpoint(), clazz)
                     .toObservable();
         } else {
-            return getAll(info.endpoint(), info.topLevelName(), clazz);
+            return getAll(info.endpoint(), clazz);
         }
     }
 
-    public <T> Single<T> getObject(String endpoint, String topLevelName, Class<T> clazz) {
+    public <T> Single<T> getObject(String endpoint, Class<T> clazz) {
         return Single.fromCallable(() -> repository.getList(clazz).get(0))
                 .doOnSubscribe(d -> LibrusUtils.log("Fetching %s", clazz.getSimpleName()))
                 .subscribeOn(Schedulers.computation());
     }
 
-    public <T> Observable<T> getAll(String endpoint, String topLevelName, Class<T> clazz) {
+    public <T> Observable<T> getAll(String endpoint, Class<T> clazz) {
         return Observable.fromCallable(() -> repository.getList(clazz))
                 .doOnSubscribe(d -> LibrusUtils.log("Fetching %s", clazz.getSimpleName()))
                 .flatMapIterable(i -> i)

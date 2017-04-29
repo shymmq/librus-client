@@ -100,7 +100,7 @@ public class EntityParserTest {
     @Test
     public void shouldParseTimetable() throws IOException {
         //when
-        List<Timetable> res = EntityParser.parseList(readFile("Timetable.json"), "Timetable", Timetable.class);
+        List<Timetable> res = EntityParser.parseList(readFile("Timetable.json"), Timetable.class);
 
         //then
         JsonLesson actual = Iterables.getOnlyElement(res).get(LocalDate.parse("2017-01-30"))
@@ -372,7 +372,7 @@ public class EntityParserTest {
     }
 
     private <T extends Persistable> List<T> parse(String filename, Class<T> clazz) {
-        return EntityParser.parseList(readFile(filename), EntityInfos.infoFor(clazz).topLevelName(), clazz);
+        return EntityParser.parseList(readFile(filename), clazz);
     }
 
 }

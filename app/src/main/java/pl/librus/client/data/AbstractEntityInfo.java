@@ -37,11 +37,6 @@ public abstract class AbstractEntityInfo {
     }
 
     @Value.Default
-    public String topLevelName() {
-        return single() ? name() : pluralName();
-    }
-
-    @Value.Default
     public boolean single() {
         return false;
     }

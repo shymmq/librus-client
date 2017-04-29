@@ -1,5 +1,7 @@
 package pl.librus.client.data.server;
 
+import android.support.annotation.StringRes;
+
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,39 +15,47 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class EntityParser {
 
-    public static <T> List<T> parseList(String input, String topLevelName, Class<T> clazz) {
-        Optional<T[]> a = parseObject(input, topLevelName, getArrayClass(clazz));
+    public static <T> List<T> parseList(String input, Class<T> clazz) {
+        Optional<T[]> a = parseObject(input, getArrayClass(clazz));
         return a.<List>transform(Lists::newArrayList)
                 .or(Collections::emptyList);
     }
 
-    public static <T> Optional<T> parseObject(String input, String topLevelName, Class<T> clazz) {
+    public static <T> Optional<T> parseObject(String input, Class<T> clazz) {
         ObjectMapper mapper = createMapper();
         JsonNode root;
         try {
             input = input.replace("\\\\\\", "\\");
             root = mapper.readTree(input);
-            TreeNode node = root.at("/" + topLevelName);
-            if(!node.isMissingNode()) {
-                return Optional.of(mapper.treeToValue(node, clazz));
+            List<String> fieldNames = Lists.newArrayList(root.fieldNames());
+            if(containsStandardFields(fieldNames)){
+                JsonNode firstField = root.get(fieldNames.get(0));
+                if(firstField.isTextual() && firstField.textValue().equals("Disabled")){
+                    return Optional.absent();
+                }
+                T value = mapper.treeToValue(firstField, clazz);
+                return Optional.of(value);
             }
         } catch (IOException e) {
             throw new ParseException(input, e);
         }
-        JsonNode status = root.at("/Status");
-        if (!status.isMissingNode() && status.textValue().equals("Disabled")) {
-            return Optional.absent();
-        }
-        JsonNode message = root.at("/Message");
-        if (!message.isMissingNode() && message.textValue().contains("is not active")) {
+        JsonNode message = root.get("Message");
+        if (message != null && !message.isMissingNode() && message.textValue().contains("is not active")) {
             return Optional.absent();
         }
         throw new ParseException(input, "Parsing failed");
+    }
 
+    private static boolean containsStandardFields(List<String> fieldNames) {
+        int size = fieldNames.size();
+        String lastField = fieldNames.get(size - 1);
+        String penultimateField = fieldNames.get(size - 2);
+        return "Url".equals(lastField) && "Resources".equals(penultimateField);
     }
 
     public static boolean isMaintenance(String message) {
@@ -67,6 +77,7 @@ public class EntityParser {
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
+                .configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, true)
                 .registerModule(new JodaModule())
                 .registerModule(new GuavaModule());
     }
