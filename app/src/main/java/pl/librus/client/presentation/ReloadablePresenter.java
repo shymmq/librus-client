@@ -113,7 +113,7 @@ public abstract class ReloadablePresenter<Q, T extends MainView<Q>> extends Main
     }
 
     public void reload() {
-        if(reloading) {
+        if(reloading || view == null) {
             return;
         }
         reloading = true;
