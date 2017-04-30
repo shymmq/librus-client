@@ -1,5 +1,7 @@
 package pl.librus.client.data;
 
+import com.google.common.base.Optional;
+
 import org.joda.time.LocalDate;
 
 import javax.inject.Inject;
@@ -48,9 +50,11 @@ public class LibrusData {
                 .singleOrError();
     }
 
-    public Maybe<LuckyNumber> findLuckyNumber() {
+    public Single<Optional<LuckyNumber>> findLuckyNumber() {
         return strategy.getAll(LuckyNumber.class)
-                .lastElement();
+                .lastElement()
+                .map(Optional::of)
+                .toSingle(Optional.absent());
     }
 
     public Observable<FullAttendance> findFullAttendances() {

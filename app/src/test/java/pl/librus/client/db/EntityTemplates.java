@@ -2,7 +2,9 @@ package pl.librus.client.db;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 
+import pl.librus.client.data.server.SampleValues;
 import pl.librus.client.domain.ImmutableLibrusAccount;
 import pl.librus.client.domain.ImmutableLuckyNumber;
 import pl.librus.client.domain.ImmutableMe;
@@ -10,6 +12,10 @@ import pl.librus.client.domain.ImmutableTeacher;
 import pl.librus.client.domain.announcement.ImmutableAnnouncement;
 import pl.librus.client.domain.event.ImmutableEvent;
 import pl.librus.client.domain.grade.ImmutableGrade;
+import pl.librus.client.domain.lesson.ImmutableJsonLesson;
+import pl.librus.client.domain.lesson.ImmutableLesson;
+import pl.librus.client.domain.lesson.ImmutableLessonSubject;
+import pl.librus.client.domain.lesson.ImmutableLessonTeacher;
 import pl.librus.client.domain.subject.ImmutableSubject;
 
 public class EntityTemplates {
@@ -78,6 +84,36 @@ public class EntityTemplates {
                 .lessonNo(5)
                 .build();
     }
+
+    public static ImmutableLessonSubject lessonSubject() {
+        return ImmutableLessonSubject.builder()
+                .id("123")
+                .name("Matematyka")
+                .build();
+    }
+
+    public static ImmutableLessonTeacher lessonTeacher() {
+        return ImmutableLessonTeacher.builder()
+                .id("123")
+                .firstName("Ala")
+                .lastName("Makota")
+                .build();
+    }
+
+    public static ImmutableLesson lesson() {
+        return ImmutableLesson.builder()
+                .date(LocalDate.parse("2017-02-02"))
+                .cancelled(false)
+                .dayNo(1)
+                .hourFrom(LocalTime.parse("08:00"))
+                .hourTo(LocalTime.parse("08:45"))
+                .lessonNo(1)
+                .subject(lessonSubject())
+                .substitutionClass(false)
+                .teacher(lessonTeacher())
+                .build();
+    }
+
 
     public static ImmutableLuckyNumber luckyNumber() {
         return ImmutableLuckyNumber.of(LocalDate.parse("2017-06-14"), 17);

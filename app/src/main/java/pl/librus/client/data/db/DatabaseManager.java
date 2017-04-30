@@ -80,6 +80,7 @@ public class DatabaseManager implements DataLoadStrategy {
     public <T extends Persistable & Identifiable> Single<T> getById(Class<T> clazz, String id) {
         return dataStore.findByKey(clazz, id)
                 .toSingle()
+                .onErrorResumeNext(Single.error(new EntityMissingException("database", clazz, id)))
                 .subscribeOn(Schedulers.io());
     }
 

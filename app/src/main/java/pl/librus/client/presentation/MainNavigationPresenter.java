@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.data.LibrusData;
 import pl.librus.client.domain.LuckyNumber;
@@ -56,13 +57,10 @@ public class MainNavigationPresenter {
     public void setupInitial() {
         navigation.setupToolbar();
 
-        Single<Optional<LuckyNumber>> singleLuckyNumber = data.findLuckyNumber()
-                .map(Optional::of)
-                .toSingle()
-                .onErrorReturnItem(Optional.absent());
+
         Single.zip(
                 data.findMe(),
-                singleLuckyNumber,
+                data.findLuckyNumber(),
                 ImmutableDrawerTuple::of)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(drawerTuple -> {

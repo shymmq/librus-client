@@ -21,6 +21,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import pl.librus.client.data.EntityInfo;
 import pl.librus.client.data.EntityInfos;
+import pl.librus.client.data.db.EntityMissingException;
 import pl.librus.client.domain.Identifiable;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.Timetable;
@@ -187,9 +188,13 @@ abstract class DefaultAPIClient implements IAPIClient {
 
         return makeRequest(info.endpoint(id))
                 .map(s -> EntityParser.parseObject(s, clazz))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toSingle();
+                .map(o -> {
+                    if(o.isPresent()){
+                        return o.get();
+                    } else{
+                        throw new EntityMissingException("server", clazz, id);
+                    }
+                });
     }
 
     private RxHttpClient getHttpClient() {
