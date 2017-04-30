@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.MainApplication;
@@ -50,8 +51,10 @@ public class MainActivityPresenter {
     private final PreferencesManager preferences;
     private final ToastDisplay toast;
     private final ErrorHandler errorHandler;
-
     private final MainNavigationPresenter navigationPresenter;
+
+    private boolean activityAttached = true;
+    private Disposable subscription;
 
     @Inject
     public MainActivityPresenter(DatabaseManager database,
@@ -73,7 +76,7 @@ public class MainActivityPresenter {
 
 
     public void setup() {
-        database
+        subscription = database
                 .getAll(Me.class)
                 .singleOrError()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -84,13 +87,17 @@ public class MainActivityPresenter {
 
     private void doOneTimeUpdate() {
         ProgressReporter reporter = mainActivity.displayProgressDialog();
-        updateHelper.updateAll(reporter)
+        subscription = updateHelper.updateAll(reporter)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> database.getAll(Grade.class)
                         .subscribe(reader::read))
                 .doOnComplete(() -> database.getAll(Announcement.class)
                         .subscribe(reader::read))
-                .doFinally(mainActivity::hideProgressDialog)
+                .doFinally(() -> {
+                    if(activityAttached){
+                        mainActivity.hideProgressDialog();
+                    }
+                })
                 .subscribe(
                         navigationPresenter::setupInitial,
                         this::handleServerError);
@@ -134,6 +141,13 @@ public class MainActivityPresenter {
         mainActivity.navigateToLogin();
 
         mainActivity.finish();
+    }
+
+    public void destroy() {
+        activityAttached = false;
+        if(subscription != null && !subscription.isDisposed()) {
+            subscription.dispose();
+        }
     }
 
     @Value.Immutable

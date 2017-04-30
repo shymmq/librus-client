@@ -299,6 +299,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps, 
 
     @Override
     protected void onDestroy() {
+        presenter.destroy();
         super.onDestroy();
 
         MainApplication.releaseMainActivityComponent();
