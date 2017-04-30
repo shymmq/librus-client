@@ -4,7 +4,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
-import pl.librus.client.data.server.SampleValues;
 import pl.librus.client.domain.ImmutableLibrusAccount;
 import pl.librus.client.domain.ImmutableLuckyNumber;
 import pl.librus.client.domain.ImmutableMe;
@@ -12,7 +11,6 @@ import pl.librus.client.domain.ImmutableTeacher;
 import pl.librus.client.domain.announcement.ImmutableAnnouncement;
 import pl.librus.client.domain.event.ImmutableEvent;
 import pl.librus.client.domain.grade.ImmutableGrade;
-import pl.librus.client.domain.lesson.ImmutableJsonLesson;
 import pl.librus.client.domain.lesson.ImmutableLesson;
 import pl.librus.client.domain.lesson.ImmutableLessonSubject;
 import pl.librus.client.domain.lesson.ImmutableLessonTeacher;
