@@ -26,7 +26,7 @@ import javax.inject.Inject;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.IFlexible;
-import pl.librus.client.MainApplication;
+import pl.librus.client.MainActivityComponent;
 import pl.librus.client.R;
 import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.attendance.FullAttendance;
@@ -72,9 +72,8 @@ public class AttendanceFragment extends MainFragment implements FlexibleAdapter.
     }
 
     @Override
-    protected void injectPresenter() {
-        MainApplication.getMainActivityComponent()
-                .inject(this);
+    protected void injectPresenter(MainActivityComponent mainActivityComponent) {
+        mainActivityComponent.inject(this);
         refreshLayout.setOnRefreshListener(presenter::reload);
         presenter.attachView(this);
     }

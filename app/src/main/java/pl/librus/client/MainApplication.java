@@ -76,8 +76,8 @@ public class MainApplication extends MultiDexApplication {
         return mainActivityComponent;
     }
 
-    public static MainActivityComponent getMainActivityComponent() {
-        return mainActivityComponent;
+    public static Optional<MainActivityComponent> getMainActivityComponent() {
+        return Optional.fromNullable(mainActivityComponent);
     }
 
     public static void releaseMainActivityComponent() {

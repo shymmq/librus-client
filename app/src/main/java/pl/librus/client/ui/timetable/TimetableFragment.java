@@ -3,7 +3,6 @@ package pl.librus.client.ui.timetable;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
@@ -35,10 +34,9 @@ import java8.util.stream.Collectors;
 import java8.util.stream.RefStreams;
 import java8.util.stream.Stream;
 import java8.util.stream.StreamSupport;
-import pl.librus.client.MainApplication;
+import pl.librus.client.MainActivityComponent;
 import pl.librus.client.R;
 import pl.librus.client.domain.Teacher;
-import pl.librus.client.domain.grade.FullGrade;
 import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.SchoolWeek;
@@ -90,9 +88,8 @@ public class TimetableFragment extends MainFragment implements TimetableView {
     }
 
     @Override
-    protected void injectPresenter() {
-        MainApplication.getMainActivityComponent()
-                .inject(this);
+    protected void injectPresenter(MainActivityComponent mainActivityComponent) {
+        mainActivityComponent.inject(this);
         refreshLayout.setOnRefreshListener(presenter::reload);
         presenter.attachView(this);
     }

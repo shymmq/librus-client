@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-import pl.librus.client.MainApplication;
+import pl.librus.client.MainActivityComponent;
 import pl.librus.client.R;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.announcement.Announcement;
@@ -48,9 +48,8 @@ public class NotificationTesterFragment extends MainFragment implements Notifica
     }
 
     @Override
-    protected void injectPresenter() {
-        MainApplication.getMainActivityComponent()
-                .inject(this);
+    protected void injectPresenter(MainActivityComponent mainActivityComponent) {
+        mainActivityComponent.inject(this);
         presenter.attachView(this);
     }
 

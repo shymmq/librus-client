@@ -2,6 +2,10 @@ package pl.librus.client.ui;
 
 import android.support.v4.app.Fragment;
 
+import com.google.common.base.Optional;
+
+import pl.librus.client.MainActivityComponent;
+import pl.librus.client.MainApplication;
 import pl.librus.client.presentation.MainFragmentPresenter;
 
 /**
@@ -10,13 +14,17 @@ import pl.librus.client.presentation.MainFragmentPresenter;
 
 public abstract class MainFragment extends Fragment {
 
-    protected abstract void injectPresenter();
+    protected abstract void injectPresenter(MainActivityComponent mainActivityComponent);
 
     protected abstract MainFragmentPresenter getPresenter();
 
     @Override
     public void onStart() {
-        injectPresenter();
+        Optional<MainActivityComponent> mainActivityComponent =
+                MainApplication.getMainActivityComponent();
+        if(mainActivityComponent.isPresent()) {
+            injectPresenter(mainActivityComponent.get());
+        }
         super.onStart();
     }
 

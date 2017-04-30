@@ -8,6 +8,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 
 import java8.util.J8Arrays;
 import java8.util.stream.StreamSupport;
+import pl.librus.client.MainActivityComponent;
 import pl.librus.client.MainApplication;
 import pl.librus.client.R;
 import pl.librus.client.presentation.MainFragmentPresenter;
@@ -34,13 +36,16 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        MainApplication.getMainActivityComponent()
-                .inject(this);
-        addPreferencesFromResource(R.xml.preferences);
-        addThemeChangeListener();
-        addOnEnableNotificationsChangeListener();
-        presenter.attachView(this);
-        PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, false);
+        Optional<MainActivityComponent> mainActivityComponent = MainApplication.getMainActivityComponent();
+        if(mainActivityComponent.isPresent()) {
+            mainActivityComponent.get().inject(this);
+            addPreferencesFromResource(R.xml.preferences);
+            addThemeChangeListener();
+            addOnEnableNotificationsChangeListener();
+            presenter.attachView(this);
+            PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, false);
+        }
+
     }
 
 
