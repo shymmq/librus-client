@@ -11,5 +11,6 @@ public interface SchoolWeek {
     LocalDate weekStart();
 
     @Value.Parameter
-    List<Lesson> lessons();
+    List<EnrichedLesson> lessons();
+
 }

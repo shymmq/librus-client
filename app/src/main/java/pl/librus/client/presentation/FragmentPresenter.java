@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 
+import io.reactivex.functions.Action;
 import java8.util.function.Consumer;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.View;
@@ -56,5 +57,13 @@ public abstract class FragmentPresenter<T extends View> {
 
     protected void onViewDetached() {
 
+    }
+
+    protected Action ifViewAttached(Consumer<T> consumer) {
+        return () -> {
+            if(view != null) {
+                consumer.accept(view);
+            }
+        };
     }
 }

@@ -11,8 +11,10 @@ import org.joda.time.LocalDateTime;
 import java.util.List;
 
 import io.requery.Column;
+import io.requery.Convert;
 import io.requery.Key;
 import io.requery.Superclass;
+import pl.librus.client.data.db.StringListConverter;
 import pl.librus.client.data.server.IdDeserializer;
 import pl.librus.client.data.server.IdOptionalDeserializer;
 import pl.librus.client.domain.Identifiable;
@@ -68,6 +70,7 @@ public abstract class BaseGrade implements Identifiable {
     @JsonDeserialize(contentUsing = IdDeserializer.class)
     @Column
     @JsonProperty("Comments")
+    @Convert(StringListConverter.class)
     public abstract List<String> commentIds();
 
     @JsonProperty("IsSemester")

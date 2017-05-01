@@ -7,7 +7,6 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,22 +102,34 @@ public class APIClient implements IAPIClient {
     }
 
     private List<JsonLesson> withLessonNumber(JsonLesson lesson, int lessonNo) {
-        List<PlainLesson> plainLessons = repository.getList(PlainLesson.class);
-        PlainLesson plainLesson = plainLessons.get(lessonNo % plainLessons.size());
-        Subject subject = fromRepoById(Subject.class, plainLesson.subject());
-        Teacher teacher = fromRepoById(Teacher.class, plainLesson.teacher());
+        PlainLesson plainLesson = getPlainLesson(lessonNo);
 
         LocalTime startTime = LocalTime.parse("08:00");
         LocalTime lessonStart = startTime.plusHours(lessonNo);
         LocalTime lessonEnd = lessonStart.plusMinutes(45);
 
         JsonLesson res = ImmutableJsonLesson.copyOf(lesson)
-                .withSubject(LessonSubject.fromSubject(subject))
-                .withTeacher(LessonTeacher.fromTeacher(teacher))
+                .withSubject(getLessonSubject(plainLesson))
+                .withTeacher(getLessonTeacher(plainLesson))
                 .withLessonNo(lessonNo)
                 .withHourFrom(lessonStart)
                 .withHourTo(lessonEnd);
         return Lists.newArrayList(res);
+    }
+
+    private PlainLesson getPlainLesson(int lessonNo) {
+        List<PlainLesson> plainLessons = repository.getList(PlainLesson.class);
+        return plainLessons.get(lessonNo % plainLessons.size());
+    }
+
+    private LessonTeacher getLessonTeacher(PlainLesson plainLesson) {
+        Teacher teacher = fromRepoById(Teacher.class, plainLesson.teacher());
+        return LessonTeacher.fromTeacher(teacher);
+    }
+
+    private LessonSubject getLessonSubject(PlainLesson plainLesson) {
+        Subject subject = fromRepoById(Subject.class, plainLesson.subject());
+        return LessonSubject.fromSubject(subject);
     }
 
     private ImmutableJsonLesson cancelledLesson() {

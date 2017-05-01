@@ -1,0 +1,402 @@
+{
+  "Units": [
+    {
+      "Id": 81,
+      "Name": "Gimnazjum nr 1",
+      "ShortName": "G1",
+      "BehaviourType": "0",
+      "GradesSettings": {
+        "StandardGradesEnabled": true,
+        "PointGradesEnabled": false,
+        "DescriptiveGradesEnabled": true,
+        "ForcePointGradesDictionaries": false,
+        "AllowOverrangePointGrades": false,
+        "AllowClassTutorEditGrades": false,
+        "CanAddAnyGrades": false
+      },
+      "LessonSettings": {
+        "AllowZeroLessonNumber": true,
+        "MaxLessonNumber": 10,
+        "IsExtramuralCourse": false,
+        "IsAdultsDaily": false,
+        "AllowAddOtherLessons": false,
+        "AllowAddSubstitutions": true
+      },
+      "BehaviourGradesSettings": {
+        "StartPoints": {
+          "Semester1": 0,
+          "Semester2": 0
+        },
+        "ShowCategoriesShortcuts": false
+      },
+      "LessonsRange": [
+        {
+          "From": "07:00",
+          "To": "07:45",
+          "RawFrom": 420,
+          "RawTo": 465
+        },
+        {
+          "From": "08:00",
+          "To": "08:45",
+          "RawFrom": 480,
+          "RawTo": 525
+        },
+        {
+          "From": "09:00",
+          "To": "09:45",
+          "RawFrom": 540,
+          "RawTo": 585
+        },
+        {
+          "From": "10:00",
+          "To": "10:45",
+          "RawFrom": 600,
+          "RawTo": 645
+        },
+        {
+          "From": "11:00",
+          "To": "11:45",
+          "RawFrom": 660,
+          "RawTo": 705
+        },
+        {
+          "From": "12:00",
+          "To": "12:45",
+          "RawFrom": 720,
+          "RawTo": 765
+        },
+        {
+          "From": "13:00",
+          "To": "13:45",
+          "RawFrom": 780,
+          "RawTo": 825
+        },
+        {
+          "From": "14:00",
+          "To": "14:45",
+          "RawFrom": 840,
+          "RawTo": 885
+        },
+        {
+          "From": "15:00",
+          "To": "15:45",
+          "RawFrom": 900,
+          "RawTo": 945
+        },
+        {
+          "From": "16:00",
+          "To": "16:45",
+          "RawFrom": 960,
+          "RawTo": 1005
+        },
+        {
+          "From": "17:00",
+          "To": "17:45",
+          "RawFrom": 1020,
+          "RawTo": 1065
+        }
+      ]
+    },
+    {
+      "Id": 82,
+      "Name": "Liceum nr 1",
+      "ShortName": "L1",
+      "BehaviourType": "0",
+      "GradesSettings": {
+        "StandardGradesEnabled": true,
+        "PointGradesEnabled": false,
+        "DescriptiveGradesEnabled": true,
+        "ForcePointGradesDictionaries": false,
+        "AllowOverrangePointGrades": false,
+        "AllowClassTutorEditGrades": false,
+        "CanAddAnyGrades": false
+      },
+      "LessonSettings": {
+        "AllowZeroLessonNumber": true,
+        "MaxLessonNumber": 10,
+        "IsExtramuralCourse": false,
+        "IsAdultsDaily": false,
+        "AllowAddOtherLessons": false,
+        "AllowAddSubstitutions": true
+      },
+      "BehaviourGradesSettings": {
+        "StartPoints": {
+          "Semester1": 0,
+          "Semester2": 0
+        },
+        "ShowCategoriesShortcuts": false
+      },
+      "LessonsRange": [
+        {
+          "From": "07:00",
+          "To": "07:45",
+          "RawFrom": 420,
+          "RawTo": 465
+        },
+        {
+          "From": "08:00",
+          "To": "08:45",
+          "RawFrom": 480,
+          "RawTo": 525
+        },
+        {
+          "From": "09:00",
+          "To": "09:45",
+          "RawFrom": 540,
+          "RawTo": 585
+        },
+        {
+          "From": "10:00",
+          "To": "10:45",
+          "RawFrom": 600,
+          "RawTo": 645
+        },
+        {
+          "From": "11:00",
+          "To": "11:45",
+          "RawFrom": 660,
+          "RawTo": 705
+        },
+        {
+          "From": "12:00",
+          "To": "12:45",
+          "RawFrom": 720,
+          "RawTo": 765
+        },
+        {
+          "From": "13:00",
+          "To": "13:45",
+          "RawFrom": 780,
+          "RawTo": 825
+        },
+        {
+          "From": "14:00",
+          "To": "14:45",
+          "RawFrom": 840,
+          "RawTo": 885
+        },
+        {
+          "From": "15:00",
+          "To": "15:45",
+          "RawFrom": 900,
+          "RawTo": 945
+        },
+        {
+          "From": "16:00",
+          "To": "16:45",
+          "RawFrom": 960,
+          "RawTo": 1005
+        },
+        {
+          "From": "17:00",
+          "To": "17:45",
+          "RawFrom": 1020,
+          "RawTo": 1065
+        }
+      ]
+    },
+    {
+      "Id": 83,
+      "Name": "Technikum nr 1",
+      "ShortName": "T1",
+      "BehaviourType": "0",
+      "GradesSettings": {
+        "StandardGradesEnabled": true,
+        "PointGradesEnabled": false,
+        "DescriptiveGradesEnabled": true,
+        "ForcePointGradesDictionaries": false,
+        "AllowOverrangePointGrades": false,
+        "AllowClassTutorEditGrades": false,
+        "CanAddAnyGrades": false
+      },
+      "LessonSettings": {
+        "AllowZeroLessonNumber": true,
+        "MaxLessonNumber": 10,
+        "IsExtramuralCourse": false,
+        "IsAdultsDaily": false,
+        "AllowAddOtherLessons": false,
+        "AllowAddSubstitutions": true
+      },
+      "BehaviourGradesSettings": {
+        "StartPoints": {
+          "Semester1": 0,
+          "Semester2": 0
+        },
+        "ShowCategoriesShortcuts": false
+      },
+      "LessonsRange": [
+        {
+          "From": "07:00",
+          "To": "07:45",
+          "RawFrom": 420,
+          "RawTo": 465
+        },
+        {
+          "From": "08:00",
+          "To": "08:45",
+          "RawFrom": 480,
+          "RawTo": 525
+        },
+        {
+          "From": "09:00",
+          "To": "09:45",
+          "RawFrom": 540,
+          "RawTo": 585
+        },
+        {
+          "From": "10:00",
+          "To": "10:45",
+          "RawFrom": 600,
+          "RawTo": 645
+        },
+        {
+          "From": "11:00",
+          "To": "11:45",
+          "RawFrom": 660,
+          "RawTo": 705
+        },
+        {
+          "From": "12:00",
+          "To": "12:45",
+          "RawFrom": 720,
+          "RawTo": 765
+        },
+        {
+          "From": "13:00",
+          "To": "13:45",
+          "RawFrom": 780,
+          "RawTo": 825
+        },
+        {
+          "From": "14:00",
+          "To": "14:45",
+          "RawFrom": 840,
+          "RawTo": 885
+        },
+        {
+          "From": "15:00",
+          "To": "15:45",
+          "RawFrom": 900,
+          "RawTo": 945
+        },
+        {
+          "From": "16:00",
+          "To": "16:45",
+          "RawFrom": 960,
+          "RawTo": 1005
+        },
+        {
+          "From": "17:00",
+          "To": "17:45",
+          "RawFrom": 1020,
+          "RawTo": 1065
+        }
+      ]
+    },
+    {
+      "Id": 2148,
+      "Name": "Szkoła Podstawowa",
+      "ShortName": "SP",
+      "BehaviourType": "0",
+      "GradesSettings": {
+        "StandardGradesEnabled": true,
+        "PointGradesEnabled": false,
+        "DescriptiveGradesEnabled": true,
+        "ForcePointGradesDictionaries": false,
+        "AllowOverrangePointGrades": false,
+        "AllowClassTutorEditGrades": false,
+        "CanAddAnyGrades": false
+      },
+      "LessonSettings": {
+        "AllowZeroLessonNumber": true,
+        "MaxLessonNumber": 10,
+        "IsExtramuralCourse": false,
+        "IsAdultsDaily": false,
+        "AllowAddOtherLessons": false,
+        "AllowAddSubstitutions": true
+      },
+      "BehaviourGradesSettings": {
+        "StartPoints": {
+          "Semester1": 0,
+          "Semester2": 0
+        },
+        "ShowCategoriesShortcuts": false
+      },
+      "LessonsRange": [
+        {
+          "From": "07:00",
+          "To": "07:45",
+          "RawFrom": 420,
+          "RawTo": 465
+        },
+        {
+          "From": "08:00",
+          "To": "08:45",
+          "RawFrom": 480,
+          "RawTo": 525
+        },
+        {
+          "From": "09:00",
+          "To": "09:45",
+          "RawFrom": 540,
+          "RawTo": 585
+        },
+        {
+          "From": "10:00",
+          "To": "10:45",
+          "RawFrom": 600,
+          "RawTo": 645
+        },
+        {
+          "From": "11:00",
+          "To": "11:45",
+          "RawFrom": 660,
+          "RawTo": 705
+        },
+        {
+          "From": "12:00",
+          "To": "12:45",
+          "RawFrom": 720,
+          "RawTo": 765
+        },
+        {
+          "From": "13:00",
+          "To": "13:45",
+          "RawFrom": 780,
+          "RawTo": 825
+        },
+        {
+          "From": "14:00",
+          "To": "14:45",
+          "RawFrom": 840,
+          "RawTo": 885
+        },
+        {
+          "From": "15:00",
+          "To": "15:45",
+          "RawFrom": 900,
+          "RawTo": 945
+        },
+        {
+          "From": "16:00",
+          "To": "16:45",
+          "RawFrom": 960,
+          "RawTo": 1005
+        },
+        {
+          "From": "17:00",
+          "To": "17:45",
+          "RawFrom": 1020,
+          "RawTo": 1065
+        }
+      ]
+    }
+  ],
+  "Resources": {
+    "..": {
+      "Url": "https://api.librus.pl/2.0/Root"
+    }
+  },
+  "Url": "https://api.librus.pl/2.0/Units/"
+}

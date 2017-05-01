@@ -19,6 +19,7 @@ import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractSectionableItem;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import pl.librus.client.R;
+import pl.librus.client.domain.lesson.EnrichedLesson;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.util.LibrusUtils;
 
@@ -30,9 +31,9 @@ import pl.librus.client.util.LibrusUtils;
 public class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemViewHolder, LessonHeaderItem> {
 
     private transient final Context context;
-    private final Lesson lesson;
+    private final EnrichedLesson lesson;
 
-    public LessonItem(LessonHeaderItem header, Lesson lesson, Context context) {
+    public LessonItem(LessonHeaderItem header, EnrichedLesson lesson, Context context) {
         super(header);
         this.context = context;
         this.lesson = lesson;
@@ -102,15 +103,7 @@ public class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemVie
                 holder.badge.setVisibility(View.GONE);
             }
 
-            LocalTime timeNow = LocalTime.now();
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            if (preferences
-                    .getBoolean(context.getString(R.string.prefs_currrent_lesson_bold), true) &&
-                    LocalDate.now().isEqual(lesson.date()) &&
-                    lesson.hourFrom().isPresent() &&
-                    lesson.hourTo().isPresent() &&
-                    timeNow.isAfter(lesson.hourFrom().get()) &&
-                    timeNow.isBefore(lesson.hourTo().get())) {
+            if(lesson.current()) {
                 holder.subject.setTypeface(holder.subject.getTypeface(), Typeface.BOLD);
             } else {
                 holder.subject.setTypeface(null, Typeface.NORMAL);
@@ -125,7 +118,7 @@ public class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemVie
         }
     }
 
-    public Lesson getLesson() {
+    public EnrichedLesson getLesson() {
         return lesson;
     }
 

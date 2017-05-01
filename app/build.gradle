@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
-def firebaseEnabled = false
 android {
     compileSdkVersion 25
     buildToolsVersion '25.0.2'

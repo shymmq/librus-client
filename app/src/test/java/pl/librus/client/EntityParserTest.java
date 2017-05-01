@@ -13,19 +13,23 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import io.requery.Persistable;
-import pl.librus.client.data.EntityInfos;
 import pl.librus.client.data.server.EntityParser;
 import pl.librus.client.data.server.ParseException;
 import pl.librus.client.domain.Average;
 import pl.librus.client.domain.ImmutableAverage;
 import pl.librus.client.domain.ImmutableLibrusAccount;
+import pl.librus.client.domain.ImmutableLibrusClass;
 import pl.librus.client.domain.ImmutableLibrusColor;
+import pl.librus.client.domain.ImmutableLibrusUnit;
 import pl.librus.client.domain.ImmutableLuckyNumber;
 import pl.librus.client.domain.ImmutableMe;
 import pl.librus.client.domain.ImmutablePlainLesson;
 import pl.librus.client.domain.ImmutableTeacher;
+import pl.librus.client.domain.LessonRange;
 import pl.librus.client.domain.LibrusAccount;
+import pl.librus.client.domain.LibrusClass;
 import pl.librus.client.domain.LibrusColor;
+import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
 import pl.librus.client.domain.PlainLesson;
@@ -94,7 +98,45 @@ public class EntityParserTest {
                 .lastName("Problem")
                 .login("12u")
                 .build();
-        assertThat(Iterables.getOnlyElement(res), is(ImmutableMe.of(expectedAccount)));
+        assertThat(Iterables.getOnlyElement(res), is(ImmutableMe.of(expectedAccount, "99")));
+    }
+
+    @Test
+    public void shouldParseClasses() {
+        //when
+        List<LibrusClass> res = parse("Classes.json", LibrusClass.class);
+
+        //then
+        assertThat(res, hasItem(ImmutableLibrusClass.builder()
+                .id("523")
+                .number(1)
+                .symbol("a")
+                .unit("83")
+                .build()));
+    }
+
+    @Test
+    public void shouldParseUnits() {
+        //when
+        List<LibrusUnit> res = parse("Units.json", LibrusUnit.class);
+
+        //then
+        assertThat(res, hasItem(ImmutableLibrusUnit.builder()
+                .id("83")
+                .addLessonRanges(
+                        LessonRange.lessonAt(7, 0),
+                        LessonRange.lessonAt(8, 0),
+                        LessonRange.lessonAt(9, 0),
+                        LessonRange.lessonAt(10, 0),
+                        LessonRange.lessonAt(11, 0),
+                        LessonRange.lessonAt(12, 0),
+                        LessonRange.lessonAt(13, 0),
+                        LessonRange.lessonAt(14, 0),
+                        LessonRange.lessonAt(15, 0),
+                        LessonRange.lessonAt(16, 0),
+                        LessonRange.lessonAt(17, 0)
+                )
+                .build()));
     }
 
     @Test

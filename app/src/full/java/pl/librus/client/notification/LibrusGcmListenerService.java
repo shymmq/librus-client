@@ -3,6 +3,7 @@ package pl.librus.client.notification;
 import android.os.Bundle;
 
 import com.google.android.gms.gcm.GcmListenerService;
+import com.google.common.base.Optional;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 import io.reactivex.Observable;
 import io.requery.Persistable;
 import pl.librus.client.MainApplication;
+import pl.librus.client.UserComponent;
 import pl.librus.client.data.EntityChange;
 import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.LuckyNumber;
@@ -39,13 +41,18 @@ public class LibrusGcmListenerService extends GcmListenerService {
 
     @Override
     public void onCreate() {
-        MainApplication.getOrCreateUserComponent(this)
-                .inject(this);
+        Optional<UserComponent> userComponent = MainApplication.getOrCreateUserComponent(this);
+        if(userComponent.isPresent()) {
+            userComponent.get().inject(this);
+        }
     }
 
     @Override
     public void onMessageReceived(String s, Bundle bundle) {
-
+        if(updateHelper == null || notificationService == null) {
+            //not initialized. Probably user not logged in
+            return;
+        }
         List<Grade> grades = updateHelper.reload(Grade.class)
                 .compose(this::filterAdded)
                 .toList()

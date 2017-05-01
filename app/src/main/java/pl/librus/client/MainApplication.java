@@ -59,19 +59,22 @@ public class MainApplication extends MultiDexApplication {
                 .build();
     }
 
-    public static UserComponent getOrCreateUserComponent(Context context) {
-        if (userComponent != null) {
-            return userComponent;
+    public static Optional<UserComponent> getOrCreateUserComponent(Context context) {
+        if (userComponent == null) {
+            String login = PreferenceManager.getDefaultSharedPreferences(context)
+                    .getString("login", null);
+            if(login == null) {
+                return Optional.absent();
+            }
+            userComponent = component().plus(new UserModule(login));
         }
-        String login = PreferenceManager.getDefaultSharedPreferences(context)
-                .getString("login", null);
-        Preconditions.checkNotNull(login, "User not logged in");
-        userComponent = component().plus(new UserModule(login));
-        return userComponent;
+
+        return Optional.of(userComponent);
     }
 
     public static MainActivityComponent createMainActivityComponent(MainActivity mainActivity) {
         mainActivityComponent = getOrCreateUserComponent(mainActivity)
+                .get() // Assuming user is logged in
                 .plus(new MainActivityModule(mainActivity));
         return mainActivityComponent;
     }

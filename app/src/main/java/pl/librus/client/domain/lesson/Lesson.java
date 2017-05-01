@@ -1,7 +1,9 @@
 package pl.librus.client.domain.lesson;
 
 import org.immutables.value.Value;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
 import io.requery.Column;
 import io.requery.Entity;
@@ -25,5 +27,9 @@ public abstract class Lesson extends BaseLesson implements Identifiable, Compara
     @Override
     public int compareTo(Lesson lesson) {
         return this.lessonNo() - lesson.lessonNo();
+    }
+
+    public DateTime toDateTime() {
+        return date().toDateTime(hourTo().get());
     }
 }

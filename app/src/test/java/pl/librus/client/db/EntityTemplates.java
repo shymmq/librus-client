@@ -5,9 +5,11 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
 import pl.librus.client.domain.ImmutableLibrusAccount;
+import pl.librus.client.domain.ImmutableLibrusUnit;
 import pl.librus.client.domain.ImmutableLuckyNumber;
 import pl.librus.client.domain.ImmutableMe;
 import pl.librus.client.domain.ImmutableTeacher;
+import pl.librus.client.domain.LessonRange;
 import pl.librus.client.domain.announcement.ImmutableAnnouncement;
 import pl.librus.client.domain.event.ImmutableEvent;
 import pl.librus.client.domain.grade.ImmutableGrade;
@@ -61,7 +63,7 @@ public class EntityTemplates {
                 .firstName("Tomasz")
                 .lastName("Problem")
                 .login("12u")
-                .build());
+                .build(), "99");
     }
 
     public static ImmutableTeacher teacher() {
@@ -109,6 +111,25 @@ public class EntityTemplates {
                 .subject(lessonSubject())
                 .substitutionClass(false)
                 .teacher(lessonTeacher())
+                .build();
+    }
+
+    public static ImmutableLibrusUnit unit() {
+        return ImmutableLibrusUnit.builder()
+                .id("83")
+                .addLessonRanges(
+                        LessonRange.lessonAt(7, 0),
+                        LessonRange.lessonAt(8, 0),
+                        LessonRange.lessonAt(9, 0),
+                        LessonRange.lessonAt(10, 0),
+                        LessonRange.lessonAt(11, 0),
+                        LessonRange.lessonAt(12, 0),
+                        LessonRange.lessonAt(13, 0),
+                        LessonRange.lessonAt(14, 0),
+                        LessonRange.lessonAt(15, 0),
+                        LessonRange.lessonAt(16, 0),
+                        LessonRange.lessonAt(17, 0)
+                )
                 .build();
     }
 

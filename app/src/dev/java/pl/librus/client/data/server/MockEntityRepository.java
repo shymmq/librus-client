@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import org.joda.time.LocalTime;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -18,9 +20,16 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.domain.Average;
 import pl.librus.client.domain.Identifiable;
 import pl.librus.client.domain.ImmutableAverage;
+import pl.librus.client.domain.ImmutableLessonRange;
+import pl.librus.client.domain.ImmutableLibrusClass;
+import pl.librus.client.domain.ImmutableLibrusUnit;
+import pl.librus.client.domain.ImmutableMe;
 import pl.librus.client.domain.ImmutablePlainLesson;
 import pl.librus.client.domain.ImmutableTeacher;
+import pl.librus.client.domain.LessonRange;
+import pl.librus.client.domain.LibrusClass;
 import pl.librus.client.domain.LibrusColor;
+import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
 import pl.librus.client.domain.PlainLesson;
@@ -64,6 +73,7 @@ class MockEntityRepository {
             .putAll(Event.class, EventCategory.class)
             .putAll(Grade.class, GradeCategory.class, GradeComment.class, PlainLesson.class)
             .putAll(GradeCategory.class, LibrusColor.class)
+            .putAll(Me.class, LibrusClass.class, LibrusUnit.class)
             .build();
 
     List<EntityUpdate<?>> updates = ImmutableList.<EntityUpdate<?>>builder()
@@ -82,9 +92,11 @@ class MockEntityRepository {
             .add(makeUpdate(Grade.class, 50, this::updateGrade))
             .add(makeUpdate(LuckyNumber.class, 1, this::updateLuckyNumber))
             .add(makeUpdate(Me.class, 1, this::updateMe))
+            .add(makeUpdate(LibrusClass.class, 1, this::updateLibrusClass))
+            .add(makeUpdate(LibrusUnit.class, 3, this::updateLibrusUnit))
             .build();
 
-    <T> List<T> getList(Class<T> clazz) {
+    synchronized <T> List<T> getList(Class<T> clazz) {
         tryCreateList(clazz);
         if (Sets.newHashSet(
                 Grade.class,
@@ -234,8 +246,25 @@ class MockEntityRepository {
         return ln;
     }
 
-    private Me updateMe(Me me, Integer integer) {
-        return me;
+    private Me updateMe(Me me, Integer index) {
+        return ImmutableMe.copyOf(me)
+                .withClassId(idFromIndex(LibrusClass.class, index));
+    }
+
+    private LibrusClass updateLibrusClass(LibrusClass lc, Integer index) {
+        return ImmutableLibrusClass.copyOf(lc)
+                .withUnit(idFromIndex(LibrusUnit.class, index));
+    }
+
+    private LibrusUnit updateLibrusUnit(LibrusUnit lu, Integer index) {
+        //For testing lesson switching
+        LocalTime now = LocalTime.now();
+        LessonRange prev = ImmutableLessonRange.of(now.minusMinutes(4), now.minusMinutes(2));
+        LessonRange curr = ImmutableLessonRange.of(now.minusMinutes(1), now.plusMinutes(1));
+        LessonRange next = ImmutableLessonRange.of(now.plusMinutes(2), now.plusMinutes(4));
+
+        return ImmutableLibrusUnit.copyOf(lu)
+                .withLessonRanges(prev, curr, next);
     }
 
     private String idFromIndex(Class<? extends Identifiable> clazz, int index) {

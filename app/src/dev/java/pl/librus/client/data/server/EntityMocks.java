@@ -16,13 +16,19 @@ import java.util.Random;
 import java8.util.function.Supplier;
 import pl.librus.client.domain.Average;
 import pl.librus.client.domain.ImmutableAverage;
+import pl.librus.client.domain.ImmutableLessonRange;
 import pl.librus.client.domain.ImmutableLibrusAccount;
+import pl.librus.client.domain.ImmutableLibrusClass;
 import pl.librus.client.domain.ImmutableLibrusColor;
+import pl.librus.client.domain.ImmutableLibrusUnit;
 import pl.librus.client.domain.ImmutableLuckyNumber;
 import pl.librus.client.domain.ImmutableMe;
 import pl.librus.client.domain.ImmutablePlainLesson;
 import pl.librus.client.domain.ImmutableTeacher;
+import pl.librus.client.domain.LessonRange;
+import pl.librus.client.domain.LibrusClass;
 import pl.librus.client.domain.LibrusColor;
+import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
 import pl.librus.client.domain.PlainLesson;
@@ -77,6 +83,8 @@ class EntityMocks {
             .put(LibrusColor.class, this::librusColor)
             .put(LuckyNumber.class, this::luckyNumber)
             .put(Me.class, this::me)
+            .put(LibrusClass.class, this::librusClass)
+            .put(LibrusUnit.class, this::librusUnit)
             .put(Lesson.class, this::jsonLesson)
             .build();
 
@@ -168,7 +176,43 @@ class EntityMocks {
                 .firstName(lorem.getFirstName())
                 .lastName(lorem.getLastName())
                 .login("12222u")
-                .build());
+                .build(), MOCK_ID);
+    }
+
+    public ImmutableLibrusClass librusClass() {
+        return ImmutableLibrusClass.builder()
+                .id(idFor(LibrusClass.class))
+                .number(1)
+                .symbol("a")
+                .unit(MOCK_ID)
+                .build();
+    }
+
+    private LessonRange lessonAt(int hour, int minutes) {
+        LocalTime from = LocalTime.MIDNIGHT
+                .withHourOfDay(hour)
+                .withMinuteOfHour(minutes);
+        LocalTime to = from.plusMinutes(45);
+        return ImmutableLessonRange.of(from, to);
+    }
+
+    public ImmutableLibrusUnit librusUnit() {
+        return ImmutableLibrusUnit.builder()
+                .id(idFor(LibrusUnit.class))
+                .addLessonRanges(
+                        lessonAt(7, 0),
+                        lessonAt(8, 0),
+                        lessonAt(9, 0),
+                        lessonAt(10, 0),
+                        lessonAt(11, 0),
+                        lessonAt(12, 0),
+                        lessonAt(13, 0),
+                        lessonAt(14, 0),
+                        lessonAt(15, 0),
+                        lessonAt(16, 0),
+                        lessonAt(17, 0)
+                )
+                .build();
     }
 
     public ImmutableTeacher teacher() {

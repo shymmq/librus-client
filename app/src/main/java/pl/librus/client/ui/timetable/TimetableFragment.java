@@ -30,6 +30,7 @@ import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
 import eu.davidea.flexibleadapter.common.TopSnappedSmoothScroller;
 import eu.davidea.flexibleadapter.items.IFlexible;
 import eu.davidea.flexibleadapter.items.IHeader;
+import java8.util.Optional;
 import java8.util.stream.Collectors;
 import java8.util.stream.RefStreams;
 import java8.util.stream.Stream;
@@ -37,6 +38,8 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.MainActivityComponent;
 import pl.librus.client.R;
 import pl.librus.client.domain.Teacher;
+import pl.librus.client.domain.lesson.BaseLesson;
+import pl.librus.client.domain.lesson.EnrichedLesson;
 import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.SchoolWeek;
@@ -107,7 +110,7 @@ public class TimetableFragment extends MainFragment implements TimetableView {
     public boolean onItemClick(int position) {
         IFlexible item = adapter.getItem(position);
         if (item instanceof LessonItem) {
-            Lesson lesson = ((LessonItem) item).getLesson();
+            EnrichedLesson lesson = ((LessonItem) item).getLesson();
             presenter.lessonClicked(lesson);
             return true;
         } else {
@@ -118,15 +121,15 @@ public class TimetableFragment extends MainFragment implements TimetableView {
     private Stream<IFlexible> mapLessonsForWeek(SchoolWeek schoolWeek) {
         Stream.Builder<IFlexible> builder = RefStreams.builder();
 
-        Map<LocalDate, List<Lesson>> days = StreamSupport.stream(schoolWeek.lessons())
-                .collect(Collectors.groupingBy(Lesson::date));
+        Map<LocalDate, List<EnrichedLesson>> days = StreamSupport.stream(schoolWeek.lessons())
+                .collect(Collectors.groupingBy(EnrichedLesson::date));
         for (LocalDate date = schoolWeek.weekStart(); date.isBefore(schoolWeek.weekStart().plusWeeks(1)); date = date.plusDays(1)) {
             LessonHeaderItem header = new LessonHeaderItem(date);
-            List<Lesson> schoolDay = days.get(date);
+            List<EnrichedLesson> schoolDay = days.get(date);
             if (schoolDay == null || schoolDay.isEmpty()) {
                 builder.add(new EmptyDayItem(header, date));
             } else {
-                ImmutableMap<Integer, Lesson> lessonMap = Maps.uniqueIndex(schoolDay, Lesson::lessonNo);
+                ImmutableMap<Integer, EnrichedLesson> lessonMap = Maps.uniqueIndex(schoolDay, BaseLesson::lessonNo);
 
                 int maxLessonNumber = Collections.max(lessonMap.keySet());
                 int minLessonNumber = Collections.min(lessonMap.keySet());
@@ -134,7 +137,7 @@ public class TimetableFragment extends MainFragment implements TimetableView {
                 minLessonNumber = Math.min(1, minLessonNumber);
 
                 for (int l = minLessonNumber; l <= maxLessonNumber; l++) {
-                    Lesson lesson = lessonMap.get(l);
+                    EnrichedLesson lesson = lessonMap.get(l);
                     if (lesson != null) {
                         builder.add(new LessonItem(header, lesson, getContext()));
                     } else {

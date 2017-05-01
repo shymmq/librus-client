@@ -11,9 +11,9 @@ import io.reactivex.Single;
 import pl.librus.client.domain.ImmutableLuckyNumber;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Teacher;
+import pl.librus.client.domain.lesson.EnrichedLesson;
 import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.ImmutableFullLesson;
-import pl.librus.client.domain.lesson.Lesson;
 
 /**
  * Created by robwys on 30/04/2017.
@@ -73,7 +73,7 @@ public class LibrusDataTest extends BaseDBTest {
         Teacher t = EntityTemplates.teacher()
                 .withId(teacherId);
 
-        Lesson l = EntityTemplates.lesson()
+        EnrichedLesson l = EnrichedLesson.fromLesson(EntityTemplates.lesson())
                 .withOrgTeacherId(teacherId);
 
         Mockito.when(apiClient.getById(Mockito.eq(Teacher.class), Mockito.anyString()))

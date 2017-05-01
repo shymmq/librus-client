@@ -30,6 +30,8 @@ import pl.librus.client.UserScope;
 import pl.librus.client.data.db.DatabaseManager;
 import pl.librus.client.data.server.IAPIClient;
 import pl.librus.client.domain.Average;
+import pl.librus.client.domain.LibrusClass;
+import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.event.EventCategory;
 import pl.librus.client.domain.Identifiable;
@@ -75,7 +77,9 @@ public class UpdateHelper {
             Average.class,
             LibrusColor.class,
             LuckyNumber.class,
-            Me.class
+            Me.class,
+            LibrusClass.class,
+            LibrusUnit.class
     );
     private final DatabaseManager databaseStrategy;
     private final IAPIClient serverStrategy;

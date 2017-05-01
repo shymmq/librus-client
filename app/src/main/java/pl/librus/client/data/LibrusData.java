@@ -11,7 +11,9 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import pl.librus.client.UserScope;
 import pl.librus.client.domain.Average;
+import pl.librus.client.domain.LibrusClass;
 import pl.librus.client.domain.LibrusColor;
+import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
 import pl.librus.client.domain.PlainLesson;
@@ -26,6 +28,7 @@ import pl.librus.client.domain.grade.FullGrade;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
 import pl.librus.client.domain.lesson.BaseLesson;
+import pl.librus.client.domain.lesson.EnrichedLesson;
 import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.subject.FullSubject;
@@ -48,6 +51,14 @@ public class LibrusData {
     public Single<Me> findMe() {
         return strategy.getAll(Me.class)
                 .singleOrError();
+    }
+
+    public Single<LibrusUnit> findUnit() {
+        return findMe()
+                .map(Me::classId)
+                .flatMap(classId -> strategy.getById(LibrusClass.class, classId))
+                .map(LibrusClass::unit)
+                .flatMap(unitId -> strategy.getById(LibrusUnit.class, unitId));
     }
 
     public Single<Optional<LuckyNumber>> findLuckyNumber() {
@@ -90,7 +101,7 @@ public class LibrusData {
                 .map(data -> data.makeFullGrade(grade));
     }
 
-    public Single<FullLesson> makeFullLesson(Lesson lesson) {
+    public Single<FullLesson> makeFullLesson(EnrichedLesson lesson) {
         return BlockingLibrusData.preload(strategy)
                 .map(data -> data.makeFullLesson(lesson));
     }

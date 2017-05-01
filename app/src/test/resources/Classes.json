@@ -1,0 +1,27 @@
+{
+  "Class": {
+    "Id": 523,
+    "Number": 1,
+    "Symbol": "a",
+    "BeginSchoolYear": "2016-09-01",
+    "EndFirstSemester": "2017-01-27",
+    "EndSchoolYear": "2017-06-30",
+    "Unit": {
+      "Id": 83,
+      "Url": "https://api.librus.pl/2.0/Units/83"
+    },
+    "ClassTutor": {
+      "Id": 12896,
+      "Url": "https://api.librus.pl/2.0/Users/12896"
+    }
+  },
+  "Resources": {
+    "Classes\\CrossedOutStudents": {
+      "Url": "https://api.librus.pl/2.0/Classes/CrossedOutStudents"
+    },
+    "..": {
+      "Url": "https://api.librus.pl/2.0/Root"
+    }
+  },
+  "Url": "https://api.librus.pl/2.0/Classes/"
+}

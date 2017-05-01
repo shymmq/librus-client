@@ -6,6 +6,8 @@ import java.util.Map;
 
 import io.requery.Persistable;
 import pl.librus.client.domain.Average;
+import pl.librus.client.domain.LibrusClass;
+import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.event.EventCategory;
 import pl.librus.client.domain.LibrusColor;
@@ -62,6 +64,15 @@ public class EntityInfos {
                     .name("Me")
                     .single(true)
                     .refreshDays(30)
+                    .build())
+            .put(LibrusClass.class, EntityInfo.builder()
+                    .name("Class")
+                    .pluralName("Classes")
+                    .refreshDays(300)
+                    .build())
+            .put(LibrusUnit.class, EntityInfo.builder()
+                    .name("Unit")
+                    .refreshDays(300)
                     .build())
             .put(LibrusColor.class, EntityInfo.builder()
                     .refreshDays(30)

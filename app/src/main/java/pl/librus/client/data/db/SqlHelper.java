@@ -34,7 +34,6 @@ public class SqlHelper {
             addConverter(new LocalDateConverter());
             addConverter(new LocalTimeConverter());
             addConverter(new LocalDateTimeConverter());
-            addConverter(new MultipleIdsConverter());
             addConverter(new OptionalConverter());
         }
 

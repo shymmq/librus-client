@@ -1,28 +1,15 @@
 package pl.librus.client.data.db;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.base.Optional;
 
 import java.io.IOException;
 
-import io.requery.Converter;
-
-public class OptionalConverter implements Converter<Optional, String> {
+public class OptionalConverter extends JsonConverter<Optional> {
     @Override
     public Class<Optional> getMappedType() {
         return Optional.class;
-    }
-
-    @Override
-    public Class<String> getPersistedType() {
-        return String.class;
-    }
-
-    @Override
-    public Integer getPersistedSize() {
-        return null;
     }
 
     @Override
@@ -51,26 +38,15 @@ public class OptionalConverter implements Converter<Optional, String> {
         }
     }
 
-    private ObjectMapper getObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new GuavaModule());
-        mapper.registerModule(new JodaModule());
-        return mapper;
+    @Override
+    protected TypeReference<Optional> getReferenceType() {
+        return new TypeReference<Optional>() {};
     }
 
-    private String convertToString(Object o) {
+    protected <T> T convertFromString(String s, Class<T> clazz) {
         ObjectMapper mapper = getObjectMapper();
         try {
-            return mapper.writeValueAsString(o);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Object convertFromString(String s, Class<?> type) {
-        ObjectMapper mapper = getObjectMapper();
-        try {
-            return mapper.readValue(s, type);
+            return mapper.readValue(s, clazz);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

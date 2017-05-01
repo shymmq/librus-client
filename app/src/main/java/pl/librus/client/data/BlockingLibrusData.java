@@ -41,6 +41,7 @@ import pl.librus.client.domain.grade.ImmutableEnrichedGrade;
 import pl.librus.client.domain.grade.ImmutableFullGrade;
 import pl.librus.client.domain.grade.ImmutableFullGradeCategory;
 import pl.librus.client.domain.lesson.BaseLesson;
+import pl.librus.client.domain.lesson.EnrichedLesson;
 import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.ImmutableFullLesson;
 import pl.librus.client.domain.lesson.Lesson;
@@ -59,6 +60,7 @@ public class BlockingLibrusData {
        return new BlockingLibrusData(Maps.newHashMap(), strategy);
     }
 
+    @SafeVarargs
     public static Single<BlockingLibrusData> preload(DataLoadStrategy strategy,Class<? extends Identifiable>... preloadClasses) {
         Map<Class<?>, Map<String, ?>> objects = Maps.newHashMap();
 
@@ -189,7 +191,7 @@ public class BlockingLibrusData {
                 .build();
     }
 
-    public FullLesson makeFullLesson(Lesson lesson) {
+    public FullLesson makeFullLesson(EnrichedLesson lesson) {
         return ImmutableFullLesson.builder()
                 .from(lesson)
                 .date(lesson.date())
