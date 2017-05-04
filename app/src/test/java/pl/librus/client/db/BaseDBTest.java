@@ -12,11 +12,9 @@ import org.robolectric.annotation.Config;
 import io.requery.BlockingEntityStore;
 import io.requery.Persistable;
 import pl.librus.client.TestApplication;
+import pl.librus.client.data.LibrusData;
 import pl.librus.client.data.ServerFallbackStrategy;
 import pl.librus.client.data.db.DatabaseManager;
-import pl.librus.client.data.server.APIClient;
-import pl.librus.client.data.LibrusData;
-import pl.librus.client.MainApplication;
 import pl.librus.client.data.server.IAPIClient;
 
 import static org.hamcrest.Matchers.allOf;

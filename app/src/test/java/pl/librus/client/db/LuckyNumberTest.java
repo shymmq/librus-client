@@ -9,7 +9,6 @@ import pl.librus.client.domain.ImmutableLuckyNumber;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.LuckyNumberType;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -17,7 +16,7 @@ import static org.junit.Assert.assertThat;
  */
 
 @RunWith(RobolectricTestRunner.class)
-public class LuckyNumberTest extends BaseDBTest{
+public class LuckyNumberTest extends BaseDBTest {
 
 
     @Test

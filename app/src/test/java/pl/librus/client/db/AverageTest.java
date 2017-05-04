@@ -2,8 +2,6 @@ package pl.librus.client.db;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 import pl.librus.client.domain.Average;
 import pl.librus.client.domain.AverageType;

@@ -19,6 +19,7 @@ import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.data.UpdateHelper;
+import pl.librus.client.widget.LuckyNumberWidgetProvider;
 
 /**
  * Created by szyme on 15.12.2016. librus-client
@@ -76,6 +77,9 @@ public class LibrusGcmListenerService extends GcmListenerService {
                 .toList()
                 .blockingGet();
         notificationService.addLuckyNumber(luckyNumbers);
+        if(!luckyNumbers.isEmpty()) {
+            LuckyNumberWidgetProvider.updateAll(getApplicationContext());
+        }
     }
 
     private <T extends Persistable> Observable<T> filterAdded(Observable<EntityChange<T>> upstream) {

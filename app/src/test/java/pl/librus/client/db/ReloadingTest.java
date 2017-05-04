@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Observable;
+import pl.librus.client.data.EntityChange;
 import pl.librus.client.data.ImmutableEntityChange;
 import pl.librus.client.data.LastUpdate;
+import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.domain.LibrusColor;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.ImmutableGrade;
-import pl.librus.client.data.EntityChange;
-import pl.librus.client.data.UpdateHelper;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
