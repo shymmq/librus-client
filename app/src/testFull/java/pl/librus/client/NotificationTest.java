@@ -37,6 +37,7 @@ import pl.librus.client.db.BaseDBTest;
 import pl.librus.client.db.EntityTemplates;
 import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.notification.NotificationService;
+import pl.librus.client.widget.WidgetUpdater;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.Matchers.is;
@@ -44,6 +45,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -52,6 +54,8 @@ import static org.robolectric.Shadows.shadowOf;
 public class NotificationTest extends BaseDBTest {
 
     private NotificationManager notificationManager;
+
+    private WidgetUpdater widgetUpdater;
 
     @Before
     public void setUp() {
@@ -250,9 +254,11 @@ public class NotificationTest extends BaseDBTest {
     }
 
     private LibrusGcmListenerService serviceWithMockClient() {
+        widgetUpdater = mock(WidgetUpdater.class);
         LibrusGcmListenerService service = new LibrusGcmListenerService(
                 new NotificationService(RuntimeEnvironment.application, databaseManager),
-                new UpdateHelper(databaseManager, apiClient));
+                new UpdateHelper(databaseManager, apiClient),
+                widgetUpdater);
         when(apiClient.getAll(any()))
                 .thenReturn(Observable.empty());
         return service;

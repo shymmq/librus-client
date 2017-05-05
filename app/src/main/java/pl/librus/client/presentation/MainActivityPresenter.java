@@ -36,6 +36,8 @@ import pl.librus.client.ui.ProgressReporter;
 import pl.librus.client.ui.ToastDisplay;
 import pl.librus.client.util.LibrusUtils;
 import pl.librus.client.util.PreferencesManager;
+import pl.librus.client.widget.LuckyNumberWidgetProvider;
+import pl.librus.client.widget.WidgetUpdater;
 
 /**
  * Created by robwys on 28/03/2017.
@@ -52,6 +54,7 @@ public class MainActivityPresenter {
     private final ToastDisplay toast;
     private final ErrorHandler errorHandler;
     private final MainNavigationPresenter navigationPresenter;
+    private final WidgetUpdater widgetUpdater;
 
     private boolean activityAttached = true;
     private Disposable subscription;
@@ -63,7 +66,9 @@ public class MainActivityPresenter {
                                  Reader reader,
                                  PreferencesManager preferences,
                                  ToastDisplay toast,
-                                 ErrorHandler errorHandler, MainNavigationPresenter navigationPresenter) {
+                                 ErrorHandler errorHandler,
+                                 MainNavigationPresenter navigationPresenter,
+                                 WidgetUpdater widgetUpdater) {
         this.database = database;
         this.mainActivity = mainActivity;
         this.updateHelper = updateHelper;
@@ -72,6 +77,7 @@ public class MainActivityPresenter {
         this.toast = toast;
         this.errorHandler = errorHandler;
         this.navigationPresenter = navigationPresenter;
+        this.widgetUpdater = widgetUpdater;
     }
 
 
@@ -93,6 +99,7 @@ public class MainActivityPresenter {
                         .subscribe(reader::read))
                 .doOnComplete(() -> database.getAll(Announcement.class)
                         .subscribe(reader::read))
+                .doOnComplete(widgetUpdater::updateLuckyNumber)
                 .doFinally(() -> {
                     if(activityAttached){
                         mainActivity.hideProgressDialog();
@@ -137,6 +144,8 @@ public class MainActivityPresenter {
 
         MainApplication.releaseMainActivityComponent();
         MainApplication.releaseUserComponent();
+
+        widgetUpdater.updateLuckyNumber();
 
         mainActivity.navigateToLogin();
 

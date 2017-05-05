@@ -20,6 +20,7 @@ import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.widget.LuckyNumberWidgetProvider;
+import pl.librus.client.widget.WidgetUpdater;
 
 /**
  * Created by szyme on 15.12.2016. librus-client
@@ -32,12 +33,16 @@ public class LibrusGcmListenerService extends GcmListenerService {
     @Inject
     UpdateHelper updateHelper;
 
+    @Inject
+    WidgetUpdater widgetUpdater;
+
     public LibrusGcmListenerService() {
     }
 
-    public LibrusGcmListenerService(NotificationService notificationService, UpdateHelper updateHelper) {
+    public LibrusGcmListenerService(NotificationService notificationService, UpdateHelper updateHelper, WidgetUpdater widgetUpdater) {
         this.notificationService = notificationService;
         this.updateHelper = updateHelper;
+        this.widgetUpdater = widgetUpdater;
     }
 
     @Override
@@ -78,7 +83,7 @@ public class LibrusGcmListenerService extends GcmListenerService {
                 .blockingGet();
         notificationService.addLuckyNumber(luckyNumbers);
         if(!luckyNumbers.isEmpty()) {
-            LuckyNumberWidgetProvider.updateAll(getApplicationContext());
+            widgetUpdater.updateLuckyNumber();
         }
     }
 

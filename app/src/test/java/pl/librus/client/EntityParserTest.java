@@ -122,19 +122,18 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableLibrusUnit.builder()
-                .id("83")
+                .id("2973")
                 .addLessonRanges(
-                        LessonRange.lessonAt(7, 0),
+                        LessonRange.empty(),
                         LessonRange.lessonAt(8, 0),
-                        LessonRange.lessonAt(9, 0),
-                        LessonRange.lessonAt(10, 0),
-                        LessonRange.lessonAt(11, 0),
-                        LessonRange.lessonAt(12, 0),
-                        LessonRange.lessonAt(13, 0),
-                        LessonRange.lessonAt(14, 0),
-                        LessonRange.lessonAt(15, 0),
-                        LessonRange.lessonAt(16, 0),
-                        LessonRange.lessonAt(17, 0)
+                        LessonRange.lessonAt(8,55),
+                        LessonRange.lessonAt(9, 50),
+                        LessonRange.lessonAt(10, 45),
+                        LessonRange.lessonAt(11, 50),
+                        LessonRange.lessonAt(12, 55),
+                        LessonRange.lessonAt(13, 50),
+                        LessonRange.lessonAt(14, 45),
+                        LessonRange.lessonAt(15, 40)
                 )
                 .build()));
     }

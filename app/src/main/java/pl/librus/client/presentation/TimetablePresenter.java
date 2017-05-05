@@ -143,7 +143,11 @@ public class TimetablePresenter extends ReloadablePresenter<List<SchoolWeek>, Ti
         LocalTime now = LocalTime.now();
 
         for(int i = 0; i < ranges.size(); i++) {
-            if(ranges.get(i).to().compareTo(now) > 0) {
+            LessonRange range = ranges.get(i);
+            if(!range.to().isPresent()) {
+                continue;
+            }
+            if(range.to().get().compareTo(now) > 0) {
                 return Optional.of(i);
             }
         }
@@ -157,7 +161,10 @@ public class TimetablePresenter extends ReloadablePresenter<List<SchoolWeek>, Ti
                 .map(ranges -> findCurrentLessonNo(ranges)
                         .transform(ranges::get)
                         .transform(LessonRange::to)
+
                 )
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(refreshTime -> {
                     if(refreshTime.isPresent()) {
