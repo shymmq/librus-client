@@ -257,14 +257,7 @@ class MockEntityRepository {
     }
 
     private LibrusUnit updateLibrusUnit(LibrusUnit lu, Integer index) {
-        //For testing lesson switching
-        LocalTime now = LocalTime.now();
-        LessonRange prev = ImmutableLessonRange.of(now.minusMinutes(4), now.minusMinutes(2));
-        LessonRange curr = ImmutableLessonRange.of(now.minusMinutes(1), now.plusMinutes(1));
-        LessonRange next = ImmutableLessonRange.of(now.plusMinutes(2), now.plusMinutes(4));
-
-        return ImmutableLibrusUnit.copyOf(lu)
-                .withLessonRanges(prev, curr, next);
+        return lu;
     }
 
     private String idFromIndex(Class<? extends Identifiable> clazz, int index) {

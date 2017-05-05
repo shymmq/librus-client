@@ -1,5 +1,6 @@
 package pl.librus.client.data.server;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.thedeanda.lorem.Lorem;
@@ -193,7 +194,7 @@ class EntityMocks {
                 .withHourOfDay(hour)
                 .withMinuteOfHour(minutes);
         LocalTime to = from.plusMinutes(45);
-        return ImmutableLessonRange.of(from, to);
+        return ImmutableLessonRange.of(Optional.of(from), Optional.of(to));
     }
 
     public ImmutableLibrusUnit librusUnit() {

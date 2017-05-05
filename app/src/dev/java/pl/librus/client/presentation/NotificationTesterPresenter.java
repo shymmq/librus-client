@@ -18,6 +18,7 @@ import pl.librus.client.notification.NotificationService;
 import pl.librus.client.ui.NotificationTesterFragment;
 import pl.librus.client.ui.NotificationTesterView;
 import pl.librus.client.widget.LuckyNumberWidgetProvider;
+import pl.librus.client.widget.WidgetUpdater;
 
 /**
  * Created by robwys on 28/03/2017.
@@ -25,16 +26,16 @@ import pl.librus.client.widget.LuckyNumberWidgetProvider;
 
 public class NotificationTesterPresenter extends MainFragmentPresenter<NotificationTesterView> {
 
-    private final Context context;
     private final DatabaseManager database;
     private final NotificationService notificationService;
+    private final WidgetUpdater widgetUpdater;
 
     @Inject
     protected NotificationTesterPresenter(
-            Context context,
             DatabaseManager database,
-            NotificationService notificationService) {
-        this.context = context;
+            NotificationService notificationService,
+            WidgetUpdater widgetUpdater) {
+        this.widgetUpdater = widgetUpdater;
         this.database = database;
         this.notificationService = notificationService;
     }
@@ -70,7 +71,7 @@ public class NotificationTesterPresenter extends MainFragmentPresenter<Notificat
     public void sendNotificationClicked(Class<? extends Persistable> clazz, int count) {
         if (clazz.isAssignableFrom(LuckyNumber.class)) {
             notificationService.addLuckyNumber(getMany(LuckyNumber.class, count));
-            LuckyNumberWidgetProvider.updateAll(context);
+            widgetUpdater.updateLuckyNumber();
         } else if (clazz.isAssignableFrom(Event.class)) {
             notificationService.addEvents(getMany(Event.class, count));
         } else if (clazz.isAssignableFrom(Grade.class)) {
