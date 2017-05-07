@@ -8,7 +8,6 @@ import org.joda.time.LocalDateTime;
 import io.requery.Column;
 import io.requery.Entity;
 import io.requery.Key;
-import io.requery.Persistable;
 import pl.librus.client.domain.Identifiable;
 
 @Entity(builder = ImmutableLesson.Builder.class)
@@ -28,6 +27,7 @@ public abstract class Lesson extends BaseLesson implements Identifiable, Compara
     public int compareTo(Lesson lesson) {
         return this.lessonNo() - lesson.lessonNo();
     }
+
 
     public DateTime toDateTime() {
         return date().toDateTime(hourTo().get());

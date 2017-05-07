@@ -259,8 +259,8 @@ class EntityMocks {
     public ImmutableEvent event() {
         return ImmutableEvent.builder()
                 .id(idFor(Event.class))
-                .addedBy(MOCK_ID)
-                .category(MOCK_ID)
+                .addedById(MOCK_ID)
+                .categoryId(MOCK_ID)
                 .content(lorem.getWords(10, 200))
                 .date(randomDate())
                 .lessonNo(randomLessonNo())
@@ -327,6 +327,10 @@ class EntityMocks {
 
     private LocalDate randomPastDate() {
         return LocalDate.now().minusDays(random.nextInt(60));
+    }
+
+    private LocalDate randomFutureDate() {
+        return LocalDate.now().plusDays(random.nextInt(30));
     }
 
     private int randomLessonNo() {

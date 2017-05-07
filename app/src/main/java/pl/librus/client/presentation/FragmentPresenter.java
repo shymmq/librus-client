@@ -7,8 +7,7 @@ import android.support.v4.app.Fragment;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 
 import io.reactivex.functions.Action;
-import java8.util.function.Consumer;
-import pl.librus.client.ui.MainActivityOps;
+import io.reactivex.functions.BiConsumer;
 import pl.librus.client.ui.View;
 
 /**
@@ -27,7 +26,7 @@ public abstract class FragmentPresenter<T extends View> {
     @DrawableRes
     public abstract int getIcon();
 
-    public PrimaryDrawerItem convertToDrawerItem(Consumer<FragmentPresenter> displayFragment) {
+    public PrimaryDrawerItem convertToDrawerItem(java8.util.function.Consumer<FragmentPresenter> displayFragment) {
         return new PrimaryDrawerItem()
                 .withIconTintingEnabled(true)
                 .withSelectable(false)
@@ -59,9 +58,17 @@ public abstract class FragmentPresenter<T extends View> {
 
     }
 
-    protected Action ifViewAttached(Consumer<T> consumer) {
+    protected <H> io.reactivex.functions.Consumer<H> ifViewAttached(BiConsumer<T, H> consumer) {
+        return value -> {
+            if (view != null) {
+                consumer.accept(view, value);
+            }
+        };
+    }
+
+    protected Action ifViewAttached(io.reactivex.functions.Consumer<T> consumer) {
         return () -> {
-            if(view != null) {
+            if (view != null) {
                 consumer.accept(view);
             }
         };

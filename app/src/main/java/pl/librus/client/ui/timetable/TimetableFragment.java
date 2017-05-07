@@ -30,7 +30,6 @@ import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager;
 import eu.davidea.flexibleadapter.common.TopSnappedSmoothScroller;
 import eu.davidea.flexibleadapter.items.IFlexible;
 import eu.davidea.flexibleadapter.items.IHeader;
-import java8.util.Optional;
 import java8.util.stream.Collectors;
 import java8.util.stream.RefStreams;
 import java8.util.stream.Stream;
@@ -38,10 +37,10 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.MainActivityComponent;
 import pl.librus.client.R;
 import pl.librus.client.domain.Teacher;
+import pl.librus.client.domain.event.FullEvent;
 import pl.librus.client.domain.lesson.BaseLesson;
 import pl.librus.client.domain.lesson.EnrichedLesson;
 import pl.librus.client.domain.lesson.FullLesson;
-import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.lesson.SchoolWeek;
 import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.TimetablePresenter;
@@ -150,13 +149,14 @@ public class TimetableFragment extends MainFragment implements TimetableView {
     }
 
     @Override
-    public void display(List<SchoolWeek> content) {
+    public void display(List<SchoolWeek> schoolWeeks) {
         adapter.clear();
-        List<IFlexible> elements = StreamSupport.stream(content)
+        List<IFlexible> elements = StreamSupport.stream(schoolWeeks)
                 .flatMap(this::mapLessonsForWeek)
                 .collect(Collectors.toList());
 
         adapter.addItems(0, elements);
+
     }
 
     @Override
@@ -184,15 +184,19 @@ public class TimetableFragment extends MainFragment implements TimetableView {
 
         ViewGroup eventContainer = (ViewGroup) details.findViewById(R.id.lesson_details_event_container);
         ViewGroup teacherContainer = (ViewGroup) details.findViewById(R.id.lesson_details_teacher_container);
+        ViewGroup eventSection = (ViewGroup) details.findViewById(R.id.lesson_details_event);
 
         TextView teacherTextView = (TextView) details.findViewById(R.id.lesson_details_teacher_value);
         TextView dateTextView = (TextView) details.findViewById(R.id.lesson_details_date_value);
         TextView timeTextView = (TextView) details.findViewById(R.id.lesson_details_time_value);
+        TextView eventCategoryTextView = (TextView) details.findViewById(R.id.lesson_details_event_title);
         TextView eventTextView = (TextView) details.findViewById(R.id.lesson_details_event_value);
 
+        //Date
         dateTextView.setText(new SpannableStringBuilder()
                 .append(lesson.date().toString("EEEE, d MMMM yyyy", new Locale("pl")),
                         new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+        //Time
         SpannableStringBuilder timeSSB = new SpannableStringBuilder();
         if (lesson.hourFrom().isPresent() && lesson.hourTo().isPresent()) {
             timeSSB.append(lesson.hourFrom().get().toString("HH:mm"))
@@ -205,7 +209,7 @@ public class TimetableFragment extends MainFragment implements TimetableView {
                 .append(". lekcja", new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         timeTextView.setText(timeSSB);
 
-        //TODO add Events
+        //Teacher
         if (lesson.teacher().name().isPresent()) {
             teacherContainer.setVisibility(android.view.View.VISIBLE);
             SpannableStringBuilder ssb = new SpannableStringBuilder();
@@ -224,9 +228,19 @@ public class TimetableFragment extends MainFragment implements TimetableView {
             teacherContainer.setVisibility(android.view.View.GONE);
         }
 
-        eventContainer.setVisibility(android.view.View.GONE);
+        //Event
+        if (lesson.event().isPresent()) {
+            FullEvent event = lesson.event().get();
+            eventContainer.setVisibility(View.VISIBLE);
+            eventSection.setVisibility(View.VISIBLE);
+            eventCategoryTextView.setText(event.category().name());
+            eventTextView.setText(new SpannableStringBuilder()
+                    .append(event.content(), new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+        } else {
+            eventContainer.setVisibility(View.GONE);
+            eventSection.setVisibility(View.GONE);
+        }
 
-        //TODO Ogarnianie odwołań
         builder.customView(details, true).show();
     }
 

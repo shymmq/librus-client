@@ -6,7 +6,6 @@ import org.joda.time.LocalDate;
 
 import javax.inject.Inject;
 
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import pl.librus.client.UserScope;
@@ -23,11 +22,13 @@ import pl.librus.client.domain.announcement.FullAnnouncement;
 import pl.librus.client.domain.attendance.Attendance;
 import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.attendance.FullAttendance;
+import pl.librus.client.domain.event.Event;
+import pl.librus.client.domain.event.EventCategory;
+import pl.librus.client.domain.event.FullEvent;
 import pl.librus.client.domain.grade.EnrichedGrade;
 import pl.librus.client.domain.grade.FullGrade;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
-import pl.librus.client.domain.lesson.BaseLesson;
 import pl.librus.client.domain.lesson.EnrichedLesson;
 import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.Lesson;
@@ -94,6 +95,11 @@ public class LibrusData {
     public Observable<FullSubject> findFullSubjects() {
         return BlockingLibrusData.preload(strategy, Average.class, Subject.class)
                 .flattenAsObservable(BlockingLibrusData::findFullSubjects);
+    }
+
+    public Observable<FullEvent> findFullEvents() {
+        return BlockingLibrusData.preload(strategy, Event.class, EventCategory.class, Teacher.class)
+                .flattenAsObservable(BlockingLibrusData::findFullEvents);
     }
 
     public Single<FullGrade> makeFullGrade(EnrichedGrade grade) {

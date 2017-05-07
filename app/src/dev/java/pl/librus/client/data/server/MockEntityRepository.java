@@ -6,8 +6,6 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import org.joda.time.LocalTime;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -20,13 +18,10 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.domain.Average;
 import pl.librus.client.domain.Identifiable;
 import pl.librus.client.domain.ImmutableAverage;
-import pl.librus.client.domain.ImmutableLessonRange;
 import pl.librus.client.domain.ImmutableLibrusClass;
-import pl.librus.client.domain.ImmutableLibrusUnit;
 import pl.librus.client.domain.ImmutableMe;
 import pl.librus.client.domain.ImmutablePlainLesson;
 import pl.librus.client.domain.ImmutableTeacher;
-import pl.librus.client.domain.LessonRange;
 import pl.librus.client.domain.LibrusClass;
 import pl.librus.client.domain.LibrusColor;
 import pl.librus.client.domain.LibrusUnit;
@@ -85,7 +80,7 @@ class MockEntityRepository {
             .add(makeUpdate(AttendanceCategory.class, 3, this::updateAttendanceCategory))
             .add(makeUpdate(Attendance.class, 600, this::updateAttendance))
             .add(makeUpdate(EventCategory.class, 3, this::updateEventCategory))
-            .add(makeUpdate(Event.class, 15, this::updateEvent))
+            .add(makeUpdate(Event.class, 40, this::updateEvent))
             .add(makeUpdate(LibrusColor.class, SampleValues.COLORS.size(), this::updateColor))
             .add(makeUpdate(GradeComment.class, 15, this::updateGradeComment))
             .add(makeUpdate(GradeCategory.class, 5, this::updateGradeCategory))
@@ -173,8 +168,8 @@ class MockEntityRepository {
 
     private Event updateEvent(Event e, int index) {
         return ImmutableEvent.copyOf(e)
-                .withAddedBy(idFromIndex(Teacher.class, index))
-                .withCategory(idFromIndex(EventCategory.class, index));
+                .withAddedById(idFromIndex(Teacher.class, index))
+                .withCategoryId(idFromIndex(EventCategory.class, index));
     }
 
     private EventCategory updateEventCategory(EventCategory ec, Integer integer) {

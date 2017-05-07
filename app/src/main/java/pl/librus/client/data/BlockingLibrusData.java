@@ -29,6 +29,11 @@ import pl.librus.client.domain.attendance.AttendanceCategory;
 import pl.librus.client.domain.attendance.BaseAttendance;
 import pl.librus.client.domain.attendance.FullAttendance;
 import pl.librus.client.domain.attendance.ImmutableFullAttendance;
+import pl.librus.client.domain.event.BaseEvent;
+import pl.librus.client.domain.event.Event;
+import pl.librus.client.domain.event.EventCategory;
+import pl.librus.client.domain.event.FullEvent;
+import pl.librus.client.domain.event.ImmutableFullEvent;
 import pl.librus.client.domain.grade.BaseGrade;
 import pl.librus.client.domain.grade.BaseGradeCategory;
 import pl.librus.client.domain.grade.EnrichedGrade;
@@ -40,11 +45,9 @@ import pl.librus.client.domain.grade.GradeComment;
 import pl.librus.client.domain.grade.ImmutableEnrichedGrade;
 import pl.librus.client.domain.grade.ImmutableFullGrade;
 import pl.librus.client.domain.grade.ImmutableFullGradeCategory;
-import pl.librus.client.domain.lesson.BaseLesson;
 import pl.librus.client.domain.lesson.EnrichedLesson;
 import pl.librus.client.domain.lesson.FullLesson;
 import pl.librus.client.domain.lesson.ImmutableFullLesson;
-import pl.librus.client.domain.lesson.Lesson;
 import pl.librus.client.domain.subject.BaseSubject;
 import pl.librus.client.domain.subject.FullSubject;
 import pl.librus.client.domain.subject.ImmutableFullSubject;
@@ -57,11 +60,11 @@ public class BlockingLibrusData {
     private final DataLoadStrategy strategy;
 
     public static BlockingLibrusData get(DataLoadStrategy strategy) {
-       return new BlockingLibrusData(Maps.newHashMap(), strategy);
+        return new BlockingLibrusData(Maps.newHashMap(), strategy);
     }
 
     @SafeVarargs
-    public static Single<BlockingLibrusData> preload(DataLoadStrategy strategy,Class<? extends Identifiable>... preloadClasses) {
+    public static Single<BlockingLibrusData> preload(DataLoadStrategy strategy, Class<? extends Identifiable>... preloadClasses) {
         Map<Class<?>, Map<String, ?>> objects = Maps.newHashMap();
 
         return Observable.fromArray(preloadClasses)
@@ -84,9 +87,9 @@ public class BlockingLibrusData {
 
     private <T extends Persistable> Map<String, T> getMap(Class<T> clazz) {
         Map<String, T> objMap = (Map<String, T>) objects.get(clazz);
-        if(objMap == null) {
+        if (objMap == null) {
             return Maps.newHashMap();
-        }else {
+        } else {
             return objMap;
         }
     }
@@ -101,20 +104,20 @@ public class BlockingLibrusData {
 
     public <T extends Identifiable> T getById(Class<T> clazz, String id) {
         T obj = getMap(clazz).get(id);
-        if(obj == null) {
-            return strategy.getById(clazz,id).blockingGet();
+        if (obj == null) {
+            return strategy.getById(clazz, id).blockingGet();
         } else {
             return obj;
         }
     }
 
     public <T extends Identifiable> Optional<T> getOptionalById(Class<T> clazz, String id) {
-        if(id.isEmpty()) {
+        if (id.isEmpty()) {
             return Optional.absent();
         }
         T obj = getMap(clazz).get(id);
-        if(obj == null) {
-            return strategy.getById(clazz,id)
+        if (obj == null) {
+            return strategy.getById(clazz, id)
                     .map(Optional::of)
                     .onErrorReturn(t -> Optional.absent())
                     .blockingGet();
@@ -124,7 +127,7 @@ public class BlockingLibrusData {
     }
 
     public <T extends Identifiable> Optional<T> getOptionalById(Class<T> clazz, Optional<String> id) {
-        if(id.isPresent()) {
+        if (id.isPresent()) {
             return getOptionalById(clazz, id.get());
         } else {
             return Optional.absent();
@@ -196,6 +199,7 @@ public class BlockingLibrusData {
                 .from(lesson)
                 .date(lesson.date())
                 .orgTeacher(getOptionalById(Teacher.class, lesson.orgTeacherId()))
+                .event(lesson.event())
                 .build();
     }
 
@@ -213,6 +217,18 @@ public class BlockingLibrusData {
         return ImmutableFullSubject.builder()
                 .from(subject)
                 .average(getByIdIgnoreMissing(Average.class, subject.id()))
+                .build();
+    }
+
+    public List<FullEvent> findFullEvents() {
+        return mapAll(Event.class, this::makeFullEvent);
+    }
+
+    public FullEvent makeFullEvent(BaseEvent event) {
+        return ImmutableFullEvent.builder()
+                .from(event)
+                .addedBy(getById(Teacher.class, event.addedById()))
+                .category(getById(EventCategory.class, event.categoryId()))
                 .build();
     }
 }

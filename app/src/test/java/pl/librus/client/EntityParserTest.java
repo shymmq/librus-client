@@ -246,8 +246,8 @@ public class EntityParserTest {
 
         //then
         assertThat(res, hasItem(ImmutableEvent.builder()
-                .category("7323")
-                .addedBy("1235072")
+                .categoryId("7323")
+                .addedById("1235072")
                 .date(LocalDate.parse("2016-10-07"))
                 .id("1810676")
                 .content("Węglowodory.")

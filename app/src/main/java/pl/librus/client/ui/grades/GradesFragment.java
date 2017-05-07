@@ -97,12 +97,7 @@ public class GradesFragment extends MainFragment implements FlexibleAdapter.OnIt
         if (item instanceof GradeItem) {
             GradeItem gradeItem = (GradeItem) item;
             presenter.gradeClicked(position, gradeItem.getGrade());
-
-        } else //noinspection StatementWithEmptyBody
-            if (item instanceof AverageItem) {
-                //TODO
-            }
-
+        }
         return false;
     }
 

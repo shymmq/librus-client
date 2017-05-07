@@ -26,20 +26,19 @@ import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Observable;
 import java8.util.stream.IntStreams;
-import pl.librus.client.notification.LibrusGcmListenerService;
-import pl.librus.client.domain.event.Event;
+import pl.librus.client.data.UpdateHelper;
+import pl.librus.client.db.BaseDBTest;
+import pl.librus.client.db.EntityTemplates;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.announcement.Announcement;
+import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.subject.Subject;
-import pl.librus.client.db.BaseDBTest;
-import pl.librus.client.db.EntityTemplates;
-import pl.librus.client.data.UpdateHelper;
+import pl.librus.client.notification.LibrusGcmListenerService;
 import pl.librus.client.notification.NotificationService;
 import pl.librus.client.widget.WidgetUpdater;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
@@ -185,7 +184,7 @@ public class NotificationTest extends BaseDBTest {
         Teacher teacher = EntityTemplates.teacher();
 
         Event event = EntityTemplates.event()
-                .withAddedBy(teacher.id());
+                .withAddedById(teacher.id());
 
         LibrusGcmListenerService service = serviceWithMockClient();
         addMockEvents(event);
@@ -210,7 +209,7 @@ public class NotificationTest extends BaseDBTest {
         Event event1 = EntityTemplates.event()
                 .withContent("Praca klasowa")
                 .withDate(LocalDate.parse("2016-10-07"))
-                .withAddedBy(teacher1.id());
+                .withAddedById(teacher1.id());
 
         Teacher teacher2 = EntityTemplates.teacher()
                 .withId("2")
@@ -219,7 +218,7 @@ public class NotificationTest extends BaseDBTest {
         Event event2 = EntityTemplates.event()
                 .withContent("Kartkówka")
                 .withDate(LocalDate.parse("2016-10-10"))
-                .withAddedBy(teacher2.id());
+                .withAddedById(teacher2.id());
 
         LibrusGcmListenerService service = serviceWithMockClient();
         addMockEvents(event1, event2);

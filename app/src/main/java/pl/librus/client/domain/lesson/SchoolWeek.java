@@ -12,5 +12,4 @@ public interface SchoolWeek {
 
     @Value.Parameter
     List<EnrichedLesson> lessons();
-
 }

@@ -195,7 +195,7 @@ public class NotificationService {
                     String date = e.date().toString("EEEE, d MMMM yyyy", new Locale("pl"));
                     style.addLine(e.content() + " - " + date);
                     Optional<String> name = strategy
-                            .getById(Teacher.class, e.addedBy())
+                            .getById(Teacher.class, e.addedById())
                             .blockingGet()
                             .name();
                     if (name.isPresent()) {

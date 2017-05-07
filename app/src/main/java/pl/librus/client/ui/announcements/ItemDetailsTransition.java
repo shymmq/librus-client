@@ -62,7 +62,6 @@ public class ItemDetailsTransition extends Transition {
     public Animator createAnimator(final ViewGroup sceneRoot, TransitionValues startValues,
                                    final TransitionValues endValues) {
         if (startValues != null && endValues != null) {
-            //TODO Add workaround for no shadow bug
             final ViewGroupOverlay overlay = sceneRoot.getOverlay();
             final View view = endValues.view;
             View bottomPanel = endValues.view.findViewById(R.id.fragment_announcement_details_bottom_panel);
@@ -70,12 +69,7 @@ public class ItemDetailsTransition extends Transition {
 
 //           TOP PANEL
             ValueAnimator text = ValueAnimator.ofFloat(14, 20);
-            text.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    topPanel.setTextSize(TypedValue.COMPLEX_UNIT_SP, (Float) valueAnimator.getAnimatedValue());
-                }
-            });
+            text.addUpdateListener(valueAnimator -> topPanel.setTextSize(TypedValue.COMPLEX_UNIT_SP, (Float) valueAnimator.getAnimatedValue()));
             Animator top = ObjectAnimator.ofFloat(topPanel, "alpha", 0.5f, 1f);
             Animator bottom = ObjectAnimator.ofFloat(bottomPanel, "alpha", 0.5f, 1f);
 
