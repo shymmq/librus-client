@@ -10,7 +10,7 @@ android {
         targetSdkVersion 25
         multiDexEnabled true
         versionCode 14
-        versionName "1.5r"
+        versionName "1.6d"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
