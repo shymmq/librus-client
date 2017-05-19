@@ -48,21 +48,32 @@ public class LuckyNumberWidgetProvider extends AppWidgetProvider {
         PendingIntent pendingIntent = PendingIntent.getActivity(context,
                 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.widget, pendingIntent);
-        if(userComponent.isPresent()) {
-            remoteViews.setViewVisibility(R.id.lucky_number, View.VISIBLE);
-            remoteViews.setViewVisibility(R.id.log_in, View.GONE);
+        if (userComponent.isPresent()) {
+            setViewsVisibility(remoteViews, View.VISIBLE, View.GONE);
 
             userComponent.get().inject(this);
-            String text = data.findLuckyNumber()
-                    .map(this::toString)
+            Optional<LuckyNumber> luckyNumberOptional = data.findLuckyNumber()
                     .blockingGet();
-            remoteViews.setTextViewText(R.id.lucky_number, text);
+            if (luckyNumberOptional.isPresent()) {
+                remoteViews.setTextViewText(R.id.lucky_number, String.valueOf(luckyNumberOptional.get().luckyNumber()));
+                remoteViews.setTextViewText(R.id.lucky_number_date, luckyNumberOptional.get().day().toString("EEEE"));
+            } else {
+                setViewsVisibility(remoteViews, View.GONE, View.VISIBLE);
+                remoteViews.setTextViewText(R.id.log_in, context.getString(R.string.no_lucky_number));
+            }
         } else {
-            remoteViews.setViewVisibility(R.id.lucky_number, View.GONE);
-            remoteViews.setViewVisibility(R.id.log_in, View.VISIBLE);
+            setViewsVisibility(remoteViews, View.GONE, View.VISIBLE);
+            remoteViews.setTextViewText(R.id.log_in, context.getString(R.string.log_in));
         }
 
         return remoteViews;
+    }
+
+    private void setViewsVisibility(RemoteViews remoteViews, int normalViews, int errorViews) {
+        remoteViews.setViewVisibility(R.id.lucky_number, normalViews);
+        remoteViews.setViewVisibility(R.id.lucky_number_icon, normalViews);
+        remoteViews.setViewVisibility(R.id.lucky_number_date, normalViews);
+        remoteViews.setViewVisibility(R.id.log_in, errorViews);
     }
 
     private String toString(Optional<LuckyNumber> oln) {
