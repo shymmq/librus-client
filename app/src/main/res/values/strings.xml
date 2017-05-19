@@ -91,7 +91,7 @@
     <string name="md_icons_about">&lt;a href="https://github.com/google/material-design-icons/">Material design icons&lt;/a>by Google</string>
     <string name="unknown_error">Wystąpił nieoczekiwany błąd</string>
     <string name="offline_error">Serwis chwilowo niedostępny</string>
-    <string name="offline_data_error">Serwis chwilowo niedostępny. Wyświetlane dane mogą być niekatualne</string>
+    <string name="offline_data_error">Serwis chwilowo niedostępny. Wyświetlane dane mogą być nieaktualne</string>
     <string name="wrong_credentials">Nieprawidłowe hasło, spróbuj ponownie</string>
     <string name="no_lucky_number">brak</string>
 </resources>
