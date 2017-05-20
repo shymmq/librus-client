@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps, 
 
         setContentView(R.layout.activity_main);
 
-        String login =  PreferenceManager.getDefaultSharedPreferences(this)
+        String login = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString("login", null);
         if (login == null) {
             navigateToLogin();
@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOps, 
 
     @Override
     protected void onDestroy() {
-        presenter.destroy();
+        if (presenter != null) presenter.destroy();
         super.onDestroy();
 
         MainApplication.releaseMainActivityComponent();
