@@ -255,7 +255,7 @@ public class NotificationTest extends BaseDBTest {
     private LibrusGcmListenerService serviceWithMockClient() {
         widgetUpdater = mock(WidgetUpdater.class);
         LibrusGcmListenerService service = new LibrusGcmListenerService(
-                new NotificationService(RuntimeEnvironment.application, databaseManager),
+                new NotificationService(RuntimeEnvironment.application, serverFallbackStrategy),
                 new UpdateHelper(databaseManager, apiClient),
                 widgetUpdater);
         when(apiClient.getAll(any()))

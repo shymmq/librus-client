@@ -26,7 +26,7 @@ import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.data.DataLoadStrategy;
-import pl.librus.client.data.db.DatabaseManager;
+import pl.librus.client.data.ServerFallbackStrategy;
 import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Teacher;
@@ -51,7 +51,7 @@ public class NotificationService {
 
     @Inject
     public NotificationService(Context context,
-                               DatabaseManager strategy) {
+                               ServerFallbackStrategy strategy) {
         this.context = context;
         this.strategy = strategy;
     }

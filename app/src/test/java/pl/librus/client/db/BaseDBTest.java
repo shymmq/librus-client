@@ -31,6 +31,7 @@ public abstract class BaseDBTest {
     protected IAPIClient apiClient;
     protected LibrusData librusData;
     protected DatabaseManager databaseManager;
+    protected ServerFallbackStrategy serverFallbackStrategy;
 
     @Before
     public void setup() {
@@ -42,7 +43,7 @@ public abstract class BaseDBTest {
     private void setupData() {
         databaseManager = new DatabaseManager(RuntimeEnvironment.application, DB_NAME);
 
-        ServerFallbackStrategy serverFallbackStrategy = new ServerFallbackStrategy(apiClient, databaseManager);
+        serverFallbackStrategy = new ServerFallbackStrategy(apiClient, databaseManager);
 
         librusData = new LibrusData(serverFallbackStrategy);
         data = databaseManager.getDataStore().toBlocking();
