@@ -6,7 +6,7 @@ android {
     buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "pl.librus.client"
-        minSdkVersion 21
+        minSdkVersion 18
         targetSdkVersion 25
         multiDexEnabled true
         versionCode 14

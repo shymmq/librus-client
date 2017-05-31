@@ -1,5 +1,6 @@
 package pl.librus.client.ui.announcements;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -114,18 +115,20 @@ public class AnnouncementsFragment
 
         AnnouncementDetailsFragment announcementDetailsFragment = AnnouncementDetailsFragment.newInstance(announcement);
 
-        TransitionInflater transitionInflater = TransitionInflater.from(getContext());
-        Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
-        Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
-
-        setSharedElementEnterTransition(details_enter);
-        setSharedElementReturnTransition(details_exit);
-        setExitTransition(new Fade());
-        announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
-        announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TransitionInflater transitionInflater = null;
+            transitionInflater = TransitionInflater.from(getContext());
+            Transition details_enter = transitionInflater.inflateTransition(R.transition.details_enter);
+            Transition details_exit = transitionInflater.inflateTransition(R.transition.details_exit);
+            setSharedElementEnterTransition(details_enter);
+            setSharedElementReturnTransition(details_exit);
+            setExitTransition(new Fade());
+            announcementDetailsFragment.setSharedElementEnterTransition(details_enter);
+            announcementDetailsFragment.setSharedElementReturnTransition(details_exit);
+            ft.addSharedElement(announcementItem.getBackgroundView(), announcementItem.getBackgroundView().getTransitionName());
+        }
 
         ft.replace(R.id.content_main, announcementDetailsFragment, "Announcement details transition");
-        ft.addSharedElement(announcementItem.getBackgroundView(), announcementItem.getBackgroundView().getTransitionName());
         ft.addToBackStack(null);
         ft.commitAllowingStateLoss();
     }

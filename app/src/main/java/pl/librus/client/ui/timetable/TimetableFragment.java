@@ -36,6 +36,7 @@ import java8.util.stream.Stream;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.MainActivityComponent;
 import pl.librus.client.R;
+import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.event.FullEvent;
 import pl.librus.client.domain.lesson.BaseLesson;
@@ -45,6 +46,7 @@ import pl.librus.client.domain.lesson.SchoolWeek;
 import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.TimetablePresenter;
 import pl.librus.client.ui.MainFragment;
+import pl.librus.client.util.LibrusUtils;
 
 public class TimetableFragment extends MainFragment implements TimetableView {
     private final ProgressItem progressItem = new ProgressItem();
@@ -193,9 +195,9 @@ public class TimetableFragment extends MainFragment implements TimetableView {
         TextView eventTextView = (TextView) details.findViewById(R.id.lesson_details_event_value);
 
         //Date
-        dateTextView.setText(new SpannableStringBuilder()
-                .append(lesson.date().toString("EEEE, d MMMM yyyy", new Locale("pl")),
-                        new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+        String dateText = lesson.date().toString("EEEE, d MMMM yyyy", new Locale("pl"));
+        dateTextView.setText(LibrusUtils.boldText(dateText));
+
         //Time
         SpannableStringBuilder timeSSB = new SpannableStringBuilder();
         if (lesson.hourFrom().isPresent() && lesson.hourTo().isPresent()) {
@@ -204,9 +206,8 @@ public class TimetableFragment extends MainFragment implements TimetableView {
                     .append(lesson.hourTo().get().toString("HH:mm"))
                     .append(' ');
         }
-        timeSSB.append(String.valueOf(lesson.lessonNo()),
-                new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                .append(". lekcja", new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        LibrusUtils.boldText(timeSSB, String.valueOf(lesson.lessonNo()) + ". lekcja");
+
         timeTextView.setText(timeSSB);
 
         //Teacher
@@ -221,8 +222,7 @@ public class TimetableFragment extends MainFragment implements TimetableView {
                             .append(" -> ");
                 }
             }
-            ssb.append(lesson.teacher().name().get(),
-                    new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            LibrusUtils.boldText(ssb, lesson.teacher().name().get());
             teacherTextView.setText(ssb);
         } else {
             teacherContainer.setVisibility(android.view.View.GONE);
@@ -234,8 +234,7 @@ public class TimetableFragment extends MainFragment implements TimetableView {
             eventContainer.setVisibility(View.VISIBLE);
             eventSection.setVisibility(View.VISIBLE);
             eventCategoryTextView.setText(event.category().name());
-            eventTextView.setText(new SpannableStringBuilder()
-                    .append(event.content(), new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_INCLUSIVE));
+            eventTextView.setText(LibrusUtils.boldText(event.content()));
         } else {
             eventContainer.setVisibility(View.GONE);
             eventSection.setVisibility(View.GONE);

@@ -1,5 +1,9 @@
 package pl.librus.client.util;
 
+import android.graphics.Typeface;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -100,5 +104,16 @@ public class LibrusUtils {
     public static String getClassId(Object obj) {
         Class<?> clazz = obj.getClass();
         return getClassId(clazz);
+    }
+
+    public static SpannableStringBuilder boldText(String text) {
+        return boldText(new SpannableStringBuilder(), text);
+    }
+
+    public static SpannableStringBuilder boldText(SpannableStringBuilder builder, String text) {
+        int start = builder.length();
+        builder.append(text);
+        builder.setSpan(new StyleSpan(Typeface.BOLD), start, builder.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        return builder;
     }
 }

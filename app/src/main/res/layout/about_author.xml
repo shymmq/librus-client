@@ -11,7 +11,7 @@
         android:background="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:paddingStart="16dp"
-        android:textAppearance="@android:style/TextAppearance.Material" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
     <ImageView
         android:id="@+id/author_link"

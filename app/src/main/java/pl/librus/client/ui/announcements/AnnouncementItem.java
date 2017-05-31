@@ -1,6 +1,7 @@
 package pl.librus.client.ui.announcements;
 
 import android.graphics.Typeface;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +57,7 @@ public class AnnouncementItem extends AbstractSectionableItem<AnnouncementItem.V
         this.title = holder.announcementSubject;
 
         holder.announcementSubject.setText(announcement.subject());
-        holder.background.setTransitionName("announcement_background_" + announcement.id());
+        ViewCompat.setTransitionName(holder.background, "announcement_background_" + announcement.id());
         LibrusUtils.setTextViewValue(holder.announcementTeacherName, announcement.addedByName());
         holder.announcementContent.setText(announcement.content());
 

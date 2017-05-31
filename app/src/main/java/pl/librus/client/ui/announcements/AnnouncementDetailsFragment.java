@@ -2,6 +2,7 @@ package pl.librus.client.ui.announcements;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +68,7 @@ public class AnnouncementDetailsFragment extends Fragment {
         LibrusUtils.setTextViewValue(authorTextView, announcement.addedByName());
         dateTextView.setText(announcement.startDate().toString("EEEE, d MMMM yyyy", new Locale("pl")));
 
-        background.setTransitionName("announcement_background_" + announcement.id());
+        ViewCompat.setTransitionName(background, "announcement_background_" + announcement.id());
         new Reader(getContext()).read(announcement);
         return root;
     }

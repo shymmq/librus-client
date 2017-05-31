@@ -2,6 +2,8 @@ package pl.librus.client.ui.timetable;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,18 +84,21 @@ public class LessonItem extends AbstractSectionableItem<LessonItem.LessonItemVie
             //cancelled
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.canceled);
-            holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_cancel_black_24dp));
+            Drawable cancelledIcon = ContextCompat.getDrawable(context, R.drawable.ic_cancel_black_24dp);
+            holder.badgeIcon.setImageDrawable(cancelledIcon);
         } else if (lesson.event().isPresent()) {
             //event
             holder.badge.setVisibility(View.VISIBLE);
             String categoryName = lesson.event().get().category().name();
             holder.badgeText.setText(categoryName);
-            holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_event_black_24dp));
+            Drawable eventIcon = ContextCompat.getDrawable(context, R.drawable.ic_event_black_24dp);
+            holder.badgeIcon.setImageDrawable(eventIcon);
         } else if (lesson.substitutionClass()) {
             //substitution
             holder.badge.setVisibility(View.VISIBLE);
             holder.badgeText.setText(R.string.substitution);
-            holder.badgeIcon.setImageDrawable(context.getDrawable(R.drawable.ic_swap_horiz_black_24dp));
+            Drawable substitutionIcon = ContextCompat.getDrawable(context, R.drawable.ic_swap_horiz_black_24dp);
+            holder.badgeIcon.setImageDrawable(substitutionIcon);
         } else {
             //normal lesson
             holder.badge.setVisibility(View.GONE);

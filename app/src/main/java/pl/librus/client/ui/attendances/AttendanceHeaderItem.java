@@ -70,8 +70,8 @@ class AttendanceHeaderItem extends AbstractExpandableHeaderItem<AttendanceHeader
     @Override
     public void addSubItem(AttendanceItem subItem) {
         super.addSubItem(subItem);
-        if (Objects.equals(subItem.getAttendance().category().shortName(), "sp")) spCount++;
-        if (Objects.equals(subItem.getAttendance().category().shortName(), "nb")) nbCount++;
+        if ("sp".equals(subItem.getAttendance().category().shortName())) spCount++;
+        if ("nb".equals(subItem.getAttendance().category().shortName())) nbCount++;
     }
 
     @Override
