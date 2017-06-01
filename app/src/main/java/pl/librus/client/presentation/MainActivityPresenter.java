@@ -1,42 +1,30 @@
 package pl.librus.client.presentation;
 
-import android.support.design.widget.Snackbar;
 import android.widget.Toast;
 
 import com.google.common.base.Optional;
 
 import org.immutables.value.Value;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.MainApplication;
-import pl.librus.client.R;
-import pl.librus.client.data.LibrusData;
 import pl.librus.client.data.Reader;
 import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.data.db.DatabaseManager;
 import pl.librus.client.data.server.HttpException;
-import pl.librus.client.data.server.OfflineException;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
 import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.grade.Grade;
-import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainActivityOps;
-import pl.librus.client.ui.MenuAction;
-import pl.librus.client.ui.NavigationOps;
 import pl.librus.client.ui.ProgressReporter;
 import pl.librus.client.ui.ToastDisplay;
 import pl.librus.client.util.LibrusUtils;
 import pl.librus.client.util.PreferencesManager;
-import pl.librus.client.widget.LuckyNumberWidgetProvider;
 import pl.librus.client.widget.WidgetUpdater;
 
 /**
@@ -101,7 +89,7 @@ public class MainActivityPresenter {
                         .subscribe(reader::read))
                 .doOnComplete(widgetUpdater::updateLuckyNumber)
                 .doFinally(() -> {
-                    if(activityAttached){
+                    if (activityAttached) {
                         mainActivity.hideProgressDialog();
                     }
                 })
@@ -154,7 +142,7 @@ public class MainActivityPresenter {
 
     public void destroy() {
         activityAttached = false;
-        if(subscription != null && !subscription.isDisposed()) {
+        if (subscription != null && !subscription.isDisposed()) {
             subscription.dispose();
         }
     }

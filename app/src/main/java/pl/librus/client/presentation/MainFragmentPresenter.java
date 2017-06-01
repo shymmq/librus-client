@@ -5,15 +5,8 @@ import com.google.common.collect.Ordering;
 import java.util.List;
 import java.util.Set;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
-import pl.librus.client.data.UpdateHelper;
-import pl.librus.client.domain.Identifiable;
-import pl.librus.client.domain.Teacher;
-import pl.librus.client.domain.lesson.Lesson;
-import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.MainView;
 
 /**

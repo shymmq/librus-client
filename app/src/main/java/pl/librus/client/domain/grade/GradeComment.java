@@ -22,8 +22,8 @@ public abstract class GradeComment implements Persistable, Identifiable {
     public abstract String id();
 
     @JsonDeserialize(using = IdDeserializer.class)
-    public abstract String addedBy() ;
+    public abstract String addedBy();
 
-    public abstract String text() ;
+    public abstract String text();
 
 }

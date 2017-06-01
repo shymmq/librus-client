@@ -14,7 +14,7 @@ public class OptionalConverter extends JsonConverter<Optional> {
 
     @Override
     public String convertToPersisted(Optional value) {
-        if(value == null || !value.isPresent()) {
+        if (value == null || !value.isPresent()) {
             return null;
         }
         String typeName = value.get().getClass().getName();
@@ -23,12 +23,12 @@ public class OptionalConverter extends JsonConverter<Optional> {
 
     @Override
     public Optional convertToMapped(Class<? extends Optional> type, String value) {
-        if(value == null) {
+        if (value == null) {
             return Optional.absent();
-        }else {
+        } else {
             int split = value.indexOf(";");
             String className = value.substring(0, split);
-            String extractedValue = value.substring(split+1);
+            String extractedValue = value.substring(split + 1);
             try {
                 Class<?> extractedType = Class.forName(className);
                 return Optional.fromNullable(convertFromString(extractedValue, extractedType));
@@ -40,7 +40,8 @@ public class OptionalConverter extends JsonConverter<Optional> {
 
     @Override
     protected TypeReference<Optional> getReferenceType() {
-        return new TypeReference<Optional>() {};
+        return new TypeReference<Optional>() {
+        };
     }
 
     protected <T> T convertFromString(String s, Class<T> clazz) {

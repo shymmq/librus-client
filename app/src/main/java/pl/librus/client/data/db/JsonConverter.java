@@ -2,13 +2,10 @@ package pl.librus.client.data.db;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.google.common.base.Splitter;
 
 import java.io.IOException;
-import java.util.List;
 
 import io.requery.Converter;
 
@@ -16,7 +13,7 @@ import io.requery.Converter;
  * Created by robwys on 01/05/2017.
  */
 
-public abstract class JsonConverter <T> implements Converter<T, String> {
+public abstract class JsonConverter<T> implements Converter<T, String> {
 
     @Override
     public Class<String> getPersistedType() {
@@ -30,7 +27,7 @@ public abstract class JsonConverter <T> implements Converter<T, String> {
 
     @Override
     public String convertToPersisted(T value) {
-        if(value == null) {
+        if (value == null) {
             return null;
         }
         return convertToString(value);
@@ -38,7 +35,7 @@ public abstract class JsonConverter <T> implements Converter<T, String> {
 
     @Override
     public T convertToMapped(Class<? extends T> type, String value) {
-        if(value == null) {
+        if (value == null) {
             return null;
         }
         return convertFromString(value);

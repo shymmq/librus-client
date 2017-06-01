@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 
 import javax.inject.Inject;
 
@@ -63,7 +62,7 @@ public class MainApplication extends MultiDexApplication {
         if (userComponent == null) {
             String login = PreferenceManager.getDefaultSharedPreferences(context)
                     .getString("login", null);
-            if(login == null) {
+            if (login == null) {
                 return Optional.absent();
             }
             userComponent = component().plus(new UserModule(login));

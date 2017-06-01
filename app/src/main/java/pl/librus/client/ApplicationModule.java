@@ -2,10 +2,8 @@ package pl.librus.client;
 
 import android.content.Context;
 
-import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
-import pl.librus.client.analytics.IAnalytics;
 import pl.librus.client.data.server.APIClient;
 import pl.librus.client.data.server.IAPIClient;
 

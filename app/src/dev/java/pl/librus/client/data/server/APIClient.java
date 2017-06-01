@@ -57,7 +57,7 @@ public class APIClient implements IAPIClient {
 
     public Observable<Lesson> getLessonsForWeek(LocalDate weekStart) {
         Timetable timetable = lessonsForWeeks.get(weekStart);
-        if(timetable == null) {
+        if (timetable == null) {
             timetable = createLessonsForWeek(weekStart);
             lessonsForWeeks.put(weekStart, timetable);
         }

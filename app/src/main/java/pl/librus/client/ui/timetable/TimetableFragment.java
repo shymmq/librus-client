@@ -1,13 +1,10 @@
 package pl.librus.client.ui.timetable;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +33,6 @@ import java8.util.stream.Stream;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.MainActivityComponent;
 import pl.librus.client.R;
-import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.event.FullEvent;
 import pl.librus.client.domain.lesson.BaseLesson;

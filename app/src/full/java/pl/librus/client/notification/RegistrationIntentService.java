@@ -34,7 +34,8 @@ public class RegistrationIntentService extends IntentService {
                         .getToken(APP_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
                 LibrusUtils.log("Retrieved GCM token " + token);
                 new APIClient(this).pushDevices(token)
-                        .subscribe(() -> {}, LibrusUtils::handleError);
+                        .subscribe(() -> {
+                        }, LibrusUtils::handleError);
             } else {
                 InstanceID.getInstance(this)
                         .deleteToken(APP_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE);

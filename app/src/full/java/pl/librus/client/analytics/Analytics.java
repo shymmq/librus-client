@@ -1,6 +1,5 @@
 package pl.librus.client.analytics;
 
-import android.app.Application;
 import android.content.Context;
 
 import com.google.firebase.FirebaseApp;

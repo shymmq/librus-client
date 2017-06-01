@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import pl.librus.client.R;
-import pl.librus.client.data.server.HttpException;
 import pl.librus.client.data.server.MaintenanceException;
 import pl.librus.client.data.server.OfflineException;
 import pl.librus.client.ui.MainActivityOps;
@@ -28,7 +27,8 @@ public class ErrorHandler implements Consumer<Throwable> {
 
     @Override
     public void accept(@NonNull Throwable exception) throws Exception {
-        handler(() -> {}).accept(exception);
+        handler(() -> {
+        }).accept(exception);
     }
 
     public Consumer<Throwable> handler(Runnable normalExecution) {

@@ -10,7 +10,7 @@ import pl.librus.client.domain.Identifiable;
 
 @Entity(builder = ImmutableSubject.Builder.class)
 @Value.Immutable
-@JsonDeserialize(as=ImmutableSubject.class)
+@JsonDeserialize(as = ImmutableSubject.class)
 public abstract class Subject extends BaseSubject implements Identifiable {
 
 }

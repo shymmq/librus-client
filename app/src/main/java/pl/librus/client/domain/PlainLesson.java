@@ -13,7 +13,7 @@ import pl.librus.client.data.server.IdDeserializer;
 @Entity(builder = ImmutablePlainLesson.Builder.class)
 @Value.Immutable
 @JsonDeserialize(as = ImmutablePlainLesson.class)
-public abstract class PlainLesson implements Persistable, Identifiable{
+public abstract class PlainLesson implements Persistable, Identifiable {
     @Key
     public abstract String id();
 

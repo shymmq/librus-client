@@ -1,9 +1,6 @@
 package pl.librus.client.presentation;
 
 import android.support.v4.app.Fragment;
-import android.widget.Toast;
-
-import com.google.common.base.Optional;
 
 import java.util.Set;
 
@@ -11,13 +8,10 @@ import javax.inject.Inject;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import java8.util.stream.StreamSupport;
 import pl.librus.client.data.LibrusData;
-import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.ui.NavigationOps;
 import pl.librus.client.ui.SettingsFragment;
-import pl.librus.client.ui.ToastDisplay;
 import pl.librus.client.util.PreferencesManager;
 
 /**

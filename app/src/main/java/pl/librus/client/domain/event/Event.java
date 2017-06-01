@@ -9,5 +9,5 @@ import io.requery.Entity;
 @Entity(builder = ImmutableEvent.Builder.class)
 @Value.Immutable
 @JsonDeserialize(as = ImmutableEvent.class)
-public abstract class Event extends BaseEvent{
+public abstract class Event extends BaseEvent {
 }

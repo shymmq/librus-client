@@ -3,7 +3,6 @@ package pl.librus.client.domain.lesson;
 import org.immutables.value.Value;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 
 import io.requery.Column;
 import io.requery.Entity;

@@ -10,9 +10,6 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 
-import io.requery.Persistable;
-import pl.librus.client.domain.Identifiable;
-
 import static pl.librus.client.util.LibrusConstants.DBG;
 import static pl.librus.client.util.LibrusConstants.TAG;
 
@@ -58,7 +55,7 @@ public class LibrusUtils {
     }
 
     public static void setTextViewValue(View container, TextView textView, Optional<String> optional) {
-        if(optional.isPresent()) {
+        if (optional.isPresent()) {
             container.setVisibility(View.VISIBLE);
             textView.setText(optional.get());
         } else {
@@ -95,7 +92,7 @@ public class LibrusUtils {
     }
 
     public static String getClassId(Class<?> clazz) {
-        while(!clazz.getSuperclass().equals(Object.class)){
+        while (!clazz.getSuperclass().equals(Object.class)) {
             clazz = clazz.getSuperclass();
         }
         return clazz.getSimpleName();

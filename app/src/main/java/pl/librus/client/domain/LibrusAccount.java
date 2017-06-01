@@ -1,15 +1,12 @@
 package pl.librus.client.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
 
 import javax.persistence.Embeddable;
 
-import io.requery.Convert;
 import io.requery.Key;
-import pl.librus.client.data.server.IdDeserializer;
 
 @Embeddable
 @Value.Immutable
@@ -27,7 +24,7 @@ public abstract class LibrusAccount {
         return firstName() + " " + lastName();
     }
 
-    public static ImmutableLibrusAccount.Builder builder()  {
+    public static ImmutableLibrusAccount.Builder builder() {
         return ImmutableLibrusAccount.builder();
     }
 

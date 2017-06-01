@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.List;
 
-import pl.librus.client.domain.LessonRange;
-
 /**
  * Created by robwys on 04/02/2017.
  */
@@ -19,6 +17,7 @@ public class StringListConverter extends JsonConverter<List<String>> {
 
     @Override
     protected TypeReference<List<String>> getReferenceType() {
-        return new TypeReference<List<String>>() {};
+        return new TypeReference<List<String>>() {
+        };
     }
 }

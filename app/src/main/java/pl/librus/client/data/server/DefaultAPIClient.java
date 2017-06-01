@@ -4,8 +4,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 
-import com.google.common.base.Optional;
-
 import org.joda.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -189,16 +187,16 @@ abstract class DefaultAPIClient implements IAPIClient {
         return makeRequest(info.endpoint(id))
                 .map(s -> EntityParser.parseObject(s, clazz))
                 .map(o -> {
-                    if(o.isPresent()){
+                    if (o.isPresent()) {
                         return o.get();
-                    } else{
+                    } else {
                         throw new EntityMissingException("server", clazz, id);
                     }
                 });
     }
 
     private RxHttpClient getHttpClient() {
-        ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return new RxHttpClient(connectivityManager);
     }

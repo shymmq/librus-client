@@ -27,10 +27,10 @@ import java8.util.stream.StreamSupport;
 import pl.librus.client.R;
 import pl.librus.client.data.DataLoadStrategy;
 import pl.librus.client.data.ServerFallbackStrategy;
-import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.announcement.Announcement;
+import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.subject.Subject;
 import pl.librus.client.presentation.AnnouncementsPresenter;
@@ -63,7 +63,7 @@ public class NotificationService {
 
     private boolean isEnabled() {
         return PreferenceManager.getDefaultSharedPreferences(context)
-            .getBoolean(LibrusConstants.ENABLE_NOTIFICATIONS, true);
+                .getBoolean(LibrusConstants.ENABLE_NOTIFICATIONS, true);
     }
 
     private void sendNotification(

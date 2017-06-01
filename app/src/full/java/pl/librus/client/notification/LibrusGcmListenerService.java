@@ -14,12 +14,11 @@ import io.requery.Persistable;
 import pl.librus.client.MainApplication;
 import pl.librus.client.UserComponent;
 import pl.librus.client.data.EntityChange;
-import pl.librus.client.domain.event.Event;
+import pl.librus.client.data.UpdateHelper;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.announcement.Announcement;
+import pl.librus.client.domain.event.Event;
 import pl.librus.client.domain.grade.Grade;
-import pl.librus.client.data.UpdateHelper;
-import pl.librus.client.widget.LuckyNumberWidgetProvider;
 import pl.librus.client.widget.WidgetUpdater;
 
 /**
@@ -48,14 +47,14 @@ public class LibrusGcmListenerService extends GcmListenerService {
     @Override
     public void onCreate() {
         Optional<UserComponent> userComponent = MainApplication.getOrCreateUserComponent(this);
-        if(userComponent.isPresent()) {
+        if (userComponent.isPresent()) {
             userComponent.get().inject(this);
         }
     }
 
     @Override
     public void onMessageReceived(String s, Bundle bundle) {
-        if(updateHelper == null || notificationService == null) {
+        if (updateHelper == null || notificationService == null) {
             //not initialized. Probably user not logged in
             return;
         }
@@ -82,7 +81,7 @@ public class LibrusGcmListenerService extends GcmListenerService {
                 .toList()
                 .blockingGet();
         notificationService.addLuckyNumber(luckyNumbers);
-        if(!luckyNumbers.isEmpty()) {
+        if (!luckyNumbers.isEmpty()) {
             widgetUpdater.updateLuckyNumber();
         }
     }

@@ -37,7 +37,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         Optional<MainActivityComponent> mainActivityComponent = MainApplication.getMainActivityComponent();
-        if(mainActivityComponent.isPresent()) {
+        if (mainActivityComponent.isPresent()) {
             mainActivityComponent.get().inject(this);
             addPreferencesFromResource(R.xml.preferences);
             addThemeChangeListener();

@@ -7,10 +7,8 @@ import java.util.Map;
 import io.requery.Persistable;
 import pl.librus.client.domain.Average;
 import pl.librus.client.domain.LibrusClass;
-import pl.librus.client.domain.LibrusUnit;
-import pl.librus.client.domain.event.Event;
-import pl.librus.client.domain.event.EventCategory;
 import pl.librus.client.domain.LibrusColor;
+import pl.librus.client.domain.LibrusUnit;
 import pl.librus.client.domain.LuckyNumber;
 import pl.librus.client.domain.Me;
 import pl.librus.client.domain.PlainLesson;
@@ -18,6 +16,8 @@ import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.attendance.Attendance;
 import pl.librus.client.domain.attendance.AttendanceCategory;
+import pl.librus.client.domain.event.Event;
+import pl.librus.client.domain.event.EventCategory;
 import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.domain.grade.GradeCategory;
 import pl.librus.client.domain.grade.GradeComment;
@@ -26,7 +26,6 @@ import pl.librus.client.domain.subject.Subject;
 
 /**
  * Created by robwys on 11/02/2017.
- *
  */
 
 public class EntityInfos {

@@ -2,7 +2,6 @@ package pl.librus.client.data.db;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 
 import io.requery.Converter;
 

@@ -26,7 +26,7 @@ public abstract class Average implements Identifiable {
 
     public abstract double fullYear();
 
-    public String id(){
+    public String id() {
         return subject();
     }
 

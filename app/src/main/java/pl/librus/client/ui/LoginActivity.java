@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -74,9 +72,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginFailed(Throwable exception) {
         int message;
-        if(exception instanceof HttpException && exception.getMessage().contains("invalid_grant")){
+        if (exception instanceof HttpException && exception.getMessage().contains("invalid_grant")) {
             message = R.string.wrong_credentials;
-        } else if(exception instanceof OfflineException){
+        } else if (exception instanceof OfflineException) {
             message = R.string.offline_error;
         } else {
             message = R.string.unknown_error;

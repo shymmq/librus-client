@@ -20,7 +20,7 @@ import pl.librus.client.data.db.LessonRangesConverter;
 @Value.Immutable
 @Entity(builder = ImmutableLibrusUnit.Builder.class)
 @JsonDeserialize(builder = ImmutableLibrusUnit.Builder.class)
-public abstract class LibrusUnit implements Identifiable{
+public abstract class LibrusUnit implements Identifiable {
 
     @Key
     public abstract String id();

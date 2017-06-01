@@ -1,14 +1,12 @@
 package pl.librus.client.ui;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import java.util.List;
 
 import pl.librus.client.R;
 import pl.librus.client.data.Reader;
 import pl.librus.client.domain.Identifiable;
-import pl.librus.client.presentation.MainFragmentPresenter;
 import pl.librus.client.presentation.ReloadablePresenter;
 
 /**

@@ -126,7 +126,7 @@ public class EntityParserTest {
                 .addLessonRanges(
                         LessonRange.empty(),
                         LessonRange.lessonAt(8, 0),
-                        LessonRange.lessonAt(8,55),
+                        LessonRange.lessonAt(8, 55),
                         LessonRange.lessonAt(9, 50),
                         LessonRange.lessonAt(10, 45),
                         LessonRange.lessonAt(11, 50),

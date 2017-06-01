@@ -1,8 +1,5 @@
 package pl.librus.client;
 
-import javax.inject.Singleton;
-
-import dagger.Component;
 import pl.librus.client.ui.LoginActivity;
 
 /**

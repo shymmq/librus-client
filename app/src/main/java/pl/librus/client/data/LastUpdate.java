@@ -15,7 +15,7 @@ import pl.librus.client.util.LibrusUtils;
 
 @Value.Immutable
 @Entity(builder = ImmutableLastUpdate.Builder.class)
-public abstract class LastUpdate implements Persistable{
+public abstract class LastUpdate implements Persistable {
 
     @Key
     @Value.Parameter

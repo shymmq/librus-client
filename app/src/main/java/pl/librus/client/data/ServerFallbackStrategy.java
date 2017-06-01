@@ -10,7 +10,6 @@ import io.reactivex.Single;
 import io.requery.Persistable;
 import pl.librus.client.UserScope;
 import pl.librus.client.data.db.DatabaseManager;
-import pl.librus.client.data.server.APIClient;
 import pl.librus.client.data.server.IAPIClient;
 import pl.librus.client.domain.Identifiable;
 import pl.librus.client.domain.lesson.Lesson;

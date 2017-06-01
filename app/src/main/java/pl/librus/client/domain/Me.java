@@ -7,7 +7,6 @@ import org.immutables.value.Value;
 
 import io.requery.Embedded;
 import io.requery.Entity;
-import io.requery.Persistable;
 import pl.librus.client.data.server.IdDeserializer;
 
 /**

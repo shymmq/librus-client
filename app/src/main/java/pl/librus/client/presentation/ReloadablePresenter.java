@@ -55,12 +55,14 @@ public abstract class ReloadablePresenter<Q, T extends MainView<Q>> extends Main
                 .doOnError(t -> LibrusUtils.log("Reload failed"))
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .flatMapCompletable(this::reloadAllComplete)
-                .subscribe(() -> {}, errorHandler);
+                .subscribe(() -> {
+                }, errorHandler);
     }
 
     public void refresh() {
         subscription = refreshView()
-                .subscribe(() -> {}, errorHandler);
+                .subscribe(() -> {
+                }, errorHandler);
     }
 
     @Override
@@ -70,12 +72,12 @@ public abstract class ReloadablePresenter<Q, T extends MainView<Q>> extends Main
     }
 
     private void dispose(Disposable disposable) {
-        if(disposable != null && !disposable.isDisposed()) {
+        if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
     }
 
-    protected Completable refreshView(){
+    protected Completable refreshView() {
         return fetchData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -91,7 +93,7 @@ public abstract class ReloadablePresenter<Q, T extends MainView<Q>> extends Main
         return Lists.newArrayList(new ReloadAction(this));
     }
 
-    private void displayMenuActions(Q data){
+    private void displayMenuActions(Q data) {
         mainActivity.displayMenuActions(getMenuActions(data));
     }
 
@@ -101,7 +103,7 @@ public abstract class ReloadablePresenter<Q, T extends MainView<Q>> extends Main
                 .filter(ent -> dependentEntities().contains(ent.getClass()))
                 .findAny()
                 .isPresent();
-        if(anyRelevantChange) {
+        if (anyRelevantChange) {
             return refreshView();
         } else {
             return Completable.complete();
@@ -113,7 +115,7 @@ public abstract class ReloadablePresenter<Q, T extends MainView<Q>> extends Main
     }
 
     public void reload() {
-        if(reloading || view == null) {
+        if (reloading || view == null) {
             return;
         }
         reloading = true;
@@ -123,14 +125,15 @@ public abstract class ReloadablePresenter<Q, T extends MainView<Q>> extends Main
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
-                    if(view != null) view.setRefreshing(false);
+                    if (view != null) view.setRefreshing(false);
                     reloading = false;
                     mainActivity.updateMenu();
                 })
                 .isEmpty()
                 .filter(empty -> !empty)
                 .flatMapCompletable(e -> refreshView())
-                .subscribe(() -> {}, errorHandler);
+                .subscribe(() -> {
+                }, errorHandler);
     }
 
     public boolean isReloading() {

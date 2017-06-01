@@ -11,7 +11,6 @@ import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
 import pl.librus.client.data.LastUpdate;
 import pl.librus.client.data.db.DatabaseManager;
-import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.SettingsFragment;
 import pl.librus.client.ui.SettingsView;
 
@@ -56,6 +55,6 @@ public class SettingsPresenter extends FragmentPresenter<SettingsView> {
 
     public void refreshAll() {
         database.clearAll(LastUpdate.class)
-            .blockingAwait();
+                .blockingAwait();
     }
 }

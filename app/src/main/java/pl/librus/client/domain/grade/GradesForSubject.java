@@ -18,7 +18,7 @@ public interface GradesForSubject {
     @Value.Parameter
     List<EnrichedGrade> grades();
 
-    public static GradesForSubject fromMapEntry(Map.Entry<FullSubject, List<EnrichedGrade>> entry){
+    public static GradesForSubject fromMapEntry(Map.Entry<FullSubject, List<EnrichedGrade>> entry) {
         return ImmutableGradesForSubject.of(entry.getKey(), entry.getValue());
     }
 }

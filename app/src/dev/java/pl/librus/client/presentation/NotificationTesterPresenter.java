@@ -1,6 +1,5 @@
 package pl.librus.client.presentation;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 
 import java.util.List;
@@ -17,7 +16,6 @@ import pl.librus.client.domain.grade.Grade;
 import pl.librus.client.notification.NotificationService;
 import pl.librus.client.ui.NotificationTesterFragment;
 import pl.librus.client.ui.NotificationTesterView;
-import pl.librus.client.widget.LuckyNumberWidgetProvider;
 import pl.librus.client.widget.WidgetUpdater;
 
 /**

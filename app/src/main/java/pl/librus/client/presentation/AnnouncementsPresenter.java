@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import java.util.List;
@@ -12,10 +11,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import pl.librus.client.MainActivityScope;
 import pl.librus.client.R;
 import pl.librus.client.data.LibrusData;
@@ -24,7 +20,6 @@ import pl.librus.client.domain.Identifiable;
 import pl.librus.client.domain.Teacher;
 import pl.librus.client.domain.announcement.Announcement;
 import pl.librus.client.domain.announcement.FullAnnouncement;
-import pl.librus.client.ui.MainActivity;
 import pl.librus.client.ui.MainActivityOps;
 import pl.librus.client.ui.MenuAction;
 import pl.librus.client.ui.ReadAllMenuAction;

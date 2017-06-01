@@ -1,8 +1,5 @@
 package pl.librus.client.data.server;
 
-import android.support.annotation.StringRes;
-
-import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -15,7 +12,6 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 public class EntityParser {
@@ -33,9 +29,9 @@ public class EntityParser {
             input = input.replace("\\\\\\", "\\");
             root = mapper.readTree(input);
             List<String> fieldNames = Lists.newArrayList(root.fieldNames());
-            if(containsStandardFields(fieldNames)){
+            if (containsStandardFields(fieldNames)) {
                 JsonNode firstField = root.get(fieldNames.get(0));
-                if(firstField.isTextual() && firstField.textValue().equals("Disabled")){
+                if (firstField.isTextual() && firstField.textValue().equals("Disabled")) {
                     return Optional.absent();
                 }
                 T value = mapper.treeToValue(firstField, clazz);

@@ -10,7 +10,6 @@ import org.joda.time.LocalDate;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractExpandableHeaderItem;

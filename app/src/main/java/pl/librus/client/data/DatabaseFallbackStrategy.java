@@ -44,7 +44,7 @@ public class DatabaseFallbackStrategy implements DataLoadStrategy {
 
     private <T> Function<Throwable, Single<T>> ifOffline(Single<T> fallback) {
         return throwable -> {
-            if(throwable instanceof HttpException) {
+            if (throwable instanceof HttpException) {
                 return fallback;
             } else {
                 return Single.error(throwable);
@@ -54,7 +54,7 @@ public class DatabaseFallbackStrategy implements DataLoadStrategy {
 
     private <T> Function<Throwable, Observable<T>> ifOffline(Observable<T> fallback) {
         return throwable -> {
-            if(throwable instanceof HttpException) {
+            if (throwable instanceof HttpException) {
                 return fallback;
             } else {
                 return Observable.error(throwable);

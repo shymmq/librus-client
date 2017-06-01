@@ -22,7 +22,7 @@ public abstract class MainFragment extends Fragment {
     public void onStart() {
         Optional<MainActivityComponent> mainActivityComponent =
                 MainApplication.getMainActivityComponent();
-        if(mainActivityComponent.isPresent()) {
+        if (mainActivityComponent.isPresent()) {
             injectPresenter(mainActivityComponent.get());
         }
         super.onStart();
