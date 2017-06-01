@@ -43,6 +43,6 @@ public class ServerFallbackStrategy implements DataLoadStrategy {
     @Override
     public <T extends Persistable & Identifiable> Single<T> getById(Class<T> clazz, String id) {
         return databaseStrategy.getById(clazz, id)
-                .onErrorResumeNext(serverStrategy.getById(clazz, id));
+                .onErrorResumeNext(t -> serverStrategy.getById(clazz, id));
     }
 }
