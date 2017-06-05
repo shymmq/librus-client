@@ -172,7 +172,14 @@ abstract class DefaultAPIClient implements IAPIClient {
 
     public <T extends Persistable> Observable<T> getAll(Class<T> clazz) {
         EntityInfo info = EntityInfos.infoFor(clazz);
-        return getAll(info.endpoint(), clazz);
+        return getAll(info.endpoint(), clazz)
+                .onErrorResumeNext(e -> {
+                    if(e instanceof NotActiveException){
+                        return Observable.empty();
+                    } else {
+                        return Observable.error(e);
+                    }
+                });
     }
 
     public <T> Observable<T> getAll(String endpoint, final Class<T> clazz) {

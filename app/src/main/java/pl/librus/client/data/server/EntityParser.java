@@ -63,9 +63,23 @@ public class EntityParser {
                 return true;
             }
         } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return false;
+    }
 
+    public static boolean isNotActive(String message) {
+        ObjectMapper mapper = createMapper();
+        try {
+            JsonNode root = mapper.readTree(message);
+            JsonNode status = root.at("/Code");
+            if (!status.isMissingNode() && status.textValue().endsWith("NotActive")) {
+                return true;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
     }
 
     private static ObjectMapper createMapper() {

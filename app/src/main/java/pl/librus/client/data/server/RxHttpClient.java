@@ -49,7 +49,9 @@ public class RxHttpClient {
     }
 
     private HttpException createException(int code, String message, String url) {
-        if (EntityParser.isMaintenance(message)) {
+        if(EntityParser.isNotActive(message)) {
+            return new NotActiveException();
+        } else if (EntityParser.isMaintenance(message)) {
             return new MaintenanceException(url);
         } else if (message.equals("Server offline")) {
             return new OfflineException(url);

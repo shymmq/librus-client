@@ -376,12 +376,12 @@ public class EntityParserTest {
     }
 
     @Test
-    public void shouldNotFailOnNotActive() {
+    public void shouldDiscoverNotActive() {
         //when
-        List<LuckyNumber> res = parse("NotActive.json", LuckyNumber.class);
+        boolean notActive = EntityParser.isNotActive(readFile("NotActive.json"));
 
         //then
-        assertThat(res, hasSize(0));
+        assertTrue(notActive);
     }
 
     @Test(expected = ParseException.class)
@@ -394,6 +394,8 @@ public class EntityParserTest {
     public void shouldDiscoverMaintenance() {
         //when
         boolean maintenance = EntityParser.isMaintenance(readFile("Maintenance.json"));
+
+        //then
         assertTrue(maintenance);
     }
 
@@ -401,6 +403,8 @@ public class EntityParserTest {
     public void shouldNotDiscoverMaintenance() {
         //when
         boolean maintenance = EntityParser.isMaintenance(readFile("SchoolNotices.json"));
+
+        //then
         assertFalse(maintenance);
     }
 
