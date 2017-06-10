@@ -1,6 +1,7 @@
 package pl.librus.client.presentation;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.google.common.base.Optional;
@@ -161,11 +162,12 @@ public class TimetablePresenter extends ReloadablePresenter<List<SchoolWeek>, Ti
     public void startRefreshTimer() {
         LocalDate today = LocalDate.now();
         subscription = data.findUnit()
-                .map(LibrusUnit::lessonRanges)
+                .map(unit -> Optional.fromNullable(unit.lessonRanges()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .map(ranges -> findCurrentLessonNo(ranges)
                         .transform(ranges::get)
                         .transform(LessonRange::to)
-
                 )
                 .filter(Optional::isPresent)
                 .map(Optional::get)

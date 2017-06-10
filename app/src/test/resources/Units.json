@@ -123,68 +123,7 @@
         },
         "ShowCategoriesShortcuts":false
       },
-      "LessonsRange":[
-        {
-          "From":null,
-          "To":null,
-          "RawFrom":null,
-          "RawTo":null
-        },
-        {
-          "From":"08:00",
-          "To":"08:45",
-          "RawFrom":480,
-          "RawTo":525
-        },
-        {
-          "From":"08:55",
-          "To":"09:40",
-          "RawFrom":535,
-          "RawTo":580
-        },
-        {
-          "From":"09:50",
-          "To":"10:35",
-          "RawFrom":590,
-          "RawTo":635
-        },
-        {
-          "From":"10:45",
-          "To":"11:30",
-          "RawFrom":645,
-          "RawTo":690
-        },
-        {
-          "From":"11:50",
-          "To":"12:35",
-          "RawFrom":710,
-          "RawTo":755
-        },
-        {
-          "From":"12:55",
-          "To":"13:40",
-          "RawFrom":775,
-          "RawTo":820
-        },
-        {
-          "From":"13:50",
-          "To":"14:35",
-          "RawFrom":830,
-          "RawTo":875
-        },
-        {
-          "From":"14:45",
-          "To":"15:30",
-          "RawFrom":885,
-          "RawTo":930
-        },
-        {
-          "From":"15:40",
-          "To":"16:25",
-          "RawFrom":940,
-          "RawTo":985
-        }
-      ]
+      "LessonsRange": null
     }
   ],
   "Resources":{

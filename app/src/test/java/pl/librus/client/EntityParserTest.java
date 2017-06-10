@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 
 import io.requery.Persistable;
@@ -135,6 +136,17 @@ public class EntityParserTest {
                         LessonRange.lessonAt(14, 45),
                         LessonRange.lessonAt(15, 40)
                 )
+                .build()));
+    }
+
+    @Test
+    public void shouldHandleEmptyLessonRange() {
+        //when
+        List<LibrusUnit> res = parse("Units.json", LibrusUnit.class);
+
+        //then
+        assertThat(res, hasItem(ImmutableLibrusUnit.builder()
+                .id("2974")
                 .build()));
     }
 

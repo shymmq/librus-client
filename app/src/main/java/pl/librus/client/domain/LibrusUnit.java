@@ -1,5 +1,7 @@
 package pl.librus.client.domain;
 
+import android.support.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -28,5 +30,6 @@ public abstract class LibrusUnit implements Identifiable {
     @JsonProperty("LessonsRange")
     @Convert(LessonRangesConverter.class)
     @Column
+    @Nullable
     public abstract List<LessonRange> lessonRanges();
 }
