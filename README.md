@@ -1,4 +1,9 @@
 # librus-client [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/r6Ugyk2) [![Build Status](https://travis-ci.org/shymmq/librus-client.svg?branch=master)](https://travis-ci.org/shymmq/librus-client)
+
+
+### Ten projekt nie jest już wspierany, [nowa wersja aplikacji jest dostępna](https://github.com/shymmq/librus-client-kotlin).
+
+
 Nieoficjalna aplikacja do systemów Librus i Librus Synergia
 
 
